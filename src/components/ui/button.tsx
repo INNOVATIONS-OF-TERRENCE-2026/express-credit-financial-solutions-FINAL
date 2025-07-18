@@ -18,6 +18,11 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Professional CRM variants
+        gold: "btn-gold shadow-md hover:shadow-gold font-semibold",
+        elegant: "btn-elegant shadow-md hover:shadow-elegant font-semibold", 
+        silver: "btn-silver shadow-sm border border-silver/30",
+        premium: "bg-gradient-elegant text-primary-foreground shadow-elegant hover:shadow-gold transition-all duration-300"
       },
       size: {
         default: "h-10 px-4 py-2",
