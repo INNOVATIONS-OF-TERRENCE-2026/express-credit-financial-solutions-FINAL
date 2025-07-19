@@ -9,26 +9,29 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Users, FileText, Upload, MessageSquare, Settings, Shield } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
 
-export function AdminPanel() {
-  const { user, profile, signOut } = useAuth();
-  const [selectedClient, setSelectedClient] = useState<string>('');
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  membershipTier: 'basic' | 'pro' | 'elite';
+  disputeProgress: number;
+  creditScore: number;
+  joinDate: string;
+  status: 'active' | 'inactive';
+}
 
-  const handleLogout = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast.error('Error signing out');
-    }
-  };
+interface AdminPanelProps {
+  onLogout: () => void;
+}
 
-  if (!profile || profile.role !== 'admin') {
-    return <div>Access denied. Admin role required.</div>;
-  }
+export function AdminPanel({ onLogout }: AdminPanelProps) {
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [newNote, setNewNote] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock client data - will be replaced with real Supabase data
-  const mockClients = [
+  // Mock client data
+  const [clients] = useState<Client[]>([
     {
       id: '1',
       name: 'John Smith',
@@ -36,30 +39,30 @@ export function AdminPanel() {
       membershipTier: 'pro',
       disputeProgress: 75,
       creditScore: 680,
-      status: 'active',
-      joinDate: '2024-01-15'
+      joinDate: '2024-01-15',
+      status: 'active'
     },
     {
       id: '2',
       name: 'Sarah Johnson',
       email: 'sarah@email.com',
-      membershipTier: 'basic',
-      disputeProgress: 45,
-      creditScore: 620,
-      status: 'active',
-      joinDate: '2024-02-20'
+      membershipTier: 'elite',
+      disputeProgress: 90,
+      creditScore: 720,
+      joinDate: '2024-02-01',
+      status: 'active'
     },
     {
       id: '3',
-      name: 'Mike Davis',
+      name: 'Mike Wilson',
       email: 'mike@email.com',
-      membershipTier: 'elite',
-      disputeProgress: 90,
-      creditScore: 750,
-      status: 'active',
-      joinDate: '2024-01-08'
+      membershipTier: 'basic',
+      disputeProgress: 45,
+      creditScore: 620,
+      joinDate: '2024-03-10',
+      status: 'active'
     }
-  ];
+  ]);
 
   const getMembershipBadge = (tier: string) => {
     switch (tier) {
@@ -74,17 +77,20 @@ export function AdminPanel() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'suspended':
-        return <Badge className="bg-red-100 text-red-800">Suspended</Badge>;
-      default:
-        return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
-    }
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleAddNote = () => {
+    // In a real app, this would save to database
+    console.log('Adding note:', newNote, 'for client:', selectedClient?.id);
+    setNewNote('');
+  };
+
+  const handleMembershipChange = (clientId: string, newTier: string) => {
+    // In a real app, this would update the database
+    console.log('Changing membership for client:', clientId, 'to:', newTier);
   };
 
   return (
@@ -97,15 +103,11 @@ export function AdminPanel() {
               <Shield className="h-8 w-8 text-accent" />
               <div>
                 <h1 className="text-2xl font-bold text-primary-foreground">Express Credit & Financial Solutions</h1>
-                <p className="text-primary-foreground/80">Admin Dashboard</p>
+                <p className="text-primary-foreground/80">Admin Panel</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-right text-primary-foreground">
-                <p className="font-medium">Admin Portal</p>
-                <p className="text-sm opacity-80">{user?.email}</p>
-              </div>
-              <Button onClick={handleLogout} variant="silver">
+              <Button onClick={onLogout} variant="silver">
                 Logout
               </Button>
             </div>
@@ -117,47 +119,50 @@ export function AdminPanel() {
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="card-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Clients</p>
-                  <p className="text-2xl font-bold">{mockClients.length}</p>
-                </div>
-                <Users className="h-8 w-8 text-accent" />
-              </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <Users className="h-4 w-4 mr-2 text-accent" />
+                Total Clients
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{clients.length}</div>
             </CardContent>
           </Card>
+          
           <Card className="card-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Disputes</p>
-                  <p className="text-2xl font-bold">24</p>
-                </div>
-                <FileText className="h-8 w-8 text-accent" />
-              </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <FileText className="h-4 w-4 mr-2 text-accent" />
+                Active Disputes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">15</div>
             </CardContent>
           </Card>
+
           <Card className="card-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Avg Credit Score</p>
-                  <p className="text-2xl font-bold">683</p>
-                </div>
-                <Settings className="h-8 w-8 text-accent" />
-              </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <Settings className="h-4 w-4 mr-2 text-accent" />
+                Success Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">87%</div>
             </CardContent>
           </Card>
+
           <Card className="card-elegant">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Success Rate</p>
-                  <p className="text-2xl font-bold">87%</p>
-                </div>
-                <MessageSquare className="h-8 w-8 text-accent" />
-              </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <MessageSquare className="h-4 w-4 mr-2 text-accent" />
+                Avg. Score Increase
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">+45</div>
             </CardContent>
           </Card>
         </div>
@@ -168,49 +173,15 @@ export function AdminPanel() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Client Management</CardTitle>
-                <CardDescription>Manage all clients and their credit repair progress</CardDescription>
+                <CardDescription>Manage your clients, disputes, and memberships</CardDescription>
               </div>
               <div className="flex space-x-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="gold">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Document
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Upload Client Document</DialogTitle>
-                      <DialogDescription>
-                        Upload a document for a specific client
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="client-select">Select Client</Label>
-                        <Select value={selectedClient} onValueChange={setSelectedClient}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose a client" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {mockClients.map((client) => (
-                              <SelectItem key={client.id} value={client.id}>
-                                {client.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="document-upload">Document</Label>
-                        <Input id="document-upload" type="file" />
-                      </div>
-                      <Button className="w-full" variant="gold">
-                        Upload Document
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Input
+                  placeholder="Search clients..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64"
+                />
               </div>
             </div>
           </CardHeader>
@@ -220,76 +191,113 @@ export function AdminPanel() {
                 <TableRow>
                   <TableHead>Client</TableHead>
                   <TableHead>Membership</TableHead>
-                  <TableHead>Progress</TableHead>
                   <TableHead>Credit Score</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Progress</TableHead>
+                  <TableHead>Join Date</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockClients.map((client) => (
+                {filteredClients.map((client) => (
                   <TableRow key={client.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium">{client.name}</p>
-                        <p className="text-sm text-muted-foreground">{client.email}</p>
+                        <div className="font-medium">{client.name}</div>
+                        <div className="text-sm text-muted-foreground">{client.email}</div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {getMembershipBadge(client.membershipTier)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-accent h-2 rounded-full" 
-                            style={{ width: `${client.disputeProgress}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm">{client.disputeProgress}%</span>
-                      </div>
-                    </TableCell>
+                    <TableCell>{getMembershipBadge(client.membershipTier)}</TableCell>
                     <TableCell>{client.creditScore}</TableCell>
-                    <TableCell>
-                      {getStatusBadge(client.status)}
-                    </TableCell>
+                    <TableCell>{client.disputeProgress}%</TableCell>
+                    <TableCell>{new Date(client.joinDate).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <MessageSquare className="h-4 w-4 mr-1" />
-                              Note
+                            <Button 
+                              variant="silver" 
+                              size="sm"
+                              onClick={() => setSelectedClient(client)}
+                            >
+                              Manage
                             </Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent className="max-w-2xl">
                             <DialogHeader>
-                              <DialogTitle>Add Private Note</DialogTitle>
+                              <DialogTitle>Manage Client: {client.name}</DialogTitle>
                               <DialogDescription>
-                                Add a private note for {client.name}
+                                Update client information, membership, and add notes
                               </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4">
-                              <Textarea 
-                                placeholder="Enter your private note here..."
-                                rows={4}
-                              />
-                              <Button className="w-full" variant="gold">
-                                Save Note
-                              </Button>
+                            <div className="grid gap-6 py-4">
+                              {/* Membership Tier Update */}
+                              <div className="space-y-2">
+                                <Label>Membership Tier</Label>
+                                <Select 
+                                  defaultValue={client.membershipTier}
+                                  onValueChange={(value) => handleMembershipChange(client.id, value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="basic">Basic - $49/month</SelectItem>
+                                    <SelectItem value="pro">Pro - $99/month</SelectItem>
+                                    <SelectItem value="elite">Elite - $149/month</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {/* Document Upload */}
+                              <div className="space-y-2">
+                                <Label>Upload Documents</Label>
+                                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                                  <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                  <p className="text-sm text-muted-foreground">
+                                    Click to upload PDFs or documents for this client
+                                  </p>
+                                  <Button variant="silver" size="sm" className="mt-2">
+                                    Choose Files
+                                  </Button>
+                                </div>
+                              </div>
+
+                              {/* Private Notes */}
+                              <div className="space-y-2">
+                                <Label>Add Private Note</Label>
+                                <Textarea
+                                  placeholder="Add a private note about this client..."
+                                  value={newNote}
+                                  onChange={(e) => setNewNote(e.target.value)}
+                                  rows={3}
+                                />
+                                <Button 
+                                  onClick={handleAddNote} 
+                                  variant="gold" 
+                                  size="sm"
+                                  disabled={!newNote.trim()}
+                                >
+                                  Add Note
+                                </Button>
+                              </div>
+
+                              {/* Dispute Progress Update */}
+                              <div className="space-y-2">
+                                <Label>Update Dispute Progress</Label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  defaultValue={client.disputeProgress}
+                                  placeholder="Enter progress percentage"
+                                />
+                                <Button variant="gold" size="sm">
+                                  Update Progress
+                                </Button>
+                              </div>
                             </div>
                           </DialogContent>
                         </Dialog>
-                        <Select defaultValue={client.membershipTier}>
-                          <SelectTrigger className="w-24">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="basic">Basic</SelectItem>
-                            <SelectItem value="pro">Pro</SelectItem>
-                            <SelectItem value="elite">Elite</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
                     </TableCell>
                   </TableRow>

@@ -5,14 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
 
 interface RegisterFormProps {
   onToggleForm: () => void;
+  onRegister: (userData: any) => void;
 }
 
-export function RegisterForm({ onToggleForm }: RegisterFormProps) {
+export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -24,29 +23,14 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      alert('Passwords do not match');
       return;
     }
-    
-    setLoading(true);
-    
-    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-    const { error } = await signUp(formData.email, formData.password, fullName);
-    
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Account created! Please check your email to verify your account.');
-    }
-    
-    setLoading(false);
+    onRegister(formData);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -71,48 +55,62 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
               <Label htmlFor="firstName">First Name</Label>
               <Input
                 id="firstName"
-                placeholder="First name"
+                placeholder="John"
                 value={formData.firstName}
                 onChange={(e) => handleChange('firstName', e.target.value)}
                 required
-                className="bg-background border-border"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
               <Input
                 id="lastName"
-                placeholder="Last name"
+                placeholder="Doe"
                 value={formData.lastName}
                 onChange={(e) => handleChange('lastName', e.target.value)}
                 required
-                className="bg-background border-border"
               />
             </div>
           </div>
+          
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="john@example.com"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               required
-              className="bg-background border-border"
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number</Label>
             <Input
               id="phone"
               type="tel"
-              placeholder="Enter your phone number"
+              placeholder="(555) 123-4567"
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
-              className="bg-background border-border"
+              required
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="membershipTier">Membership Tier</Label>
+            <Select value={formData.membershipTier} onValueChange={(value) => handleChange('membershipTier', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose your plan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="basic">Basic - $49/month</SelectItem>
+                <SelectItem value="pro">Pro - $99/month</SelectItem>
+                <SelectItem value="elite">Elite - $149/month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
@@ -123,7 +121,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
                 required
-                className="bg-background border-border pr-10"
+                className="pr-10"
               />
               <Button
                 type="button"
@@ -132,14 +130,11 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative">
@@ -150,7 +145,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
                 value={formData.confirmPassword}
                 onChange={(e) => handleChange('confirmPassword', e.target.value)}
                 required
-                className="bg-background border-border pr-10"
+                className="pr-10"
               />
               <Button
                 type="button"
@@ -159,23 +154,13 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            variant="gold" 
-            className="w-full" 
-            size="lg"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Create Account'}
+          <Button type="submit" variant="gold" className="w-full" size="lg">
+            Create Account
           </Button>
           
           <div className="text-center">
