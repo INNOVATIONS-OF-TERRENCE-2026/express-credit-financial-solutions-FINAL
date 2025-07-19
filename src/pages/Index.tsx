@@ -6,63 +6,36 @@ import { AdminPanel } from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
 import { Shield, Star, Award, TrendingUp } from 'lucide-react';
 import heroImage from '@/assets/hero-bg.jpg';
-
-type UserRole = 'client' | 'admin' | null;
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [currentUser, setCurrentUser] = useState<UserRole>(null);
   const [showForms, setShowForms] = useState(false);
-
-  // Mock client data
-  const mockClientData = {
-    name: 'John Smith',
-    email: 'john@email.com',
-    membershipTier: 'pro' as const,
-    disputeProgress: 75,
-    totalDisputes: 8,
-    completedDisputes: 6,
-    creditScore: 680,
-    creditScoreChange: 25
-  };
-
-  const handleLogin = (email: string, password: string) => {
-    // Mock authentication logic
-    if (email === 'admin@expresscredit.com') {
-      setCurrentUser('admin');
-    } else {
-      setCurrentUser('client');
-    }
-  };
-
-  const handleRegister = (userData: any) => {
-    // Mock registration logic
-    console.log('Registering user:', userData);
-    setCurrentUser('client');
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setShowForms(false);
-  };
+  const { user, profile, loading } = useAuth();
 
   const handleUploadDocument = () => {
     alert('Document upload functionality would be integrated with backend');
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   // Show appropriate dashboard based on user role
-  if (currentUser === 'client') {
+  if (user && profile?.role === 'client') {
     return (
       <ClientDashboard
-        clientData={mockClientData}
         onUploadDocument={handleUploadDocument}
-        onLogout={handleLogout}
       />
     );
   }
 
-  if (currentUser === 'admin') {
-    return <AdminPanel onLogout={handleLogout} />;
+  if (user && profile?.role === 'admin') {
+    return <AdminPanel />;
   }
 
   // Landing page with login/register forms
@@ -152,12 +125,10 @@ const Index = () => {
                   {isLogin ? (
                     <LoginForm
                       onToggleForm={() => setIsLogin(false)}
-                      onLogin={handleLogin}
                     />
                   ) : (
                     <RegisterForm
                       onToggleForm={() => setIsLogin(true)}
-                      onRegister={handleRegister}
                     />
                   )}
                 </div>
@@ -165,21 +136,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Quick Admin Access */}
-          {showForms && (
-            <div className="text-center mt-8">
-              <p className="text-primary-foreground/60 text-sm mb-2">
-                Admin Access
-              </p>
-              <Button
-                onClick={() => handleLogin('admin@expresscredit.com', 'admin')}
-                variant="link"
-                className="text-accent hover:text-accent/80"
-              >
-                Admin Login (Demo)
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </div>

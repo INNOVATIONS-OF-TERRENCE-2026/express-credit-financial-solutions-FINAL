@@ -5,13 +5,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface RegisterFormProps {
   onToggleForm: () => void;
-  onRegister: (userData: any) => void;
 }
 
-export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
+export function RegisterForm({ onToggleForm }: RegisterFormProps) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -23,14 +24,29 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
-    onRegister(formData);
+    
+    setLoading(true);
+    
+    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+    const { error } = await signUp(formData.email, formData.password, fullName);
+    
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Account created! Please check your email to verify your account.');
+    }
+    
+    setLoading(false);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -55,62 +71,48 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
               <Label htmlFor="firstName">First Name</Label>
               <Input
                 id="firstName"
-                placeholder="John"
+                placeholder="First name"
                 value={formData.firstName}
                 onChange={(e) => handleChange('firstName', e.target.value)}
                 required
+                className="bg-background border-border"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
               <Input
                 id="lastName"
-                placeholder="Doe"
+                placeholder="Last name"
                 value={formData.lastName}
                 onChange={(e) => handleChange('lastName', e.target.value)}
                 required
+                className="bg-background border-border"
               />
             </div>
           </div>
-          
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
-              placeholder="john@example.com"
+              placeholder="Enter your email"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               required
+              className="bg-background border-border"
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number</Label>
             <Input
               id="phone"
               type="tel"
-              placeholder="(555) 123-4567"
+              placeholder="Enter your phone number"
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
-              required
+              className="bg-background border-border"
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="membershipTier">Membership Tier</Label>
-            <Select value={formData.membershipTier} onValueChange={(value) => handleChange('membershipTier', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose your plan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="basic">Basic - $49/month</SelectItem>
-                <SelectItem value="pro">Pro - $99/month</SelectItem>
-                <SelectItem value="elite">Elite - $149/month</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
@@ -121,7 +123,7 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
                 required
-                className="pr-10"
+                className="bg-background border-border pr-10"
               />
               <Button
                 type="button"
@@ -130,11 +132,14 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative">
@@ -145,7 +150,7 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
                 value={formData.confirmPassword}
                 onChange={(e) => handleChange('confirmPassword', e.target.value)}
                 required
-                className="pr-10"
+                className="bg-background border-border pr-10"
               />
               <Button
                 type="button"
@@ -154,13 +159,23 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
 
-          <Button type="submit" variant="gold" className="w-full" size="lg">
-            Create Account
+          <Button 
+            type="submit" 
+            variant="gold" 
+            className="w-full" 
+            size="lg"
+            disabled={loading}
+          >
+            {loading ? 'Creating Account...' : 'Create Account'}
           </Button>
           
           <div className="text-center">

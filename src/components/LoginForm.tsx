@@ -4,20 +4,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, CreditCard } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface LoginFormProps {
   onToggleForm: () => void;
-  onLogin: (email: string, password: string) => void;
 }
 
-export function LoginForm({ onToggleForm, onLogin }: LoginFormProps) {
+export function LoginForm({ onToggleForm }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(email, password);
+    setLoading(true);
+    
+    const { error } = await signIn(email, password);
+    
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Successfully signed in!');
+    }
+    
+    setLoading(false);
   };
 
   return (
@@ -72,8 +85,14 @@ export function LoginForm({ onToggleForm, onLogin }: LoginFormProps) {
               </Button>
             </div>
           </div>
-          <Button type="submit" variant="gold" className="w-full" size="lg">
-            Sign In
+          <Button 
+            type="submit" 
+            variant="gold" 
+            className="w-full" 
+            size="lg"
+            disabled={loading}
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
           <div className="text-center">
             <Button
