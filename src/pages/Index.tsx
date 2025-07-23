@@ -61,7 +61,7 @@ const Index = () => {
         {/* Background Logo */}
         <div className="absolute inset-0 flex items-center justify-center opacity-15">
           <img 
-            src="/lovable-uploads/fb1b0b52-add3-4757-a7f3-02f8d0864bec.png" 
+            src="/lovable-uploads/1643c88e-81d6-4a5e-879a-f9c5f3883b1c.png" 
             alt="Background Logo" 
             className="w-96 h-96 object-contain filter brightness-200 contrast-150 mix-blend-overlay"
           />
