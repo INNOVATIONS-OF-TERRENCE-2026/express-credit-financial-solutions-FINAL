@@ -60,7 +60,11 @@ const Index = () => {
         
         {/* Background Logo */}
         <div className="absolute inset-0 flex items-center justify-center opacity-15">
-          <img src="/lovable-uploads/1643c88e-81d6-4a5e-879a-f9c5f3883b1c.png" alt="Background Logo" className="w-96 h-96 object-contain filter brightness-200 contrast-150 mix-blend-overlay" />
+          <img 
+            src="/lovable-uploads/1643c88e-81d6-4a5e-879a-f9c5f3883b1c.png" 
+            alt="Background Logo" 
+            className="w-96 h-96 object-contain filter brightness-200 contrast-150 mix-blend-overlay"
+          />
         </div>
         
         {/* Terms and Conditions Overlay */}
@@ -75,7 +79,13 @@ const Index = () => {
             {/* Hero Content */}
             <div className="text-center lg:text-left">
               <div className="flex flex-col items-center justify-center lg:items-start lg:justify-start mb-8">
-                
+                <div className="mb-6 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-2xl">
+                  <img 
+                    src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
+                    alt="Express Credit & Financial Solutions" 
+                    className="h-32 w-auto filter drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
                 <div className="text-center lg:text-left">
                   <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 lg:text-5xl">
                     Express Credit & Financial Solutions
@@ -88,12 +98,12 @@ const Index = () => {
 
               {/* Features Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="text-center p-4 backdrop-blur-sm rounded-sm bg-transparent">
+                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h3 className="text-primary-foreground mb-1 font-semibold text-base">FCRA & CFPB Analysis</h3>
                   <p className="text-primary-foreground/80 text-sm">Advanced Credit File Investigations by Certified FCRA Experts: </p>
                 </div>
-                <div className="text-center p-4 rounded-lg backdrop-blur-sm bg-white">
+                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Award className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h3 className="font-semibold text-primary-foreground mb-1">Legal Dispute Precision</h3>
                   <p className="text-sm text-primary-foreground/80">95% success rate using verified methods</p>
