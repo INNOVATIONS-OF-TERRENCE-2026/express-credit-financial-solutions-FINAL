@@ -66,14 +66,16 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Hero Content */}
             <div className="text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start mb-6">
-                <img 
-                  src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
-                  alt="Express Credit & Financial Solutions" 
-                  className="h-16 w-auto mr-4"
-                />
-                <div>
-                  <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 text-left md:text-4xl">
+              <div className="flex flex-col items-center justify-center lg:items-start lg:justify-start mb-8">
+                <div className="mb-6 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-2xl">
+                  <img 
+                    src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
+                    alt="Express Credit & Financial Solutions" 
+                    className="h-32 w-auto filter drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="text-center lg:text-left">
+                  <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 lg:text-5xl">
                     Express Credit & Financial Solutions
                   </h1>
                   <p className="text-xl text-primary-foreground/80">Professional Credit & Financial Solutions Services</p>
