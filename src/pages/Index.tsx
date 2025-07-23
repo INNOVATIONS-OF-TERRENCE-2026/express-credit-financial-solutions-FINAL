@@ -55,12 +55,24 @@ const Index = () => {
   // Landing page with login/register forms
   return <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative min-h-screen flex items-center justify-center" style={{
-      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(${heroImage})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }}>
+      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <div className="absolute inset-0 bg-gradient-elegant opacity-80" />
+        
+        {/* Background Logo */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-10">
+          <img 
+            src="/express-logo-badge.png" 
+            alt="Background Logo" 
+            className="w-96 h-96 object-contain filter brightness-150"
+          />
+        </div>
+        
+        {/* Terms and Conditions Overlay */}
+        <div className="absolute bottom-8 left-8 right-8 text-center">
+          <p className="text-xs text-primary-foreground/60 leading-relaxed max-w-6xl mx-auto">
+            We operate in full compliance with the Credit Repair Organizations Act (CROA), the Fair Credit Reporting Act (FCRA), and applicable state regulations. Express Credit & Financial Solutions provides educational resources and services related to credit repair, credit improvement strategies, and financial wellness. Results are not guaranteed and may vary based on individual credit profiles, creditor responses, and compliance with recommended actions. You understand and agree that improving your credit requires your active participation. This may include providing accurate information, forwarding correspondence from credit bureaus, and maintaining good financial habits. We do not assume liability for errors or omissions in the information you provide. All information you submit through this website is subject to our Privacy Policy. We do not sell, trade, or rent your personal data. By submitting your information, you authorize Express Credit & Financial Solutions to contact you via phone, SMS, or email regarding our services.
+          </p>
+        </div>
         
         <div className="relative z-10 container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
