@@ -7,7 +7,7 @@ import { Upload, FileText, TrendingUp, Shield, Star } from 'lucide-react';
 interface ClientData {
   name: string;
   email: string;
-  membershipTier: 'basic' | 'pro' | 'elite';
+  membershipTier: 'setup' | 'monthly' | 'monitoring';
   disputeProgress: number;
   totalDisputes: number;
   completedDisputes: number;
@@ -24,27 +24,27 @@ interface ClientDashboardProps {
 export function ClientDashboard({ clientData, onUploadDocument, onLogout }: ClientDashboardProps) {
   const getMembershipBadge = (tier: string) => {
     switch (tier) {
-      case 'basic':
-        return <Badge className="status-basic">Basic Plan</Badge>;
-      case 'pro':
-        return <Badge className="status-pro">Pro Plan</Badge>;
-      case 'elite':
-        return <Badge className="status-elite">Elite Plan</Badge>;
+      case 'setup':
+        return <Badge className="status-basic">Setup Fee</Badge>;
+      case 'monthly':
+        return <Badge className="status-pro">Monthly Service</Badge>;
+      case 'monitoring':
+        return <Badge className="status-elite">Credit Monitoring</Badge>;
       default:
-        return <Badge className="status-basic">Basic Plan</Badge>;
+        return <Badge className="status-basic">Setup Fee</Badge>;
     }
   };
 
   const getMembershipFeatures = (tier: string) => {
     switch (tier) {
-      case 'basic':
-        return ['Basic credit analysis', 'Monthly credit reports', 'Email support'];
-      case 'pro':
-        return ['Advanced credit analysis', 'Weekly credit reports', 'Priority support', 'Dispute tracking'];
-      case 'elite':
-        return ['Premium credit analysis', 'Daily credit monitoring', '24/7 phone support', 'Personal credit advisor', 'Guaranteed results'];
+      case 'setup':
+        return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis', 'Dispute strategy development'];
+      case 'monthly':
+        return ['Monthly service subscription - $99/month', 'Ongoing dispute management', 'Credit report analysis', 'Progress tracking', 'Expert consultation'];
+      case 'monitoring':
+        return ['Credit monitoring via Smart‑Credit - $29/month', 'Real-time credit alerts', 'Score tracking', 'Identity monitoring', 'Monthly reports'];
       default:
-        return ['Basic credit analysis', 'Monthly credit reports', 'Email support'];
+        return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis', 'Dispute strategy development'];
     }
   };
 
@@ -55,7 +55,11 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Shield className="h-8 w-8 text-accent" />
+              <img 
+                src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
+                alt="Express Credit & Financial Solutions" 
+                className="h-12 w-auto"
+              />
               <div>
                 <h1 className="text-2xl font-bold text-primary-foreground">Express Credit & Financial Solutions</h1>
                 <p className="text-primary-foreground/80">Client Portal</p>

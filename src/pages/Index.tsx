@@ -16,7 +16,7 @@ const Index = () => {
   const mockClientData = {
     name: 'John Smith',
     email: 'john@email.com',
-    membershipTier: 'pro' as const,
+    membershipTier: 'monthly' as const,
     disputeProgress: 75,
     totalDisputes: 8,
     completedDisputes: 6,
@@ -67,7 +67,11 @@ const Index = () => {
             {/* Hero Content */}
             <div className="text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start mb-6">
-                <Shield className="h-12 w-12 text-accent mr-4" />
+                <img 
+                  src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
+                  alt="Express Credit & Financial Solutions" 
+                  className="h-16 w-auto mr-4"
+                />
                 <div>
                   <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 text-left md:text-4xl">
                     Express Credit & Financial Solutions

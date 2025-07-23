@@ -19,7 +19,7 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
     phone: '',
     password: '',
     confirmPassword: '',
-    membershipTier: 'basic'
+    membershipTier: 'setup'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -104,9 +104,9 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
                 <SelectValue placeholder="Choose your plan" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="basic">Basic - $49/month</SelectItem>
-                <SelectItem value="pro">Pro - $99/month</SelectItem>
-                <SelectItem value="elite">Elite - $149/month</SelectItem>
+                <SelectItem value="setup">Setup fee (one-time) - $350</SelectItem>
+                <SelectItem value="monthly">Monthly service subscription - $99/month</SelectItem>
+                <SelectItem value="monitoring">Credit monitoring (via Smart‑Credit) - $29/month</SelectItem>
               </SelectContent>
             </Select>
           </div>
