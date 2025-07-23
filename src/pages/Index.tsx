@@ -83,19 +83,7 @@ const Index = () => {
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h3 className="text-primary-foreground mb-1 font-semibold text-base">FCRA & CFPB Analysis</h3>
-                  <p className="text-primary-foreground/80 text-sm">Advanced Credit File Investigations by Certified FCRA Experts:
-
-We specialize in uncovering violations under the Fair Credit Reporting Act (FCRA) and Consumer Financial Protection Bureau (CFPB) regulations. Our analysis ensures your credit report is legally compliant and dispute-ready.
-
-✅ Includes:
-
-Re-aging violation checks
-
-Inaccurate furnishers & data discrepancies
-
-Debt validation requests under FDCPA
-
-Unlawful reporting past statute limits</p>
+                  <p className="text-primary-foreground/80 text-sm">Advanced Credit File Investigations by Certified FCRA Experts: </p>
                 </div>
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Award className="h-8 w-8 text-accent mx-auto mb-2" />
