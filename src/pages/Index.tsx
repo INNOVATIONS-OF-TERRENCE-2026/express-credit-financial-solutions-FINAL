@@ -69,7 +69,7 @@ const Index = () => {
               <div className="flex items-center justify-center lg:justify-start mb-6">
                 <Shield className="h-12 w-12 text-accent mr-4" />
                 <div>
-                  <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-2">
+                  <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 text-left md:text-4xl">
                     Express Credit & Financial Solutions
                   </h1>
                   <p className="text-xl text-primary-foreground/80">Professional Credit & Financial Solutions Services</p>
@@ -104,9 +104,7 @@ const Index = () => {
                   <Button onClick={() => {
                 setShowForms(true);
                 setIsLogin(true);
-              }} variant="silver" size="lg" className="text-lg px-8 py-3">
-                    Client Login
-                  </Button>
+              }} variant="silver" size="lg" className="text-lg px-8 py-3">Client Login Portal</Button>
                 </div>}
             </div>
 
