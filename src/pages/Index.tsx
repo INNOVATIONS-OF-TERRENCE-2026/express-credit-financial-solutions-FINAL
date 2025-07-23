@@ -59,11 +59,11 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-elegant opacity-80" />
         
         {/* Background Logo */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-10">
+        <div className="absolute inset-0 flex items-center justify-center opacity-15">
           <img 
             src="/lovable-uploads/fb1b0b52-add3-4757-a7f3-02f8d0864bec.png" 
             alt="Background Logo" 
-            className="w-96 h-96 object-contain filter brightness-150"
+            className="w-96 h-96 object-contain filter brightness-200 contrast-150 mix-blend-overlay"
           />
         </div>
         
