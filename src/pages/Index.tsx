@@ -79,7 +79,7 @@ const Index = () => {
           <div className="space-y-6">
             {/* Welcome Section */}
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-primary-foreground mb-2">
+              <h1 className="font-bold text-primary-foreground mb-2 text-3xl">
                 Welcome to Express Credit & Financial Solutions
               </h1>
               <p className="text-primary-foreground/80">
@@ -241,11 +241,7 @@ const Index = () => {
       </div>
       
       {/* Content Modal */}
-      <ContentModal 
-        isOpen={modalContent !== null} 
-        onClose={() => setModalContent(null)} 
-        content={modalContent || 'fcra'} 
-      />
+      <ContentModal isOpen={modalContent !== null} onClose={() => setModalContent(null)} content={modalContent || 'fcra'} />
       
       {/* Terms and Conditions */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12">
