@@ -4,9 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, Plus } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 interface DisputeLetter {
@@ -23,7 +27,16 @@ export function DisputeCenter() {
   const [disputes, setDisputes] = useState<DisputeLetter[]>([]);
   const [loading, setLoading] = useState(true);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [creating, setCreating] = useState(false);
   const { toast } = useToast();
+
+  const [newDispute, setNewDispute] = useState({
+    creditor_name: '',
+    account_number: '',
+    issue_type: '',
+    additional_notes: ''
+  });
 
   useEffect(() => {
     fetchDisputes();
@@ -79,6 +92,52 @@ export function DisputeCenter() {
       });
     } finally {
       setGeneratingId(null);
+    }
+  };
+
+  const createDispute = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Please log in to create disputes');
+
+      const { error } = await supabase
+        .from('dispute_letters')
+        .insert({
+          user_id: user.id,
+          creditor_name: newDispute.creditor_name,
+          account_number: newDispute.account_number,
+          issue_type: newDispute.issue_type,
+          additional_notes: newDispute.additional_notes || null,
+          generated_letter: null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Dispute created successfully!",
+      });
+
+      setNewDispute({
+        creditor_name: '',
+        account_number: '',
+        issue_type: '',
+        additional_notes: ''
+      });
+      setShowForm(false);
+      await fetchDisputes();
+    } catch (error) {
+      console.error('Error creating dispute:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create dispute",
+        variant: "destructive",
+      });
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -142,13 +201,90 @@ export function DisputeCenter() {
       <NavigationHeader />
       <div className="container mx-auto p-6">
         <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Dispute Center</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your credit disputes and generate FCRA-compliant letters
-        </p>
-      </div>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Dispute Center</h1>
+              <p className="text-muted-foreground mt-2">
+                Manage your credit disputes and generate FCRA-compliant letters
+              </p>
+            </div>
+            <Button 
+              onClick={() => setShowForm(!showForm)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              {showForm ? 'Cancel' : 'Create New Dispute'}
+            </Button>
+          </div>
+        </div>
 
-      <Card>
+        {showForm && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Create New Dispute</CardTitle>
+              <CardDescription>
+                Enter the details for your credit dispute
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={createDispute} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="creditor_name">Creditor Name *</Label>
+                    <Input
+                      id="creditor_name"
+                      value={newDispute.creditor_name}
+                      onChange={(e) => setNewDispute(prev => ({...prev, creditor_name: e.target.value}))}
+                      placeholder="e.g., Capital One"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="account_number">Account Number *</Label>
+                    <Input
+                      id="account_number"
+                      value={newDispute.account_number}
+                      onChange={(e) => setNewDispute(prev => ({...prev, account_number: e.target.value}))}
+                      placeholder="Last 4 digits or full number"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="issue_type">Issue Type *</Label>
+                  <Select value={newDispute.issue_type} onValueChange={(value) => setNewDispute(prev => ({...prev, issue_type: value}))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select the type of issue" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Not Mine">Not Mine - Account does not belong to me</SelectItem>
+                      <SelectItem value="Paid in Full">Paid in Full - Account was already paid</SelectItem>
+                      <SelectItem value="Incorrect Amount">Incorrect Amount - Wrong balance or payment</SelectItem>
+                      <SelectItem value="Outdated">Outdated - Should have fallen off credit report</SelectItem>
+                      <SelectItem value="Duplicate">Duplicate - Multiple entries for same account</SelectItem>
+                      <SelectItem value="Other">Other - Custom issue</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="additional_notes">Additional Notes</Label>
+                  <Textarea
+                    id="additional_notes"
+                    value={newDispute.additional_notes}
+                    onChange={(e) => setNewDispute(prev => ({...prev, additional_notes: e.target.value}))}
+                    placeholder="Any additional details about this dispute..."
+                    rows={3}
+                  />
+                </div>
+                <Button type="submit" disabled={creating} className="w-full">
+                  {creating ? 'Creating...' : 'Create Dispute'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
