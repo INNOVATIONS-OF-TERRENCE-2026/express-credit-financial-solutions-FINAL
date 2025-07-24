@@ -11,12 +11,14 @@ import { Shield, Star, Award, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
   const { user, loading, signIn, signUp } = useAuth();
   const { planType, paymentStatus, hasAccess } = useMembership();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleLogin = async (email: string, password: string) => {
     const { error } = await signIn(email, password);
@@ -97,7 +99,7 @@ const Index = () => {
                       )}
                     </div>
                   </div>
-                  <Button variant="outline" onClick={() => window.location.href = '/membership'}>
+                  <Button variant="outline" onClick={() => navigate('/membership')}>
                     Manage Membership
                   </Button>
                 </div>
@@ -106,7 +108,10 @@ const Index = () => {
 
             {/* Quick Access Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
+              <Card 
+                className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                onClick={() => hasAccess('dashboard') && navigate('/')}
+              >
                 <CardHeader className="text-center">
                   <Star className="h-8 w-8 text-primary mx-auto mb-2" />
                   <CardTitle className="text-lg">Dashboard</CardTitle>
@@ -114,8 +119,11 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              <Card className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
-                <CardHeader className="text-center" onClick={() => hasAccess('dispute-generator') && (window.location.href = '/dispute-center')}>
+              <Card 
+                className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                onClick={() => hasAccess('dispute-generator') && navigate('/dispute-center')}
+              >
+                <CardHeader className="text-center">
                   <Award className="h-8 w-8 text-primary mx-auto mb-2" />
                   <CardTitle className="text-lg">Dispute Center</CardTitle>
                   <CardDescription>Generate dispute letters</CardDescription>
@@ -125,8 +133,11 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              <Card className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
-                <CardHeader className="text-center" onClick={() => hasAccess('credit-upload') && (window.location.href = '/documents')}>
+              <Card 
+                className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                onClick={() => hasAccess('credit-upload') && navigate('/documents')}
+              >
+                <CardHeader className="text-center">
                   <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
                   <CardTitle className="text-lg">Upload Documents</CardTitle>
                   <CardDescription>Upload credit reports</CardDescription>
@@ -136,11 +147,17 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              <Card className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
+              <Card 
+                className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                onClick={() => hasAccess('education') && navigate('/education')}
+              >
                 <CardHeader className="text-center">
                   <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
                   <CardTitle className="text-lg">Education</CardTitle>
                   <CardDescription>Learn credit strategies</CardDescription>
+                  {!hasAccess('education') && (
+                    <Badge variant="outline" className="mt-2">Basic+ Required</Badge>
+                  )}
                 </CardHeader>
               </Card>
             </div>

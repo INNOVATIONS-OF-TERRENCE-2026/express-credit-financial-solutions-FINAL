@@ -113,7 +113,7 @@ export function NavigationHeader() {
             </div>
             <Button variant="outline" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline ml-2">Sign Out</span>
+              <span className="ml-2">Sign Out</span>
             </Button>
           </div>
         </div>
