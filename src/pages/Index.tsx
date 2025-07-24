@@ -15,50 +15,59 @@ import { useNavigate } from 'react-router-dom';
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
-  const { user, loading, signIn, signUp } = useAuth();
-  const { planType, paymentStatus, hasAccess } = useMembership();
-  const { toast } = useToast();
+  const {
+    user,
+    loading,
+    signIn,
+    signUp
+  } = useAuth();
+  const {
+    planType,
+    paymentStatus,
+    hasAccess
+  } = useMembership();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   const handleLogin = async (email: string, password: string) => {
-    const { error } = await signIn(email, password);
+    const {
+      error
+    } = await signIn(email, password);
     if (error) {
       toast({
         title: "Login Failed",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleRegister = async (userData: any) => {
-    const { error } = await signUp(userData.email, userData.password);
+    const {
+      error
+    } = await signUp(userData.email, userData.password);
     if (error) {
       toast({
         title: "Registration Failed",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } else {
       toast({
         title: "Registration Successful",
-        description: "Please check your email to verify your account.",
+        description: "Please check your email to verify your account."
       });
     }
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+    return <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+      </div>;
   }
 
   // Show dashboard for authenticated users
   if (user) {
-    return (
-      <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    return <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <div className="absolute inset-0 bg-gradient-elegant opacity-80" />
         <NavigationHeader />
         <main className="relative z-10 container mx-auto px-4 py-8">
@@ -86,18 +95,10 @@ const Index = () => {
                   <div>
                     <p className="text-sm text-primary-foreground/60">Current Plan</p>
                     <div className="flex items-center gap-2">
-                      {planType ? (
-                        <Badge variant={paymentStatus === 'active' ? 'default' : 'secondary'}>
+                      {planType ? <Badge variant={paymentStatus === 'active' ? 'default' : 'secondary'}>
                           {planType}
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline">No Plan</Badge>
-                      )}
-                      {paymentStatus === 'active' ? (
-                        <Badge variant="default">Active</Badge>
-                      ) : (
-                        <Badge variant="destructive">Inactive</Badge>
-                      )}
+                        </Badge> : <Badge variant="outline">No Plan</Badge>}
+                      {paymentStatus === 'active' ? <Badge variant="default">Active</Badge> : <Badge variant="destructive">Inactive</Badge>}
                     </div>
                   </div>
                   <Button variant="outline" onClick={() => navigate('/membership')} className="bg-white/10 text-primary-foreground border-white/20 hover:bg-white/20">
@@ -109,10 +110,7 @@ const Index = () => {
 
             {/* Quick Access Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card 
-                className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
-                onClick={() => hasAccess('dashboard') && navigate('/')}
-              >
+              <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dashboard') && navigate('/')}>
                 <CardHeader className="text-center">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dashboard</CardTitle>
@@ -120,52 +118,36 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              <Card 
-                className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
-                onClick={() => hasAccess('dispute-generator') && navigate('/dispute-center')}
-              >
+              <Card className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dispute-generator') && navigate('/dispute-center')}>
                 <CardHeader className="text-center">
                   <Award className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dispute Center</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Generate dispute letters</CardDescription>
-                  {!hasAccess('dispute-generator') && (
-                    <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>
-                  )}
+                  {!hasAccess('dispute-generator') && <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>}
                 </CardHeader>
               </Card>
 
-              <Card 
-                className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
-                onClick={() => hasAccess('credit-upload') && navigate('/documents')}
-              >
+              <Card className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('credit-upload') && navigate('/documents')}>
                 <CardHeader className="text-center">
                   <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Upload Documents</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Upload credit reports</CardDescription>
-                  {!hasAccess('credit-upload') && (
-                    <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>
-                  )}
+                  {!hasAccess('credit-upload') && <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>}
                 </CardHeader>
               </Card>
 
-              <Card 
-                className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
-                onClick={() => hasAccess('education') && navigate('/education')}
-              >
+              <Card className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('education') && navigate('/education')}>
                 <CardHeader className="text-center">
                   <Shield className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Education</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Learn credit strategies</CardDescription>
-                  {!hasAccess('education') && (
-                    <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Basic+ Required</Badge>
-                  )}
+                  {!hasAccess('education') && <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Basic+ Required</Badge>}
                 </CardHeader>
               </Card>
             </div>
           </div>
         </main>
-      </div>
-    );
+      </div>;
   }
 
   // Landing page with login/register forms
@@ -176,11 +158,7 @@ const Index = () => {
         
         {/* Background Logo */}
         <div className="absolute inset-0 flex items-center justify-center opacity-15">
-          <img 
-            src="/lovable-uploads/1643c88e-81d6-4a5e-879a-f9c5f3883b1c.png" 
-            alt="Background Logo" 
-            className="w-96 h-96 object-contain filter brightness-200 contrast-150 mix-blend-overlay"
-          />
+          <img src="/lovable-uploads/1643c88e-81d6-4a5e-879a-f9c5f3883b1c.png" alt="Background Logo" className="w-96 h-96 object-contain filter brightness-200 contrast-150 mix-blend-overlay" />
         </div>
         
         
@@ -189,13 +167,7 @@ const Index = () => {
             {/* Hero Content */}
             <div className="text-center">
               <div className="flex flex-col items-center justify-center mb-8">
-                <div className="mb-6 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-2xl">
-                  <img 
-                    src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
-                    alt="Express Credit & Financial Solutions" 
-                    className="h-32 w-auto filter drop-shadow-2xl hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
+                
             <div className="text-center">
                   <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 lg:text-5xl">
                     Express Credit & Financial Solutions
