@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { Download, FileText, Plus } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { useAuditLog } from '@/hooks/useAuditLog';
+import { sanitizeInput, sanitizeAccountNumber, sanitizeDisputeContent, validateDisputeFormData } from '@/utils/inputValidation';
 
 interface DisputeLetter {
   id: string;
@@ -29,7 +31,9 @@ export function DisputeCenter() {
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const { logDisputeLetterGeneration } = useAuditLog();
 
   const [newDispute, setNewDispute] = useState({
     creditor_name: '',
@@ -79,6 +83,12 @@ export function DisputeCenter() {
       // Refresh disputes to show the generated letter
       await fetchDisputes();
       
+      // Log the letter generation
+      const dispute = disputes.find(d => d.id === disputeId);
+      if (dispute) {
+        await logDisputeLetterGeneration(disputeId, dispute.creditor_name);
+      }
+      
       toast({
         title: "Success",
         description: "Dispute letter generated successfully",
@@ -95,24 +105,59 @@ export function DisputeCenter() {
     }
   };
 
+  const validateDisputeForm = (): boolean => {
+    const validation = validateDisputeFormData({
+      creditorName: newDispute.creditor_name,
+      accountNumber: newDispute.account_number,
+      issueType: newDispute.issue_type,
+      additionalNotes: newDispute.additional_notes
+    });
+
+    if (!validation.isValid) {
+      const errors: Record<string, string> = {};
+      validation.errors.forEach(error => {
+        if (error.includes('Creditor name')) errors.creditor_name = error;
+        if (error.includes('Account number')) errors.account_number = error;
+        if (error.includes('Issue type')) errors.issue_type = error;
+        if (error.includes('Additional notes')) errors.additional_notes = error;
+      });
+      setValidationErrors(errors);
+    }
+
+    return validation.isValid;
+  };
+
   const createDispute = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateDisputeForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please correct the errors in the form",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setCreating(true);
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Please log in to create disputes');
 
+      // Sanitize inputs before storing
+      const sanitizedDispute = {
+        user_id: user.id,
+        creditor_name: sanitizeInput(newDispute.creditor_name),
+        account_number: sanitizeAccountNumber(newDispute.account_number),
+        issue_type: sanitizeInput(newDispute.issue_type),
+        additional_notes: newDispute.additional_notes ? sanitizeDisputeContent(newDispute.additional_notes) : null,
+        generated_letter: null
+      };
+
       const { error } = await supabase
         .from('dispute_letters')
-        .insert({
-          user_id: user.id,
-          creditor_name: newDispute.creditor_name,
-          account_number: newDispute.account_number,
-          issue_type: newDispute.issue_type,
-          additional_notes: newDispute.additional_notes || null,
-          generated_letter: null
-        });
+        .insert(sanitizedDispute);
 
       if (error) throw error;
 
@@ -127,6 +172,7 @@ export function DisputeCenter() {
         issue_type: '',
         additional_notes: ''
       });
+      setValidationErrors({});
       setShowForm(false);
       await fetchDisputes();
     } catch (error) {
@@ -234,26 +280,50 @@ export function DisputeCenter() {
                     <Input
                       id="creditor_name"
                       value={newDispute.creditor_name}
-                      onChange={(e) => setNewDispute(prev => ({...prev, creditor_name: e.target.value}))}
+                      onChange={(e) => {
+                        setNewDispute(prev => ({...prev, creditor_name: e.target.value}));
+                        if (validationErrors.creditor_name) {
+                          setValidationErrors(prev => ({...prev, creditor_name: ''}));
+                        }
+                      }}
                       placeholder="e.g., Capital One"
+                      className={validationErrors.creditor_name ? 'border-red-500' : ''}
                       required
                     />
+                    {validationErrors.creditor_name && (
+                      <p className="text-sm text-red-500">{validationErrors.creditor_name}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="account_number">Account Number *</Label>
                     <Input
                       id="account_number"
                       value={newDispute.account_number}
-                      onChange={(e) => setNewDispute(prev => ({...prev, account_number: e.target.value}))}
+                      onChange={(e) => {
+                        setNewDispute(prev => ({...prev, account_number: e.target.value}));
+                        if (validationErrors.account_number) {
+                          setValidationErrors(prev => ({...prev, account_number: ''}));
+                        }
+                      }}
                       placeholder="Last 4 digits or full number"
+                      className={validationErrors.account_number ? 'border-red-500' : ''}
+                      maxLength={20}
                       required
                     />
+                    {validationErrors.account_number && (
+                      <p className="text-sm text-red-500">{validationErrors.account_number}</p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="issue_type">Issue Type *</Label>
-                  <Select value={newDispute.issue_type} onValueChange={(value) => setNewDispute(prev => ({...prev, issue_type: value}))}>
-                    <SelectTrigger>
+                  <Select value={newDispute.issue_type} onValueChange={(value) => {
+                    setNewDispute(prev => ({...prev, issue_type: value}));
+                    if (validationErrors.issue_type) {
+                      setValidationErrors(prev => ({...prev, issue_type: ''}));
+                    }
+                  }}>
+                    <SelectTrigger className={validationErrors.issue_type ? 'border-red-500' : ''}>
                       <SelectValue placeholder="Select the type of issue" />
                     </SelectTrigger>
                     <SelectContent>
@@ -265,16 +335,32 @@ export function DisputeCenter() {
                       <SelectItem value="Other">Other - Custom issue</SelectItem>
                     </SelectContent>
                   </Select>
+                  {validationErrors.issue_type && (
+                    <p className="text-sm text-red-500">{validationErrors.issue_type}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="additional_notes">Additional Notes</Label>
                   <Textarea
                     id="additional_notes"
                     value={newDispute.additional_notes}
-                    onChange={(e) => setNewDispute(prev => ({...prev, additional_notes: e.target.value}))}
+                    onChange={(e) => {
+                      setNewDispute(prev => ({...prev, additional_notes: e.target.value}));
+                      if (validationErrors.additional_notes) {
+                        setValidationErrors(prev => ({...prev, additional_notes: ''}));
+                      }
+                    }}
                     placeholder="Any additional details about this dispute..."
+                    className={validationErrors.additional_notes ? 'border-red-500' : ''}
                     rows={3}
+                    maxLength={1000}
                   />
+                  {validationErrors.additional_notes && (
+                    <p className="text-sm text-red-500">{validationErrors.additional_notes}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {newDispute.additional_notes.length}/1000 characters
+                  </p>
                 </div>
                 <Button type="submit" disabled={creating} className="w-full">
                   {creating ? 'Creating...' : 'Create Dispute'}

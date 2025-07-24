@@ -6,6 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, User, FileText, Home } from 'lucide-react';
+import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
+import { useAuditLog } from '@/hooks/useAuditLog';
+import { sanitizeInput, validateEmail, validatePhone, validateSSN, validateName } from '@/utils/inputValidation';
+import { encryptSSN } from '@/utils/ssnEncryption';
 
 interface ClientFormData {
   fullName: string;
@@ -37,13 +41,33 @@ export function ClientOnboarding() {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const { validateFile, sanitizeFileName } = useFileUploadSecurity();
+  const { logFileUpload } = useAuditLog();
 
   const handleInputChange = (field: keyof ClientFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    const sanitizedValue = sanitizeInput(value);
+    setFormData(prev => ({ ...prev, [field]: sanitizedValue }));
+    
+    // Clear validation error when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const handleFileChange = (field: keyof UploadedFiles, file: File | null) => {
+    if (file) {
+      const validation = validateFile(file);
+      if (!validation.isValid) {
+        toast({
+          title: "File Validation Error",
+          description: validation.error,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     setUploadedFiles(prev => ({ ...prev, [field]: file }));
   };
 
@@ -70,18 +94,61 @@ export function ClientOnboarding() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const filePath = `${user.id}/${folder}/${fileName}`;
+    // Sanitize file name
+    const sanitizedFileName = sanitizeFileName(fileName);
+    const filePath = `${user.id}/${folder}/${sanitizedFileName}`;
     
     const { error } = await supabase.storage
       .from('client-documents')
       .upload(filePath, file, { upsert: true });
 
     if (error) throw error;
+    
+    // Log file upload
+    await logFileUpload(sanitizedFileName, file.type, file.size);
+    
     return filePath;
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!validateName(formData.fullName)) {
+      errors.fullName = 'Full name must be 2-50 characters and contain only letters, spaces, apostrophes, and hyphens';
+    }
+
+    if (!formData.dateOfBirth) {
+      errors.dateOfBirth = 'Date of birth is required';
+    }
+
+    if (!validateSSN(formData.ssn)) {
+      errors.ssn = 'SSN must be in format XXX-XX-XXXX';
+    }
+
+    if (!validatePhone(formData.phoneNumber)) {
+      errors.phoneNumber = 'Please enter a valid phone number';
+    }
+
+    if (!validateEmail(formData.emailAddress)) {
+      errors.emailAddress = 'Please enter a valid email address';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please correct the errors in the form",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -119,6 +186,9 @@ export function ClientOnboarding() {
 
       await Promise.all(uploadPromises);
 
+      // Encrypt SSN before storing
+      const encryptedSSN = await encryptSSN(formData.ssn);
+
       // Save client data
       const { error } = await supabase
         .from('clients')
@@ -126,7 +196,7 @@ export function ClientOnboarding() {
           user_id: user.id,
           full_name: formData.fullName,
           date_of_birth: formData.dateOfBirth,
-          ssn: formData.ssn,
+          ssn: encryptedSSN,
           phone_number: formData.phoneNumber,
           email_address: formData.emailAddress,
           drivers_license_path: driversLicensePath,
@@ -238,8 +308,12 @@ export function ClientOnboarding() {
                   value={formData.fullName}
                   onChange={(e) => handleInputChange('fullName', e.target.value)}
                   placeholder="Enter your full name"
+                  className={validationErrors.fullName ? 'border-red-500' : ''}
                   required
                 />
+                {validationErrors.fullName && (
+                  <p className="text-sm text-red-500">{validationErrors.fullName}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -249,8 +323,12 @@ export function ClientOnboarding() {
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                  className={validationErrors.dateOfBirth ? 'border-red-500' : ''}
                   required
                 />
+                {validationErrors.dateOfBirth && (
+                  <p className="text-sm text-red-500">{validationErrors.dateOfBirth}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -262,8 +340,12 @@ export function ClientOnboarding() {
                   onChange={(e) => handleSSNChange(e.target.value)}
                   placeholder="XXX-XX-XXXX"
                   maxLength={11}
+                  className={validationErrors.ssn ? 'border-red-500' : ''}
                   required
                 />
+                {validationErrors.ssn && (
+                  <p className="text-sm text-red-500">{validationErrors.ssn}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -274,8 +356,12 @@ export function ClientOnboarding() {
                   value={formData.phoneNumber}
                   onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                   placeholder="(555) 123-4567"
+                  className={validationErrors.phoneNumber ? 'border-red-500' : ''}
                   required
                 />
+                {validationErrors.phoneNumber && (
+                  <p className="text-sm text-red-500">{validationErrors.phoneNumber}</p>
+                )}
               </div>
               
               <div className="space-y-2 md:col-span-2">
@@ -286,8 +372,12 @@ export function ClientOnboarding() {
                   value={formData.emailAddress}
                   onChange={(e) => handleInputChange('emailAddress', e.target.value)}
                   placeholder="your.email@example.com"
+                  className={validationErrors.emailAddress ? 'border-red-500' : ''}
                   required
                 />
+                {validationErrors.emailAddress && (
+                  <p className="text-sm text-red-500">{validationErrors.emailAddress}</p>
+                )}
               </div>
             </div>
           </CardContent>

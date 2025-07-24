@@ -11,6 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { Upload, FileText, Download, Trash2 } from 'lucide-react';
+import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
+import { useAuditLog } from '@/hooks/useAuditLog';
+import { sanitizeInput, sanitizeAccountNumber, validateAccountNumber } from '@/utils/inputValidation';
 
 interface DisputeDoc {
   id: string;
@@ -47,7 +50,10 @@ export function DocumentUpload() {
   const [documents, setDocuments] = useState<DisputeDoc[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const { validateFile, sanitizeFileName } = useFileUploadSecurity();
+  const { logFileUpload, logFileDelete } = useAuditLog();
 
   useEffect(() => {
     fetchDocuments();
@@ -80,11 +86,43 @@ export function DocumentUpload() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    
+    if (file) {
+      const validation = validateFile(file);
+      if (!validation.isValid) {
+        toast({
+          title: "File Validation Error",
+          description: validation.error,
+          variant: "destructive",
+        });
+        e.target.value = ''; // Clear the file input
+        return;
+      }
+    }
+    
     setFormData(prev => ({ ...prev, file }));
+    
+    // Clear validation error when user selects a file
+    if (validationErrors.file) {
+      setValidationErrors(prev => ({ ...prev, file: '' }));
+    }
   };
 
   const handleInputChange = (field: keyof Omit<UploadFormData, 'file'>, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    let sanitizedValue = value;
+    
+    if (field === 'account_number') {
+      sanitizedValue = sanitizeAccountNumber(value);
+    } else if (field === 'notes') {
+      sanitizedValue = sanitizeInput(value);
+    }
+    
+    setFormData(prev => ({ ...prev, [field]: sanitizedValue }));
+    
+    // Clear validation error when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const uploadFile = async (file: File): Promise<string> => {
@@ -92,7 +130,8 @@ export function DocumentUpload() {
     if (!user) throw new Error('User not authenticated');
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
+    const sanitizedOriginalName = sanitizeFileName(file.name);
+    const fileName = `${Date.now()}_${sanitizedOriginalName}`;
     const filePath = `${user.id}/${fileName}`;
     
     const { error } = await supabase.storage
@@ -101,6 +140,9 @@ export function DocumentUpload() {
 
     if (error) throw error;
     
+    // Log file upload
+    await logFileUpload(fileName, file.type, file.size);
+    
     const { data } = supabase.storage
       .from('dispute-uploads')
       .getPublicUrl(filePath);
@@ -108,12 +150,36 @@ export function DocumentUpload() {
     return data.publicUrl;
   };
 
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.file) {
+      errors.file = 'Please select a file to upload';
+    }
+
+    if (!formData.file_type) {
+      errors.file_type = 'Please select a document type';
+    }
+
+    if (formData.account_number && !validateAccountNumber(formData.account_number)) {
+      errors.account_number = 'Account number must be alphanumeric and up to 20 characters';
+    }
+
+    if (formData.notes && formData.notes.length > 500) {
+      errors.notes = 'Notes must be less than 500 characters';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.file || !formData.file_type) {
+    
+    if (!validateForm()) {
       toast({
-        title: "Error",
-        description: "Please select a file and file type",
+        title: "Validation Error",
+        description: "Please correct the errors in the form",
         variant: "destructive",
       });
       return;
@@ -178,6 +244,7 @@ export function DocumentUpload() {
       // Extract file path from URL for storage deletion
       const urlParts = fileUrl.split('/');
       const filePath = urlParts.slice(-2).join('/'); // user_id/filename
+      const fileName = urlParts[urlParts.length - 1];
 
       // Delete from storage
       const { error: storageError } = await supabase.storage
@@ -193,6 +260,9 @@ export function DocumentUpload() {
         .eq('id', docId);
 
       if (error) throw error;
+
+      // Log file deletion
+      await logFileDelete(docId, fileName);
 
       toast({
         title: "Success",
@@ -266,9 +336,12 @@ export function DocumentUpload() {
                     id="file-upload"
                     type="file"
                     onChange={handleFileChange}
-                    className="w-full"
+                    className={`w-full ${validationErrors.file ? 'border-red-500' : ''}`}
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                   />
+                  {validationErrors.file && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.file}</p>
+                  )}
                   {formData.file && (
                     <div className="mt-2 text-sm text-green-600">
                       ✓ {formData.file.name}
@@ -280,7 +353,7 @@ export function DocumentUpload() {
               <div className="space-y-2">
                 <Label htmlFor="file-type">Document Type *</Label>
                 <Select value={formData.file_type} onValueChange={(value) => handleInputChange('file_type', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={validationErrors.file_type ? 'border-red-500' : ''}>
                     <SelectValue placeholder="Select document type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -291,6 +364,9 @@ export function DocumentUpload() {
                     ))}
                   </SelectContent>
                 </Select>
+                {validationErrors.file_type && (
+                  <p className="text-sm text-red-500">{validationErrors.file_type}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -301,7 +377,12 @@ export function DocumentUpload() {
                   value={formData.account_number}
                   onChange={(e) => handleInputChange('account_number', e.target.value)}
                   placeholder="Optional account number"
+                  className={validationErrors.account_number ? 'border-red-500' : ''}
+                  maxLength={20}
                 />
+                {validationErrors.account_number && (
+                  <p className="text-sm text-red-500">{validationErrors.account_number}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -311,8 +392,16 @@ export function DocumentUpload() {
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   placeholder="Optional notes about this document"
+                  className={validationErrors.notes ? 'border-red-500' : ''}
                   rows={3}
+                  maxLength={500}
                 />
+                {validationErrors.notes && (
+                  <p className="text-sm text-red-500">{validationErrors.notes}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  {formData.notes.length}/500 characters
+                </p>
               </div>
 
               <Button type="submit" disabled={isUploading} className="w-full">

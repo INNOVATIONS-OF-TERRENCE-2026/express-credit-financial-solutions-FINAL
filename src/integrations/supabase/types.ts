@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           created_at: string
@@ -208,6 +244,27 @@ export type Database = {
         }
         Relationships: []
       }
+      file_upload_config: {
+        Row: {
+          allowed_file_types: string[]
+          created_at: string
+          id: string
+          max_file_size_mb: number
+        }
+        Insert: {
+          allowed_file_types?: string[]
+          created_at?: string
+          id?: string
+          max_file_size_mb?: number
+        }
+        Update: {
+          allowed_file_types?: string[]
+          created_at?: string
+          id?: string
+          max_file_size_mb?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -291,7 +348,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      decrypt_ssn: {
+        Args: { encrypted_ssn: string }
+        Returns: string
+      }
+      encrypt_ssn: {
+        Args: { ssn_text: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
