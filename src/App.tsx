@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { DisputeCenter } from "./pages/DisputeCenter";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
 import { DocumentUpload } from "./pages/DocumentUpload";
+import MembershipPricing from "./pages/MembershipPricing";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/dispute-center" element={<DisputeCenter />} />
           <Route path="/onboarding" element={<ClientOnboarding />} />
           <Route path="/documents" element={<DocumentUpload />} />
+          <Route path="/membership" element={<MembershipPricing />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
