@@ -98,22 +98,126 @@ export function FloatingChat({ className = '' }: FloatingChatProps) {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive"
-      });
-
-      const errorMessage: Message = {
+      
+      // Provide helpful fallback response based on the user's message
+      const fallbackResponse = generateFallbackResponse(userMessage.content);
+      
+      const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
+        content: fallbackResponse,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, errorMessage]);
+      
+      setMessages(prev => [...prev, assistantMessage]);
+      
+      toast({
+        title: "Using Offline Assistant",
+        description: "AI chat is currently unavailable. Providing stored guidance.",
+        variant: "default"
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const generateFallbackResponse = (userMessage: string): string => {
+    const message = userMessage.toLowerCase();
+    
+    if (message.includes('dispute') || message.includes('letter')) {
+      return `I can help with dispute strategies! For dispute letters, you should:
+
+1. **Identify specific errors** on your credit report
+2. **Write detailed disputes** explaining why information is inaccurate
+3. **Include supporting documentation** when available
+4. **Send via certified mail** to ensure delivery
+5. **Follow up within 30 days** as required by FCRA
+
+You can use our Dispute Center to generate professional dispute letters. Would you like guidance on any specific dispute issue?`;
+    }
+    
+    if (message.includes('credit score') || message.includes('score')) {
+      return `Credit scores are based on five main factors:
+
+**Payment History (35%)** - Pay all bills on time
+**Credit Utilization (30%)** - Keep balances below 30% of limits
+**Credit History Length (15%)** - Keep older accounts open
+**Credit Mix (10%)** - Mix of cards and loans
+**New Credit (10%)** - Limit new applications
+
+Our Credit Tracking feature can help you monitor improvements. What specific aspect of credit scoring would you like to know more about?`;
+    }
+    
+    if (message.includes('membership') || message.includes('plan') || message.includes('pricing')) {
+      return `We offer several membership tiers:
+
+**Basic Package** - Essential credit repair tools
+**Pro Package** - Advanced dispute features + credit monitoring
+**Elite Package** - Full-service credit repair + priority support
+**All Exclusive Package** - Complete credit solution with legal guidance
+
+Each tier includes access to our educational resources. You can upgrade anytime from your membership page. What specific features are you interested in?`;
+    }
+    
+    if (message.includes('fcra') || message.includes('rights') || message.includes('law')) {
+      return `Your rights under the Fair Credit Reporting Act (FCRA) include:
+
+✓ **Right to accurate information** - Credit reports must be accurate
+✓ **Right to dispute errors** - 30-day investigation requirement
+✓ **Right to free credit reports** - Annual reports from each bureau
+✓ **Right to know who accessed your credit** - Inquiry information
+
+If creditors violate these rights, you may be entitled to damages. Our Education Center has detailed information about FCRA protections. Would you like specific guidance on exercising any of these rights?`;
+    }
+    
+    if (message.includes('collections') || message.includes('debt collector')) {
+      return `Under the Fair Debt Collection Practices Act (FDCPA), you have important rights:
+
+🛡️ **Debt Validation** - Collectors must verify debts within 30 days
+🛡️ **Communication Limits** - No calls before 8 AM or after 9 PM
+🛡️ **Harassment Protection** - No threats, profanity, or repeated calls
+🛡️ **Dispute Rights** - You can dispute any debt in writing
+
+If collectors violate these rules, document everything and report violations. Would you like specific advice on dealing with a particular collection situation?`;
+    }
+    
+    if (message.includes('document') || message.includes('upload') || message.includes('file')) {
+      return `Our Document Upload feature allows you to securely store:
+
+📄 **Credit Reports** - For dispute reference
+📄 **Payment Records** - Proof of payments made
+📄 **Correspondence** - Letters to/from creditors
+📄 **Legal Documents** - Court papers, settlements
+📄 **Identity Documents** - For verification purposes
+
+All uploads are encrypted and secure. You can access uploaded documents anytime from your dashboard. What type of documents do you need help organizing?`;
+    }
+    
+    if (message.includes('hello') || message.includes('hi') || message.includes('help')) {
+      return `Hello! I'm here to help with your credit repair journey. I can assist with:
+
+🎯 **Dispute Strategies** - How to challenge errors on credit reports
+📊 **Credit Score Improvement** - Understanding factors that affect your score
+📚 **Legal Rights** - Your protections under FCRA, FDCPA, and other laws
+💼 **Platform Features** - How to use our tools effectively
+📖 **Educational Content** - Credit repair knowledge and strategies
+
+What would you like to learn about today?`;
+    }
+    
+    // Default response
+    return `I understand you're asking about "${userMessage}". While my AI features are temporarily unavailable, I can still help with general credit repair guidance.
+
+**Common topics I can assist with:**
+• Dispute letter strategies and FCRA rights
+• Credit score factors and improvement tips
+• Collections and FDCPA protections
+• Platform features and membership benefits
+• Educational resources and legal protections
+
+Please try rephrasing your question, or visit our Education Center for comprehensive guides. You can also contact our support team for personalized assistance.
+
+Is there a specific credit repair topic you'd like guidance on?`;
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
