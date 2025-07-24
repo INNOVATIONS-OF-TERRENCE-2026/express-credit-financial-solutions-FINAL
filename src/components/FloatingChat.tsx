@@ -8,36 +8,47 @@ import { MessageCircle, X, Send, Minimize2, Maximize2, Bot, User } from 'lucide-
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
 }
-
 interface FloatingChatProps {
   className?: string;
 }
-
-export function FloatingChat({ className = '' }: FloatingChatProps) {
-  const { user, session } = useAuth();
-  const { toast } = useToast();
+export function FloatingChat({
+  className = ''
+}: FloatingChatProps) {
+  const {
+    user,
+    session
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [position, setPosition] = useState({
+    x: 20,
+    y: 20
+  });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  
+  const [dragOffset, setDragOffset] = useState({
+    x: 0,
+    y: 0
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth'
+    });
   }, [messages]);
 
   // Welcome message
@@ -52,65 +63,57 @@ export function FloatingChat({ className = '' }: FloatingChatProps) {
       setMessages([welcomeMessage]);
     }
   }, [isOpen]);
-
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading || !user) {
       return;
     }
-
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
       content: inputMessage.trim(),
       timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
-
     try {
       // Prepare conversation history for context
       const conversationHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content
       }));
-
-      const { data, error } = await supabase.functions.invoke('gpt-assistant', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('gpt-assistant', {
         body: {
           message: userMessage.content,
           conversationHistory
         },
         headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+          Authorization: `Bearer ${session?.access_token}`
+        }
       });
-
       if (error) throw error;
-
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.response,
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
-      
+
       // Provide helpful fallback response based on the user's message
       const fallbackResponse = generateFallbackResponse(userMessage.content);
-      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: fallbackResponse,
         timestamp: new Date()
       };
-      
       setMessages(prev => [...prev, assistantMessage]);
-      
       toast({
         title: "Using Offline Assistant",
         description: "AI chat is currently unavailable. Providing stored guidance.",
@@ -120,10 +123,8 @@ export function FloatingChat({ className = '' }: FloatingChatProps) {
       setIsLoading(false);
     }
   };
-
   const generateFallbackResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase();
-    
     if (message.includes('dispute') || message.includes('letter')) {
       return `I can help with dispute strategies! For dispute letters, you should:
 
@@ -135,7 +136,6 @@ export function FloatingChat({ className = '' }: FloatingChatProps) {
 
 You can use our Dispute Center to generate professional dispute letters. Would you like guidance on any specific dispute issue?`;
     }
-    
     if (message.includes('credit score') || message.includes('score')) {
       return `Credit scores are based on five main factors:
 
@@ -147,7 +147,6 @@ You can use our Dispute Center to generate professional dispute letters. Would y
 
 Our Credit Tracking feature can help you monitor improvements. What specific aspect of credit scoring would you like to know more about?`;
     }
-    
     if (message.includes('membership') || message.includes('plan') || message.includes('pricing')) {
       return `We offer several membership tiers:
 
@@ -158,7 +157,6 @@ Our Credit Tracking feature can help you monitor improvements. What specific asp
 
 Each tier includes access to our educational resources. You can upgrade anytime from your membership page. What specific features are you interested in?`;
     }
-    
     if (message.includes('fcra') || message.includes('rights') || message.includes('law')) {
       return `Your rights under the Fair Credit Reporting Act (FCRA) include:
 
@@ -169,7 +167,6 @@ Each tier includes access to our educational resources. You can upgrade anytime 
 
 If creditors violate these rights, you may be entitled to damages. Our Education Center has detailed information about FCRA protections. Would you like specific guidance on exercising any of these rights?`;
     }
-    
     if (message.includes('collections') || message.includes('debt collector')) {
       return `Under the Fair Debt Collection Practices Act (FDCPA), you have important rights:
 
@@ -180,7 +177,6 @@ If creditors violate these rights, you may be entitled to damages. Our Education
 
 If collectors violate these rules, document everything and report violations. Would you like specific advice on dealing with a particular collection situation?`;
     }
-    
     if (message.includes('document') || message.includes('upload') || message.includes('file')) {
       return `Our Document Upload feature allows you to securely store:
 
@@ -192,7 +188,6 @@ If collectors violate these rules, document everything and report violations. Wo
 
 All uploads are encrypted and secure. You can access uploaded documents anytime from your dashboard. What type of documents do you need help organizing?`;
     }
-    
     if (message.includes('hello') || message.includes('hi') || message.includes('help')) {
       return `Hello! I'm here to help with your credit repair journey. I can assist with:
 
@@ -204,7 +199,7 @@ All uploads are encrypted and secure. You can access uploaded documents anytime 
 
 What would you like to learn about today?`;
     }
-    
+
     // Default response
     return `I understand you're asking about "${userMessage}". While my AI features are temporarily unavailable, I can still help with general credit repair guidance.
 
@@ -219,17 +214,14 @@ Please try rephrasing your question, or visit our Education Center for comprehen
 
 Is there a specific credit repair topic you'd like guidance on?`;
   };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
-
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMinimized) return;
-    
     setIsDragging(true);
     const rect = chatRef.current?.getBoundingClientRect();
     if (rect) {
@@ -239,29 +231,24 @@ Is there a specific credit repair topic you'd like guidance on?`;
       });
     }
   };
-
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging) return;
-    
     const newX = e.clientX - dragOffset.x;
     const newY = e.clientY - dragOffset.y;
-    
+
     // Keep within viewport bounds - responsive chat width
     const chatWidth = window.innerWidth < 768 ? 320 : 400;
     const chatHeight = window.innerWidth < 768 ? 400 : 500;
     const maxX = window.innerWidth - chatWidth;
     const maxY = window.innerHeight - chatHeight;
-    
     setPosition({
       x: Math.max(0, Math.min(maxX, newX)),
       y: Math.max(0, Math.min(maxY, newY))
     });
   };
-
   const handleMouseUp = () => {
     setIsDragging(false);
   };
-
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -280,39 +267,24 @@ Is there a specific credit repair topic you'd like guidance on?`;
 
   // Floating chat bubble (collapsed state)
   if (!isOpen) {
-    return (
-      <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full bg-gradient-elegant shadow-elegant hover:scale-110 transition-all duration-300"
-          size="icon"
-        >
+    return <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
+        <Button onClick={() => setIsOpen(true)} className="h-14 w-14 rounded-full bg-gradient-elegant shadow-elegant hover:scale-110 transition-all duration-300" size="icon">
           <MessageCircle className="h-6 w-6" />
         </Button>
         <div className="absolute -top-2 -right-2">
           <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div
-      ref={chatRef}
-      className={`fixed z-50 ${className}`}
-      style={{
-        left: position.x,
-        top: position.y,
-        width: isMinimized ? 'auto' : (window.innerWidth < 768 ? '320px' : '400px'),
-        height: isMinimized ? 'auto' : (window.innerWidth < 768 ? '400px' : '500px'),
-      }}
-    >
+  return <div ref={chatRef} className={`fixed z-50 ${className}`} style={{
+    left: position.x,
+    top: position.y,
+    width: isMinimized ? 'auto' : window.innerWidth < 768 ? '320px' : '400px',
+    height: isMinimized ? 'auto' : window.innerWidth < 768 ? '400px' : '500px'
+  }}>
       <Card className="card-elegant shadow-elegant bg-background/95 backdrop-blur-sm border animate-scale-in">
         {/* Header */}
-        <CardHeader 
-          className="pb-3 cursor-move bg-gradient-elegant text-primary-foreground rounded-t-lg"
-          onMouseDown={handleMouseDown}
-        >
+        <CardHeader className="pb-3 cursor-move bg-gradient-elegant text-primary-foreground rounded-t-lg" onMouseDown={handleMouseDown}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
@@ -322,24 +294,10 @@ Is there a specific credit repair topic you'd like guidance on?`;
               </Badge>
             </div>
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-primary-foreground hover:bg-white/20"
-                onClick={() => setIsMinimized(!isMinimized)}
-              >
-                {isMinimized ? (
-                  <Maximize2 className="h-3 w-3" />
-                ) : (
-                  <Minimize2 className="h-3 w-3" />
-                )}
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-primary-foreground hover:bg-white/20" onClick={() => setIsMinimized(!isMinimized)}>
+                {isMinimized ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-primary-foreground hover:bg-white/20"
-                onClick={() => setIsOpen(false)}
-              >
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-primary-foreground hover:bg-white/20" onClick={() => setIsOpen(false)}>
                 <X className="h-3 w-3" />
               </Button>
             </div>
@@ -347,58 +305,44 @@ Is there a specific credit repair topic you'd like guidance on?`;
         </CardHeader>
 
         {/* Chat Content */}
-        {!isMinimized && (
-          <CardContent className={`p-0 flex flex-col ${window.innerWidth < 768 ? 'h-[calc(400px-80px)]' : 'h-[calc(500px-80px)]'}`}>
+        {!isMinimized && <CardContent className={`p-0 flex flex-col ${window.innerWidth < 768 ? 'h-[calc(400px-80px)]' : 'h-[calc(500px-80px)]'}`}>
             {/* Messages */}
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
-                        message.role === 'user'
-                          ? 'bg-accent text-accent-foreground'
-                          : 'bg-muted'
-                      }`}
-                    >
+                {messages.map(message => <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-accent text-accent-foreground' : 'bg-muted'}`}>
                       <div className="flex items-start gap-2">
-                        {message.role === 'assistant' && (
-                          <Bot className="h-4 w-4 mt-0.5 text-accent flex-shrink-0" />
-                        )}
-                        {message.role === 'user' && (
-                          <User className="h-4 w-4 mt-0.5 text-accent-foreground flex-shrink-0" />
-                        )}
+                        {message.role === 'assistant' && <Bot className="h-4 w-4 mt-0.5 text-accent flex-shrink-0" />}
+                        {message.role === 'user' && <User className="h-4 w-4 mt-0.5 text-accent-foreground flex-shrink-0" />}
                         <div className="text-sm leading-relaxed">
                           {message.content}
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        {message.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
+                        {message.timestamp.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
                 
-                {isLoading && (
-                  <div className="flex justify-start">
+                {isLoading && <div className="flex justify-start">
                     <div className="bg-muted rounded-lg p-3 max-w-[80%]">
                       <div className="flex items-center gap-2">
                         <Bot className="h-4 w-4 text-accent" />
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-accent rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                          <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{
+                      animationDelay: '0.1s'
+                    }}></div>
+                          <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{
+                      animationDelay: '0.2s'
+                    }}></div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
               <div ref={messagesEndRef} />
             </ScrollArea>
@@ -406,30 +350,14 @@ Is there a specific credit repair topic you'd like guidance on?`;
             {/* Input */}
             <div className="p-4 border-t bg-background/50">
               <div className="flex gap-2">
-                <Input
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Ask about credit repair, disputes, or our platform..."
-                  disabled={isLoading}
-                  className="flex-1"
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={isLoading || !inputMessage.trim()}
-                  size="icon"
-                  className="bg-accent hover:bg-accent/90"
-                >
+                <Input value={inputMessage} onChange={e => setInputMessage(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask about credit repair, disputes, or our platform..." disabled={isLoading} className="flex-1" />
+                <Button onClick={handleSendMessage} disabled={isLoading || !inputMessage.trim()} size="icon" className="bg-accent hover:bg-accent/90">
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="text-xs text-muted-foreground mt-2">
-                AI assistant for credit repair guidance • Always verify important information
-              </div>
+              <div className="text-xs text-muted-foreground mt-2 bg-zinc-100">AI assistant for credit repair guidance • Always verify important information "EXPRESS CREDIT & FINANCIAL SOLUTIONS"</div>
             </div>
-          </CardContent>
-        )}
+          </CardContent>}
       </Card>
-    </div>
-  );
+    </div>;
 }
