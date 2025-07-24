@@ -8,8 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlayCircle, BookOpen, Download, Scale, Shield, AlertTriangle, FileText, Gavel, Brain, MessageSquare } from "lucide-react";
+import { PlayCircle, BookOpen, Download, Scale, Shield, AlertTriangle, FileText, Gavel, Brain, MessageSquare, TestTube } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { OpenAITestPanel } from "@/components/OpenAITestPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -82,6 +83,7 @@ export default function Education() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAILearningOpen, setIsAILearningOpen] = useState(false);
+  const [showTestPanel, setShowTestPanel] = useState(false);
   const [learningGoal, setLearningGoal] = useState("");
   const [currentSituation, setCurrentSituation] = useState("");
   const [aiContent, setAiContent] = useState<string>("");
@@ -1073,14 +1075,25 @@ This personalized content addresses your specific learning goal while providing 
                   <p className="text-sm text-muted-foreground">Take action against violations</p>
                 </div>
               </div>
-              <Button 
-                className="w-full" 
-                size="lg"
-                onClick={() => setIsAILearningOpen(true)}
-              >
-                <Brain className="mr-2 h-5 w-5" />
-                Start AI-Powered Learning Today
-              </Button>
+              <div className="flex gap-4 justify-center">
+                <Button 
+                  className="flex-1 max-w-xs" 
+                  size="lg"
+                  onClick={() => setIsAILearningOpen(true)}
+                >
+                  <Brain className="mr-2 h-5 w-5" />
+                  Start AI-Powered Learning Today
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex-1 max-w-xs" 
+                  size="lg"
+                  onClick={() => setShowTestPanel(true)}
+                >
+                  <TestTube className="mr-2 h-5 w-5" />
+                  Test OpenAI Integration
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -1234,6 +1247,25 @@ This personalized content addresses your specific learning goal while providing 
                 </div>
               </div>
             )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* OpenAI Test Panel Dialog */}
+      <Dialog open={showTestPanel} onOpenChange={setShowTestPanel}>
+        <DialogContent className="max-w-6xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TestTube className="h-5 w-5 text-accent" />
+              OpenAI Integration Testing
+            </DialogTitle>
+            <DialogDescription>
+              Test your OpenAI API integration for the chatbot and education content features
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[75vh] pr-4">
+            <OpenAITestPanel />
           </ScrollArea>
         </DialogContent>
       </Dialog>

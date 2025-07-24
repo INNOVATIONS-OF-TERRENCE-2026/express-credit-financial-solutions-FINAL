@@ -97,7 +97,7 @@ Never provide:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4.1-2025-04-14",
         messages: messages,
         max_tokens: 500,
         temperature: 0.7,
