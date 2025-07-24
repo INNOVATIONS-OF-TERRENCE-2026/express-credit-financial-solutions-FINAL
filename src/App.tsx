@@ -12,6 +12,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { DisputeCenter } from "./pages/DisputeCenter";
+import { DataFreezeCenter } from "./pages/DataFreezeCenter";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
 import { DocumentUpload } from "./pages/DocumentUpload";
 import MembershipPricing from "./pages/MembershipPricing";
@@ -41,6 +42,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredFeature="dispute-generator" featureName="Dispute Center">
                     <DisputeCenter />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/data-freeze" 
+                element={
+                  <ProtectedRoute requiredFeature="dispute-generator" featureName="Data Freeze Center">
+                    <DataFreezeCenter />
                   </ProtectedRoute>
                 } 
               />
