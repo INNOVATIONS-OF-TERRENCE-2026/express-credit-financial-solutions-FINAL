@@ -7,14 +7,16 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { ClientDashboard } from '@/components/ClientDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
-import { Shield, Star, Award, TrendingUp } from 'lucide-react';
+import { Shield, Star, Award, TrendingUp, CreditCard, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { ContentModal } from '@/components/ContentModal';
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
+  const [modalContent, setModalContent] = useState<'fcra' | 'legal' | 'rapid' | null>(null);
   const {
     user,
     loading,
@@ -112,7 +114,7 @@ const Index = () => {
             </Card>
 
             {/* Quick Access Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dashboard') && navigate('/')}>
                 <CardHeader className="text-center bg-transparent">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
@@ -145,6 +147,24 @@ const Index = () => {
                   <CardTitle className="text-lg text-primary-foreground">Education</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Learn credit strategies</CardDescription>
                   {!hasAccess('education') && <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Basic+ Required</Badge>}
+                </CardHeader>
+              </Card>
+
+              {/* Credit Building Portal - Publicly Accessible */}
+              <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/credit-building')}>
+                <CardHeader className="text-center bg-transparent">
+                  <CreditCard className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Credit Building</CardTitle>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Grow your credit with tradelines & tools</CardDescription>
+                </CardHeader>
+              </Card>
+
+              {/* Data Freeze Portal - Publicly Accessible */}
+              <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/data-freeze')}>
+                <CardHeader className="text-center bg-transparent">
+                  <Lock className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Data Freeze</CardTitle>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Freeze 3rd-party data before disputing</CardDescription>
                 </CardHeader>
               </Card>
             </div>
@@ -183,17 +203,17 @@ const Index = () => {
 
               {/* Features Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-all duration-300" onClick={() => setModalContent('fcra')}>
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h3 className="text-primary-foreground mb-1 font-semibold text-base">FCRA & CFPB Analysis</h3>
                   <p className="text-primary-foreground/80 text-sm">Advanced Credit File Investigations by Certified FCRA Experts: </p>
                 </div>
-                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-all duration-300" onClick={() => setModalContent('legal')}>
                   <Award className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h3 className="font-semibold text-primary-foreground mb-1">Legal Dispute Precision</h3>
                   <p className="text-sm text-primary-foreground/80">95% success rate using verified methods</p>
                 </div>
-                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
+                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-all duration-300" onClick={() => setModalContent('rapid')}>
                   <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h3 className="font-semibold text-primary-foreground mb-1">Rapid Dispute Turnaround</h3>
                   <p className="text-sm text-primary-foreground/80">See improvements in 15-30 days</p>
@@ -219,6 +239,13 @@ const Index = () => {
 
         </div>
       </div>
+      
+      {/* Content Modal */}
+      <ContentModal 
+        isOpen={modalContent !== null} 
+        onClose={() => setModalContent(null)} 
+        content={modalContent || 'fcra'} 
+      />
       
       {/* Terms and Conditions */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12">

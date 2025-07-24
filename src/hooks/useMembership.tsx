@@ -66,8 +66,8 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       return true;
     }
     
-    // Education is always accessible to all users
-    if (feature === 'education' || feature === 'dashboard') {
+    // Publicly accessible features (no login or membership required)
+    if (feature === 'education' || feature === 'dashboard' || feature === 'credit-building' || feature === 'data-freeze') {
       return true;
     }
     
@@ -76,9 +76,6 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     switch (feature) {
       case 'dispute-generator':
       case 'credit-upload':
-        return planType === 'Pro Package' || planType === 'Elite Package' || planType === 'All Exclusive Package';
-      
-      case 'credit-building':
         return planType === 'Pro Package' || planType === 'Elite Package' || planType === 'All Exclusive Package';
       
       case 'exclusive-content':
