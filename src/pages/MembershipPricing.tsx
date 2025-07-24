@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
-import { useIsMobile } from "@/hooks/use-mobile";
+
 
 const plans = [
   {
@@ -74,7 +74,7 @@ export default function MembershipPricing() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { planType, paymentStatus, refreshMembership } = useMembership();
-  const isMobile = useIsMobile();
+  
 
   const handleSignUp = async (plan: typeof plans[0]) => {
     try {
@@ -101,6 +101,9 @@ export default function MembershipPricing() {
       });
 
       if (error) throw error;
+
+      // Detect mobile device using navigator.userAgent
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
       // Redirect to Stripe Checkout
       if (data?.url) {
