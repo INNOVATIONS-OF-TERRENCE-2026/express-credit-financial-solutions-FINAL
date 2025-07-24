@@ -208,6 +208,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          payment_status: string | null
+          plan_type: string | null
+          stripe_customer_id: string | null
+          subscribed_at: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          payment_status?: string | null
+          plan_type?: string | null
+          stripe_customer_id?: string | null
+          subscribed_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          payment_status?: string | null
+          plan_type?: string | null
+          stripe_customer_id?: string | null
+          subscribed_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount: number

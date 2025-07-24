@@ -1,1 +1,27 @@
 project_id = "vctxvlkzoyqrwnletgsp"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://vctxvlkzoyqrwnletgsp.supabase.co"]
+jwt_expiry = 3600
+enable_anonymous_users = false
+enable_signup = true
+enable_confirmations = false
+
+[functions.generate-dispute-letter]
+verify_jwt = true
+
+[functions.create-subscription-checkout]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
