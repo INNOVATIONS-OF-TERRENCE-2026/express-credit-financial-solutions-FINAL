@@ -17,7 +17,7 @@ const MembershipContext = createContext<MembershipContextType | undefined>(undef
 
 export function MembershipProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const { isAdmin } = useRoles();
+  const { isAdmin, loading: rolesLoading } = useRoles();
   const [planType, setPlanType] = useState<PlanType | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,8 +61,8 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   }, [user]);
 
   const hasAccess = (feature: string): boolean => {
-    // Admins have access to all features
-    if (isAdmin()) {
+    // Admins have access to all features - check both loading states
+    if (!loading && !rolesLoading && isAdmin()) {
       return true;
     }
     
@@ -94,7 +94,7 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   const value = {
     planType,
     paymentStatus,
-    loading,
+    loading: loading || rolesLoading,
     hasAccess,
     refreshMembership,
   };
