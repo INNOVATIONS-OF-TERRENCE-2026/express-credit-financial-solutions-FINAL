@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { MembershipProvider } from "./hooks/useMembership";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { FloatingChat } from "./components/FloatingChat";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { DisputeCenter } from "./pages/DisputeCenter";
@@ -25,6 +26,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <FloatingChat />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
