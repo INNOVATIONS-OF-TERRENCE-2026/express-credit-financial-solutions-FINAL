@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, FileText, Upload, MessageSquare, Settings, Shield, Activity, TrendingUp, AlertCircle, BarChart3, Database, Mail } from 'lucide-react';
+import { Users, FileText, Upload, MessageSquare, Settings, Shield, Activity, TrendingUp, AlertCircle, BarChart3, Database, Mail, Snowflake, CreditCard, BookOpen, FileUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Client {
   id: string;
@@ -27,6 +28,7 @@ interface AdminPanelProps {
 }
 
 export function AdminPanel({ onLogout }: AdminPanelProps) {
+  const navigate = useNavigate();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [newNote, setNewNote] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -220,6 +222,53 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Admin Navigation */}
+            <Card className="card-elegant">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Shield className="h-5 w-5 text-accent mr-2" />
+                  Admin Navigation
+                </CardTitle>
+                <CardDescription>Quick access to CRM features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-auto flex flex-col items-center p-4 space-y-2"
+                    onClick={() => navigate('/data-freeze')}
+                  >
+                    <Snowflake className="h-6 w-6 text-accent" />
+                    <span className="text-sm">Data Freeze</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-auto flex flex-col items-center p-4 space-y-2"
+                    onClick={() => navigate('/dispute-center')}
+                  >
+                    <FileText className="h-6 w-6 text-accent" />
+                    <span className="text-sm">Dispute Center</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-auto flex flex-col items-center p-4 space-y-2"
+                    onClick={() => navigate('/documents')}
+                  >
+                    <FileUp className="h-6 w-6 text-accent" />
+                    <span className="text-sm">Documents</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-auto flex flex-col items-center p-4 space-y-2"
+                    onClick={() => navigate('/education')}
+                  >
+                    <BookOpen className="h-6 w-6 text-accent" />
+                    <span className="text-sm">Education</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Recent Activity and System Alerts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
