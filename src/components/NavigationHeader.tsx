@@ -70,7 +70,7 @@ export function NavigationHeader() {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-4 lg:space-x-6 min-w-0">
             <div className="flex items-center space-x-2 flex-shrink-0">
-              <img src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" alt="Express Credit" className="h-8 w-auto" />
+              
             </div>
             
             <nav className="hidden md:flex items-center space-x-1 overflow-x-auto">
@@ -94,17 +94,10 @@ export function NavigationHeader() {
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">Sign Out</span>
             </Button>
-            {isAdmin && (
-              <Button 
-                onClick={() => navigate('/admin')} 
-                variant="default" 
-                size="sm" 
-                className="flex items-center bg-gradient-elegant flex-shrink-0"
-              >
+            {isAdmin && <Button onClick={() => navigate('/admin')} variant="default" size="sm" className="flex items-center bg-gradient-elegant flex-shrink-0">
                 <Shield className="h-4 w-4 mr-2" />
                 <span className="hidden lg:inline">Admin</span>
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
         
