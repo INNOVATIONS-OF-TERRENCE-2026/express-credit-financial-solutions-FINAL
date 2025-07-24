@@ -65,47 +65,60 @@ export function NavigationHeader() {
     accessible: true
   }];
   if (!user) return null;
-  return <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  return <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center space-x-4 lg:space-x-6 min-w-0">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <img src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" alt="Express Credit" className="h-8 w-auto" />
-              
             </div>
             
-            <nav className="flex items-center space-x-1">
+            <nav className="hidden md:flex items-center space-x-1 overflow-x-auto">
               {navItems.map(item => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2">
+              return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap">
                     <Icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{item.label}</span>
+                    <span className="hidden lg:inline">{item.label}</span>
                   </Button>;
             })}
             </nav>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 lg:space-x-3 flex-shrink-0">
             {getPlanBadge()}
-            <div className="hidden sm:block text-sm text-muted-foreground">
+            <div className="hidden lg:block text-sm text-muted-foreground truncate max-w-32">
               {user.email}
             </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="flex-shrink-0">
               <LogOut className="h-4 w-4" />
-              <span className="ml-2">Sign Out</span>
+              <span className="hidden sm:inline ml-2">Sign Out</span>
             </Button>
             {isAdmin && (
               <Button 
                 onClick={() => navigate('/admin')} 
                 variant="default" 
                 size="sm" 
-                className="flex items-center bg-gradient-elegant"
+                className="flex items-center bg-gradient-elegant flex-shrink-0"
               >
                 <Shield className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Admin</span>
+                <span className="hidden lg:inline">Admin</span>
               </Button>
             )}
+          </div>
+        </div>
+        
+        {/* Mobile Navigation */}
+        <div className="md:hidden mt-3 border-t pt-3">
+          <div className="flex items-center space-x-1 overflow-x-auto pb-2">
+            {navItems.map(item => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap flex-shrink-0">
+                  <Icon className="h-4 w-4" />
+                  <span className="text-xs">{item.label}</span>
+                </Button>;
+          })}
           </div>
         </div>
       </div>

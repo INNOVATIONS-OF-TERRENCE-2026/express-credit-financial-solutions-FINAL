@@ -7,6 +7,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import { MembershipProvider } from "./hooks/useMembership";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingChat } from "./components/FloatingChat";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { DisputeCenter } from "./pages/DisputeCenter";
@@ -22,14 +23,15 @@ import AdminDashboard from "./pages/AdminDashboard";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <MembershipProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <FloatingChat />
-          <BrowserRouter>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <MembershipProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <FloatingChat />
+            <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route 
@@ -72,11 +74,12 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </MembershipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </MembershipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -246,9 +246,11 @@ Is there a specific credit repair topic you'd like guidance on?`;
     const newX = e.clientX - dragOffset.x;
     const newY = e.clientY - dragOffset.y;
     
-    // Keep within viewport bounds
-    const maxX = window.innerWidth - 400; // chat width
-    const maxY = window.innerHeight - 500; // chat height
+    // Keep within viewport bounds - responsive chat width
+    const chatWidth = window.innerWidth < 768 ? 320 : 400;
+    const chatHeight = window.innerWidth < 768 ? 400 : 500;
+    const maxX = window.innerWidth - chatWidth;
+    const maxY = window.innerHeight - chatHeight;
     
     setPosition({
       x: Math.max(0, Math.min(maxX, newX)),
@@ -301,8 +303,8 @@ Is there a specific credit repair topic you'd like guidance on?`;
       style={{
         left: position.x,
         top: position.y,
-        width: isMinimized ? 'auto' : '400px',
-        height: isMinimized ? 'auto' : '500px',
+        width: isMinimized ? 'auto' : (window.innerWidth < 768 ? '320px' : '400px'),
+        height: isMinimized ? 'auto' : (window.innerWidth < 768 ? '400px' : '500px'),
       }}
     >
       <Card className="card-elegant shadow-elegant bg-background/95 backdrop-blur-sm border animate-scale-in">
@@ -346,7 +348,7 @@ Is there a specific credit repair topic you'd like guidance on?`;
 
         {/* Chat Content */}
         {!isMinimized && (
-          <CardContent className="p-0 flex flex-col h-[calc(500px-80px)]">
+          <CardContent className={`p-0 flex flex-col ${window.innerWidth < 768 ? 'h-[calc(400px-80px)]' : 'h-[calc(500px-80px)]'}`}>
             {/* Messages */}
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-4">

@@ -61,7 +61,10 @@ const Index = () => {
   };
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-b-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
       </div>;
   }
 
@@ -84,13 +87,13 @@ const Index = () => {
 
             {/* Membership Status */}
             <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardHeader className="bg-black">
+              <CardHeader className="bg-gradient-elegant">
                 <CardTitle className="flex items-center gap-2 text-primary-foreground">
                   <Star className="h-5 w-5" />
                   Membership Status
                 </CardTitle>
               </CardHeader>
-              <CardContent className="bg-lime-600">
+              <CardContent className="bg-background/20 backdrop-blur-sm">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-primary-foreground/60">Current Plan</p>
@@ -109,7 +112,7 @@ const Index = () => {
             </Card>
 
             {/* Quick Access Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dashboard') && navigate('/')}>
                 <CardHeader className="text-center bg-transparent">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
@@ -179,7 +182,7 @@ const Index = () => {
               <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">Transform your financial future with our proven credit repair strategies. Our expert team has helped Thousands of clients improve their credit scores and achieve their financial goals.</p>
 
               {/* Features Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <h3 className="text-primary-foreground mb-1 font-semibold text-base">FCRA & CFPB Analysis</h3>
@@ -198,13 +201,13 @@ const Index = () => {
               </div>
 
               {!showForms && <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button onClick={() => setShowForms(true)} variant="gold" size="lg" className="text-lg px-8 py-3">
+                  <Button onClick={() => setShowForms(true)} className="btn-gold text-lg px-8 py-3" size="lg">
                     Get Started Today
                   </Button>
                   <Button onClick={() => {
                 setShowForms(true);
                 setIsLogin(true);
-              }} variant="silver" size="lg" className="text-lg px-8 py-3">Client Login Portal</Button>
+              }} className="btn-silver text-lg px-8 py-3" size="lg">Client Login Portal</Button>
                 </div>}
             </div>
 

@@ -46,6 +46,9 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       }
     } catch (error) {
       console.error('Error fetching membership:', error);
+      // Set default fallback state for graceful degradation
+      setPlanType('Basic Package');
+      setPaymentStatus('active');
     } finally {
       setLoading(false);
     }
