@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { MembershipProvider } from "./hooks/useMembership";
+import { RolesProvider } from "./hooks/useRoles";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingChat } from "./components/FloatingChat";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -26,11 +27,12 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <MembershipProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <FloatingChat />
+        <RolesProvider>
+          <MembershipProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <FloatingChat />
             <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -77,9 +79,10 @@ const App = () => (
             </BrowserRouter>
           </TooltipProvider>
         </MembershipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
+      </RolesProvider>
+    </AuthProvider>
+  </QueryClientProvider>
+</ErrorBoundary>
 );
 
 export default App;
