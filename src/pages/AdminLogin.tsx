@@ -141,17 +141,6 @@ export default function AdminLogin() {
               </Button>
             </form>
 
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <h4 className="font-semibold text-sm mb-2">Demo Admin Accounts:</h4>
-              <div className="space-y-1 text-xs text-muted-foreground">
-                <div>• admin@expresscredit.com</div>
-                <div>• support@expresscredit.com</div>
-                <div>• manager@expresscredit.com</div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Use any of these emails with your password to access admin features.
-              </p>
-            </div>
 
             <div className="mt-4 text-center">
               <Button 
