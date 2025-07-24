@@ -3,11 +3,12 @@ import { useMembership } from '@/hooks/useMembership';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings } from 'lucide-react';
+import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield } from 'lucide-react';
 export function NavigationHeader() {
   const {
     user,
-    signOut
+    signOut,
+    isAdmin
   } = useAuth();
   const {
     planType,
@@ -94,6 +95,17 @@ export function NavigationHeader() {
               <LogOut className="h-4 w-4" />
               <span className="ml-2">Sign Out</span>
             </Button>
+            {isAdmin && (
+              <Button 
+                onClick={() => navigate('/admin')} 
+                variant="default" 
+                size="sm" 
+                className="flex items-center bg-gradient-elegant"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Admin</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

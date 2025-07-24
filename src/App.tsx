@@ -16,6 +16,8 @@ import MembershipPricing from "./pages/MembershipPricing";
 import MembershipSuccess from "./pages/MembershipSuccess";
 import Education from "./pages/Education";
 import CreditTracking from "./pages/CreditTracking";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,8 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
