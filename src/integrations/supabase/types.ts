@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      clients: {
+        Row: {
+          created_at: string
+          credit_reports_path: string | null
+          date_of_birth: string
+          drivers_license_path: string | null
+          email_address: string
+          full_name: string
+          id: string
+          phone_number: string
+          proof_of_address_path: string | null
+          ssn: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credit_reports_path?: string | null
+          date_of_birth: string
+          drivers_license_path?: string | null
+          email_address: string
+          full_name: string
+          id?: string
+          phone_number: string
+          proof_of_address_path?: string | null
+          ssn: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credit_reports_path?: string | null
+          date_of_birth?: string
+          drivers_license_path?: string | null
+          email_address?: string
+          full_name?: string
+          id?: string
+          phone_number?: string
+          proof_of_address_path?: string | null
+          ssn?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       "Credit Reports": {
         Row: {
           created_at: string | null
