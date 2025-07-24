@@ -116,7 +116,7 @@ const Index = () => {
                 <CardHeader className="text-center">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dashboard</CardTitle>
-                  <CardDescription className="text-primary-foreground/70">View your credit overview</CardDescription>
+                  <CardDescription className="text-primary-foreground/90 font-medium">View your credit overview</CardDescription>
                 </CardHeader>
               </Card>
 
@@ -127,9 +127,9 @@ const Index = () => {
                 <CardHeader className="text-center">
                   <Award className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dispute Center</CardTitle>
-                  <CardDescription className="text-primary-foreground/70">Generate dispute letters</CardDescription>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Generate dispute letters</CardDescription>
                   {!hasAccess('dispute-generator') && (
-                    <Badge variant="outline" className="mt-2">Pro+ Required</Badge>
+                    <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>
                   )}
                 </CardHeader>
               </Card>
@@ -141,9 +141,9 @@ const Index = () => {
                 <CardHeader className="text-center">
                   <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Upload Documents</CardTitle>
-                  <CardDescription className="text-primary-foreground/70">Upload credit reports</CardDescription>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Upload credit reports</CardDescription>
                   {!hasAccess('credit-upload') && (
-                    <Badge variant="outline" className="mt-2">Pro+ Required</Badge>
+                    <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>
                   )}
                 </CardHeader>
               </Card>
@@ -155,9 +155,9 @@ const Index = () => {
                 <CardHeader className="text-center">
                   <Shield className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Education</CardTitle>
-                  <CardDescription className="text-primary-foreground/70">Learn credit strategies</CardDescription>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Learn credit strategies</CardDescription>
                   {!hasAccess('education') && (
-                    <Badge variant="outline" className="mt-2">Basic+ Required</Badge>
+                    <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Basic+ Required</Badge>
                   )}
                 </CardHeader>
               </Card>
