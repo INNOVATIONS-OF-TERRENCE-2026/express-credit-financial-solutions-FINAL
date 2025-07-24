@@ -56,13 +56,14 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   }, [user]);
 
   const hasAccess = (feature: string): boolean => {
+    // Education is always accessible to all users
+    if (feature === 'education' || feature === 'dashboard') {
+      return true;
+    }
+    
     if (paymentStatus !== 'active') return false;
     
     switch (feature) {
-      case 'dashboard':
-      case 'education':
-        return true; // All plans have access
-      
       case 'dispute-generator':
       case 'credit-upload':
         return planType === 'Pro Package' || planType === 'Elite Package' || planType === 'All Exclusive Package';
