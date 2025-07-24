@@ -187,8 +187,8 @@ const Index = () => {
         <div className="relative z-10 container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Hero Content */}
-            <div className="text-center lg:text-left">
-              <div className="flex flex-col items-center justify-center lg:items-start lg:justify-start mb-8">
+            <div className="text-center">
+              <div className="flex flex-col items-center justify-center mb-8">
                 <div className="mb-6 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-2xl">
                   <img 
                     src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
@@ -196,7 +196,7 @@ const Index = () => {
                     className="h-32 w-auto filter drop-shadow-2xl hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="text-center lg:text-left">
+            <div className="text-center">
                   <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 lg:text-5xl">
                     Express Credit & Financial Solutions
                   </h1>
@@ -225,7 +225,7 @@ const Index = () => {
                 </div>
               </div>
 
-              {!showForms && <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              {!showForms && <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button onClick={() => setShowForms(true)} variant="gold" size="lg" className="text-lg px-8 py-3">
                     Get Started Today
                   </Button>
@@ -237,7 +237,7 @@ const Index = () => {
             </div>
 
             {/* Login/Register Forms */}
-            <div className="flex justify-center lg:justify-end">
+            <div className="flex justify-center">
               {showForms && <div className="animate-slide-up">
                   {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
                 </div>}
