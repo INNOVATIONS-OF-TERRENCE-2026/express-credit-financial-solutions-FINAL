@@ -1,26 +1,21 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Star, Award, TrendingUp, CheckCircle, Clock, Users } from 'lucide-react';
-
 interface ContentModalProps {
   isOpen: boolean;
   onClose: () => void;
   content: 'fcra' | 'legal' | 'rapid';
 }
-
-export const ContentModal = ({ isOpen, onClose, content }: ContentModalProps) => {
+export const ContentModal = ({
+  isOpen,
+  onClose,
+  content
+}: ContentModalProps) => {
   const getContent = () => {
     switch (content) {
       case 'fcra':
         return {
           title: "Advanced Credit Investigations Backed by Federal Law",
-          content: (
-            <div className="space-y-6">
+          content: <div className="space-y-6">
               <p className="text-muted-foreground leading-relaxed">
                 Our certified FCRA experts dig deeper than the average dispute. We use compliance tools, legal research, and CFPB insights to identify credit report violations and force accurate updates.
               </p>
@@ -76,14 +71,11 @@ export const ContentModal = ({ isOpen, onClose, content }: ContentModalProps) =>
                 "We don't guess — we investigate. Every item is reviewed by certified credit law specialists."
               </blockquote>
             </div>
-          )
         };
-        
       case 'legal':
         return {
           title: "What Our Clients Say About Express Credit",
-          content: (
-            <div className="space-y-6">
+          content: <div className="space-y-6">
               <div className="grid gap-6">
                 <div className="bg-accent/5 p-4 rounded-lg border border-accent/20">
                   <div className="flex items-start gap-3">
@@ -146,14 +138,11 @@ export const ContentModal = ({ isOpen, onClose, content }: ContentModalProps) =>
                 </div>
               </div>
             </div>
-          )
         };
-        
       case 'rapid':
         return {
           title: "How We Deliver Results in Weeks — Not Months",
-          content: (
-            <div className="space-y-6">
+          content: <div className="space-y-6">
               <p className="text-muted-foreground leading-relaxed">
                 We understand urgency. Our dispute strategy is designed to maximize speed without compromising compliance. Here's how:
               </p>
@@ -170,8 +159,8 @@ export const ContentModal = ({ isOpen, onClose, content }: ContentModalProps) =>
                 <div className="flex items-start gap-3">
                   <Star className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">AI-enhanced Dispute Letter Generation</h4>
-                    <p className="text-muted-foreground">For precision and law-based formatting</p>
+                    <h4 className="font-semibold">Enhanced Dispute Letter Generation</h4>
+                    <p className="text-muted-foreground">precision and law-based formatting</p>
                   </div>
                 </div>
                 
@@ -187,7 +176,7 @@ export const ContentModal = ({ isOpen, onClose, content }: ContentModalProps) =>
                   <Award className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-semibold">Digital & Certified Mail Processing</h4>
-                    <p className="text-muted-foreground">Depending on dispute type</p>
+                    <p className="text-muted-foreground">Included in All Paid Memberships</p>
                   </div>
                 </div>
                 
@@ -214,18 +203,19 @@ export const ContentModal = ({ isOpen, onClose, content }: ContentModalProps) =>
                 "Time is credit. And we don't waste either."
               </blockquote>
             </div>
-          )
         };
-        
       default:
-        return { title: "", content: null };
+        return {
+          title: "",
+          content: null
+        };
     }
   };
-
-  const { title, content: modalContent } = getContent();
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+  const {
+    title,
+    content: modalContent
+  } = getContent();
+  return <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-accent">{title}</DialogTitle>
@@ -236,6 +226,5 @@ export const ContentModal = ({ isOpen, onClose, content }: ContentModalProps) =>
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
