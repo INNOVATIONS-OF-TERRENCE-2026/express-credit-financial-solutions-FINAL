@@ -102,6 +102,24 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     console.log('Changing membership for client:', clientId, 'to:', newTier);
   };
 
+  const handleBackupDatabase = () => {
+    console.log('Initiating database backup...');
+    // Add backup logic here
+    alert('Database backup initiated successfully!');
+  };
+
+  const handleSendNotifications = () => {
+    console.log('Sending notifications...');
+    // Add notification logic here
+    alert('Notifications sent to all active clients!');
+  };
+
+  const handleSystemSettings = () => {
+    console.log('Opening system settings...');
+    // Add system settings logic here
+    alert('System settings panel opened!');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -643,15 +661,15 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button variant="outline" className="flex items-center justify-center">
+                  <Button variant="outline" className="flex items-center justify-center" onClick={handleBackupDatabase}>
                     <Database className="h-4 w-4 mr-2" />
                     Backup Database
                   </Button>
-                  <Button variant="outline" className="flex items-center justify-center">
+                  <Button variant="outline" className="flex items-center justify-center" onClick={handleSendNotifications}>
                     <Mail className="h-4 w-4 mr-2" />
                     Send Notifications
                   </Button>
-                  <Button variant="outline" className="flex items-center justify-center">
+                  <Button variant="outline" className="flex items-center justify-center" onClick={handleSystemSettings}>
                     <Settings className="h-4 w-4 mr-2" />
                     System Settings
                   </Button>
