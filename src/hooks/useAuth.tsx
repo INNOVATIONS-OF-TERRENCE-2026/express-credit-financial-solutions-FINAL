@@ -21,18 +21,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Admin emails - in production, this should be in Supabase config
-  const ADMIN_EMAILS = [
-    'admin@expresscredit.com',
-    'support@expresscredit.com',
-    'manager@expresscredit.com'
-  ];
-
   const checkAdminStatus = async (): Promise<boolean> => {
-    if (!user?.email) return false;
-    const adminStatus = ADMIN_EMAILS.includes(user.email.toLowerCase());
-    setIsAdmin(adminStatus);
-    return adminStatus;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      // Check user role from database instead of hardcoded emails
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .single();
+
+      const adminStatus = !error && data !== null;
+      setIsAdmin(adminStatus);
+      return adminStatus;
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -43,9 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         // Check admin status when user changes
-        if (session?.user?.email) {
-          const adminStatus = ADMIN_EMAILS.includes(session.user.email.toLowerCase());
-          setIsAdmin(adminStatus);
+        if (session?.user) {
+          setTimeout(() => checkAdminStatus(), 0); // Defer to avoid auth state conflicts
         } else {
           setIsAdmin(false);
         }
@@ -60,9 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       
       // Check admin status for initial session
-      if (session?.user?.email) {
-        const adminStatus = ADMIN_EMAILS.includes(session.user.email.toLowerCase());
-        setIsAdmin(adminStatus);
+      if (session?.user) {
+        setTimeout(() => checkAdminStatus(), 0); // Defer to avoid auth state conflicts
       }
       
       setLoading(false);

@@ -8,7 +8,10 @@ export const sanitizeInput = (input: string): string => {
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
     .replace(/javascript:/gi, '') // Remove javascript: protocols
     .replace(/on\w+\s*=/gi, '') // Remove event handlers
-    .replace(/[<>]/g, ''); // Remove angle brackets
+    .replace(/[<>]/g, '') // Remove angle brackets
+    .replace(/data:/gi, '') // Remove data: protocols
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocols
+    .substring(0, 1000); // Limit input length
 };
 
 export const validateEmail = (email: string): boolean => {

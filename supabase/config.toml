@@ -1,1 +1,16 @@
 project_id = "vctxvlkzoyqrwnletgsp"
+
+[functions.generate-dispute-letter-secure]
+verify_jwt = true
+
+[functions.create-subscription-checkout]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.education-content]
+verify_jwt = true
+
+[functions.gpt-assistant]
+verify_jwt = true

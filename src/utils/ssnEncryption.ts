@@ -1,9 +1,9 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Client-side SSN encryption utilities
+// Client-side SSN encryption utilities - UPDATED FOR SECURITY
 export const encryptSSN = async (ssn: string): Promise<string> => {
   try {
-    const { data, error } = await supabase.rpc('encrypt_ssn', { ssn_text: ssn });
+    const { data, error } = await supabase.rpc('encrypt_ssn_secure', { ssn_text: ssn });
     
     if (error) {
       console.error('Error encrypting SSN:', error);
@@ -19,7 +19,7 @@ export const encryptSSN = async (ssn: string): Promise<string> => {
 
 export const decryptSSN = async (encryptedSSN: string): Promise<string> => {
   try {
-    const { data, error } = await supabase.rpc('decrypt_ssn', { encrypted_ssn: encryptedSSN });
+    const { data, error } = await supabase.rpc('decrypt_ssn_secure', { encrypted_ssn: encryptedSSN });
     
     if (error) {
       console.error('Error decrypting SSN:', error);

@@ -15,21 +15,19 @@ export function useAuditLog() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get client IP and user agent if available
-      const ip_address = entry.ip_address;
-      const user_agent = entry.user_agent || navigator.userAgent;
+      // Enhanced security logging with risk scoring
+      const securityLevel = entry.details?.security_level || 'info';
+      const riskScore = entry.details?.risk_score || 0;
 
-      const { error } = await supabase
-        .from('audit_logs')
-        .insert({
-          user_id: user.id,
-          action: entry.action,
-          table_name: entry.table_name,
-          record_id: entry.record_id,
-          details: entry.details,
-          ip_address: ip_address,
-          user_agent: user_agent
-        });
+      // Use the new secure logging function
+      const { error } = await supabase.rpc('log_security_event', {
+        p_action: entry.action,
+        p_table_name: entry.table_name,
+        p_record_id: entry.record_id,
+        p_details: entry.details,
+        p_security_level: securityLevel,
+        p_risk_score: riskScore
+      });
 
       if (error) {
         console.error('Error logging audit entry:', error);

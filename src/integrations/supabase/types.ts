@@ -22,6 +22,9 @@ export type Database = {
           id: string
           ip_address: unknown | null
           record_id: string | null
+          risk_score: number | null
+          security_level: string | null
+          session_id: string | null
           table_name: string
           user_agent: string | null
           user_id: string | null
@@ -33,6 +36,9 @@ export type Database = {
           id?: string
           ip_address?: unknown | null
           record_id?: string | null
+          risk_score?: number | null
+          security_level?: string | null
+          session_id?: string | null
           table_name: string
           user_agent?: string | null
           user_id?: string | null
@@ -44,6 +50,9 @@ export type Database = {
           id?: string
           ip_address?: unknown | null
           record_id?: string | null
+          risk_score?: number | null
+          security_level?: string | null
+          session_id?: string | null
           table_name?: string
           user_agent?: string | null
           user_id?: string | null
@@ -352,6 +361,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -361,13 +394,43 @@ export type Database = {
         Args: { encrypted_ssn: string }
         Returns: string
       }
+      decrypt_ssn_secure: {
+        Args: { encrypted_ssn: string }
+        Returns: string
+      }
       encrypt_ssn: {
         Args: { ssn_text: string }
         Returns: string
       }
+      encrypt_ssn_secure: {
+        Args: { ssn_text: string }
+        Returns: string
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          p_action: string
+          p_table_name: string
+          p_record_id?: string
+          p_details?: Json
+          p_security_level?: string
+          p_risk_score?: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -494,6 +557,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
