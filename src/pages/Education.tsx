@@ -1075,23 +1075,14 @@ This personalized content addresses your specific learning goal while providing 
                   <p className="text-sm text-muted-foreground">Take action against violations</p>
                 </div>
               </div>
-              <div className="flex gap-4 justify-center">
+              <div className="flex justify-center">
                 <Button 
-                  className="flex-1 max-w-xs" 
+                  className="max-w-xs" 
                   size="lg"
                   onClick={() => setIsAILearningOpen(true)}
                 >
                   <Brain className="mr-2 h-5 w-5" />
                   Start AI-Powered Learning Today
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="flex-1 max-w-xs" 
-                  size="lg"
-                  onClick={() => setShowTestPanel(true)}
-                >
-                  <TestTube className="mr-2 h-5 w-5" />
-                  Test OpenAI Integration
                 </Button>
               </div>
             </CardContent>

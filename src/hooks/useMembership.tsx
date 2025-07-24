@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useRoles } from './useRoles';
 
 export type PlanType = 'Basic Package' | 'Pro Package' | 'Elite Package' | 'All Exclusive Package';
 
@@ -16,6 +17,7 @@ const MembershipContext = createContext<MembershipContextType | undefined>(undef
 
 export function MembershipProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { isAdmin } = useRoles();
   const [planType, setPlanType] = useState<PlanType | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,6 +61,11 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   }, [user]);
 
   const hasAccess = (feature: string): boolean => {
+    // Admins have access to all features
+    if (isAdmin()) {
+      return true;
+    }
+    
     // Education is always accessible to all users
     if (feature === 'education' || feature === 'dashboard') {
       return true;
