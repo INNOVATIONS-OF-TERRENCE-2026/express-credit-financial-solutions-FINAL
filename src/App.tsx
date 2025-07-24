@@ -19,6 +19,7 @@ import MembershipPricing from "./pages/MembershipPricing";
 import MembershipSuccess from "./pages/MembershipSuccess";
 import Education from "./pages/Education";
 import CreditTracking from "./pages/CreditTracking";
+import CreditBuildingCenter from "./pages/CreditBuildingCenter";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -77,6 +78,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredFeature="dashboard" featureName="Credit Tracking">
                     <CreditTracking />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/credit-building" 
+                element={
+                  <ProtectedRoute requiredFeature="credit-building" featureName="Credit Building Center">
+                    <CreditBuildingCenter />
                   </ProtectedRoute>
                 } 
               />

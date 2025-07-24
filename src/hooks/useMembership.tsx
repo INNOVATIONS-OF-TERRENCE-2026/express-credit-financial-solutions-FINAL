@@ -78,6 +78,9 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       case 'credit-upload':
         return planType === 'Pro Package' || planType === 'Elite Package' || planType === 'All Exclusive Package';
       
+      case 'credit-building':
+        return planType === 'Pro Package' || planType === 'Elite Package' || planType === 'All Exclusive Package';
+      
       case 'exclusive-content':
         return planType === 'All Exclusive Package';
       
