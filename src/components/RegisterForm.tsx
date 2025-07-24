@@ -5,32 +5,53 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface RegisterFormProps {
   onToggleForm: () => void;
-  onRegister: (userData: any) => void;
 }
 
-export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
+export function RegisterForm({ onToggleForm }: RegisterFormProps) {
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
     password: '',
-    confirmPassword: '',
-    membershipTier: 'setup'
+    confirmPassword: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
       return;
     }
-    onRegister(formData);
+
+    setLoading(true);
+    const { error } = await signUp(formData.email, formData.password);
+    if (error) {
+      toast({
+        title: "Registration Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Registration Successful",
+        description: "Please check your email to verify your account.",
+      });
+    }
+    setLoading(false);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -85,31 +106,6 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="(555) 123-4567"
-              value={formData.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="membershipTier">Membership Tier</Label>
-            <Select value={formData.membershipTier} onValueChange={(value) => handleChange('membershipTier', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose your plan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="setup">Setup fee (one-time) - $350</SelectItem>
-                <SelectItem value="monthly">Monthly service subscription - $99/month</SelectItem>
-                <SelectItem value="monitoring">Credit monitoring (via Smart‑Credit) - $29/month</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -159,8 +155,8 @@ export function RegisterForm({ onToggleForm, onRegister }: RegisterFormProps) {
             </div>
           </div>
 
-          <Button type="submit" variant="gold" className="w-full" size="lg">
-            Create Account
+          <Button type="submit" variant="gold" className="w-full" size="lg" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Create Account'}
           </Button>
           
           <div className="text-center">

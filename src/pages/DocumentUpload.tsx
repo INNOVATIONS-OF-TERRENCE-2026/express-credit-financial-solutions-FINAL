@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { NavigationHeader } from '@/components/NavigationHeader';
 import { Upload, FileText, Download, Trash2 } from 'lucide-react';
 
 interface DisputeDoc {
@@ -234,8 +235,10 @@ export function DocumentUpload() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
+    <div className="min-h-screen bg-background">
+      <NavigationHeader />
+      <div className="container mx-auto p-6 max-w-6xl">
+        <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">Document Upload</h1>
         <p className="text-muted-foreground mt-2">
           Upload and manage your dispute-related documents
@@ -379,6 +382,7 @@ export function DocumentUpload() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

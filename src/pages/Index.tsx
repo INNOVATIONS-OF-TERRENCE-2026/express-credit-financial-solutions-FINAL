@@ -1,55 +1,153 @@
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useMembership } from '@/hooks/useMembership';
+import { NavigationHeader } from '@/components/NavigationHeader';
 import { LoginForm } from '@/components/LoginForm';
 import { RegisterForm } from '@/components/RegisterForm';
 import { ClientDashboard } from '@/components/ClientDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
 import { Shield, Star, Award, TrendingUp } from 'lucide-react';
-import heroImage from '@/assets/hero-bg.jpg';
-type UserRole = 'client' | 'admin' | null;
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [currentUser, setCurrentUser] = useState<UserRole>(null);
   const [showForms, setShowForms] = useState(false);
+  const { user, loading, signIn, signUp } = useAuth();
+  const { planType, paymentStatus, hasAccess } = useMembership();
+  const { toast } = useToast();
 
-  // Mock client data
-  const mockClientData = {
-    name: 'John Smith',
-    email: 'john@email.com',
-    membershipTier: 'monthly' as const,
-    disputeProgress: 75,
-    totalDisputes: 8,
-    completedDisputes: 6,
-    creditScore: 680,
-    creditScoreChange: 25
-  };
-  const handleLogin = (email: string, password: string) => {
-    // Mock authentication logic
-    if (email === 'admin@expresscredit.com') {
-      setCurrentUser('admin');
-    } else {
-      setCurrentUser('client');
+  const handleLogin = async (email: string, password: string) => {
+    const { error } = await signIn(email, password);
+    if (error) {
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
-  const handleRegister = (userData: any) => {
-    // Mock registration logic
-    console.log('Registering user:', userData);
-    setCurrentUser('client');
-  };
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setShowForms(false);
-  };
-  const handleUploadDocument = () => {
-    alert('Document upload functionality would be integrated with backend');
+
+  const handleRegister = async (userData: any) => {
+    const { error } = await signUp(userData.email, userData.password);
+    if (error) {
+      toast({
+        title: "Registration Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Registration Successful",
+        description: "Please check your email to verify your account.",
+      });
+    }
   };
 
-  // Show appropriate dashboard based on user role
-  if (currentUser === 'client') {
-    return <ClientDashboard clientData={mockClientData} onUploadDocument={handleUploadDocument} onLogout={handleLogout} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
   }
-  if (currentUser === 'admin') {
-    return <AdminPanel onLogout={handleLogout} />;
+
+  // Show dashboard for authenticated users
+  if (user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavigationHeader />
+        <main className="container mx-auto px-4 py-8">
+          <div className="space-y-6">
+            {/* Welcome Section */}
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                Welcome to Express Credit & Financial Solutions
+              </h1>
+              <p className="text-muted-foreground">
+                Manage your credit repair journey and track your progress
+              </p>
+            </div>
+
+            {/* Membership Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  Membership Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Current Plan</p>
+                    <div className="flex items-center gap-2">
+                      {planType ? (
+                        <Badge variant={paymentStatus === 'active' ? 'default' : 'secondary'}>
+                          {planType}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">No Plan</Badge>
+                      )}
+                      {paymentStatus === 'active' ? (
+                        <Badge variant="default">Active</Badge>
+                      ) : (
+                        <Badge variant="destructive">Inactive</Badge>
+                      )}
+                    </div>
+                  </div>
+                  <Button variant="outline" onClick={() => window.location.href = '/membership'}>
+                    Manage Membership
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Access Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
+                <CardHeader className="text-center">
+                  <Star className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <CardTitle className="text-lg">Dashboard</CardTitle>
+                  <CardDescription>View your credit overview</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
+                <CardHeader className="text-center" onClick={() => hasAccess('dispute-generator') && (window.location.href = '/dispute-center')}>
+                  <Award className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <CardTitle className="text-lg">Dispute Center</CardTitle>
+                  <CardDescription>Generate dispute letters</CardDescription>
+                  {!hasAccess('dispute-generator') && (
+                    <Badge variant="outline" className="mt-2">Pro+ Required</Badge>
+                  )}
+                </CardHeader>
+              </Card>
+
+              <Card className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
+                <CardHeader className="text-center" onClick={() => hasAccess('credit-upload') && (window.location.href = '/documents')}>
+                  <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <CardTitle className="text-lg">Upload Documents</CardTitle>
+                  <CardDescription>Upload credit reports</CardDescription>
+                  {!hasAccess('credit-upload') && (
+                    <Badge variant="outline" className="mt-2">Pro+ Required</Badge>
+                  )}
+                </CardHeader>
+              </Card>
+
+              <Card className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}>
+                <CardHeader className="text-center">
+                  <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <CardTitle className="text-lg">Education</CardTitle>
+                  <CardDescription>Learn credit strategies</CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   // Landing page with login/register forms
@@ -129,20 +227,11 @@ const Index = () => {
             {/* Login/Register Forms */}
             <div className="flex justify-center lg:justify-end">
               {showForms && <div className="animate-slide-up">
-                  {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} onLogin={handleLogin} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} onRegister={handleRegister} />}
+                  {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
                 </div>}
             </div>
           </div>
 
-          {/* Quick Admin Access */}
-          {showForms && <div className="text-center mt-8">
-              <p className="text-primary-foreground/60 text-sm mb-2">
-                Admin Access
-              </p>
-              <Button onClick={() => handleLogin('admin@expresscredit.com', 'admin')} variant="link" className="text-accent hover:text-accent/80">
-                Admin Login (Demo)
-              </Button>
-            </div>}
         </div>
       </div>
     </div>;

@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Star, Crown, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { NavigationHeader } from "@/components/NavigationHeader";
+import { useAuth } from "@/hooks/useAuth";
+import { useMembership } from "@/hooks/useMembership";
 
 const plans = [
   {
@@ -68,6 +71,8 @@ const plans = [
 export default function MembershipPricing() {
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { planType, paymentStatus, refreshMembership } = useMembership();
 
   const handleSignUp = async (plan: typeof plans[0]) => {
     try {
@@ -112,7 +117,8 @@ export default function MembershipPricing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background">
+      <NavigationHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { NavigationHeader } from '@/components/NavigationHeader';
 import { Download, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
 
@@ -137,8 +138,10 @@ export function DisputeCenter() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-8">
+    <div className="min-h-screen bg-background">
+      <NavigationHeader />
+      <div className="container mx-auto p-6">
+        <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">Dispute Center</h1>
         <p className="text-muted-foreground mt-2">
           Manage your credit disputes and generate FCRA-compliant letters
@@ -218,6 +221,7 @@ export function DisputeCenter() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
