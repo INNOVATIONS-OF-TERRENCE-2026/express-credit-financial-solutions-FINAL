@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlayCircle, BookOpen, Download, Scale, Shield, AlertTriangle, FileText, Gavel } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PlayCircle, BookOpen, Download, Scale, Shield, AlertTriangle, FileText, Gavel, Brain, MessageSquare } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -78,6 +81,11 @@ export default function Education() {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAILearningOpen, setIsAILearningOpen] = useState(false);
+  const [learningGoal, setLearningGoal] = useState("");
+  const [currentSituation, setCurrentSituation] = useState("");
+  const [aiContent, setAiContent] = useState<string>("");
+  const [isAILoading, setIsAILoading] = useState(false);
 
   const filteredItems = selectedCategory === "All" 
     ? educationItems 
@@ -551,6 +559,411 @@ In the meantime, you can:
 We apologize for any inconvenience and appreciate your patience as we enhance our educational resources.`;
   };
 
+  const handleAILearning = async () => {
+    if (!learningGoal.trim()) return;
+    
+    setIsAILoading(true);
+    setAiContent("");
+
+    try {
+      const { data, error } = await supabase.functions.invoke('education-content', {
+        body: {
+          topic: `Personalized Learning: ${learningGoal}`,
+          contentType: 'personalized_learning',
+          userSituation: currentSituation || undefined,
+          customPrompt: `Create comprehensive, professional educational content about: ${learningGoal}. 
+          ${currentSituation ? `The user's current situation: ${currentSituation}.` : ''}
+          
+          Provide detailed, actionable guidance that covers:
+          - Step-by-step instructions
+          - Legal rights and protections
+          - Common mistakes to avoid
+          - Professional strategies
+          - Real-world examples
+          - Next steps to take
+          
+          Make this content highly valuable, professional, and specifically tailored to their learning goal and situation.`
+        },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      setAiContent(data.content);
+      
+      toast({
+        title: "AI Learning Content Generated",
+        description: "Your personalized learning content has been created successfully.",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Error generating AI content:', error);
+      
+      // Provide intelligent fallback content based on the learning goal
+      const fallbackContent = generateFallbackAIContent(learningGoal, currentSituation);
+      setAiContent(fallbackContent);
+      
+      toast({
+        title: "Using Enhanced Content",
+        description: "AI generation is currently unavailable. Showing comprehensive educational content.",
+        variant: "default"
+      });
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
+  const generateFallbackAIContent = (goal: string, situation: string): string => {
+    const lowerGoal = goal.toLowerCase();
+    
+    if (lowerGoal.includes('dispute') || lowerGoal.includes('remove') || lowerGoal.includes('delete')) {
+      return `# Personalized Dispute Strategy Guide
+
+## Your Learning Goal: ${goal}
+${situation ? `## Your Current Situation:\n${situation}\n` : ''}
+
+## Professional Dispute Strategy
+
+### 1. Foundation: Understanding Your Rights
+Under the Fair Credit Reporting Act (FCRA), you have the legal right to dispute any information on your credit report that you believe is inaccurate, incomplete, or unverifiable.
+
+### 2. Strategic Approach
+**Initial Assessment:**
+- Review all three credit reports (Equifax, Experian, TransUnion)
+- Identify all inaccurate, outdated, or unverifiable items
+- Document each error with specific details
+
+**Professional Dispute Letters:**
+- Be specific about what's wrong with each item
+- Request "method of verification" for collections
+- Challenge the completeness of the investigation
+- Use certified mail with return receipt
+
+### 3. Advanced Techniques
+**Data Integrity Challenges:**
+- Question the source of the information
+- Request original contracts or agreements
+- Challenge chain of custody for sold/transferred accounts
+
+**Procedural Violations:**
+- Monitor 30-day investigation timelines
+- Document inadequate investigation responses
+- File CFPB complaints for violations
+
+### 4. Legal Leverage Points
+- Section 1681e(b): Reasonable procedures for accuracy
+- Section 1681i: Reinvestigation requirements
+- Section 1681s-2(b): Furnisher obligations
+
+### 5. Professional Follow-Up
+If disputes are "verified" without proper documentation:
+- Request method of verification details
+- Challenge inadequate investigations
+- Consider legal consultation for willful violations
+
+### Next Steps:
+1. Gather all credit reports and documentation
+2. Create detailed dispute timeline
+3. Send professional dispute letters
+4. Monitor responses and escalate if necessary
+5. Document everything for potential legal action
+
+Remember: Persistence and proper documentation are key to successful disputes.`;
+    }
+
+    if (lowerGoal.includes('build') || lowerGoal.includes('improve') || lowerGoal.includes('increase')) {
+      return `# Personalized Credit Building Strategy
+
+## Your Learning Goal: ${goal}
+${situation ? `## Your Current Situation:\n${situation}\n` : ''}
+
+## Professional Credit Building Plan
+
+### 1. Credit Score Factors (Priority Order)
+**Payment History (35% of score):**
+- Pay ALL bills on time, every time
+- Even one late payment can drop scores 60-110 points
+- Set up autopay for minimum payments
+
+**Credit Utilization (30% of score):**
+- Keep total utilization below 10% for optimal scores
+- Pay down balances before statement dates
+- Consider multiple payments per month
+
+### 2. Strategic Account Management
+**Existing Accounts:**
+- Keep old accounts open (increases average age)
+- Use cards occasionally to keep them active
+- Request credit limit increases every 6 months
+
+**New Credit Strategy:**
+- Limit new applications (hard inquiries hurt scores)
+- Consider secured cards if building from scratch
+- Become authorized user on family member's account
+
+### 3. Advanced Building Techniques
+**Credit Builder Loans:**
+- Bank holds loan proceeds while you make payments
+- Builds payment history and savings simultaneously
+- Graduate to traditional loans after completion
+
+**Mixed Credit Types:**
+- Installment loans (auto, personal)
+- Revolving credit (credit cards)
+- Mortgage (when ready)
+
+### 4. Protection While Building
+**Monitor Progress:**
+- Check reports every 4 months (rotate bureaus)
+- Use credit monitoring services
+- Dispute any errors immediately
+
+**Identity Protection:**
+- Freeze credit when not applying
+- Monitor for unauthorized accounts
+- Place fraud alerts if needed
+
+### 5. Timeline Expectations
+- 30-60 days: New accounts appear on reports
+- 3-6 months: Payment history establishes pattern
+- 6-12 months: Significant score improvements
+- 2+ years: Prime credit qualification
+
+### Professional Tips:
+- Never close your oldest credit card
+- Keep utilization reporting low but not zero
+- Pay twice monthly to manage utilization
+- Understand credit mix doesn't mean opening unnecessary accounts
+
+### Next Steps:
+1. Assess current credit reports for errors
+2. Optimize existing account usage
+3. Create systematic payment schedule
+4. Plan new credit strategically
+5. Monitor progress monthly
+
+${situation && situation.includes('collection') ? `
+
+### Special Consideration for Collections:
+Since you mentioned collections, prioritize:
+1. Validate all collection debts in writing
+2. Negotiate pay-for-delete agreements
+3. Don't restart statute of limitations
+4. Know your state's laws` : ''}
+
+Building excellent credit is a marathon, not a sprint. Consistency and strategic planning yield the best results.`;
+    }
+
+    if (lowerGoal.includes('law') || lowerGoal.includes('rights') || lowerGoal.includes('legal')) {
+      return `# Understanding Your Credit Rights and Legal Protections
+
+## Your Learning Goal: ${goal}
+${situation ? `## Your Current Situation:\n${situation}\n` : ''}
+
+## Federal Credit Laws That Protect You
+
+### 1. Fair Credit Reporting Act (FCRA)
+**Your Key Rights:**
+- Accurate information on credit reports
+- Free annual credit reports from each bureau
+- 30-day dispute investigation requirement
+- Removal of unverifiable information
+
+**Common Violations:**
+- Reporting inaccurate information after notification
+- Inadequate dispute investigations
+- Mixing consumer files
+- Reporting beyond statutory time limits
+
+**Legal Remedies:**
+- Actual damages for willful violations
+- Statutory damages up to $1,000
+- Punitive damages for willful violations
+- Attorney fees and costs
+
+### 2. Fair Debt Collection Practices Act (FDCPA)
+**Collector Restrictions:**
+- Cannot harass or abuse you
+- Cannot use false or misleading statements
+- Cannot contact you at inconvenient times (before 8 AM or after 9 PM)
+- Must provide debt validation upon request
+
+**Your Rights:**
+- Request debt validation within 30 days
+- Dispute debts in writing
+- Stop collection calls by written request
+- Sue for violations (up to $1,000 + damages)
+
+### 3. Equal Credit Opportunity Act (ECOA)
+**Prohibited Discrimination:**
+- Race, color, religion, national origin
+- Sex or marital status
+- Age (if you're over 18)
+- Receipt of public assistance
+
+**Required Notices:**
+- Adverse action notices with specific reasons
+- Right to request reasons for denial
+- Right to copy of appraisal
+
+### 4. Truth in Lending Act (TILA)
+**Disclosure Requirements:**
+- Annual Percentage Rate (APR)
+- Finance charges
+- Payment schedule
+- Total cost of credit
+
+**Your Rights:**
+- Right of rescission (3-day cancellation for home loans)
+- Protection from unfair billing practices
+- Limits on liability for unauthorized charges
+
+### 5. Fair Credit Billing Act (FCBA)
+**Billing Error Rights:**
+- Dispute billing errors within 60 days
+- Creditor must investigate within 30 days
+- Cannot report as delinquent during dispute
+- Must correct errors or explain why bill is correct
+
+### Professional Strategy for Violations
+
+**Documentation Requirements:**
+- Keep all communications in writing
+- Use certified mail for important correspondence
+- Maintain detailed records of violations
+- Screenshot or save digital communications
+
+**Escalation Process:**
+1. Document the violation clearly
+2. Contact the violating party in writing
+3. File complaints with CFPB and state attorney general
+4. Consider legal action for serious violations
+5. Consult with consumer protection attorney
+
+**When to Seek Legal Help:**
+- Multiple FCRA violations
+- Willful violations with damages
+- Collector harassment or threats
+- Identity theft issues
+- Discrimination in credit decisions
+
+### Real-World Application
+
+**Scenario Planning:**
+- Collection calls: Use FDCPA protections
+- Credit report errors: File FCRA disputes
+- Billing problems: Use FCBA procedures
+- Loan denials: Request ECOA reasons
+
+**Professional Enforcement:**
+- Know violation penalties
+- Understand statute of limitations for legal action
+- Keep detailed violation logs
+- Build cases systematically
+
+### Next Steps:
+1. Review current credit reports for FCRA violations
+2. Document any ongoing collection issues
+3. File appropriate complaints for violations
+4. Consider legal consultation for significant damages
+5. Use knowledge proactively to prevent future violations
+
+Remember: These laws exist to protect you. Use them actively and strategically to maintain your credit rights.`;
+    }
+
+    // Default comprehensive content
+    return `# Personalized Credit Education: ${goal}
+${situation ? `## Your Current Situation:\n${situation}\n` : ''}
+
+## Comprehensive Credit Education Strategy
+
+### Understanding Your Specific Need
+Based on your learning goal, here's a tailored approach to help you master this aspect of credit management.
+
+### Foundation Knowledge
+**Credit Basics:**
+- Credit reports vs. credit scores
+- How information flows between creditors and bureaus
+- Impact of different types of accounts
+- Timing of reporting and updates
+
+### Your Rights Under Federal Law
+**Fair Credit Reporting Act (FCRA):**
+- Right to accurate information
+- Right to dispute inaccuracies
+- 30-day investigation requirement
+- Right to free annual reports
+
+**Fair Debt Collection Practices Act (FDCPA):**
+- Protection from harassment
+- Right to debt validation
+- Restrictions on collector contact
+- Legal remedies for violations
+
+### Practical Application
+**Immediate Actions:**
+1. Obtain all three credit reports
+2. Review for errors and inaccuracies
+3. Document any issues found
+4. Create action plan for improvements
+
+**Strategic Planning:**
+- Set specific, measurable goals
+- Create timeline for improvements
+- Identify potential obstacles
+- Plan for setbacks and adjustments
+
+### Professional Strategies
+**Advanced Techniques:**
+- Method of verification disputes
+- Goodwill letters for isolated issues
+- Pay-for-delete negotiations
+- Strategic account management
+
+**Legal Considerations:**
+- Know your state's statute of limitations
+- Understand when to seek legal help
+- Document potential violations
+- Know enforcement agencies
+
+### Common Mistakes to Avoid
+- Ignoring credit reports
+- Not disputing obvious errors
+- Closing old credit accounts
+- Making payments without validation
+- Falling for credit repair scams
+
+### Measuring Progress
+**Key Metrics:**
+- Credit score improvements
+- Number of errors removed
+- Payment history consistency
+- Credit utilization optimization
+
+**Timeline Expectations:**
+- 30-60 days: Dispute results
+- 3-6 months: Score improvements
+- 6-12 months: Significant progress
+- 1-2 years: Prime credit qualification
+
+### Next Steps
+1. Apply this knowledge to your specific situation
+2. Create detailed action plan
+3. Begin implementation immediately
+4. Monitor progress regularly
+5. Adjust strategy as needed
+
+### Additional Resources
+- Consumer Financial Protection Bureau (CFPB)
+- Federal Trade Commission (FTC) guidance
+- State attorney general resources
+- Consumer protection attorneys
+
+This personalized content addresses your specific learning goal while providing comprehensive, actionable guidance for your credit improvement journey.`;
+  };
+
   const getLevelColor = (level: string) => {
     switch (level) {
       case "Essential": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
@@ -660,8 +1073,13 @@ We apologize for any inconvenience and appreciate your patience as we enhance ou
                   <p className="text-sm text-muted-foreground">Take action against violations</p>
                 </div>
               </div>
-              <Button className="w-full" size="lg">
-                Start Learning Today
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={() => setIsAILearningOpen(true)}
+              >
+                <Brain className="mr-2 h-5 w-5" />
+                Start AI-Powered Learning Today
               </Button>
             </CardContent>
           </Card>
@@ -708,6 +1126,115 @@ We apologize for any inconvenience and appreciate your patience as we enhance ou
               {isLoading ? "Loading..." : "Bookmark"}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI-Powered Learning Dialog */}
+      <Dialog open={isAILearningOpen} onOpenChange={setIsAILearningOpen}>
+        <DialogContent className="max-w-4xl max-h-[85vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-accent" />
+              AI-Powered Personalized Learning
+            </DialogTitle>
+            <DialogDescription>
+              Get customized credit education based on your specific situation and goals
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[70vh] pr-4">
+            {!aiContent && !isAILoading ? (
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="learning-goal" className="text-sm font-medium">
+                    What do you want to learn about? (e.g., "How to dispute incorrect items", "Understanding credit laws", "Building credit fast")
+                  </Label>
+                  <Textarea
+                    id="learning-goal"
+                    placeholder="I want to learn how to..."
+                    value={learningGoal}
+                    onChange={(e) => setLearningGoal(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <Label htmlFor="current-situation" className="text-sm font-medium">
+                    Describe your current credit situation (optional - helps personalize the content)
+                  </Label>
+                  <Textarea
+                    id="current-situation"
+                    placeholder="I have collections on my report, my score is 580, I was denied for credit..."
+                    value={currentSituation}
+                    onChange={(e) => setCurrentSituation(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                </div>
+                
+                <Button 
+                  onClick={handleAILearning}
+                  disabled={!learningGoal.trim() || isAILoading}
+                  className="w-full"
+                  size="lg"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Generate Personalized Learning Content
+                </Button>
+              </div>
+            ) : isAILoading ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-accent">
+                  <Brain className="h-5 w-5 animate-pulse" />
+                  <span className="text-sm">AI is analyzing your needs and creating personalized content...</span>
+                </div>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-4/5" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Brain className="h-4 w-4 text-accent" />
+                    <span className="text-sm font-medium text-accent">AI-Generated Content</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    This content was specifically created for your learning goals and situation
+                  </p>
+                </div>
+                
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <div className="whitespace-pre-wrap leading-relaxed">
+                    {aiContent}
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setAiContent("");
+                      setLearningGoal("");
+                      setCurrentSituation("");
+                    }}
+                    className="flex-1"
+                  >
+                    Ask Another Question
+                  </Button>
+                  <Button 
+                    onClick={() => setIsAILearningOpen(false)}
+                    className="flex-1"
+                  >
+                    Save & Close
+                  </Button>
+                </div>
+              </div>
+            )}
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
