@@ -2,7 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, TrendingUp, Shield, Star } from 'lucide-react';
+import { Upload, FileText, TrendingUp, Shield, Star, BarChart3 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ClientData {
   name: string;
@@ -109,9 +110,17 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
           {/* Credit Score */}
           <Card className="card-elegant hover-lift">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUp className="h-5 w-5 text-accent mr-2" />
-                Credit Score
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <TrendingUp className="h-5 w-5 text-accent mr-2" />
+                  Credit Score
+                </div>
+                <Link to="/credit-tracking">
+                  <Button variant="outline" size="sm" className="flex items-center gap-1">
+                    <BarChart3 className="h-4 w-4" />
+                    Track
+                  </Button>
+                </Link>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -119,7 +128,7 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
                 <div className="text-4xl font-bold text-accent mb-2">
                   {clientData.creditScore}
                 </div>
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center mb-3">
                   {clientData.creditScoreChange > 0 ? (
                     <span className="text-green-600 text-sm flex items-center">
                       <TrendingUp className="h-4 w-4 mr-1" />
@@ -131,6 +140,11 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
                     </span>
                   )}
                 </div>
+                <Link to="/credit-tracking">
+                  <Button variant="ghost" size="sm" className="w-full text-xs">
+                    View Detailed History →
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>

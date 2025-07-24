@@ -14,6 +14,7 @@ import { DocumentUpload } from "./pages/DocumentUpload";
 import MembershipPricing from "./pages/MembershipPricing";
 import MembershipSuccess from "./pages/MembershipSuccess";
 import Education from "./pages/Education";
+import CreditTracking from "./pages/CreditTracking";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredFeature="education" featureName="Education Center">
                     <Education />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/credit-tracking" 
+                element={
+                  <ProtectedRoute requiredFeature="dashboard" featureName="Credit Tracking">
+                    <CreditTracking />
                   </ProtectedRoute>
                 } 
               />
