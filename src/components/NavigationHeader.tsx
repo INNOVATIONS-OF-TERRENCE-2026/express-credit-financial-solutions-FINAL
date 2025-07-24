@@ -66,7 +66,7 @@ export function NavigationHeader() {
   }];
   if (!user) return null;
   return <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-3 bg-inherit">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-4 lg:space-x-6 min-w-0">
             <div className="flex items-center space-x-2 flex-shrink-0">

@@ -93,7 +93,7 @@ const Index = () => {
                   Membership Status
                 </CardTitle>
               </CardHeader>
-              <CardContent className="bg-background/20 backdrop-blur-sm">
+              <CardContent className="backdrop-blur-sm bg-black">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-primary-foreground/60">Current Plan</p>
