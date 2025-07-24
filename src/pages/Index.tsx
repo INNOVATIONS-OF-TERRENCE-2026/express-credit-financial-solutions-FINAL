@@ -58,24 +58,25 @@ const Index = () => {
   // Show dashboard for authenticated users
   if (user) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="absolute inset-0 bg-gradient-elegant opacity-80" />
         <NavigationHeader />
-        <main className="container mx-auto px-4 py-8">
+        <main className="relative z-10 container mx-auto px-4 py-8">
           <div className="space-y-6">
             {/* Welcome Section */}
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-foreground mb-2">
+              <h1 className="text-3xl font-bold text-primary-foreground mb-2">
                 Welcome to Express Credit & Financial Solutions
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-primary-foreground/80">
                 Manage your credit repair journey and track your progress
               </p>
             </div>
 
             {/* Membership Status */}
-            <Card>
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-primary-foreground">
                   <Star className="h-5 w-5" />
                   Membership Status
                 </CardTitle>
@@ -83,7 +84,7 @@ const Index = () => {
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Current Plan</p>
+                    <p className="text-sm text-primary-foreground/60">Current Plan</p>
                     <div className="flex items-center gap-2">
                       {planType ? (
                         <Badge variant={paymentStatus === 'active' ? 'default' : 'secondary'}>
@@ -99,7 +100,7 @@ const Index = () => {
                       )}
                     </div>
                   </div>
-                  <Button variant="outline" onClick={() => navigate('/membership')}>
+                  <Button variant="outline" onClick={() => navigate('/membership')} className="bg-white/10 text-primary-foreground border-white/20 hover:bg-white/20">
                     Manage Membership
                   </Button>
                 </div>
@@ -109,24 +110,24 @@ const Index = () => {
             {/* Quick Access Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card 
-                className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
                 onClick={() => hasAccess('dashboard') && navigate('/')}
               >
                 <CardHeader className="text-center">
-                  <Star className="h-8 w-8 text-primary mx-auto mb-2" />
-                  <CardTitle className="text-lg">Dashboard</CardTitle>
-                  <CardDescription>View your credit overview</CardDescription>
+                  <Star className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Dashboard</CardTitle>
+                  <CardDescription className="text-primary-foreground/70">View your credit overview</CardDescription>
                 </CardHeader>
               </Card>
 
               <Card 
-                className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
                 onClick={() => hasAccess('dispute-generator') && navigate('/dispute-center')}
               >
                 <CardHeader className="text-center">
-                  <Award className="h-8 w-8 text-primary mx-auto mb-2" />
-                  <CardTitle className="text-lg">Dispute Center</CardTitle>
-                  <CardDescription>Generate dispute letters</CardDescription>
+                  <Award className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Dispute Center</CardTitle>
+                  <CardDescription className="text-primary-foreground/70">Generate dispute letters</CardDescription>
                   {!hasAccess('dispute-generator') && (
                     <Badge variant="outline" className="mt-2">Pro+ Required</Badge>
                   )}
@@ -134,13 +135,13 @@ const Index = () => {
               </Card>
 
               <Card 
-                className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
                 onClick={() => hasAccess('credit-upload') && navigate('/documents')}
               >
                 <CardHeader className="text-center">
-                  <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
-                  <CardTitle className="text-lg">Upload Documents</CardTitle>
-                  <CardDescription>Upload credit reports</CardDescription>
+                  <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Upload Documents</CardTitle>
+                  <CardDescription className="text-primary-foreground/70">Upload credit reports</CardDescription>
                   {!hasAccess('credit-upload') && (
                     <Badge variant="outline" className="mt-2">Pro+ Required</Badge>
                   )}
@@ -148,13 +149,13 @@ const Index = () => {
               </Card>
 
               <Card 
-                className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow' : 'opacity-50'}
+                className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'}
                 onClick={() => hasAccess('education') && navigate('/education')}
               >
                 <CardHeader className="text-center">
-                  <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
-                  <CardTitle className="text-lg">Education</CardTitle>
-                  <CardDescription>Learn credit strategies</CardDescription>
+                  <Shield className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Education</CardTitle>
+                  <CardDescription className="text-primary-foreground/70">Learn credit strategies</CardDescription>
                   {!hasAccess('education') && (
                     <Badge variant="outline" className="mt-2">Basic+ Required</Badge>
                   )}
