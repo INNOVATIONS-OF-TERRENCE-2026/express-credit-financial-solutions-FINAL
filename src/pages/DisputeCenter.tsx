@@ -3,8 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { Download, FileText } from 'lucide-react';
+import jsPDF from 'jspdf';
 
 interface DisputeLetter {
   id: string;
@@ -95,6 +97,37 @@ export function DisputeCenter() {
     );
   };
 
+  const downloadPDF = (dispute: DisputeLetter) => {
+    if (!dispute.generated_letter) {
+      toast({
+        title: "Error",
+        description: "No generated letter to download",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 20;
+    const lineHeight = 6;
+    
+    // Split the letter into lines that fit the page width
+    const splitText = doc.splitTextToSize(dispute.generated_letter, pageWidth - 2 * margin);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.text(splitText, margin, margin);
+    
+    const fileName = `Dispute_Letter_${dispute.creditor_name.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+    doc.save(fileName);
+    
+    toast({
+      title: "Success",
+      description: "PDF downloaded successfully",
+    });
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -112,67 +145,79 @@ export function DisputeCenter() {
         </p>
       </div>
 
-      {disputes.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-muted-foreground">No disputes found. Create your first dispute to get started.</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          {disputes.map((dispute) => (
-            <Card key={dispute.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{dispute.creditor_name}</CardTitle>
-                    <CardDescription>
-                      Account: ****{dispute.account_number.slice(-4)}
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    {getIssueTypeBadge(dispute.issue_type)}
-                    <Button
-                      onClick={() => generateLetter(dispute.id)}
-                      disabled={generatingId === dispute.id}
-                      size="sm"
-                    >
-                      {generatingId === dispute.id ? 'Generating...' : 'Generate Letter'}
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {dispute.additional_notes && (
-                  <div className="mb-4">
-                    <h4 className="font-medium mb-2">Additional Notes:</h4>
-                    <p className="text-sm text-muted-foreground">{dispute.additional_notes}</p>
-                  </div>
-                )}
-                
-                {dispute.generated_letter && (
-                  <div>
-                    <h4 className="font-medium mb-2">Generated Dispute Letter:</h4>
-                    <Textarea
-                      value={dispute.generated_letter}
-                      readOnly
-                      className="min-h-[300px] font-mono text-sm"
-                    />
-                  </div>
-                )}
-                
-                {!dispute.generated_letter && (
-                  <div className="text-center py-4 border-2 border-dashed border-muted rounded-lg">
-                    <p className="text-muted-foreground">
-                      Click "Generate Letter" to create your dispute letter
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Dispute Letters Table
+          </CardTitle>
+          <CardDescription>
+            Your credit dispute letters and their current status
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {disputes.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No disputes found. Create your first dispute to get started.</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Creditor Name</TableHead>
+                  <TableHead>Account Number</TableHead>
+                  <TableHead>Issue Type</TableHead>
+                  <TableHead>Additional Notes</TableHead>
+                  <TableHead>Letter Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {disputes.map((dispute) => (
+                  <TableRow key={dispute.id}>
+                    <TableCell className="font-medium">{dispute.creditor_name}</TableCell>
+                    <TableCell>****{dispute.account_number.slice(-4)}</TableCell>
+                    <TableCell>{getIssueTypeBadge(dispute.issue_type)}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {dispute.additional_notes || 'None'}
+                    </TableCell>
+                    <TableCell>
+                      {dispute.generated_letter ? (
+                        <Badge className="bg-green-100 text-green-800">Generated</Badge>
+                      ) : (
+                        <Badge variant="outline">Not Generated</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => generateLetter(dispute.id)}
+                          disabled={generatingId === dispute.id}
+                          size="sm"
+                          variant="outline"
+                        >
+                          {generatingId === dispute.id ? 'Generating...' : 'Generate Letter'}
+                        </Button>
+                        {dispute.generated_letter && (
+                          <Button
+                            onClick={() => downloadPDF(dispute)}
+                            size="sm"
+                            variant="outline"
+                            className="flex items-center gap-1"
+                          >
+                            <Download className="h-4 w-4" />
+                            Download PDF
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
