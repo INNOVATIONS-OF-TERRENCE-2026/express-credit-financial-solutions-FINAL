@@ -185,7 +185,7 @@ const Index = () => {
         
         
         <div className="relative z-10 container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="flex flex-col items-center justify-center gap-12">
             {/* Hero Content */}
             <div className="text-center">
               <div className="flex flex-col items-center justify-center mb-8">
@@ -237,11 +237,9 @@ const Index = () => {
             </div>
 
             {/* Login/Register Forms */}
-            <div className="flex justify-center">
-              {showForms && <div className="animate-slide-up">
-                  {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
-                </div>}
-            </div>
+            {showForms && <div className="animate-slide-up flex justify-center">
+                {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
+              </div>}
           </div>
 
         </div>
