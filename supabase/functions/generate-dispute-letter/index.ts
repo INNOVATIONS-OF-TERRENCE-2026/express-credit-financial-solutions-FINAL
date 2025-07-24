@@ -40,7 +40,21 @@ serve(async (req) => {
       throw new Error('User not found');
     }
 
-    const userName = userData.user.email; // Use email as name fallback
+    // Get client data if client_id exists
+    let clientData = null;
+    if (dispute.client_id) {
+      const { data: client, error: clientError } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('id', dispute.client_id)
+        .single();
+      
+      if (!clientError && client) {
+        clientData = client;
+      }
+    }
+
+    const userName = clientData?.full_name || userData.user.email;
 
     const prompt = `You are an expert credit dispute assistant working for a company called Express Credit & Financial Solutions. Your job is to generate personalized and professional credit dispute letters.
 

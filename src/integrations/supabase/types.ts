@@ -107,10 +107,44 @@ export type Database = {
         }
         Relationships: []
       }
+      dispute_docs: {
+        Row: {
+          account_number: string | null
+          created_at: string
+          file_type: string
+          file_url: string
+          id: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          created_at?: string
+          file_type: string
+          file_url: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          created_at?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       dispute_letters: {
         Row: {
           account_number: string
           additional_notes: string | null
+          client_id: string | null
           created_at: string | null
           creditor_name: string
           generated_letter: string
@@ -121,6 +155,7 @@ export type Database = {
         Insert: {
           account_number: string
           additional_notes?: string | null
+          client_id?: string | null
           created_at?: string | null
           creditor_name: string
           generated_letter: string
@@ -131,6 +166,7 @@ export type Database = {
         Update: {
           account_number?: string
           additional_notes?: string | null
+          client_id?: string | null
           created_at?: string | null
           creditor_name?: string
           generated_letter?: string
@@ -138,7 +174,15 @@ export type Database = {
           issue_type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "dispute_letters_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
