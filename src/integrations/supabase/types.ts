@@ -270,10 +270,13 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          membership_plan: string | null
           payment_status: string | null
           plan_type: string | null
           stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           subscribed_at: string | null
+          subscription_status: string | null
           updated_at: string
           user_id: string | null
         }
@@ -281,10 +284,13 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          membership_plan?: string | null
           payment_status?: string | null
           plan_type?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscribed_at?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -292,10 +298,13 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          membership_plan?: string | null
           payment_status?: string | null
           plan_type?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           subscribed_at?: string | null
+          subscription_status?: string | null
           updated_at?: string
           user_id?: string | null
         }

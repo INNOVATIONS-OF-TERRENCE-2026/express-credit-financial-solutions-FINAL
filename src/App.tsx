@@ -12,6 +12,8 @@ import { DisputeCenter } from "./pages/DisputeCenter";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
 import { DocumentUpload } from "./pages/DocumentUpload";
 import MembershipPricing from "./pages/MembershipPricing";
+import MembershipSuccess from "./pages/MembershipSuccess";
+import Education from "./pages/Education";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,15 @@ const App = () => (
                 } 
               />
               <Route path="/membership" element={<MembershipPricing />} />
+              <Route path="/membership-success" element={<MembershipSuccess />} />
+              <Route 
+                path="/education" 
+                element={
+                  <ProtectedRoute requiredFeature="education" featureName="Education Center">
+                    <Education />
+                  </ProtectedRoute>
+                } 
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

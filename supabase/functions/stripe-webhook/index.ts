@@ -29,6 +29,47 @@ const getPlanTypeFromAmount = (amount: number): string => {
   }
 };
 
+// Helper function to update user membership
+const updateUserMembership = async (
+  supabaseClient: any,
+  email: string,
+  planType: string,
+  stripeCustomerId: string,
+  subscriptionId?: string,
+  status: string = 'active'
+) => {
+  logStep("Updating user membership", { 
+    email, 
+    planType, 
+    stripeCustomerId, 
+    subscriptionId, 
+    status 
+  });
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .upsert({
+      email: email,
+      membership_plan: planType,
+      subscription_status: status,
+      payment_status: status,
+      plan_type: planType,
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: subscriptionId,
+      subscribed_at: status === 'active' ? new Date().toISOString() : null,
+      updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'email'
+    });
+
+  if (error) {
+    logStep("Error updating user membership", { error });
+    throw error;
+  } else {
+    logStep("User membership updated successfully");
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -86,32 +127,14 @@ serve(async (req) => {
           const planType = getPlanTypeFromAmount(session.amount_total);
           const isOneTime = session.mode === "payment";
           
-          logStep("Updating user profile", { 
-            email: session.customer_email, 
-            planType, 
-            isOneTime,
-            amount: session.amount_total 
-          });
-
-          // Update profiles table
-          const { error: profileError } = await supabaseClient
-            .from("profiles")
-            .upsert({
-              email: session.customer_email,
-              plan_type: planType,
-              payment_status: "active",
-              subscribed_at: new Date().toISOString(),
-              stripe_customer_id: session.customer,
-              updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'email'
-            });
-
-          if (profileError) {
-            logStep("Error updating profile", { error: profileError });
-          } else {
-            logStep("Profile updated successfully");
-          }
+          await updateUserMembership(
+            supabaseClient,
+            session.customer_email,
+            planType,
+            session.customer as string,
+            session.subscription as string,
+            "active"
+          );
 
           // Update subscriptions table
           const { error: subError } = await supabaseClient
@@ -127,6 +150,32 @@ serve(async (req) => {
           } else {
             logStep("Subscription updated successfully");
           }
+        }
+        break;
+
+      case "customer.subscription.created":
+        const createdSubscription = event.data.object as Stripe.Subscription;
+        logStep("Subscription created", { 
+          subscriptionId: createdSubscription.id, 
+          customerId: createdSubscription.customer 
+        });
+
+        // Get customer details
+        const createdCustomer = await stripe.customers.retrieve(createdSubscription.customer as string);
+        if (createdCustomer && !createdCustomer.deleted && createdCustomer.email) {
+          // Determine plan type from subscription price
+          const priceId = createdSubscription.items.data[0].price.id;
+          const price = await stripe.prices.retrieve(priceId);
+          const planType = getPlanTypeFromAmount(price.unit_amount || 0);
+          
+          await updateUserMembership(
+            supabaseClient,
+            createdCustomer.email,
+            planType,
+            createdSubscription.customer as string,
+            createdSubscription.id,
+            createdSubscription.status === "active" ? "active" : "inactive"
+          );
         }
         break;
 
@@ -166,24 +215,22 @@ serve(async (req) => {
           status: updatedSubscription.status 
         });
 
-        // Get customer email
-        const customer = await stripe.customers.retrieve(updatedSubscription.customer as string);
-        if (customer && !customer.deleted && customer.email) {
-          const paymentStatus = updatedSubscription.status === "active" ? "active" : "inactive";
+        // Get customer details and plan type
+        const updatedCustomer = await stripe.customers.retrieve(updatedSubscription.customer as string);
+        if (updatedCustomer && !updatedCustomer.deleted && updatedCustomer.email) {
+          // Determine plan type from subscription price
+          const priceId = updatedSubscription.items.data[0].price.id;
+          const price = await stripe.prices.retrieve(priceId);
+          const planType = getPlanTypeFromAmount(price.unit_amount || 0);
           
-          const { error } = await supabaseClient
-            .from("profiles")
-            .update({
-              payment_status: paymentStatus,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("stripe_customer_id", updatedSubscription.customer);
-
-          if (error) {
-            logStep("Error updating subscription status", { error });
-          } else {
-            logStep("Subscription status updated", { status: paymentStatus });
-          }
+          await updateUserMembership(
+            supabaseClient,
+            updatedCustomer.email,
+            planType,
+            updatedSubscription.customer as string,
+            updatedSubscription.id,
+            updatedSubscription.status === "active" ? "active" : "inactive"
+          );
         }
         break;
 
@@ -191,20 +238,17 @@ serve(async (req) => {
         const deletedSubscription = event.data.object as Stripe.Subscription;
         logStep("Subscription deleted", { subscriptionId: deletedSubscription.id });
 
-        // Update profile to inactive
-        const { error } = await supabaseClient
-          .from("profiles")
-          .update({
-            payment_status: "inactive",
-            plan_type: null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("stripe_customer_id", deletedSubscription.customer);
-
-        if (error) {
-          logStep("Error deactivating subscription", { error });
-        } else {
-          logStep("Subscription deactivated successfully");
+        // Get customer details 
+        const deletedCustomer = await stripe.customers.retrieve(deletedSubscription.customer as string);
+        if (deletedCustomer && !deletedCustomer.deleted && deletedCustomer.email) {
+          await updateUserMembership(
+            supabaseClient,
+            deletedCustomer.email,
+            null,
+            deletedSubscription.customer as string,
+            deletedSubscription.id,
+            "canceled"
+          );
         }
         break;
 

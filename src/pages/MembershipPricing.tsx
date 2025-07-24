@@ -29,7 +29,7 @@ const plans = [
     frequency: "monthly",
     isOneTime: false,
     icon: Star,
-    badge: "Popular",
+    badge: null,
     features: [
       "Everything in Basic",
       "Up to 10 disputes/month",
@@ -57,7 +57,7 @@ const plans = [
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
-    badge: "Best Value",
+    badge: "Most Popular",
     features: [
       "Full Report Audit",
       "Unlimited Disputes",
@@ -103,6 +103,20 @@ export default function MembershipPricing() {
       // Redirect to Stripe Checkout
       if (data?.url) {
         window.open(data.url, '_blank');
+        
+        // Clear loading state immediately and show success message
+        setLoading(null);
+        
+        toast({
+          title: "Redirected to Payment",
+          description: "Please complete your payment in the new tab. Your membership will be activated automatically.",
+          variant: "default"
+        });
+
+        // Set up a timer to refresh membership after giving time for payment
+        setTimeout(() => {
+          refreshMembership();
+        }, 10000); // Refresh after 10 seconds
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
@@ -134,7 +148,7 @@ export default function MembershipPricing() {
             const Icon = plan.icon;
             return (
               <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-elegant ${
-                plan.badge === "Popular" ? "border-primary shadow-elegant scale-105" : ""
+                plan.badge === "Most Popular" ? "border-primary shadow-elegant scale-105" : ""
               }`}>
                 {plan.badge && (
                   <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
@@ -173,7 +187,7 @@ export default function MembershipPricing() {
                     onClick={() => handleSignUp(plan)}
                     disabled={loading === plan.name}
                     className="w-full"
-                    variant={plan.badge === "Popular" ? "default" : "outline"}
+                    variant={plan.badge === "Most Popular" ? "default" : "outline"}
                   >
                     {loading === plan.name ? "Processing..." : "Sign Up"}
                   </Button>
