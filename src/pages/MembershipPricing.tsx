@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const plans = [
   {
@@ -73,6 +74,7 @@ export default function MembershipPricing() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { planType, paymentStatus, refreshMembership } = useMembership();
+  const isMobile = useIsMobile();
 
   const handleSignUp = async (plan: typeof plans[0]) => {
     try {
@@ -102,21 +104,27 @@ export default function MembershipPricing() {
 
       // Redirect to Stripe Checkout
       if (data?.url) {
-        window.open(data.url, '_blank');
-        
-        // Clear loading state immediately and show success message
-        setLoading(null);
-        
-        toast({
-          title: "Redirected to Payment",
-          description: "Please complete your payment in the new tab. Your membership will be activated automatically.",
-          variant: "default"
-        });
+        if (isMobile) {
+          // On mobile, use same window to avoid popup blockers
+          window.location.href = data.url;
+        } else {
+          // On desktop, open in new tab
+          window.open(data.url, '_blank');
+          
+          // Clear loading state immediately and show success message for desktop
+          setLoading(null);
+          
+          toast({
+            title: "Redirected to Payment",
+            description: "Please complete your payment in the new tab. Your membership will be activated automatically.",
+            variant: "default"
+          });
 
-        // Set up a timer to refresh membership after giving time for payment
-        setTimeout(() => {
-          refreshMembership();
-        }, 10000); // Refresh after 10 seconds
+          // Set up a timer to refresh membership after giving time for payment
+          setTimeout(() => {
+            refreshMembership();
+          }, 10000); // Refresh after 10 seconds
+        }
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
