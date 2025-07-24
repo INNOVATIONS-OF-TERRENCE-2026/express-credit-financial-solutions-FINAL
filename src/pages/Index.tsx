@@ -176,7 +176,7 @@ const Index = () => {
                 </div>
               </div>
               
-              <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl">Transform your financial future with our proven credit repair strategies. Our expert team has helped Thousands of clients improve their credit scores and achieve their financial goals.</p>
+              <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">Transform your financial future with our proven credit repair strategies. Our expert team has helped Thousands of clients improve their credit scores and achieve their financial goals.</p>
 
               {/* Features Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
