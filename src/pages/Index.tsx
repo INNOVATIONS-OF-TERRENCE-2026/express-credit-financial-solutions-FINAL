@@ -84,13 +84,13 @@ const Index = () => {
 
             {/* Membership Status */}
             <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardHeader>
+              <CardHeader className="bg-black">
                 <CardTitle className="flex items-center gap-2 text-primary-foreground">
                   <Star className="h-5 w-5" />
                   Membership Status
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="bg-lime-600">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-primary-foreground/60">Current Plan</p>
@@ -111,7 +111,7 @@ const Index = () => {
             {/* Quick Access Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dashboard') && navigate('/')}>
-                <CardHeader className="text-center">
+                <CardHeader className="text-center bg-transparent">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dashboard</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">View your credit overview</CardDescription>
@@ -119,7 +119,7 @@ const Index = () => {
               </Card>
 
               <Card className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dispute-generator') && navigate('/dispute-center')}>
-                <CardHeader className="text-center">
+                <CardHeader className="text-center bg-transparent">
                   <Award className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dispute Center</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Generate dispute letters</CardDescription>
@@ -128,7 +128,7 @@ const Index = () => {
               </Card>
 
               <Card className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('credit-upload') && navigate('/documents')}>
-                <CardHeader className="text-center">
+                <CardHeader className="text-center bg-transparent">
                   <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Upload Documents</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Upload credit reports</CardDescription>
@@ -137,7 +137,7 @@ const Index = () => {
               </Card>
 
               <Card className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('education') && navigate('/education')}>
-                <CardHeader className="text-center">
+                <CardHeader className="text-center bg-transparent">
                   <Shield className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Education</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Learn credit strategies</CardDescription>
