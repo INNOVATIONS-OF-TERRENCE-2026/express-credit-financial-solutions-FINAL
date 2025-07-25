@@ -7,16 +7,19 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { ClientDashboard } from '@/components/ClientDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
-import { Shield, Star, Award, TrendingUp, CreditCard, Lock } from 'lucide-react';
+import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { ContentModal } from '@/components/ContentModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
   const [modalContent, setModalContent] = useState<'fcra' | 'legal' | 'rapid' | null>(null);
+  const [policyModal, setPolicyModal] = useState<'terms' | 'privacy' | 'refund' | null>(null);
   const {
     user,
     loading,
@@ -243,14 +246,206 @@ const Index = () => {
       {/* Content Modal */}
       <ContentModal isOpen={modalContent !== null} onClose={() => setModalContent(null)} content={modalContent || 'fcra'} />
       
-      {/* Terms and Conditions */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12">
-        <div className="container mx-auto px-4 flex justify-center">
-          <p className="text-xs text-primary-foreground/70 leading-relaxed max-w-6xl text-center">
-            We operate in full compliance with the Credit Repair Organizations Act (CROA), the Fair Credit Reporting Act (FCRA), and applicable state regulations. Express Credit & Financial Solutions provides educational resources and services related to credit repair, credit improvement strategies, and financial wellness. Results are not guaranteed and may vary based on individual credit profiles, creditor responses, and compliance with recommended actions. You understand and agree that improving your credit requires your active participation. This may include providing accurate information, forwarding correspondence from credit bureaus, and maintaining good financial habits. We do not assume liability for errors or omissions in the information you provide. All information you submit through this website is subject to our Privacy Policy. We do not sell, trade, or rent your personal data. By submitting your information, you authorize Express Credit & Financial Solutions to contact you via phone, SMS, or email regarding our services.
-          </p>
+      {/* Membership Plans Section */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+              MEMBERSHIP PLAN OPTIONS
+            </h2>
+            <p className="text-lg text-primary-foreground/80 max-w-4xl mx-auto">
+              Explore our premium credit restoration packages designed to meet your goals, whether you're rebuilding, 
+              optimizing, or transforming your financial profile. Each plan includes expert guidance, compliance-driven 
+              dispute strategies, and personalized service.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {/* Basic Package */}
+            <Card className="relative bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <CardTitle className="text-lg text-primary-foreground">Basic Package</CardTitle>
+                </div>
+                <div className="text-2xl font-bold text-accent">$99.99/month</div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ul className="text-sm text-primary-foreground/90 space-y-2">
+                  <li>• Disputes for up to 4 accounts/month (1 bureau)</li>
+                  <li>• Monthly Credit Report Review & Analysis</li>
+                  <li>• Credit Monitoring Setup Guidance</li>
+                  <li>• Custom Onboarding Email with action checklist</li>
+                  <li>• Access to Client Document Portal</li>
+                  <li>• Limited Email Support</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Pro Package */}
+            <Card className="relative bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-accent text-accent-foreground">⭐ Most Popular</Badge>
+              </div>
+              <CardHeader className="text-center pt-6">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Star className="w-4 h-4 text-accent" />
+                  <CardTitle className="text-lg text-primary-foreground">Pro Package</CardTitle>
+                </div>
+                <div className="text-2xl font-bold text-accent">$179.99/month</div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ul className="text-sm text-primary-foreground/90 space-y-2">
+                  <li>• Disputes for up to 10 accounts/month across 3 bureaus</li>
+                  <li>• Includes everything in Basic</li>
+                  <li>• Custom Dispute Letter Generation</li>
+                  <li>• Monthly Credit Coaching Call with expert</li>
+                  <li>• Priority Email & Chat Support</li>
+                  <li>• Soft Inquiry Removal Assistance</li>
+                  <li>• Monthly Credit Score Progress Tracking Report</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Elite Package */}
+            <Card className="relative bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Award className="w-4 h-4 text-accent" />
+                  <CardTitle className="text-lg text-primary-foreground">Elite Package</CardTitle>
+                </div>
+                <div className="text-2xl font-bold text-accent">$249.99/month</div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ul className="text-sm text-primary-foreground/90 space-y-2">
+                  <li>• Unlimited Disputes with advanced bureau tactics</li>
+                  <li>• Includes everything in Pro</li>
+                  <li>• Direct Assigned Credit Coach</li>
+                  <li>• 24–48 Hour Dispute Prep Turnaround</li>
+                  <li>• Rebuilding Strategy Session (tradelines, AU options)</li>
+                  <li>• Cease & Desist & Debt Validation Letters</li>
+                  <li>• Data Freeze Setup Support (LexisNexis, SageStream, etc.)</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* All Exclusive Package */}
+            <Card className="relative bg-gradient-to-br from-accent/20 to-accent/5 backdrop-blur-sm border-accent/30 hover:border-accent/50 transition-all duration-300">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-elegant text-primary-foreground">🔥 Premium</Badge>
+              </div>
+              <CardHeader className="text-center pt-6">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <TrendingUp className="w-4 h-4 text-accent" />
+                  <CardTitle className="text-lg text-primary-foreground">All Exclusive Package</CardTitle>
+                </div>
+                <div className="text-2xl font-bold text-accent">$599.99</div>
+                <div className="text-sm text-primary-foreground/80">(One-Time)</div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ul className="text-sm text-primary-foreground/90 space-y-2">
+                  <li>• Full Credit Report Audit + Violation Flagging</li>
+                  <li>• Unlimited Disputes across all accounts</li>
+                  <li>• Custom Dispute Strategy Playbook</li>
+                  <li>• Upload & Review of All Supporting Documents</li>
+                  <li>• VIP Concierge Priority Service</li>
+                  <li>• 60-Day Post Audit Follow-Up</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8 border-t border-white/10">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4 md:gap-8">
+              <button
+                onClick={() => setPolicyModal('terms')}
+                className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline"
+              >
+                Terms & Conditions
+              </button>
+              <button
+                onClick={() => setPolicyModal('privacy')}
+                className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline"
+              >
+                Privacy Policy
+              </button>
+              <button
+                onClick={() => setPolicyModal('refund')}
+                className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline"
+              >
+                Refund Policy
+              </button>
+            </div>
+            <div className="text-xs text-primary-foreground/60 text-center md:text-right">
+              © 2024 Express Credit & Financial Solutions LLC. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Policy Modals */}
+      <Dialog open={policyModal !== null} onOpenChange={() => setPolicyModal(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] bg-background border-border">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              {policyModal === 'terms' && 'Terms & Conditions'}
+              {policyModal === 'privacy' && 'Privacy Policy'}
+              {policyModal === 'refund' && 'Refund Policy'}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[60vh] pr-4">
+            <div className="space-y-4 text-sm leading-relaxed">
+              {policyModal === 'terms' && (
+                <div>
+                  <p className="mb-4">
+                    By accessing and using our website or subscribing to any service provided by Express Credit & Financial Solutions LLC ("we," "our," "us"), you agree to be bound by the following terms and conditions:
+                  </p>
+                  <div className="space-y-3">
+                    <p><strong>Eligibility:</strong> You must be at least 18 years old and legally capable of entering into a binding agreement.</p>
+                    <p><strong>Services:</strong> We offer credit repair, financial education, and credit consulting services via subscription-based plans.</p>
+                    <p><strong>Payments:</strong> Subscription fees are billed monthly through our Stripe payment processor. Late or failed payments may result in suspension of services.</p>
+                    <p><strong>Client Responsibility:</strong> You agree to provide accurate and truthful information. Results vary based on individual credit history and cooperation.</p>
+                    <p><strong>Communication:</strong> By subscribing, you consent to receive communications via email, phone, or SMS related to your account.</p>
+                    <p><strong>Termination:</strong> We reserve the right to cancel your service if fraudulent, abusive, or non-cooperative behavior is detected.</p>
+                    <p><strong>Disclaimers:</strong> We do not guarantee specific results or credit score increases. Our services are not a substitute for legal or financial advice.</p>
+                  </div>
+                </div>
+              )}
+              {policyModal === 'privacy' && (
+                <div>
+                  <p className="mb-4">
+                    Your privacy is important to us. This policy outlines how we collect, use, and protect your information:
+                  </p>
+                  <div className="space-y-3">
+                    <p><strong>Information Collection:</strong> We collect personal data such as name, email, phone number, billing info, and credit report details you voluntarily provide.</p>
+                    <p><strong>Usage:</strong> Information is used to provide services, process payments, analyze progress, and improve user experience.</p>
+                    <p><strong>Security:</strong> We use SSL encryption, secure databases, and comply with relevant data protection laws to safeguard your data.</p>
+                    <p><strong>Sharing:</strong> We do not sell or share your information with third parties unless required by law or necessary to provide our services.</p>
+                    <p><strong>Your Rights:</strong> You may request access, correction, or deletion of your data at any time by contacting us.</p>
+                  </div>
+                </div>
+              )}
+              {policyModal === 'refund' && (
+                <div>
+                  <p className="mb-4">
+                    Our refund policy is structured to ensure transparency and fairness:
+                  </p>
+                  <div className="space-y-3">
+                    <p><strong>No Refunds on Services Rendered:</strong> Due to the nature of digital credit repair services, all sales are final once services have begun.</p>
+                    <p><strong>Cancellation Policy:</strong> Clients may cancel any time via their account dashboard. Cancellations apply to future billings.</p>
+                    <p><strong>Billing Errors:</strong> If you believe you were billed in error, please contact us within 7 days of the charge to investigate and resolve.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default Index;
