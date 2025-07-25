@@ -6,10 +6,20 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle, Circle, ExternalLink, CreditCard, Users, Building, GraduationCap, TrendingUp, Star, Shield, Award } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useClientAgreement } from '@/hooks/useClientAgreement';
+import { ClientAgreementModal } from '@/components/ClientAgreementModal';
+import { AURequestModal } from '@/components/AURequestModal';
+import { ConsultationModal } from '@/components/ConsultationModal';
 
 export default function CreditBuildingCenter() {
   const [expandedSection, setExpandedSection] = useState<string | null>('education');
   const [appliedTradelines, setAppliedTradelines] = useState<string[]>([]);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
+  const [showAUModal, setShowAUModal] = useState(false);
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [selectedTradelineId, setSelectedTradelineId] = useState<string | undefined>();
+  
+  const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
 
   const progressSteps = [
     { id: 'disputes', label: 'Disputes Completed', completed: true },
@@ -120,9 +130,59 @@ export default function CreditBuildingCenter() {
     );
   };
 
+  const handleAURequest = (tradelineId?: string) => {
+    if (!hasSignedAgreement) {
+      setShowAgreementModal(true);
+      return;
+    }
+    setSelectedTradelineId(tradelineId);
+    setShowAUModal(true);
+  };
+
+  const handleScheduleConsultation = () => {
+    if (!hasSignedAgreement) {
+      setShowAgreementModal(true);
+      return;
+    }
+    setShowConsultationModal(true);
+  };
+
+  // Show loading state while checking agreement status
+  if (agreementLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-b-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your credit building center...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Agreement Check Banner */}
+        {!hasSignedAgreement && (
+          <Card className="mb-8 border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20">
+            <CardContent className="py-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                    Agreement Required
+                  </h3>
+                  <p className="text-yellow-700 dark:text-yellow-300">
+                    You must sign our Client Service Agreement before accessing credit building tools.
+                  </p>
+                </div>
+                <Button onClick={() => setShowAgreementModal(true)} className="bg-yellow-600 hover:bg-yellow-700">
+                  Sign Agreement
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
@@ -136,7 +196,7 @@ export default function CreditBuildingCenter() {
           </p>
           <Badge variant="secondary" className="mt-4 px-6 py-2 text-lg">
             <Shield className="h-4 w-4 mr-2" />
-            Premium Member Access
+            {hasSignedAgreement ? 'Full Access Granted' : 'Agreement Required'}
           </Badge>
         </div>
 
@@ -354,10 +414,12 @@ export default function CreditBuildingCenter() {
                   </div>
                   <Button 
                     className="w-full mt-4" 
-                    disabled={!au.available}
+                    disabled={!au.available || !hasSignedAgreement}
                     variant={au.available ? "default" : "secondary"}
+                    onClick={() => au.available && handleAURequest(au.id)}
                   >
-                    {au.available ? 'Request AU Slot' : 'Sold Out'}
+                    {!hasSignedAgreement ? 'Sign Agreement First' : 
+                     au.available ? 'Request AU Slot' : 'Sold Out'}
                   </Button>
                 </div>
               ))}
@@ -418,11 +480,27 @@ export default function CreditBuildingCenter() {
               Our team is here to guide you through every step of your credit building journey. 
               Contact us for personalized recommendations.
             </p>
-            <Button size="lg" className="text-lg px-8 py-3">
-              Schedule Consultation
+            <Button size="lg" className="text-lg px-8 py-3" onClick={handleScheduleConsultation}>
+              {hasSignedAgreement ? 'Schedule Consultation' : 'Sign Agreement to Schedule'}
             </Button>
           </CardContent>
         </Card>
+
+        {/* Modals */}
+        <ClientAgreementModal 
+          isOpen={showAgreementModal} 
+          onClose={() => setShowAgreementModal(false)}
+          onAgreementSigned={refetchAgreementStatus}
+        />
+        <AURequestModal 
+          isOpen={showAUModal} 
+          onClose={() => setShowAUModal(false)}
+          tradelineId={selectedTradelineId}
+        />
+        <ConsultationModal 
+          isOpen={showConsultationModal} 
+          onClose={() => setShowConsultationModal(false)}
+        />
       </div>
     </div>
   );

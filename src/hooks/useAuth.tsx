@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
@@ -50,6 +50,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Send notification for new user signups
+        if (event === 'SIGNED_UP' as AuthChangeEvent && session?.user) {
+          try {
+            await supabase.functions.invoke('new-user-notification', {
+              body: {
+                userEmail: session.user.email,
+                userName: session.user.user_metadata?.full_name || session.user.email,
+                userId: session.user.id,
+                notificationType: 'user_signup'
+              }
+            });
+          } catch (error) {
+            console.error('Failed to send new user notification:', error);
+          }
+        }
         
         // Check admin status when user changes
         if (session?.user) {

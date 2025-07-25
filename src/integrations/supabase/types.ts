@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      au_requests: {
+        Row: {
+          created_at: string
+          credit_bureau: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          status: string | null
+          tradeline_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credit_bureau: string
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          status?: string | null
+          tradeline_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credit_bureau?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          status?: string | null
+          tradeline_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -56,6 +95,39 @@ export type Database = {
           table_name?: string
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      client_agreements: {
+        Row: {
+          agreement_version: string | null
+          created_at: string
+          full_name: string
+          id: string
+          ip_address: string | null
+          signature_data: string
+          signed_at: string
+          user_id: string
+        }
+        Insert: {
+          agreement_version?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          ip_address?: string | null
+          signature_data: string
+          signed_at?: string
+          user_id: string
+        }
+        Update: {
+          agreement_version?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          ip_address?: string | null
+          signature_data?: string
+          signed_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -271,6 +343,36 @@ export type Database = {
           created_at?: string
           id?: string
           max_file_size_mb?: number
+        }
+        Relationships: []
+      }
+      notification_logs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          email_error: string | null
+          email_sent: boolean | null
+          id: string
+          notification_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          email_error?: string | null
+          email_sent?: boolean | null
+          id?: string
+          notification_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          email_error?: string | null
+          email_sent?: boolean | null
+          id?: string
+          notification_type?: string
+          user_id?: string | null
         }
         Relationships: []
       }
