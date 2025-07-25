@@ -330,11 +330,11 @@ const Index = () => {
             </Card>
 
             {/* All Exclusive Package */}
-            <Card className="relative bg-gradient-to-br from-accent/20 to-accent/5 backdrop-blur-sm border-accent/30 hover:border-accent/50 transition-all duration-300">
+            <Card className="relative bg-gradient-to-br from-accent/20 to-accent/5 backdrop-blur-sm border-accent/30 hover:border-accent/50 transition-all duration-300 bg-transparent">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-gradient-elegant text-primary-foreground">🔥 Premium</Badge>
               </div>
-              <CardHeader className="text-center pt-6">
+              <CardHeader className="text-center pt-6 bg-transparent">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <TrendingUp className="w-4 h-4 text-accent" />
                   <CardTitle className="text-lg text-primary-foreground">All Exclusive Package</CardTitle>
@@ -342,7 +342,7 @@ const Index = () => {
                 <div className="text-2xl font-bold text-accent">$599.99</div>
                 <div className="text-sm text-primary-foreground/80">(One-Time)</div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 bg-transparent">
                 <ul className="text-sm text-primary-foreground/90 space-y-2">
                   <li>• Full Credit Report Audit + Violation Flagging</li>
                   <li>• Unlimited Disputes across all accounts</li>
@@ -362,22 +362,13 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-4 md:gap-8">
-              <button
-                onClick={() => setPolicyModal('terms')}
-                className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline"
-              >
+              <button onClick={() => setPolicyModal('terms')} className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline">
                 Terms & Conditions
               </button>
-              <button
-                onClick={() => setPolicyModal('privacy')}
-                className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline"
-              >
+              <button onClick={() => setPolicyModal('privacy')} className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline">
                 Privacy Policy
               </button>
-              <button
-                onClick={() => setPolicyModal('refund')}
-                className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline"
-              >
+              <button onClick={() => setPolicyModal('refund')} className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline">
                 Refund Policy
               </button>
             </div>
@@ -400,8 +391,7 @@ const Index = () => {
           </DialogHeader>
           <ScrollArea className="h-[60vh] pr-4">
             <div className="space-y-4 text-sm leading-relaxed">
-              {policyModal === 'terms' && (
-                <div>
+              {policyModal === 'terms' && <div>
                   <p className="mb-4">
                     By accessing and using our website or subscribing to any service provided by Express Credit & Financial Solutions LLC ("we," "our," "us"), you agree to be bound by the following terms and conditions:
                   </p>
@@ -414,10 +404,8 @@ const Index = () => {
                     <p><strong>Termination:</strong> We reserve the right to cancel your service if fraudulent, abusive, or non-cooperative behavior is detected.</p>
                     <p><strong>Disclaimers:</strong> We do not guarantee specific results or credit score increases. Our services are not a substitute for legal or financial advice.</p>
                   </div>
-                </div>
-              )}
-              {policyModal === 'privacy' && (
-                <div>
+                </div>}
+              {policyModal === 'privacy' && <div>
                   <p className="mb-4">
                     Your privacy is important to us. This policy outlines how we collect, use, and protect your information:
                   </p>
@@ -428,10 +416,8 @@ const Index = () => {
                     <p><strong>Sharing:</strong> We do not sell or share your information with third parties unless required by law or necessary to provide our services.</p>
                     <p><strong>Your Rights:</strong> You may request access, correction, or deletion of your data at any time by contacting us.</p>
                   </div>
-                </div>
-              )}
-              {policyModal === 'refund' && (
-                <div>
+                </div>}
+              {policyModal === 'refund' && <div>
                   <p className="mb-4">
                     Our refund policy is structured to ensure transparency and fairness:
                   </p>
@@ -440,8 +426,7 @@ const Index = () => {
                     <p><strong>Cancellation Policy:</strong> Clients may cancel any time via their account dashboard. Cancellations apply to future billings.</p>
                     <p><strong>Billing Errors:</strong> If you believe you were billed in error, please contact us within 7 days of the charge to investigate and resolve.</p>
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
           </ScrollArea>
         </DialogContent>
