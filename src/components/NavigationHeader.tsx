@@ -23,7 +23,7 @@ export function NavigationHeader() {
   };
   const getPlanBadge = () => {
     if (paymentStatus !== 'active') {
-      return <Badge variant="secondary">Inactive</Badge>;
+      return;
     }
     switch (planType) {
       case 'Basic Package':
