@@ -24,7 +24,7 @@ const getMembershipFromPriceId = (priceId: string): { membership: string; planTy
       return { membership: "elite", planType: "Elite Package" };
     case "price_1Rp61BAyM7nkjbCb5Psvz":
       return { membership: "exclusive", planType: "All Exclusive Package" };
-    case "price_1Rp61BAyM7nkjbCb5Psv":
+    case "price_1Rp66ZAyM7nkjbCbz5jXiZDE":
       return { membership: "vip", planType: "$1 24-Hour VIP Pass", isVip: true };
     case "price_1Rp15nAyM7nkjbCbgzjS4NNT":
       return { membership: "test", planType: "Test Membership" };
