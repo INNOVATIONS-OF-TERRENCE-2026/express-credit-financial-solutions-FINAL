@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useRoles } from './useRoles';
 
-export type PlanType = 'Basic Package' | 'Pro Package' | 'Elite Package' | 'All Exclusive Package' | 'vip';
+export type PlanType = 'Basic Package' | 'Pro Package' | 'Elite Package' | 'All Exclusive Package';
 
 interface MembershipContextType {
   planType: PlanType | null;
@@ -85,17 +85,6 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       return true;
     }
     
-    // Check for VIP 24-hour pass access - must validate expiration
-    if (planType === 'vip' && expiresAt) {
-      const now = new Date();
-      const expiration = new Date(expiresAt);
-      if (now >= expiration) {
-        // VIP access has expired, trigger refresh to update status
-        setTimeout(() => refreshMembership(), 0);
-        return false;
-      }
-      return true;
-    }
     
     // Publicly accessible features (no login or membership required)
     if (feature === 'education' || feature === 'dashboard' || feature === 'credit-building' || feature === 'data-freeze') {
