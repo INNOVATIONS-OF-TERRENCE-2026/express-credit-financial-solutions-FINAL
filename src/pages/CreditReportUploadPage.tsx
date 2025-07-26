@@ -213,15 +213,18 @@ export function CreditReportUploadPage() {
 
       // Upload file to storage
       const filePath = await uploadFile(formData.file!);
+      const fileName = formData.file!.name;
 
       // Save document record
-      const { error } = await supabase
+      const { data: documentRecord, error } = await supabase
         .from('documents')
         .insert({
           user_id: user.id,
           file_path: filePath,
           doc_type: 'Credit Report'
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -246,10 +249,44 @@ export function CreditReportUploadPage() {
         // Don't fail the upload if email fails
       }
 
-      toast({
-        title: "Success",
-        description: "Credit report uploaded successfully! We'll analyze it and contact you with next steps.",
-      });
+      // Trigger AI analysis of the credit report
+      try {
+        console.log('Starting AI analysis of credit report:', fileName);
+        const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-credit-report', {
+          body: {
+            creditReportPath: filePath,
+            fileName: fileName,
+            reportId: documentRecord.id
+          }
+        });
+
+        if (analysisError) {
+          console.error('AI analysis failed:', analysisError);
+          toast({
+            title: "Upload Successful",
+            description: "File uploaded successfully, but AI analysis failed. You can still create disputes manually.",
+          });
+        } else {
+          console.log('AI analysis completed:', analysisData);
+          if (analysisData.flaggedAccountsCount > 0) {
+            toast({
+              title: "AI Analysis Complete",
+              description: `Credit report uploaded and analyzed! Found ${analysisData.flaggedAccountsCount} accounts that may need to be disputed. Check the Dispute Center for details.`,
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: "Credit report uploaded and analyzed! No disputable items were automatically identified.",
+            });
+          }
+        }
+      } catch (analysisError) {
+        console.error('Error during AI analysis:', analysisError);
+        toast({
+          title: "Upload Successful",
+          description: "Credit report uploaded successfully! AI analysis will run in the background.",
+        });
+      }
 
       // Reset form
       setFormData({

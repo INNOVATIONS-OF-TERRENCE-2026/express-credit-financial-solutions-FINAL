@@ -370,6 +370,72 @@ export type Database = {
         }
         Relationships: []
       }
+      flagged_disputes: {
+        Row: {
+          account_number: string | null
+          account_type: string | null
+          additional_details: Json | null
+          admin_approved: boolean | null
+          admin_notes: string | null
+          admin_reviewed: boolean | null
+          balance: number | null
+          created_at: string
+          credit_report_id: string | null
+          creditor_name: string
+          dispute_letter_generated: boolean | null
+          flag_confidence: number | null
+          flag_reason: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          account_type?: string | null
+          additional_details?: Json | null
+          admin_approved?: boolean | null
+          admin_notes?: string | null
+          admin_reviewed?: boolean | null
+          balance?: number | null
+          created_at?: string
+          credit_report_id?: string | null
+          creditor_name: string
+          dispute_letter_generated?: boolean | null
+          flag_confidence?: number | null
+          flag_reason: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          account_type?: string | null
+          additional_details?: Json | null
+          admin_approved?: boolean | null
+          admin_notes?: string | null
+          admin_reviewed?: boolean | null
+          balance?: number | null
+          created_at?: string
+          credit_report_id?: string | null
+          creditor_name?: string
+          dispute_letter_generated?: boolean | null
+          flag_confidence?: number | null
+          flag_reason?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           created_at: string
