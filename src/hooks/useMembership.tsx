@@ -80,8 +80,20 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       return true;
     }
     
-    // Check for VIP access first - they get full access until expiration
+    // Check for VIP trial access first - they get full access until expiration
     if (membershipType === 'vip_trial' && paymentStatus === 'active') {
+      return true;
+    }
+    
+    // Check for VIP 24-hour pass access - must validate expiration
+    if (planType === 'vip' && expiresAt) {
+      const now = new Date();
+      const expiration = new Date(expiresAt);
+      if (now >= expiration) {
+        // VIP access has expired, trigger refresh to update status
+        setTimeout(() => refreshMembership(), 0);
+        return false;
+      }
       return true;
     }
     
