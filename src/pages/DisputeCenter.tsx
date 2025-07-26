@@ -20,6 +20,7 @@ import { CreditReportUpload } from '@/components/CreditReportUpload';
 import { FlaggedDisputesTable } from '@/components/FlaggedDisputesTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Eye } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
 
 interface DisputeLetter {
   id: string;
@@ -286,12 +287,15 @@ export function DisputeCenter() {
       <NavigationHeader />
       <div className="container mx-auto p-6">
         <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Dispute Center</h1>
-              <p className="text-muted-foreground mt-2">
-                Manage your credit disputes and generate FCRA-compliant letters
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <BackButton />
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Dispute Center</h1>
+                <p className="text-muted-foreground mt-2">
+                  Manage your credit disputes and generate FCRA-compliant letters
+                </p>
+              </div>
             </div>
             <Button 
               onClick={() => setShowForm(!showForm)}

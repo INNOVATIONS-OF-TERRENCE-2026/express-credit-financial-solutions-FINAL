@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput } from '@/utils/inputValidation';
+import { BackButton } from '@/components/BackButton';
 
 interface CreditReport {
   id: string;
@@ -392,6 +393,9 @@ export function CreditReportUploadPage() {
       <NavigationHeader />
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <BackButton />
+          </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Upload Your Credit Report</h1>
           <p className="text-muted-foreground">
             Upload a recent copy of your credit report so we can analyze it and generate dispute letters for inaccurate items.

@@ -14,6 +14,7 @@ import { OpenAITestPanel } from "@/components/OpenAITestPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { BackButton } from '@/components/BackButton';
 
 const educationItems = [
   {
@@ -979,15 +980,17 @@ This personalized content addresses your specific learning goal while providing 
     <div className="min-h-screen bg-background">
       <NavigationHeader />
       <div className="container mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Credit Education Center
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. 
-            Knowledge is power in credit repair.
-          </p>
+        <div className="flex items-center gap-4 mb-8">
+          <BackButton />
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-4">
+              Credit Education Center
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-3xl">
+              Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. 
+              Knowledge is power in credit repair.
+            </p>
+          </div>
         </div>
 
         {/* Category Filter */}

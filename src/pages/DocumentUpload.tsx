@@ -14,6 +14,7 @@ import { Upload, FileText, Download, Trash2 } from 'lucide-react';
 import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, sanitizeAccountNumber, validateAccountNumber } from '@/utils/inputValidation';
+import { BackButton } from '@/components/BackButton';
 
 interface DisputeDoc {
   id: string;
@@ -309,11 +310,14 @@ export function DocumentUpload() {
       <NavigationHeader />
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Document Upload</h1>
-        <p className="text-muted-foreground mt-2">
-          Upload and manage your dispute-related documents
-        </p>
-      </div>
+          <div className="flex items-center gap-4 mb-4">
+            <BackButton />
+          </div>
+          <h1 className="text-3xl font-bold text-foreground">Document Upload</h1>
+          <p className="text-muted-foreground mt-2">
+            Upload and manage your dispute-related documents
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Upload Form */}

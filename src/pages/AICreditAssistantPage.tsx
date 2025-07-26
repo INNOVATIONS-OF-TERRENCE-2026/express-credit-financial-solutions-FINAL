@@ -2,22 +2,28 @@ import { AICreditAssistant } from '@/components/AICreditAssistant';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, MessageCircle, TrendingUp, HelpCircle } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
 
 export function AICreditAssistantPage() {
   return (
     <div className="min-h-screen bg-background">
       <NavigationHeader />
       <div className="container mx-auto p-6 max-w-6xl">
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Sparkles className="h-12 w-12 text-primary mr-4" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
-              AI Credit Assistant
-            </h1>
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-6">
+            <BackButton />
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Get personalized credit advice powered by AI. Ask questions about credit scores, disputes, debt management, and building credit.
-          </p>
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <Sparkles className="h-12 w-12 text-primary mr-4" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
+                AI Credit Assistant
+              </h1>
+            </div>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Get personalized credit advice powered by AI. Ask questions about credit scores, disputes, debt management, and building credit.
+            </p>
+          </div>
         </div>
 
         {/* Features Grid */}

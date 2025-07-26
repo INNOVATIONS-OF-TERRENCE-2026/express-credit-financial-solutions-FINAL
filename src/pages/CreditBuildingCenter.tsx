@@ -12,6 +12,8 @@ import { AURequestModal } from '@/components/AURequestModal';
 import { ConsultationModal } from '@/components/ConsultationModal';
 import { DigitalSignature } from '@/components/DigitalSignature';
 import { PlaidBankLink } from '@/components/PlaidBankLink';
+import { BackButton } from '@/components/BackButton';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 export default function CreditBuildingCenter() {
   const [expandedSection, setExpandedSection] = useState<string | null>('education');

@@ -10,6 +10,7 @@ import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, validateEmail, validatePhone, validateSSN, validateName } from '@/utils/inputValidation';
 import { encryptSSN } from '@/utils/ssnEncryption';
+import { BackButton } from '@/components/BackButton';
 
 interface ClientFormData {
   fullName: string;
@@ -279,11 +280,16 @@ export function ClientOnboarding() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground">Client Onboarding</h1>
-        <p className="text-muted-foreground mt-2">
-          Please provide your information to get started with Express Credit & Financial Solutions
-        </p>
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <BackButton />
+        </div>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-foreground">Client Onboarding</h1>
+          <p className="text-muted-foreground mt-2">
+            Please provide your information to get started with Express Credit & Financial Solutions
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">

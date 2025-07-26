@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
+import { BackButton } from '@/components/BackButton';
 
 
 const plans = [
@@ -161,6 +162,9 @@ export default function MembershipPricing() {
     <div className="min-h-screen bg-background">
       <NavigationHeader />
       <div className="container mx-auto px-4 py-12">
+        <div className="flex items-center gap-4 mb-8">
+          <BackButton />
+        </div>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
             Membership Pricing

@@ -12,6 +12,8 @@ import { Plus, TrendingUp, TrendingDown, Minus, Calendar, Target } from 'lucide-
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { BackButton } from '@/components/BackButton';
+import { NavigationHeader } from '@/components/NavigationHeader';
 
 interface CreditScore {
   id: string;
