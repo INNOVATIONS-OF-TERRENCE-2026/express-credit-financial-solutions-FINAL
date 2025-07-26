@@ -15,6 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import { ContentModal } from '@/components/ContentModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AICreditAssistant } from '@/components/AICreditAssistant';
+
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
@@ -144,6 +146,15 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
+              <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dashboard') && navigate('/ai-assistant')}>
+                <CardHeader className="text-center bg-transparent">
+                  <Star className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">AI Credit Assistant</CardTitle>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Get instant credit advice</CardDescription>
+                  {!hasAccess('dashboard') && <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Basic+ Required</Badge>}
+                </CardHeader>
+              </Card>
+
               <Card className={hasAccess('education') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('education') && navigate('/education')}>
                 <CardHeader className="text-center bg-transparent">
                   <Shield className="h-8 w-8 text-accent mx-auto mb-2" />
@@ -173,6 +184,9 @@ const Index = () => {
             </div>
           </div>
         </main>
+        
+        {/* AI Credit Assistant Widget - Only for logged-in users */}
+        {user && <AICreditAssistant isWidget={true} />}
       </div>;
   }
 

@@ -25,6 +25,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import { GoodwillLetters } from "./pages/GoodwillLetters";
 import { CreditMonitoring } from "./pages/CreditMonitoring";
 import { CreditReportUploadPage } from "./pages/CreditReportUploadPage";
+import { AICreditAssistantPage } from "./pages/AICreditAssistantPage";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredFeature="credit-upload" featureName="Credit Report Upload">
                     <CreditReportUploadPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/ai-assistant" 
+                element={
+                  <ProtectedRoute requiredFeature="dashboard" featureName="AI Credit Assistant">
+                    <AICreditAssistantPage />
                   </ProtectedRoute>
                 } 
               />

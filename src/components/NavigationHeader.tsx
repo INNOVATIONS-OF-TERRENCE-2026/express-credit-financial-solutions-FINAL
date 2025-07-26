@@ -3,7 +3,7 @@ import { useMembership } from '@/hooks/useMembership';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp } from 'lucide-react';
+import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles } from 'lucide-react';
 export function NavigationHeader() {
   const {
     user,
@@ -73,6 +73,11 @@ export function NavigationHeader() {
     path: '/credit-building',
     icon: TrendingUp,
     accessible: hasAccess('credit-building')
+  }, {
+    label: 'AI Assistant',
+    path: '/ai-assistant',
+    icon: Sparkles,
+    accessible: hasAccess('dashboard')
   }, {
     label: 'Membership',
     path: '/membership',
