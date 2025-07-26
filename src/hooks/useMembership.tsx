@@ -80,7 +80,7 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       return true;
     }
     
-    // Check for VIP trial access first - they get full access
+    // Check for VIP access first - they get full access until expiration
     if (membershipType === 'vip_trial' && paymentStatus === 'active') {
       return true;
     }
@@ -95,10 +95,13 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     switch (feature) {
       case 'dispute-generator':
       case 'credit-upload':
-        return planType === 'Pro Package' || planType === 'Elite Package' || planType === 'All Exclusive Package';
+        return ['Pro Package', 'Elite Package', 'All Exclusive Package', 'pro', 'elite', 'exclusive'].includes(planType || '');
       
       case 'exclusive-content':
-        return planType === 'All Exclusive Package';
+        return ['All Exclusive Package', 'exclusive'].includes(planType || '');
+      
+      case 'document-center':
+        return ['Basic Package', 'Pro Package', 'Elite Package', 'All Exclusive Package', 'basic', 'pro', 'elite', 'exclusive'].includes(planType || '');
       
       default:
         return false;

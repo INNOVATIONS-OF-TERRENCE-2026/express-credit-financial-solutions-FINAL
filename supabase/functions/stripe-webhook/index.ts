@@ -13,7 +13,27 @@ const logStep = (step: string, details?: any) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
-// Map Stripe amounts to plan types
+// Map Stripe price IDs to membership types
+const getMembershipFromPriceId = (priceId: string): { membership: string; planType: string; isVip?: boolean } => {
+  switch (priceId) {
+    case "price_1Rp5ZgAyM7nkjbCbR8xz28QQ":
+      return { membership: "basic", planType: "Basic Package" };
+    case "price_1Rp5kYAyM7nkjbCbq3f23mYC":
+      return { membership: "pro", planType: "Pro Package" };
+    case "price_1Rp5rxAyM7nkjbCbaCPXVpxo":
+      return { membership: "elite", planType: "Elite Package" };
+    case "price_1Rp61BAyM7nkjbCb5Psvz":
+      return { membership: "exclusive", planType: "All Exclusive Package" };
+    case "price_1Rp61BAyM7nkjbCb5Psv":
+      return { membership: "vip", planType: "$1 24-Hour VIP Pass", isVip: true };
+    case "price_1Rp15nAyM7nkjbCbgzjS4NNT":
+      return { membership: "test", planType: "Test Membership" };
+    default:
+      return { membership: "unknown", planType: "Unknown" };
+  }
+};
+
+// Legacy fallback - Map Stripe amounts to plan types (for old sessions)
 const getPlanTypeFromAmount = (amount: number): string => {
   switch (amount) {
     case 100: // $1.00
@@ -35,21 +55,26 @@ const getPlanTypeFromAmount = (amount: number): string => {
 const updateUserMembership = async (
   supabaseClient: any,
   email: string,
+  membership: string,
   planType: string,
   stripeCustomerId: string,
   subscriptionId?: string,
-  status: string = 'active'
+  status: string = 'active',
+  isVip: boolean = false
 ) => {
   logStep("Updating user membership", { 
     email, 
+    membership,
     planType, 
     stripeCustomerId, 
     subscriptionId, 
-    status 
+    status,
+    isVip
   });
 
   const updateData: any = {
     email: email,
+    membership: membership,
     membership_plan: planType,
     subscription_status: status,
     payment_status: status,
@@ -60,14 +85,21 @@ const updateUserMembership = async (
     updated_at: new Date().toISOString(),
   };
 
-  // Handle VIP Trial special case
-  if (planType === '$1 24-Hour VIP Pass') {
-    updateData.membership_type = 'vip_trial';
-    // Set expiration to 24 hours from now
+  // Handle VIP special case - set 24-hour expiration
+  if (isVip) {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
-    updateData.expires_at = expiresAt.toISOString();
-    logStep('Setting VIP trial expiration', { expires_at: updateData.expires_at });
+    updateData.access_expires_at = expiresAt.toISOString();
+    updateData.membership_type = 'vip_trial';
+    logStep('Setting VIP access expiration', { access_expires_at: updateData.access_expires_at });
+  }
+
+  // If subscription is canceled or fails, revoke access
+  if (status === 'canceled' || status === 'inactive') {
+    updateData.membership = null;
+    updateData.access_expires_at = null;
+    updateData.membership_type = null;
+    logStep('Revoking membership access', { status });
   }
 
   const { error } = await supabaseClient
@@ -137,17 +169,40 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
         logStep("Checkout session completed", { sessionId: session.id, customerEmail: session.customer_email });
 
-        if (session.customer_email && session.amount_total) {
-          const planType = getPlanTypeFromAmount(session.amount_total);
-          const isOneTime = session.mode === "payment";
+        if (session.customer_email) {
+          let membership = "unknown";
+          let planType = "Unknown";
+          let isVip = false;
+
+          // Try to get membership from line items (preferred method)
+          if (session.line_items && session.line_items.data.length > 0) {
+            const priceId = session.line_items.data[0].price?.id;
+            if (priceId) {
+              const mappingResult = getMembershipFromPriceId(priceId);
+              membership = mappingResult.membership;
+              planType = mappingResult.planType;
+              isVip = mappingResult.isVip || false;
+              logStep("Membership mapped from price ID", { priceId, membership, planType, isVip });
+            }
+          }
+          
+          // Fallback to amount-based mapping if no price ID found
+          if (membership === "unknown" && session.amount_total) {
+            planType = getPlanTypeFromAmount(session.amount_total);
+            isVip = planType === "$1 24-Hour VIP Pass";
+            membership = isVip ? "vip" : "unknown";
+            logStep("Fallback to amount-based mapping", { amount: session.amount_total, planType, isVip });
+          }
           
           await updateUserMembership(
             supabaseClient,
             session.customer_email,
+            membership,
             planType,
             session.customer as string,
             session.subscription as string,
-            "active"
+            "active",
+            isVip
           );
 
           // Send payment notification email
@@ -188,18 +243,19 @@ serve(async (req) => {
         // Get customer details
         const createdCustomer = await stripe.customers.retrieve(createdSubscription.customer as string);
         if (createdCustomer && !createdCustomer.deleted && createdCustomer.email) {
-          // Determine plan type from subscription price
+          // Determine membership from subscription price ID
           const priceId = createdSubscription.items.data[0].price.id;
-          const price = await stripe.prices.retrieve(priceId);
-          const planType = getPlanTypeFromAmount(price.unit_amount || 0);
+          const mappingResult = getMembershipFromPriceId(priceId);
           
           await updateUserMembership(
             supabaseClient,
             createdCustomer.email,
-            planType,
+            mappingResult.membership,
+            mappingResult.planType,
             createdSubscription.customer as string,
             createdSubscription.id,
-            createdSubscription.status === "active" ? "active" : "inactive"
+            createdSubscription.status === "active" ? "active" : "inactive",
+            mappingResult.isVip || false
           );
         }
         break;
@@ -240,21 +296,22 @@ serve(async (req) => {
           status: updatedSubscription.status 
         });
 
-        // Get customer details and plan type
+        // Get customer details and membership type
         const updatedCustomer = await stripe.customers.retrieve(updatedSubscription.customer as string);
         if (updatedCustomer && !updatedCustomer.deleted && updatedCustomer.email) {
-          // Determine plan type from subscription price
+          // Determine membership from subscription price ID
           const priceId = updatedSubscription.items.data[0].price.id;
-          const price = await stripe.prices.retrieve(priceId);
-          const planType = getPlanTypeFromAmount(price.unit_amount || 0);
+          const mappingResult = getMembershipFromPriceId(priceId);
           
           await updateUserMembership(
             supabaseClient,
             updatedCustomer.email,
-            planType,
+            mappingResult.membership,
+            mappingResult.planType,
             updatedSubscription.customer as string,
             updatedSubscription.id,
-            updatedSubscription.status === "active" ? "active" : "inactive"
+            updatedSubscription.status === "active" ? "active" : "inactive",
+            mappingResult.isVip || false
           );
         }
         break;
@@ -269,10 +326,12 @@ serve(async (req) => {
           await updateUserMembership(
             supabaseClient,
             deletedCustomer.email,
-            null,
+            "canceled",
+            "Canceled",
             deletedSubscription.customer as string,
             deletedSubscription.id,
-            "canceled"
+            "canceled",
+            false
           );
         }
         break;
