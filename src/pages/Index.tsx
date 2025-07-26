@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AICreditAssistant } from '@/components/AICreditAssistant';
 import { OnboardingTour, useOnboarding } from '@/components/OnboardingTour';
+import { VipTrialCountdown } from '@/components/VipTrialCountdown';
 
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -84,6 +85,9 @@ const Index = () => {
         <NavigationHeader />
         <main className="relative z-10 container mx-auto px-4 py-8">
           <div className="space-y-6">
+            {/* VIP Trial Countdown - Show prominently at top for VIP trial users */}
+            <VipTrialCountdown />
+            
             {/* Welcome Section */}
             <div className="text-center">
               <h1 className="font-bold text-primary-foreground mb-2 text-3xl">
