@@ -12,11 +12,22 @@ export function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
   const email = "expresscreditfinancialsolution@gmail.com";
 
   const handlePhoneClick = () => {
-    window.open(`tel:${phone}`, '_self');
+    if (navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+      window.location.href = `tel:${phone}`;
+    } else {
+      // For desktop, copy to clipboard and show toast
+      navigator.clipboard.writeText(phone).then(() => {
+        alert(`Phone number ${phone} copied to clipboard!`);
+      }).catch(() => {
+        alert(`Please call us at ${phone}`);
+      });
+    }
   };
 
   const handleEmailClick = () => {
-    window.open(`mailto:${email}?subject=Credit Consultation Request&body=Hello, I would like to schedule a credit consultation. Please let me know your availability.`, '_self');
+    const subject = encodeURIComponent('Credit Consultation Request');
+    const body = encodeURIComponent('Hello, I would like to schedule a credit consultation. Please let me know your availability.');
+    window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
   };
 
   return (

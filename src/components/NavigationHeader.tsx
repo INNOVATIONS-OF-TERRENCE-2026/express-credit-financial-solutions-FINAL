@@ -59,6 +59,11 @@ export function NavigationHeader() {
     icon: CreditCard,
     accessible: hasAccess('credit-upload')
   }, {
+    label: 'Upload Credit Report',
+    path: '/upload-credit-report',
+    icon: FileText,
+    accessible: hasAccess('credit-upload')
+  }, {
     label: 'Education',
     path: '/education',
     icon: GraduationCap,

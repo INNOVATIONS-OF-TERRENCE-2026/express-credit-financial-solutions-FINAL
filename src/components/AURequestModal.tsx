@@ -168,6 +168,8 @@ export function AURequestModal({ isOpen, onClose, tradelineId }: AURequestModalP
               <a 
                 href="mailto:expresscreditfinancialsolution@gmail.com" 
                 className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 expresscreditfinancialsolution@gmail.com
               </a>

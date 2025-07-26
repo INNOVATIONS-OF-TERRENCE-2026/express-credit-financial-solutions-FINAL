@@ -135,11 +135,11 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              <Card className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('credit-upload') && navigate('/documents')}>
+              <Card className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('credit-upload') && navigate('/upload-credit-report')}>
                 <CardHeader className="text-center bg-transparent">
                   <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
-                  <CardTitle className="text-lg text-primary-foreground">Upload Documents</CardTitle>
-                  <CardDescription className="text-primary-foreground/90 font-medium">Upload credit reports</CardDescription>
+                  <CardTitle className="text-lg text-primary-foreground">Upload Credit Report</CardTitle>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Upload & analyze credit reports</CardDescription>
                   {!hasAccess('credit-upload') && <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>}
                 </CardHeader>
               </Card>
