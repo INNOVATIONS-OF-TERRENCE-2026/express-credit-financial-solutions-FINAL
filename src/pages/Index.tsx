@@ -7,7 +7,7 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { ClientDashboard } from '@/components/ClientDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
-import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock } from 'lucide-react';
+import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,7 @@ import { ContentModal } from '@/components/ContentModal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AICreditAssistant } from '@/components/AICreditAssistant';
+import { OnboardingTour, useOnboarding } from '@/components/OnboardingTour';
 
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -36,6 +37,7 @@ const Index = () => {
   const {
     toast
   } = useToast();
+  const { shouldShowTour, isLoading: onboardingLoading, startTour, completeTour, skipTour } = useOnboarding();
   const navigate = useNavigate();
   const handleLogin = async (email: string, password: string) => {
     const {
@@ -120,7 +122,11 @@ const Index = () => {
 
             {/* Quick Access Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <Card className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dashboard') && navigate('/')}>
+              <Card 
+                className={hasAccess('dashboard') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} 
+                onClick={() => hasAccess('dashboard') && navigate('/')}
+                data-tour="track-progress"
+              >
                 <CardHeader className="text-center bg-transparent">
                   <Star className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dashboard</CardTitle>
@@ -128,7 +134,11 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              <Card className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('dispute-generator') && navigate('/dispute-center')}>
+              <Card 
+                className={hasAccess('dispute-generator') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} 
+                onClick={() => hasAccess('dispute-generator') && navigate('/dispute-center')}
+                data-tour="dispute-center"
+              >
                 <CardHeader className="text-center bg-transparent">
                   <Award className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Dispute Center</CardTitle>
@@ -137,12 +147,29 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              <Card className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} onClick={() => hasAccess('credit-upload') && navigate('/upload-credit-report')}>
+              <Card 
+                className={hasAccess('credit-upload') ? 'cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20' : 'opacity-50 bg-white/5 backdrop-blur-sm border-white/10'} 
+                onClick={() => hasAccess('credit-upload') && navigate('/upload-credit-report')}
+                data-tour="upload-report"
+              >
                 <CardHeader className="text-center bg-transparent">
                   <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Upload Credit Report</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Upload & analyze credit reports</CardDescription>
                   {!hasAccess('credit-upload') && <Badge variant="outline" className="mt-2 bg-white/20 text-primary-foreground border-white/30">Pro+ Required</Badge>}
+                </CardHeader>
+              </Card>
+
+              {/* Client Agreement Section */}
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" 
+                onClick={() => navigate('/onboarding')}
+                data-tour="sign-agreement"
+              >
+                <CardHeader className="text-center bg-transparent">
+                  <UserCheck className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Sign Agreement</CardTitle>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Complete your client agreement</CardDescription>
                 </CardHeader>
               </Card>
 
@@ -165,7 +192,11 @@ const Index = () => {
               </Card>
 
               {/* Credit Building Portal - Publicly Accessible */}
-              <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/credit-building')}>
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" 
+                onClick={() => navigate('/credit-building')}
+                data-tour="credit-building"
+              >
                 <CardHeader className="text-center bg-transparent">
                   <CreditCard className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Credit Building</CardTitle>
@@ -182,11 +213,39 @@ const Index = () => {
                 </CardHeader>
               </Card>
             </div>
+
+            {/* Onboarding Tour Controls */}
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary-foreground">Need Help Getting Started?</h3>
+                    <p className="text-sm text-primary-foreground/80">Take our interactive tour to learn about all features</p>
+                  </div>
+                  <Button 
+                    onClick={startTour}
+                    disabled={onboardingLoading}
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Tour
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </main>
         
         {/* AI Credit Assistant Widget - Only for logged-in users */}
         {user && <AICreditAssistant isWidget={true} />}
+
+        {/* Onboarding Tour */}
+        {shouldShowTour && !onboardingLoading && (
+          <OnboardingTour 
+            onComplete={completeTour}
+            onSkip={skipTour}
+          />
+        )}
       </div>;
   }
 
