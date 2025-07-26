@@ -136,6 +136,17 @@ serve(async (req) => {
             "active"
           );
 
+          // Send payment notification email
+          await supabaseClient.functions.invoke('send-notification-email', {
+            body: {
+              type: 'payment_complete',
+              userEmail: session.customer_email,
+              userName: session.customer_details?.name || session.customer_email,
+              planType: planType,
+              amount: session.amount_total / 100
+            }
+          });
+
           // Update subscriptions table
           const { error: subError } = await supabaseClient
             .from("subscriptions")

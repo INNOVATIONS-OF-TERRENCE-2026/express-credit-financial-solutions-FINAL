@@ -16,6 +16,9 @@ import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, sanitizeAccountNumber, sanitizeDisputeContent, validateDisputeFormData } from '@/utils/inputValidation';
 import { useRoles } from '@/hooks/useRoles';
 import { useMembership } from '@/hooks/useMembership';
+import { CreditReportUpload } from '@/components/CreditReportUpload';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Eye } from 'lucide-react';
 
 interface DisputeLetter {
   id: string;
@@ -34,6 +37,10 @@ export function DisputeCenter() {
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [showLetterPreview, setShowLetterPreview] = useState(false);
+  const [previewLetter, setPreviewLetter] = useState<string>('');
+  const [selectedCreditors, setSelectedCreditors] = useState<string[]>([]);
+  const [uploadedReports, setUploadedReports] = useState([]);
   const { toast } = useToast();
   const { logDisputeLetterGeneration } = useAuditLog();
   const { isAdmin } = useRoles();
@@ -78,25 +85,21 @@ export function DisputeCenter() {
   const generateLetter = async (disputeId: string) => {
     setGeneratingId(disputeId);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-dispute-letter', {
+      const { data, error } = await supabase.functions.invoke('generate-dispute-letter-secure', {
         body: { disputeId }
       });
 
       if (error) throw error;
 
-      // Refresh disputes to show the generated letter
-      await fetchDisputes();
+      // Show preview first
+      setPreviewLetter(data.letter);
+      setShowLetterPreview(true);
       
       // Log the letter generation
       const dispute = disputes.find(d => d.id === disputeId);
       if (dispute) {
         await logDisputeLetterGeneration(disputeId, dispute.creditor_name);
       }
-      
-      toast({
-        title: "Success",
-        description: "Dispute letter generated successfully",
-      });
     } catch (error) {
       console.error('Error generating letter:', error);
       toast({
@@ -106,6 +109,37 @@ export function DisputeCenter() {
       });
     } finally {
       setGeneratingId(null);
+    }
+  };
+
+  const confirmAndSaveLetter = async () => {
+    try {
+      // Save the letter to the dispute record
+      const disputeId = disputes.find(d => generatingId === d.id)?.id;
+      if (disputeId) {
+        const { error } = await supabase
+          .from('dispute_letters')
+          .update({ generated_letter: previewLetter })
+          .eq('id', disputeId);
+
+        if (error) throw error;
+
+        await fetchDisputes();
+        toast({
+          title: "Success",
+          description: "Dispute letter saved successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving letter:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save letter",
+        variant: "destructive",
+      });
+    } finally {
+      setShowLetterPreview(false);
+      setPreviewLetter('');
     }
   };
 
@@ -373,6 +407,39 @@ export function DisputeCenter() {
             </CardContent>
           </Card>
         )}
+
+        {/* Credit Report Upload Section */}
+        <div className="mb-6">
+          <CreditReportUpload />
+        </div>
+
+        {/* Letter Preview Dialog */}
+        <Dialog open={showLetterPreview} onOpenChange={setShowLetterPreview}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Dispute Letter Preview</DialogTitle>
+              <DialogDescription>
+                Review your generated dispute letter before saving
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg max-h-96 overflow-y-auto">
+                <pre className="whitespace-pre-wrap text-sm">{previewLetter}</pre>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowLetterPreview(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={confirmAndSaveLetter}>
+                  Save Letter
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Card>
         <CardHeader>

@@ -22,6 +22,8 @@ import CreditTracking from "./pages/CreditTracking";
 import CreditBuildingCenter from "./pages/CreditBuildingCenter";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import { GoodwillLetters } from "./pages/GoodwillLetters";
+import { CreditMonitoring } from "./pages/CreditMonitoring";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +91,8 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/goodwill-letters" element={<GoodwillLetters />} />
+              <Route path="/credit-monitoring" element={<CreditMonitoring />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />

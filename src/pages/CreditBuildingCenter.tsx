@@ -10,6 +10,8 @@ import { useClientAgreement } from '@/hooks/useClientAgreement';
 import { ClientAgreementModal } from '@/components/ClientAgreementModal';
 import { AURequestModal } from '@/components/AURequestModal';
 import { ConsultationModal } from '@/components/ConsultationModal';
+import { DigitalSignature } from '@/components/DigitalSignature';
+import { PlaidBankLink } from '@/components/PlaidBankLink';
 
 export default function CreditBuildingCenter() {
   const [expandedSection, setExpandedSection] = useState<string | null>('education');
@@ -162,23 +164,33 @@ export default function CreditBuildingCenter() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Agreement Check Banner */}
-        {!hasSignedAgreement && (
+        {/* Agreement Section */}
+        {!hasSignedAgreement ? (
           <Card className="mb-8 border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20">
             <CardContent className="py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
-                    Agreement Required
-                  </h3>
-                  <p className="text-yellow-700 dark:text-yellow-300">
-                    You must sign our Client Service Agreement before accessing credit building tools.
-                  </p>
-                </div>
-                <Button onClick={() => setShowAgreementModal(true)} className="bg-yellow-600 hover:bg-yellow-700">
-                  Sign Agreement
-                </Button>
+              <DigitalSignature onSignatureComplete={refetchAgreementStatus} />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-8 border-2 border-green-500/50 bg-green-50 dark:bg-green-900/20">
+            <CardContent className="py-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                  ✅ Agreement Signed
+                </h3>
+                <p className="text-green-700 dark:text-green-300">
+                  You have full access to all credit building tools and services.
+                </p>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Bank Account Connection */}
+        {hasSignedAgreement && (
+          <Card className="mb-8">
+            <CardContent className="py-6">
+              <PlaidBankLink />
             </CardContent>
           </Card>
         )}
