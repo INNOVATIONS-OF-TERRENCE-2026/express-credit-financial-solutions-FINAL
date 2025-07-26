@@ -14,6 +14,8 @@ import { Download, FileText, Plus } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, sanitizeAccountNumber, sanitizeDisputeContent, validateDisputeFormData } from '@/utils/inputValidation';
+import { useRoles } from '@/hooks/useRoles';
+import { useMembership } from '@/hooks/useMembership';
 
 interface DisputeLetter {
   id: string;
@@ -34,6 +36,8 @@ export function DisputeCenter() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const { logDisputeLetterGeneration } = useAuditLog();
+  const { isAdmin } = useRoles();
+  const { hasAccess } = useMembership();
 
   const [newDispute, setNewDispute] = useState({
     creditor_name: '',
@@ -415,14 +419,20 @@ export function DisputeCenter() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button
-                          onClick={() => generateLetter(dispute.id)}
-                          disabled={generatingId === dispute.id}
-                          size="sm"
-                          variant="outline"
-                        >
-                          {generatingId === dispute.id ? 'Generating...' : 'Generate Letter'}
-                        </Button>
+                        {(isAdmin() || hasAccess('dispute-generator')) ? (
+                          <Button
+                            onClick={() => generateLetter(dispute.id)}
+                            disabled={generatingId === dispute.id}
+                            size="sm"
+                            variant="outline"
+                          >
+                            {generatingId === dispute.id ? 'Generating...' : 'Generate Letter'}
+                          </Button>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            Pro+ Required
+                          </div>
+                        )}
                         {dispute.generated_letter && (
                           <Button
                             onClick={() => downloadPDF(dispute)}
