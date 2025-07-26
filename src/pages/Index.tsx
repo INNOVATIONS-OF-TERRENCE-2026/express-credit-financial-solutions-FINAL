@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AICreditAssistant } from '@/components/AICreditAssistant';
 import { OnboardingTour, useOnboarding } from '@/components/OnboardingTour';
-import { VipTrialCountdown } from '@/components/VipTrialCountdown';
+
 import { DocumentArchive } from '@/components/DocumentArchive';
 import { DisputeTimelineTracker } from '@/components/DisputeTimelineTracker';
 import { ChatHistoryPanel } from '@/components/ChatHistoryPanel';
@@ -89,8 +89,6 @@ const Index = () => {
         <NavigationHeader />
         <main className="relative z-10 container mx-auto px-4 py-8">
           <div className="space-y-6">
-            {/* VIP Trial Countdown - Show prominently at top for VIP trial users */}
-            <VipTrialCountdown />
             
             {/* Welcome Section */}
             <div className="text-center">
