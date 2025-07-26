@@ -18,6 +18,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AICreditAssistant } from '@/components/AICreditAssistant';
 import { OnboardingTour, useOnboarding } from '@/components/OnboardingTour';
 import { VipTrialCountdown } from '@/components/VipTrialCountdown';
+import { DocumentArchive } from '@/components/DocumentArchive';
+import { DisputeTimelineTracker } from '@/components/DisputeTimelineTracker';
+import { ChatHistoryPanel } from '@/components/ChatHistoryPanel';
+import { CreditScanSummary } from '@/components/CreditScanSummary';
 
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -123,6 +127,17 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Advanced Features Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <DocumentArchive />
+              <DisputeTimelineTracker />
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <ChatHistoryPanel />
+              <CreditScanSummary />
+            </div>
 
             {/* Quick Access Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

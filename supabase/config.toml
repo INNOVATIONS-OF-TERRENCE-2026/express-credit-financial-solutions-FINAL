@@ -14,3 +14,12 @@ verify_jwt = true
 
 [functions.gpt-assistant]
 verify_jwt = true
+
+[functions.preview-dispute-letter]
+verify_jwt = true
+
+[functions.analyze-credit-scan]
+verify_jwt = true
+
+[functions.chat-history-manager]
+verify_jwt = true
