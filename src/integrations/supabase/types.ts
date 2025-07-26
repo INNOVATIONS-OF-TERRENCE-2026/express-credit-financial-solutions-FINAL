@@ -122,6 +122,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_history: {
+        Row: {
+          created_at: string
+          id: string
+          message_content: string
+          message_role: string
+          session_id: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_content: string
+          message_role: string
+          session_id?: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_content?: string
+          message_role?: string
+          session_id?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       client_agreements: {
         Row: {
           agreement_version: string | null
@@ -365,6 +395,39 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_scan_summaries: {
+        Row: {
+          ai_summary: string
+          created_at: string
+          dispute_opportunities: number | null
+          file_name: string
+          file_path: string | null
+          flagged_accounts: Json | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary: string
+          created_at?: string
+          dispute_opportunities?: number | null
+          file_name: string
+          file_path?: string | null
+          flagged_accounts?: Json | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string
+          created_at?: string
+          dispute_opportunities?: number | null
+          file_name?: string
+          file_path?: string | null
+          flagged_accounts?: Json | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       dispute_docs: {
         Row: {
           account_number: string | null
@@ -441,6 +504,98 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dispute_timeline: {
+        Row: {
+          account_number: string
+          actual_response_date: string | null
+          created_at: string
+          creditor_name: string
+          date_generated: string | null
+          date_mailed: string | null
+          dispute_letter_id: string | null
+          estimated_response_date: string | null
+          id: string
+          outcome: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number: string
+          actual_response_date?: string | null
+          created_at?: string
+          creditor_name: string
+          date_generated?: string | null
+          date_mailed?: string | null
+          dispute_letter_id?: string | null
+          estimated_response_date?: string | null
+          id?: string
+          outcome?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string
+          actual_response_date?: string | null
+          created_at?: string
+          creditor_name?: string
+          date_generated?: string | null
+          date_mailed?: string | null
+          dispute_letter_id?: string | null
+          estimated_response_date?: string | null
+          id?: string
+          outcome?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_timeline_dispute_letter_id_fkey"
+            columns: ["dispute_letter_id"]
+            isOneToOne: false
+            referencedRelation: "dispute_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_archive: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string
+          id: string
+          upload_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          upload_date?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       documents: {
         Row: {
