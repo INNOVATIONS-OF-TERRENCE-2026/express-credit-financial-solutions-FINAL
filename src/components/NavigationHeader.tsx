@@ -74,6 +74,11 @@ export function NavigationHeader() {
     icon: TrendingUp,
     accessible: hasAccess('credit-building')
   }, {
+    label: 'Credit Monitoring',
+    path: '/credit-monitoring',
+    icon: TrendingUp,
+    accessible: hasAccess('dashboard')
+  }, {
     label: 'AI Assistant',
     path: '/ai-assistant',
     icon: Sparkles,

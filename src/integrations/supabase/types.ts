@@ -224,6 +224,123 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_alerts: {
+        Row: {
+          alert_data: Json | null
+          alert_description: string | null
+          alert_title: string
+          alert_type: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          severity: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_data?: Json | null
+          alert_description?: string | null
+          alert_title: string
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          severity?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_data?: Json | null
+          alert_description?: string | null
+          alert_title?: string
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          severity?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_api_credentials: {
+        Row: {
+          api_key: string
+          api_provider: string
+          api_secret: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          password: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          api_key: string
+          api_provider: string
+          api_secret?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          password?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          api_key?: string
+          api_provider?: string
+          api_secret?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          password?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      credit_monitoring: {
+        Row: {
+          created_at: string
+          credit_score: number | null
+          id: string
+          previous_score: number | null
+          report_data: Json | null
+          score_change: number | null
+          score_date: string
+          score_provider: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credit_score?: number | null
+          id?: string
+          previous_score?: number | null
+          report_data?: Json | null
+          score_change?: number | null
+          score_date: string
+          score_provider?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credit_score?: number | null
+          id?: string
+          previous_score?: number | null
+          report_data?: Json | null
+          score_change?: number | null
+          score_date?: string
+          score_provider?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       credit_reports: {
         Row: {
           created_at: string | null
