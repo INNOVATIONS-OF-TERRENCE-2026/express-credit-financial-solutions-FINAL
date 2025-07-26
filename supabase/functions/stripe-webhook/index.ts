@@ -150,7 +150,7 @@ serve(async (req) => {
     // Verify webhook signature if secret is provided
     if (webhookSecret && signature) {
       try {
-        event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+        event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
         logStep("Webhook signature verified");
       } catch (err) {
         logStep("Webhook signature verification failed", { error: err.message });
@@ -174,9 +174,21 @@ serve(async (req) => {
           let planType = "Unknown";
           let isVip = false;
 
-          // Try to get membership from line items (preferred method)
-          if (session.line_items && session.line_items.data.length > 0) {
-            const priceId = session.line_items.data[0].price?.id;
+          // Try to get membership from line items first, then fallback to expanding them
+          try {
+            let priceId = null;
+            
+            // If line_items are already available
+            if (session.line_items && session.line_items.data.length > 0) {
+              priceId = session.line_items.data[0].price?.id;
+            } else {
+              // Expand line_items to get price ID
+              const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
+                expand: ['line_items']
+              });
+              priceId = expandedSession.line_items?.data[0]?.price?.id;
+            }
+
             if (priceId) {
               const mappingResult = getMembershipFromPriceId(priceId);
               membership = mappingResult.membership;
@@ -184,6 +196,8 @@ serve(async (req) => {
               isVip = mappingResult.isVip || false;
               logStep("Membership mapped from price ID", { priceId, membership, planType, isVip });
             }
+          } catch (error) {
+            logStep("Error retrieving price ID", { error: error.message });
           }
           
           // Fallback to amount-based mapping if no price ID found
