@@ -43,37 +43,36 @@ serve(async (req) => {
     const user = userData.user;
     if (!user) throw new Error("User not authenticated");
 
-    const { documentId, fileName } = await req.json();
-    logStep("Request data received", { documentId, fileName });
+    const { documentId, fileName, fileType } = await req.json();
+    logStep("Request data received", { documentId, fileName, fileType });
 
     // Create AI prompt for document analysis
-    const prompt = `Analyze this document image and identify what type of document it is. 
+    const prompt = `Analyze this document and identify what type it is. Based on the filename "${fileName}" and file type "${fileType}", determine:
 
-    Look for these specific document types:
-    - Driver's License or State ID
-    - Social Security Card
-    - Utility Bill (electricity, gas, water, internet, cable)
-    - Lease Agreement or Rental Agreement
-    - Pay Stub or Income Statement
-    - Bank Statement
-    - Other identification or financial document
+    1. Document Type: Choose from:
+       - drivers_license
+       - social_security_card  
+       - utility_bill
+       - lease_agreement
+       - pay_stub
+       - other
 
-    For each document, provide:
-    1. Document type identification
-    2. Brief description (e.g., "Utility bill from TXU Energy dated May 2024")
-    3. Suggested tag category: "id_verification", "proof_of_address", "income_verification", or "other"
+    2. Tag Category: Choose from:
+       - id_verification (for ID cards, licenses, SSN cards)
+       - proof_of_address (for utility bills, lease agreements)
+       - income_verification (for pay stubs, tax documents)
+       - other
+
+    3. Description: Provide a brief description of what this document appears to be.
 
     Respond in JSON format:
     {
-      "documentType": "drivers_license|social_security_card|utility_bill|lease_agreement|pay_stub|bank_statement|other",
-      "description": "Brief description of what you see",
-      "suggestedTag": "id_verification|proof_of_address|income_verification|other",
-      "confidence": "high|medium|low"
-    }
+      "documentType": "document_type_here",
+      "tag": "tag_category_here", 
+      "description": "Brief description of the document"
+    }`;
 
-    File being analyzed: ${fileName}`;
-
-    logStep("Sending request to OpenAI for document analysis");
+    logStep("Sending request to OpenAI");
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -86,7 +85,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a document analysis specialist. Analyze documents to identify their type and purpose for credit repair verification."
+            content: "You are a document classification specialist. Analyze the provided document information and classify it accurately."
           },
           {
             role: "user",
@@ -111,9 +110,8 @@ serve(async (req) => {
       // Fallback if JSON parsing fails
       analysisResult = {
         documentType: "other",
-        description: openaiData.choices[0].message.content,
-        suggestedTag: "other",
-        confidence: "low"
+        tag: "other",
+        description: openaiData.choices[0].message.content
       };
     }
 
@@ -123,34 +121,16 @@ serve(async (req) => {
     const { error: updateError } = await supabaseClient
       .from('document_uploads')
       .update({
-        ai_analysis_result: analysisResult.description,
         document_type: analysisResult.documentType,
-        tag: analysisResult.suggestedTag
+        tag: analysisResult.tag,
+        ai_analysis_result: analysisResult.description
       })
-      .eq('id', documentId);
+      .eq('id', documentId)
+      .eq('user_id', user.id);
 
     if (updateError) {
       logStep("Database update error", updateError);
       throw new Error(`Failed to update document: ${updateError.message}`);
-    }
-
-    // Send realtime notification to admins about new document upload
-    try {
-      await supabaseClient
-        .channel('admin-notifications')
-        .send({
-          type: 'broadcast',
-          event: 'new_document_upload',
-          payload: {
-            documentId,
-            fileName,
-            documentType: analysisResult.documentType,
-            userId: user.id,
-            timestamp: new Date().toISOString()
-          }
-        });
-    } catch (notificationError) {
-      logStep("Notification error (non-critical)", notificationError);
     }
 
     return new Response(JSON.stringify({ 

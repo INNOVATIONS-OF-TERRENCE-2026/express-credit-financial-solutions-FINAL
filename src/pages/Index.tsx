@@ -7,7 +7,7 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { ClientDashboard } from '@/components/ClientDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
-import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play } from 'lucide-react';
+import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play, Upload } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
