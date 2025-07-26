@@ -26,6 +26,7 @@ import { GoodwillLetters } from "./pages/GoodwillLetters";
 import { CreditMonitoring } from "./pages/CreditMonitoring";
 import { CreditReportUploadPage } from "./pages/CreditReportUploadPage";
 import { AICreditAssistantPage } from "./pages/AICreditAssistantPage";
+import { DocumentUploadCenter } from "./pages/DocumentUploadCenter";
 
 const queryClient = new QueryClient();
 
@@ -110,7 +111,15 @@ const App = () => (
                     <AICreditAssistantPage />
                   </ProtectedRoute>
                 } 
-              />
+               />
+               <Route 
+                 path="/document-center" 
+                 element={
+                   <ProtectedRoute requiredFeature="dashboard" featureName="Document Upload Center">
+                     <DocumentUploadCenter />
+                   </ProtectedRoute>
+                 } 
+               />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />

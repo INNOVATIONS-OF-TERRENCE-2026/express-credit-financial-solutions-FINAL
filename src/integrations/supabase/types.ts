@@ -597,6 +597,63 @@ export type Database = {
         }
         Relationships: []
       }
+      document_uploads: {
+        Row: {
+          admin_notes: string | null
+          admin_status: string | null
+          ai_analysis_result: string | null
+          created_at: string
+          document_type: string
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          tag: string | null
+          updated_at: string
+          upload_date: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_status?: string | null
+          ai_analysis_result?: string | null
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          tag?: string | null
+          updated_at?: string
+          upload_date?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_status?: string | null
+          ai_analysis_result?: string | null
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          tag?: string | null
+          updated_at?: string
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           doc_type: string

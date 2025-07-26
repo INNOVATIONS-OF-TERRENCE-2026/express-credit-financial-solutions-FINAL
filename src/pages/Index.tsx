@@ -223,12 +223,20 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
-              {/* Data Freeze Portal - Publicly Accessible */}
               <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/data-freeze')}>
                 <CardHeader className="text-center bg-transparent">
                   <Lock className="h-8 w-8 text-accent mx-auto mb-2" />
                   <CardTitle className="text-lg text-primary-foreground">Data Freeze</CardTitle>
                   <CardDescription className="text-primary-foreground/90 font-medium">Freeze 3rd-party data before disputing</CardDescription>
+                </CardHeader>
+              </Card>
+
+              {/* Document Upload Center */}
+              <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/document-center')}>
+                <CardHeader className="text-center bg-transparent">
+                  <FileText className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">Document Center</CardTitle>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Upload ID verification documents</CardDescription>
                 </CardHeader>
               </Card>
             </div>
