@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useRoles } from './useRoles';
 
-export type PlanType = 'Basic Package' | 'Pro Package' | 'Elite Package' | 'All Exclusive Package';
+export type PlanType = 'Basic Package' | 'Pro Package' | 'Elite Package' | 'All Exclusive Package' | 'vip';
 
 interface MembershipContextType {
   planType: PlanType | null;
