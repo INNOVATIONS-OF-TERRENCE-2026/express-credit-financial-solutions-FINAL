@@ -587,8 +587,10 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          expires_at: string | null
           id: string
           membership_plan: string | null
+          membership_type: string | null
           payment_status: string | null
           plan_type: string | null
           stripe_customer_id: string | null
@@ -601,8 +603,10 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          expires_at?: string | null
           id?: string
           membership_plan?: string | null
+          membership_type?: string | null
           payment_status?: string | null
           plan_type?: string | null
           stripe_customer_id?: string | null
@@ -615,8 +619,10 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          expires_at?: string | null
           id?: string
           membership_plan?: string | null
+          membership_type?: string | null
           payment_status?: string | null
           plan_type?: string | null
           stripe_customer_id?: string | null
@@ -888,6 +894,10 @@ export type Database = {
       encrypt_ssn_secure: {
         Args: { ssn_text: string }
         Returns: string
+      }
+      expire_vip_trials: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       firebase_fdw_handler: {
         Args: Record<PropertyKey, never>

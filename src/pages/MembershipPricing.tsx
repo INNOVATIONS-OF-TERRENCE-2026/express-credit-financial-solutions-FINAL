@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Crown, Zap } from "lucide-react";
+import { Check, Star, Crown, Zap, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
@@ -11,6 +11,22 @@ import { useMembership } from "@/hooks/useMembership";
 
 
 const plans = [
+  {
+    name: "$1 24-Hour VIP Pass",
+    price: 1.00,
+    frequency: "24 hours",
+    isOneTime: true,
+    isVipTrial: true,
+    icon: Clock,
+    badge: "LIMITED TIME - 24 Hours Only",
+    features: [
+      "Full access to ALL credit repair tools",
+      "Unlimited credit report uploads",
+      "Generate dispute letters",
+      "Access to education center",
+      "VIP priority support"
+    ]
+  },
   {
     name: "Basic Package",
     price: 99.99,
@@ -154,15 +170,19 @@ export default function MembershipPricing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {plans.map((plan) => {
             const Icon = plan.icon;
             return (
               <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-elegant ${
                 plan.badge === "Most Popular" ? "border-primary shadow-elegant scale-105" : ""
-              }`}>
+              } ${plan.isVipTrial ? "border-amber-500 shadow-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50" : ""}`}>
                 {plan.badge && (
-                  <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
+                  <Badge className={`absolute -top-2 left-1/2 transform -translate-x-1/2 ${
+                    plan.isVipTrial 
+                      ? "bg-amber-500 text-white animate-pulse" 
+                      : "bg-primary text-primary-foreground"
+                  }`}>
                     {plan.badge}
                   </Badge>
                 )}
@@ -174,7 +194,9 @@ export default function MembershipPricing() {
                   <CardTitle className="text-xl text-foreground">{plan.name}</CardTitle>
                   <CardDescription className="text-muted-foreground">
                     <span className="text-3xl font-bold text-foreground">${plan.price}</span>
-                    {plan.isOneTime ? (
+                    {plan.isVipTrial ? (
+                      <span className="text-sm"> for 24 hours</span>
+                    ) : plan.isOneTime ? (
                       <span className="text-sm"> one-time</span>
                     ) : (
                       <span className="text-sm">/month</span>
@@ -198,7 +220,7 @@ export default function MembershipPricing() {
                     onClick={() => handleSignUp(plan)}
                     disabled={loading === plan.name}
                     className="w-full"
-                    variant={plan.badge === "Most Popular" ? "default" : "outline"}
+                    variant={plan.badge === "Most Popular" || plan.isVipTrial ? "default" : "outline"}
                   >
                     {loading === plan.name ? "Processing..." : "Sign Up"}
                   </Button>

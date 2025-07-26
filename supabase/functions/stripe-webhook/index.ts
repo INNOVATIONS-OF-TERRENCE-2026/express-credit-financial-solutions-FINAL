@@ -16,6 +16,8 @@ const logStep = (step: string, details?: any) => {
 // Map Stripe amounts to plan types
 const getPlanTypeFromAmount = (amount: number): string => {
   switch (amount) {
+    case 100: // $1.00
+      return "$1 24-Hour VIP Pass";
     case 9999: // $99.99
       return "Basic Package";
     case 17999: // $179.99
@@ -46,19 +48,31 @@ const updateUserMembership = async (
     status 
   });
 
+  const updateData: any = {
+    email: email,
+    membership_plan: planType,
+    subscription_status: status,
+    payment_status: status,
+    plan_type: planType,
+    stripe_customer_id: stripeCustomerId,
+    stripe_subscription_id: subscriptionId,
+    subscribed_at: status === 'active' ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Handle VIP Trial special case
+  if (planType === '$1 24-Hour VIP Pass') {
+    updateData.membership_type = 'vip_trial';
+    // Set expiration to 24 hours from now
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    updateData.expires_at = expiresAt.toISOString();
+    logStep('Setting VIP trial expiration', { expires_at: updateData.expires_at });
+  }
+
   const { error } = await supabaseClient
     .from("profiles")
-    .upsert({
-      email: email,
-      membership_plan: planType,
-      subscription_status: status,
-      payment_status: status,
-      plan_type: planType,
-      stripe_customer_id: stripeCustomerId,
-      stripe_subscription_id: subscriptionId,
-      subscribed_at: status === 'active' ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString(),
-    }, {
+    .upsert(updateData, {
       onConflict: 'email'
     });
 

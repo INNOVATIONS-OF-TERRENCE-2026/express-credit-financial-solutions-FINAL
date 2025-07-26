@@ -8,6 +8,8 @@ export type PlanType = 'Basic Package' | 'Pro Package' | 'Elite Package' | 'All 
 interface MembershipContextType {
   planType: PlanType | null;
   paymentStatus: string | null;
+  membershipType: string | null;
+  expiresAt: string | null;
   loading: boolean;
   hasAccess: (feature: string) => boolean;
   refreshMembership: () => Promise<void>;
@@ -20,6 +22,8 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   const { isAdmin, loading: rolesLoading } = useRoles();
   const [planType, setPlanType] = useState<PlanType | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const [membershipType, setMembershipType] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchMembership = async () => {
@@ -33,7 +37,7 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('plan_type, payment_status')
+        .select('plan_type, payment_status, membership_type, expires_at')
         .eq('user_id', user.id)
         .single();
 
@@ -45,6 +49,16 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       if (data) {
         setPlanType(data.plan_type as PlanType);
         setPaymentStatus(data.payment_status);
+        setMembershipType(data.membership_type);
+        setExpiresAt(data.expires_at);
+        
+        // Auto-expire VIP trials if past expiration
+        if (data.membership_type === 'vip_trial' && data.expires_at && new Date(data.expires_at) <= new Date()) {
+          await supabase.from('profiles').update({
+            membership_type: 'expired_trial'
+          }).eq('user_id', user.id);
+          setMembershipType('expired_trial');
+        }
       }
     } catch (error) {
       console.error('Error fetching membership:', error);
@@ -63,6 +77,11 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   const hasAccess = (feature: string): boolean => {
     // Admins have access to all features - check both loading states
     if (!loading && !rolesLoading && isAdmin()) {
+      return true;
+    }
+    
+    // Check for VIP trial access first - they get full access
+    if (membershipType === 'vip_trial' && paymentStatus === 'active') {
       return true;
     }
     
@@ -94,6 +113,8 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   const value = {
     planType,
     paymentStatus,
+    membershipType,
+    expiresAt,
     loading: loading || rolesLoading,
     hasAccess,
     refreshMembership,
