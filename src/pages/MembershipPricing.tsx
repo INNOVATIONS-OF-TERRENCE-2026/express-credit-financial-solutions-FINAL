@@ -18,10 +18,14 @@ const plans = [
     frequency: "monthly",
     isOneTime: false,
     icon: Check,
-    badge: null,
+    badge: "⭐️ Most Popular Entry-Level Plan",
+    color: "yellow",
     features: [
-      "Credit Disputes (up to 4 accounts/month)",
-      "Monthly Credit Report Review",
+      "Disputes for up to 4 accounts/month (1 bureau)",
+      "Monthly Credit Report Review & Analysis",
+      "Credit Monitoring Setup Guidance",
+      "Custom Onboarding Email with action checklist",
+      "Access to Client Document Portal",
       "Limited Email Support"
     ]
   },
@@ -32,11 +36,15 @@ const plans = [
     isOneTime: false,
     icon: Star,
     badge: null,
+    color: "blue",
     features: [
-      "Everything in Basic",
-      "Up to 10 disputes/month",
-      "Priority Email Support",
-      "Monthly Credit Coaching Call"
+      "Disputes for up to 10 accounts/month across 3 bureaus",
+      "Includes everything in Basic",
+      "Custom Dispute Letter Generation",
+      "Monthly Credit Coaching Call with a credit expert",
+      "Priority Email & Chat Support",
+      "Soft Inquiry Removal Assistance",
+      "Monthly Credit Score Progress Tracking Report"
     ]
   },
   {
@@ -45,12 +53,16 @@ const plans = [
     frequency: "monthly",
     isOneTime: false,
     icon: Crown,
-    badge: "Premium",
+    badge: "🔥 Premium Strategy Plan",
+    color: "red",
     features: [
-      "Everything in Pro",
-      "Unlimited disputes",
-      "Priority Processing",
-      "Dedicated Credit Coach"
+      "Unlimited Disputes with advanced bureau tactics",
+      "Includes everything in Pro",
+      "Direct Assigned Credit Coach",
+      "24–48 Hour Dispute Prep Turnaround",
+      "Rebuilding Strategy Session (tradelines, AU options)",
+      "Cease & Desist & Debt Validation Letters",
+      "Data Freeze Setup Support (LexisNexis, SageStream, etc.)"
     ]
   },
   {
@@ -59,13 +71,15 @@ const plans = [
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
-    badge: "Most Popular",
+    badge: null,
+    color: "purple",
     features: [
-      "Full Report Audit",
-      "Unlimited Disputes",
-      "Custom Dispute Letters",
-      "Document Upload Support",
-      "VIP Priority"
+      "Full Credit Report Audit + Violation Flagging",
+      "Unlimited Disputes across all accounts",
+      "Custom Dispute Strategy Playbook",
+      "Upload & Review of All Supporting Documents",
+      "VIP Concierge Priority Service",
+      "60-Day Post Audit Follow-Up"
     ]
   }
 ];
@@ -143,45 +157,98 @@ export default function MembershipPricing() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black">
       <NavigationHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
           <BackButton />
         </div>
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Membership Pricing
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Express Credit Membership Plans
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Choose the perfect credit repair plan for your needs. All plans include professional dispute services and expert guidance.
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+            Choose the perfect credit repair plan for your needs. Professional dispute services with expert guidance.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {plans.map((plan) => {
             const Icon = plan.icon;
+            const getColorClasses = (color: string) => {
+              switch (color) {
+                case 'yellow':
+                  return {
+                    border: 'border-yellow-500/30',
+                    bg: 'bg-yellow-500/5',
+                    icon: 'bg-yellow-500/20 text-yellow-400',
+                    badge: 'bg-yellow-600 text-black',
+                    title: 'text-yellow-400'
+                  };
+                case 'blue':
+                  return {
+                    border: 'border-blue-500/30',
+                    bg: 'bg-blue-500/5',
+                    icon: 'bg-blue-500/20 text-blue-400',
+                    badge: 'bg-blue-600 text-white',
+                    title: 'text-blue-400'
+                  };
+                case 'red':
+                  return {
+                    border: 'border-red-500/30',
+                    bg: 'bg-red-500/5',
+                    icon: 'bg-red-500/20 text-red-400',
+                    badge: 'bg-red-600 text-white',
+                    title: 'text-red-400'
+                  };
+                case 'purple':
+                  return {
+                    border: 'border-purple-500/30',
+                    bg: 'bg-purple-500/5',
+                    icon: 'bg-purple-500/20 text-purple-400',
+                    badge: 'bg-purple-600 text-white',
+                    title: 'text-purple-400'
+                  };
+                default:
+                  return {
+                    border: 'border-slate-600',
+                    bg: 'bg-slate-800/50',
+                    icon: 'bg-slate-700 text-slate-300',
+                    badge: 'bg-slate-600 text-white',
+                    title: 'text-slate-300'
+                  };
+              }
+            };
+            
+            const colors = getColorClasses(plan.color);
+            
             return (
-              <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-elegant ${
-                plan.badge === "Most Popular" ? "border-primary shadow-elegant scale-105" : ""
+              <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/20 bg-black/80 backdrop-blur-sm ${colors.border} ${colors.bg} ${
+                plan.badge?.includes("Most Popular") ? "scale-105 ring-2 ring-yellow-500/50" : ""
               }`}>
                 {plan.badge && (
-                  <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
+                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold ${colors.badge} border border-current`}>
                     {plan.badge}
-                  </Badge>
+                  </div>
                 )}
                 
-                <CardHeader className="text-center pb-4">
-                  <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-primary" />
+                <CardHeader className="text-center pb-4 pt-8">
+                  <div className={`mx-auto mb-4 w-12 h-12 rounded-full flex items-center justify-center ${colors.icon}`}>
+                    <Icon className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-xl text-foreground">{plan.name}</CardTitle>
-                  <CardDescription className="text-muted-foreground">
-                    <span className="text-3xl font-bold text-foreground">${plan.price}</span>
+                  <CardTitle className={`text-xl font-bold ${colors.title}`}>
+                    {plan.color === 'yellow' && '🟡 '}
+                    {plan.color === 'blue' && '🔵 '}
+                    {plan.color === 'red' && '🔴 '}
+                    {plan.color === 'purple' && '🟣 '}
+                    {plan.name}
+                  </CardTitle>
+                  <CardDescription className="text-white">
+                    <span className="text-3xl font-bold">${plan.price}</span>
                     {plan.isOneTime ? (
-                      <span className="text-sm"> one-time</span>
+                      <span className="text-sm text-slate-400"> (One-Time)</span>
                     ) : (
-                      <span className="text-sm">/month</span>
+                      <span className="text-sm text-slate-400">/month</span>
                     )}
                   </CardDescription>
                 </CardHeader>
@@ -190,21 +257,26 @@ export default function MembershipPricing() {
                   <ul className="space-y-3">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-foreground">{feature}</span>
+                        <Check className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-slate-200 leading-relaxed">{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </CardContent>
 
-                <CardFooter>
+                <CardFooter className="pt-0">
                   <Button
                     onClick={() => handleSignUp(plan)}
                     disabled={loading === plan.name}
-                    className="w-full"
-                    variant={plan.badge === "Most Popular" ? "default" : "outline"}
+                    className={`w-full font-semibold transition-all duration-200 ${
+                      plan.badge?.includes("Most Popular") 
+                        ? "bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-black" 
+                        : plan.badge?.includes("Premium")
+                        ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white"
+                        : "bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white border border-slate-600"
+                    }`}
                   >
-                    {loading === plan.name ? "Processing..." : "Sign Up"}
+                    {loading === plan.name ? "Processing..." : "Choose Plan"}
                   </Button>
                 </CardFooter>
               </Card>
@@ -213,8 +285,11 @@ export default function MembershipPricing() {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-slate-400">
             All plans include secure payment processing and can be cancelled anytime.
+          </p>
+          <p className="text-xs text-slate-500 mt-2">
+            Powered by Stripe • Bank-Level Security • FCRA Compliant
           </p>
         </div>
       </div>

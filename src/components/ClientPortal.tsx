@@ -300,35 +300,84 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
               <CardContent>
                 <div className="space-y-6">
                   <div>
-                    <h3 className="font-medium">Current Plan: {clientData.membership_plan}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <h3 className="font-medium text-white">Current Plan: {clientData.membership_plan}</h3>
+                    <p className="text-sm text-slate-400">
                       {clientData.membership_plan === 'Basic' 
-                        ? '$99.99/month' 
+                        ? '$99.99/month - Entry-level credit restoration'
                         : clientData.membership_plan === 'Pro' 
-                        ? '$179.99/month' 
-                        : '$249.99/month'}
+                        ? '$179.99/month - Full service with coaching' 
+                        : clientData.membership_plan === 'Elite'
+                        ? '$249.99/month - Premium unlimited service'
+                        : '$599.99 one-time - Complete audit package'}
                     </p>
+                    
+                    {/* Package Details */}
+                    <div className="mt-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                      <h4 className="font-medium text-slate-200 mb-2">Your Plan Includes:</h4>
+                      <ul className="text-sm text-slate-300 space-y-1">
+                        {clientData.membership_plan === 'Basic' && (
+                          <>
+                            <li>• Disputes for up to 4 accounts/month (1 bureau)</li>
+                            <li>• Monthly Credit Report Review & Analysis</li>
+                            <li>• Credit Monitoring Setup Guidance</li>
+                            <li>• Custom Onboarding Email with action checklist</li>
+                            <li>• Access to Client Document Portal</li>
+                            <li>• Limited Email Support</li>
+                          </>
+                        )}
+                        {clientData.membership_plan === 'Pro' && (
+                          <>
+                            <li>• Disputes for up to 10 accounts/month across 3 bureaus</li>
+                            <li>• Custom Dispute Letter Generation</li>
+                            <li>• Monthly Credit Coaching Call with expert</li>
+                            <li>• Priority Email & Chat Support</li>
+                            <li>• Soft Inquiry Removal Assistance</li>
+                            <li>• Monthly Progress Tracking Report</li>
+                          </>
+                        )}
+                        {clientData.membership_plan === 'Elite' && (
+                          <>
+                            <li>• Unlimited Disputes with advanced bureau tactics</li>
+                            <li>• Direct Assigned Credit Coach</li>
+                            <li>• 24–48 Hour Dispute Prep Turnaround</li>
+                            <li>• Rebuilding Strategy Session (tradelines, AU options)</li>
+                            <li>• Cease & Desist & Debt Validation Letters</li>
+                            <li>• Data Freeze Setup Support</li>
+                          </>
+                        )}
+                        {clientData.membership_plan === 'All Exclusive' && (
+                          <>
+                            <li>• Full Credit Report Audit + Violation Flagging</li>
+                            <li>• Unlimited Disputes across all accounts</li>
+                            <li>• Custom Dispute Strategy Playbook</li>
+                            <li>• Upload & Review of All Supporting Documents</li>
+                            <li>• VIP Concierge Priority Service</li>
+                            <li>• 60-Day Post Audit Follow-Up</li>
+                          </>
+                        )}
+                      </ul>
+                    </div>
                   </div>
                   
-                  {clientData.membership_plan !== 'Elite' && (
+                  {clientData.membership_plan !== 'Elite' && clientData.membership_plan !== 'All Exclusive' && (
                     <div className="space-y-2">
-                      <h4 className="font-medium">Available Upgrades:</h4>
+                      <h4 className="font-medium text-slate-200">Available Upgrades:</h4>
                       {clientData.membership_plan === 'Basic' && (
                         <div className="space-y-2">
-                          <Button variant="outline" className="w-full justify-start">
+                          <Button variant="outline" className="w-full justify-start bg-slate-800 border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Upgrade to Pro - $179.99/month
+                            🔵 Upgrade to Pro - $179.99/month
                           </Button>
-                          <Button variant="outline" className="w-full justify-start">
+                          <Button variant="outline" className="w-full justify-start bg-slate-800 border-red-500/30 text-red-400 hover:bg-red-500/10">
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Upgrade to Elite - $249.99/month
+                            🔴 Upgrade to Elite - $249.99/month
                           </Button>
                         </div>
                       )}
                       {clientData.membership_plan === 'Pro' && (
-                        <Button variant="outline" className="w-full justify-start">
+                        <Button variant="outline" className="w-full justify-start bg-slate-800 border-red-500/30 text-red-400 hover:bg-red-500/10">
                           <CreditCard className="w-4 h-4 mr-2" />
-                          Upgrade to Elite - $249.99/month
+                          🔴 Upgrade to Elite - $249.99/month
                         </Button>
                       )}
                     </div>
