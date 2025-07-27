@@ -43,6 +43,45 @@ export type Database = {
           },
         ]
       }
+      ai_letter_previews: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          id: string
+          letter_id: string | null
+          preview_text: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          letter_id?: string | null
+          preview_text: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          letter_id?: string | null
+          preview_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_letter_previews_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_letter_previews_letter_id_fkey"
+            columns: ["letter_id"]
+            isOneToOne: false
+            referencedRelation: "dispute_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       au_requests: {
         Row: {
           created_at: string
