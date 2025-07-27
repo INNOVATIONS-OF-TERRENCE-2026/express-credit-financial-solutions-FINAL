@@ -19,7 +19,7 @@ import { useMembership } from '@/hooks/useMembership';
 import { CreditReportUpload } from '@/components/CreditReportUpload';
 import { FlaggedDisputesTable } from '@/components/FlaggedDisputesTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Eye } from 'lucide-react';
+import { Eye, Sparkles } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 
 interface DisputeLetter {
@@ -46,6 +46,9 @@ export function DisputeCenter() {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewingDispute, setPreviewingDispute] = useState<DisputeLetter | null>(null);
   const [previewGenerating, setPreviewGenerating] = useState(false);
+  const [aiPreviewGenerating, setAiPreviewGenerating] = useState<string | null>(null);
+  const [showAiPreviewModal, setShowAiPreviewModal] = useState(false);
+  const [aiPreviewText, setAiPreviewText] = useState('');
   const { toast } = useToast();
   const { logDisputeLetterGeneration } = useAuditLog();
   const { isAdmin } = useRoles();
@@ -261,6 +264,41 @@ export function DisputeCenter() {
       });
     } finally {
       setPreviewGenerating(false);
+    }
+  };
+
+  const generateAiPreview = async (dispute: DisputeLetter) => {
+    setAiPreviewGenerating(dispute.id);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-letter-preview', {
+        body: {
+          letterId: dispute.id,
+          letterTitle: `${dispute.issue_type} dispute for ${dispute.creditor_name}`,
+          violationNotes: dispute.additional_notes || `Dispute regarding ${dispute.issue_type.toLowerCase()} issue with account ${dispute.account_number}`,
+          creditorName: dispute.creditor_name,
+          issueType: dispute.issue_type
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        setAiPreviewText(data.preview);
+        setShowAiPreviewModal(true);
+      } else {
+        setAiPreviewText(data.preview || "Preview unavailable. Please contact support.");
+        setShowAiPreviewModal(true);
+      }
+    } catch (error) {
+      console.error('Error generating AI preview:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate AI preview",
+        variant: "destructive",
+      });
+    } finally {
+      setAiPreviewGenerating(null);
     }
   };
 
@@ -529,6 +567,37 @@ export function DisputeCenter() {
           </DialogContent>
         </Dialog>
 
+        {/* AI Preview Modal */}
+        <Dialog open={showAiPreviewModal} onOpenChange={setShowAiPreviewModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                AI Letter Preview
+              </DialogTitle>
+              <DialogDescription>
+                Simple explanation of what this dispute letter is requesting
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 rounded-lg border border-primary/20">
+                <p className="text-foreground leading-relaxed">{aiPreviewText}</p>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAiPreviewModal(false);
+                    setAiPreviewText('');
+                  }}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -590,6 +659,25 @@ export function DisputeCenter() {
                             <>
                               <Eye className="h-4 w-4" />
                               Preview
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          onClick={() => generateAiPreview(dispute)}
+                          disabled={aiPreviewGenerating === dispute.id}
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          {aiPreviewGenerating === dispute.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                              AI Preview...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-4 w-4" />
+                              Preview with AI
                             </>
                           )}
                         </Button>

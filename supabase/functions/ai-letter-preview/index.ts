@@ -1,0 +1,209 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface LetterPreviewRequest {
+  letterId: string;
+  letterTitle?: string;
+  violationNotes?: string;
+  creditorName?: string;
+  issueType?: string;
+}
+
+const logStep = (step: string, data?: any) => {
+  console.log(`[AI Letter Preview] ${step}`, data ? JSON.stringify(data) : '');
+};
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    logStep('Function invoked');
+
+    // Get required environment variables
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!openaiApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase configuration missing');
+    }
+
+    // Create Supabase client with service role key
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      throw new Error('Authentication failed');
+    }
+
+    logStep('User authenticated', { userId: user.id });
+
+    // Parse request body
+    const { letterId, letterTitle, violationNotes, creditorName, issueType }: LetterPreviewRequest = await req.json();
+
+    if (!letterId && (!letterTitle || !violationNotes)) {
+      throw new Error('Either letterId or letter details (letterTitle + violationNotes) are required');
+    }
+
+    let disputeData: any = {};
+
+    if (letterId) {
+      // Fetch letter data from database
+      const { data: letterData, error: letterError } = await supabase
+        .from('dispute_letters')
+        .select('letter_title, violation_notes, creditor_name, issue_type, additional_notes')
+        .eq('id', letterId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (letterError || !letterData) {
+        throw new Error('Letter not found or access denied');
+      }
+
+      disputeData = letterData;
+      logStep('Letter data fetched', { letterId });
+    } else {
+      // Use provided data
+      disputeData = {
+        letter_title: letterTitle,
+        violation_notes: violationNotes,
+        creditor_name: creditorName,
+        issue_type: issueType
+      };
+      logStep('Using provided letter data');
+    }
+
+    // Create prompt for OpenAI
+    const prompt = `As a credit repair expert, provide a simple 2-3 sentence preview in plain English for this dispute letter:
+
+Letter Title: ${disputeData.letter_title || 'Not specified'}
+Creditor: ${disputeData.creditor_name || 'Not specified'}
+Issue Type: ${disputeData.issue_type || 'Not specified'}
+Violation Notes: ${disputeData.violation_notes || 'Not specified'}
+Additional Notes: ${disputeData.additional_notes || 'None'}
+
+Explain what this letter is requesting from the credit bureau in simple terms that a consumer can understand. Focus on the main action being requested (remove, correct, verify, etc.) and why.
+
+Example format: "This letter requests [Bureau] to [action] a [type of account] from [creditor] because [reason in simple terms]."
+
+Keep it under 50 words and avoid legal jargon.`;
+
+    logStep('Sending request to OpenAI');
+
+    // Call OpenAI API
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a credit repair expert summarizing dispute letters for consumers. Provide clear, simple explanations without legal jargon.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 150,
+        temperature: 0.3,
+      }),
+    });
+
+    if (!openaiResponse.ok) {
+      const errorData = await openaiResponse.text();
+      logStep('OpenAI API error', { status: openaiResponse.status, error: errorData });
+      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+    }
+
+    const openaiData = await openaiResponse.json();
+    const previewText = openaiData.choices[0]?.message?.content?.trim();
+
+    if (!previewText) {
+      throw new Error('No preview generated by OpenAI');
+    }
+
+    logStep('OpenAI response received', { previewLength: previewText.length });
+
+    // Store the preview in the database if letterId is provided
+    if (letterId) {
+      // First, try to get the client_id for this user
+      const { data: clientData } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      const { error: insertError } = await supabase
+        .from('ai_letter_previews')
+        .insert({
+          client_id: clientData?.id || null,
+          letter_id: letterId,
+          preview_text: previewText
+        });
+
+      if (insertError) {
+        logStep('Failed to store preview', { error: insertError });
+        // Don't throw here, still return the preview even if storage fails
+      } else {
+        logStep('Preview stored in database');
+      }
+    }
+
+    // Return success response
+    return new Response(
+      JSON.stringify({
+        success: true,
+        preview: previewText,
+        letterId: letterId || null
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    );
+
+  } catch (error) {
+    logStep('Error occurred', { error: error.message });
+    
+    // Return fallback message if OpenAI fails
+    const fallbackMessage = "Preview unavailable. Please contact support.";
+    
+    return new Response(
+      JSON.stringify({
+        success: false,
+        preview: fallbackMessage,
+        error: error.message
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200, // Still return 200 but with fallback message
+      }
+    );
+  }
+});
