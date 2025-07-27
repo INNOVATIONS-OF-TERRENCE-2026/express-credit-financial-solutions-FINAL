@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      agreements: {
+        Row: {
+          client_id: string
+          id: string
+          signed_at: string
+          signed_pdf_url: string
+        }
+        Insert: {
+          client_id: string
+          id?: string
+          signed_at?: string
+          signed_pdf_url: string
+        }
+        Update: {
+          client_id?: string
+          id?: string
+          signed_at?: string
+          signed_pdf_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agreements_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       au_requests: {
         Row: {
           created_at: string
@@ -187,44 +216,44 @@ export type Database = {
       }
       clients: {
         Row: {
+          address: string | null
           created_at: string
-          credit_reports_path: string | null
           date_of_birth: string
-          drivers_license_path: string | null
           email_address: string
           full_name: string
           id: string
+          membership_plan: string | null
           phone_number: string
-          proof_of_address_path: string | null
           ssn: string
+          ssn_last4: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
-          credit_reports_path?: string | null
           date_of_birth: string
-          drivers_license_path?: string | null
           email_address: string
           full_name: string
           id?: string
+          membership_plan?: string | null
           phone_number: string
-          proof_of_address_path?: string | null
           ssn: string
+          ssn_last4?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
           created_at?: string
-          credit_reports_path?: string | null
           date_of_birth?: string
-          drivers_license_path?: string | null
           email_address?: string
           full_name?: string
           id?: string
+          membership_plan?: string | null
           phone_number?: string
-          proof_of_address_path?: string | null
           ssn?: string
+          ssn_last4?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -373,27 +402,47 @@ export type Database = {
       }
       credit_reports: {
         Row: {
+          bureau: string | null
+          client_id: string | null
           created_at: string | null
           fico_score: number
           id: string
           negative_items: string[] | null
+          notes: string | null
+          uploaded_file_url: string | null
           user_id: string
         }
         Insert: {
+          bureau?: string | null
+          client_id?: string | null
           created_at?: string | null
           fico_score: number
           id?: string
           negative_items?: string[] | null
+          notes?: string | null
+          uploaded_file_url?: string | null
           user_id: string
         }
         Update: {
+          bureau?: string | null
+          client_id?: string | null
           created_at?: string | null
           fico_score?: number
           id?: string
           negative_items?: string[] | null
+          notes?: string | null
+          uploaded_file_url?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "credit_reports_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credit_scan_summaries: {
         Row: {
@@ -465,35 +514,47 @@ export type Database = {
         Row: {
           account_number: string
           additional_notes: string | null
+          bureau: string | null
           client_id: string | null
           created_at: string | null
           creditor_name: string
           generated_letter: string
           id: string
           issue_type: string
+          letter_title: string | null
+          uploaded_file_url: string | null
           user_id: string
+          violation_notes: string | null
         }
         Insert: {
           account_number: string
           additional_notes?: string | null
+          bureau?: string | null
           client_id?: string | null
           created_at?: string | null
           creditor_name: string
           generated_letter: string
           id?: string
           issue_type: string
+          letter_title?: string | null
+          uploaded_file_url?: string | null
           user_id: string
+          violation_notes?: string | null
         }
         Update: {
           account_number?: string
           additional_notes?: string | null
+          bureau?: string | null
           client_id?: string | null
           created_at?: string | null
           creditor_name?: string
           generated_letter?: string
           id?: string
           issue_type?: string
+          letter_title?: string | null
+          uploaded_file_url?: string | null
           user_id?: string
+          violation_notes?: string | null
         }
         Relationships: [
           {
@@ -764,6 +825,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      identity_docs: {
+        Row: {
+          client_id: string
+          created_at: string
+          doc_type: string
+          id: string
+          uploaded_file_url: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          doc_type: string
+          id?: string
+          uploaded_file_url: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          doc_type?: string
+          id?: string
+          uploaded_file_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_docs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_logs: {
         Row: {

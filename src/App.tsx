@@ -22,6 +22,8 @@ import CreditTracking from "./pages/CreditTracking";
 import CreditBuildingCenter from "./pages/CreditBuildingCenter";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import ClientPortals from "./pages/ClientPortals";
+import ClientPortalLinks from "./pages/ClientPortalLinks";
 import { GoodwillLetters } from "./pages/GoodwillLetters";
 import { CreditMonitoring } from "./pages/CreditMonitoring";
 import { CreditReportUploadPage } from "./pages/CreditReportUploadPage";
@@ -123,6 +125,8 @@ const App = () => (
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/client-portals" element={<ClientPortalLinks />} />
+              <Route path="/client/:clientSlug" element={<ClientPortals />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
