@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notes: {
+        Row: {
+          admin_user_id: string | null
+          client_id: string | null
+          created_at: string
+          id: string
+          note_text: string
+          updated_at: string
+        }
+        Insert: {
+          admin_user_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          note_text: string
+          updated_at?: string
+        }
+        Update: {
+          admin_user_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          note_text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agreements: {
         Row: {
           client_id: string
@@ -253,16 +288,43 @@ export type Database = {
         }
         Relationships: []
       }
+      client_search_filters: {
+        Row: {
+          admin_user_id: string | null
+          created_at: string
+          filter_criteria: Json
+          filter_name: string
+          id: string
+        }
+        Insert: {
+          admin_user_id?: string | null
+          created_at?: string
+          filter_criteria: Json
+          filter_name: string
+          id?: string
+        }
+        Update: {
+          admin_user_id?: string | null
+          created_at?: string
+          filter_criteria?: Json
+          filter_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           address: string | null
+          agreement_signed: boolean | null
           created_at: string
           date_of_birth: string
+          documents_uploaded: number | null
           email_address: string
           full_name: string
           id: string
           membership_plan: string | null
           phone_number: string
+          progress_status: number | null
           ssn: string
           ssn_last4: string | null
           updated_at: string
@@ -270,13 +332,16 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          agreement_signed?: boolean | null
           created_at?: string
           date_of_birth: string
+          documents_uploaded?: number | null
           email_address: string
           full_name: string
           id?: string
           membership_plan?: string | null
           phone_number: string
+          progress_status?: number | null
           ssn: string
           ssn_last4?: string | null
           updated_at?: string
@@ -284,13 +349,16 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          agreement_signed?: boolean | null
           created_at?: string
           date_of_birth?: string
+          documents_uploaded?: number | null
           email_address?: string
           full_name?: string
           id?: string
           membership_plan?: string | null
           phone_number?: string
+          progress_status?: number | null
           ssn?: string
           ssn_last4?: string | null
           updated_at?: string
@@ -513,6 +581,33 @@ export type Database = {
           flagged_accounts?: Json | null
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      demo_users: {
+        Row: {
+          created_at: string
+          demo_data: Json | null
+          id: string
+          is_demo: boolean | null
+          last_reset: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          demo_data?: Json | null
+          id?: string
+          is_demo?: boolean | null
+          last_reset?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          demo_data?: Json | null
+          id?: string
+          is_demo?: boolean | null
+          last_reset?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -778,6 +873,39 @@ export type Database = {
         }
         Relationships: []
       }
+      education_progress: {
+        Row: {
+          badges_earned: Json | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          progress_percentage: number | null
+          topic: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          badges_earned?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress_percentage?: number | null
+          topic: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          badges_earned?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress_percentage?: number | null
+          topic?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       file_upload_config: {
         Row: {
           allowed_file_types: string[]
@@ -897,6 +1025,44 @@ export type Database = {
           },
         ]
       }
+      mailing_bundles: {
+        Row: {
+          bundle_name: string
+          client_id: string | null
+          created_at: string
+          generated_at: string | null
+          id: string
+          status: string | null
+          zip_file_url: string | null
+        }
+        Insert: {
+          bundle_name: string
+          client_id?: string | null
+          created_at?: string
+          generated_at?: string | null
+          id?: string
+          status?: string | null
+          zip_file_url?: string | null
+        }
+        Update: {
+          bundle_name?: string
+          client_id?: string | null
+          created_at?: string
+          generated_at?: string | null
+          id?: string
+          status?: string | null
+          zip_file_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mailing_bundles_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_logs: {
         Row: {
           created_at: string
@@ -923,6 +1089,51 @@ export type Database = {
           email_sent?: boolean | null
           id?: string
           notification_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_receipts: {
+        Row: {
+          amount_paid: number
+          card_last_four: string | null
+          client_name: string
+          created_at: string
+          email_sent: boolean | null
+          id: string
+          membership_level: string
+          payment_date: string
+          receipt_id: string
+          receipt_pdf_url: string | null
+          stripe_payment_intent_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount_paid: number
+          card_last_four?: string | null
+          client_name: string
+          created_at?: string
+          email_sent?: boolean | null
+          id?: string
+          membership_level: string
+          payment_date?: string
+          receipt_id: string
+          receipt_pdf_url?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount_paid?: number
+          card_last_four?: string | null
+          client_name?: string
+          created_at?: string
+          email_sent?: boolean | null
+          id?: string
+          membership_level?: string
+          payment_date?: string
+          receipt_id?: string
+          receipt_pdf_url?: string | null
+          stripe_payment_intent_id?: string | null
           user_id?: string | null
         }
         Relationships: []
