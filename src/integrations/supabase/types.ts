@@ -39,15 +39,7 @@ export type Database = {
           note_text?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "admin_notes_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       agreements: {
         Row: {
@@ -68,15 +60,7 @@ export type Database = {
           signed_at?: string
           signed_pdf_url?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "agreements_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ai_letter_previews: {
         Row: {
@@ -101,13 +85,6 @@ export type Database = {
           preview_text?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "ai_letter_previews_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "ai_letter_previews_letter_id_fkey"
             columns: ["letter_id"]
@@ -314,55 +291,37 @@ export type Database = {
       }
       clients: {
         Row: {
-          address: string | null
-          agreement_signed: boolean | null
+          address: string
           created_at: string
-          date_of_birth: string
-          documents_uploaded: number | null
-          email_address: string
+          dob: string
+          email: string | null
           full_name: string
           id: string
-          membership_plan: string | null
-          phone_number: string
-          progress_status: number | null
-          ssn: string
-          ssn_last4: string | null
+          phone: string
+          ssn_last4: string
           updated_at: string
-          user_id: string
         }
         Insert: {
-          address?: string | null
-          agreement_signed?: boolean | null
+          address: string
           created_at?: string
-          date_of_birth: string
-          documents_uploaded?: number | null
-          email_address: string
+          dob: string
+          email?: string | null
           full_name: string
           id?: string
-          membership_plan?: string | null
-          phone_number: string
-          progress_status?: number | null
-          ssn: string
-          ssn_last4?: string | null
+          phone: string
+          ssn_last4: string
           updated_at?: string
-          user_id: string
         }
         Update: {
-          address?: string | null
-          agreement_signed?: boolean | null
+          address?: string
           created_at?: string
-          date_of_birth?: string
-          documents_uploaded?: number | null
-          email_address?: string
+          dob?: string
+          email?: string | null
           full_name?: string
           id?: string
-          membership_plan?: string | null
-          phone_number?: string
-          progress_status?: number | null
-          ssn?: string
-          ssn_last4?: string | null
+          phone?: string
+          ssn_last4?: string
           updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -423,6 +382,30 @@ export type Database = {
           is_read?: boolean | null
           severity?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      credit_analysis: {
+        Row: {
+          analysis_text: string | null
+          bureau: string | null
+          client_id: string | null
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          analysis_text?: string | null
+          bureau?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          analysis_text?: string | null
+          bureau?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
         }
         Relationships: []
       }
@@ -541,15 +524,7 @@ export type Database = {
           uploaded_file_url?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "credit_reports_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       credit_scan_summaries: {
         Row: {
@@ -690,15 +665,7 @@ export type Database = {
           user_id?: string
           violation_notes?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "dispute_letters_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       dispute_timeline: {
         Row: {
@@ -1015,15 +982,7 @@ export type Database = {
           id?: string
           uploaded_file_url?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "identity_docs_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       mailing_bundles: {
         Row: {
@@ -1053,15 +1012,7 @@ export type Database = {
           status?: string | null
           zip_file_url?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "mailing_bundles_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       notification_logs: {
         Row: {
@@ -1135,6 +1086,30 @@ export type Database = {
           receipt_pdf_url?: string | null
           stripe_payment_intent_id?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number | null
+          client_id: string | null
+          id: string
+          payment_date: string | null
+          stripe_receipt_url: string | null
+        }
+        Insert: {
+          amount?: number | null
+          client_id?: string | null
+          id?: string
+          payment_date?: string | null
+          stripe_receipt_url?: string | null
+        }
+        Update: {
+          amount?: number | null
+          client_id?: string | null
+          id?: string
+          payment_date?: string | null
+          stripe_receipt_url?: string | null
         }
         Relationships: []
       }
