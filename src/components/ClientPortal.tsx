@@ -8,6 +8,10 @@ import { LogOut, Upload, FileText, CreditCard, Shield, User } from 'lucide-react
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
 import { ClientDocumentManager } from '@/components/ClientDocumentManager';
+import { ClientAgreementModal } from '@/components/ClientAgreementModal';
+import { useClientAgreement } from '@/hooks/useClientAgreement';
+import { DemoUserBanner } from '@/components/DemoUserBanner';
+import { ReceiptGenerator } from '@/components/ReceiptGenerator';
 
 interface ClientData {
   id: string;
@@ -28,10 +32,21 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
   const { toast } = useToast();
   const [clientData, setClientData] = useState<ClientData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
+  const [receipts, setReceipts] = useState([]);
+  const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
+  
+  // Show agreement modal if user hasn't signed yet
+  useEffect(() => {
+    if (!agreementLoading && hasSignedAgreement === false) {
+      setShowAgreementModal(true);
+    }
+  }, [hasSignedAgreement, agreementLoading]);
 
   useEffect(() => {
     if (user) {
       fetchClientData();
+      fetchReceipts();
     }
   }, [user]);
 
@@ -56,6 +71,25 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
     }
   };
 
+  const fetchReceipts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('payment_receipts')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching receipts:', error);
+        return;
+      }
+
+      setReceipts(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     toast({
@@ -64,7 +98,7 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
     });
   };
 
-  if (loading) {
+  if (loading || agreementLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">Loading...</div>
@@ -84,24 +118,44 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
-      <div className="container mx-auto p-6">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
-            <BackButton />
-            <div>
-              <h1 className="text-2xl font-bold">Welcome, {clientData.full_name}</h1>
-              <p className="text-muted-foreground">
-                {clientData.membership_plan} Plan Member
-              </p>
+    <>
+      {/* Agreement Modal */}
+      <ClientAgreementModal
+        isOpen={showAgreementModal}
+        onClose={() => setShowAgreementModal(false)}
+        onAgreementSigned={() => {
+          refetchAgreementStatus();
+          setShowAgreementModal(false);
+        }}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black">
+        <div className="container mx-auto p-6">
+          {/* Demo User Banner */}
+          <DemoUserBanner userEmail={clientData.email_address} />
+          
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <BackButton />
+              <div>
+                <h1 className="text-2xl font-bold text-white">
+                  Welcome, {clientData.full_name}!
+                </h1>
+                <p className="text-yellow-400 font-medium">
+                  {clientData.membership_plan} Plan Member
+                  {hasSignedAgreement && <span className="ml-2 text-green-400">✓ Agreement Signed</span>}
+                </p>
+                <p className="text-slate-400 text-sm">
+                  Here's your credit restoration dashboard
+                </p>
+              </div>
             </div>
+            <Button variant="outline" onClick={handleSignOut} className="border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-black">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
 
         {/* Main Content */}
         <Tabs defaultValue="dashboard" className="space-y-6">
@@ -244,7 +298,7 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
                     <h3 className="font-medium">Current Plan: {clientData.membership_plan}</h3>
                     <p className="text-sm text-muted-foreground">
@@ -279,6 +333,11 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                       )}
                     </div>
                   )}
+                  
+                  {/* Payment Receipts */}
+                  <div className="pt-4 border-t">
+                    <ReceiptGenerator receipts={receipts} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -286,5 +345,6 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
         </Tabs>
       </div>
     </div>
+    </>
   );
 }
