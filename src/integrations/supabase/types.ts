@@ -39,7 +39,15 @@ export type Database = {
           note_text?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_admin_notes_client_id"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       agreements: {
         Row: {
@@ -60,7 +68,15 @@ export type Database = {
           signed_at?: string
           signed_pdf_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_agreements_client_id"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_letter_previews: {
         Row: {
@@ -87,6 +103,20 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ai_letter_previews_letter_id_fkey"
+            columns: ["letter_id"]
+            isOneToOne: false
+            referencedRelation: "dispute_letters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_ai_letter_previews_client_id"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_ai_letter_previews_letter_id"
             columns: ["letter_id"]
             isOneToOne: false
             referencedRelation: "dispute_letters"
@@ -407,7 +437,15 @@ export type Database = {
           created_at?: string | null
           id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_credit_analysis_client_id"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credit_api_credentials: {
         Row: {
@@ -524,7 +562,15 @@ export type Database = {
           uploaded_file_url?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_credit_reports_client_id"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credit_scan_summaries: {
         Row: {
@@ -818,6 +864,7 @@ export type Database = {
       }
       documents: {
         Row: {
+          client_id: string | null
           doc_type: string
           file_path: string
           id: string
@@ -825,6 +872,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          client_id?: string | null
           doc_type: string
           file_path: string
           id?: string
@@ -832,13 +880,22 @@ export type Database = {
           user_id: string
         }
         Update: {
+          client_id?: string | null
           doc_type?: string
           file_path?: string
           id?: string
           uploaded_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       education_progress: {
         Row: {
@@ -1111,7 +1168,15 @@ export type Database = {
           payment_date?: string | null
           stripe_receipt_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_payments_client_id"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
