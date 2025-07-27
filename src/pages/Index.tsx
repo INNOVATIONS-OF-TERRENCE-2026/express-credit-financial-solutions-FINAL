@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMembership } from '@/hooks/useMembership';
+import { useRoles } from '@/hooks/useRoles';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { LoginForm } from '@/components/LoginForm';
 import { RegisterForm } from '@/components/RegisterForm';
 import { ClientDashboard } from '@/components/ClientDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
 import { Button } from '@/components/ui/button';
-import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play, Upload } from 'lucide-react';
+import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play, Upload, User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -39,6 +40,7 @@ const Index = () => {
     paymentStatus,
     hasAccess
   } = useMembership();
+  const { isAdmin } = useRoles();
   const {
     toast
   } = useToast();
@@ -237,6 +239,17 @@ const Index = () => {
                   <CardDescription className="text-primary-foreground/90 font-medium">Upload ID verification documents</CardDescription>
                 </CardHeader>
               </Card>
+
+              {/* Client Portals - Admin Only */}
+              {isAdmin() && (
+                <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/client-portals')}>
+                  <CardHeader className="text-center bg-transparent">
+                    <User className="h-8 w-8 text-accent mx-auto mb-2" />
+                    <CardTitle className="text-lg text-primary-foreground">Client Portals</CardTitle>
+                    <CardDescription className="text-primary-foreground/90 font-medium">Access individual client accounts</CardDescription>
+                  </CardHeader>
+                </Card>
+              )}
             </div>
 
             {/* Onboarding Tour Controls */}

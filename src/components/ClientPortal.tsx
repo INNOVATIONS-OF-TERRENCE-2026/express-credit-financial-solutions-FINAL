@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { LogOut, Upload, FileText, CreditCard, Shield, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
+import { ClientDocumentManager } from '@/components/ClientDocumentManager';
 
 interface ClientData {
   id: string;
@@ -166,29 +167,7 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
           </TabsContent>
 
           <TabsContent value="documents">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Identity Documents</CardTitle>
-                <CardDescription>
-                  Upload your required documents for verification
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {['Driver\'s License', 'SSN Card', 'Utility Bill', 'Lease', 'Pay Stub'].map((docType) => (
-                    <Card key={docType} className="border-dashed">
-                      <CardContent className="p-6 text-center">
-                        <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                        <h3 className="font-medium mb-1">{docType}</h3>
-                        <Button variant="outline" size="sm">
-                          Upload
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <ClientDocumentManager clientId={clientData.id} />
           </TabsContent>
 
           <TabsContent value="credit-reports">
