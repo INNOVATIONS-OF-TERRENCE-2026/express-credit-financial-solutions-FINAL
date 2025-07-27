@@ -198,9 +198,30 @@ export function AdminClientOverview() {
                     {new Date(client.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <Button variant="outline" size="sm">
-                      View Portal
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          const clientSlug = client.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                          window.open(`/client/${clientSlug}`, '_blank');
+                        }}
+                      >
+                        View Portal
+                      </Button>
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        onClick={() => {
+                          // Navigate to upload tab and pre-select this client
+                          const uploadTab = document.querySelector('[value="upload"]') as HTMLElement;
+                          uploadTab?.click();
+                          // Could dispatch event to pre-select client
+                        }}
+                      >
+                        Upload Docs
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
