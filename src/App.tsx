@@ -29,6 +29,7 @@ import { CreditMonitoring } from "./pages/CreditMonitoring";
 import { CreditReportUploadPage } from "./pages/CreditReportUploadPage";
 import { AICreditAssistantPage } from "./pages/AICreditAssistantPage";
 import { DocumentUploadCenter } from "./pages/DocumentUploadCenter";
+import AdminClients from "./pages/AdminClients";
 
 const queryClient = new QueryClient();
 
@@ -125,6 +126,7 @@ const App = () => (
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/clients" element={<AdminClients />} />
               <Route path="/client-portals" element={<ClientPortalLinks />} />
               <Route path="/client/:clientSlug" element={<ClientPortals />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

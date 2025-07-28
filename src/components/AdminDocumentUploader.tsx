@@ -14,8 +14,8 @@ import { Upload, Users, FileText, Search, Eye, Download, Trash2 } from 'lucide-r
 interface Client {
   id: string;
   full_name: string;
-  email_address: string;
-  membership_plan: string;
+  email: string;
+  phone: string;
 }
 
 interface Document {
@@ -74,7 +74,7 @@ export function AdminDocumentUploader() {
     try {
       const { data, error } = await supabase
         .from('clients')
-        .select('id, full_name, email_address, membership_plan')
+        .select('id, full_name, email, phone')
         .order('full_name');
 
       if (error) throw error;
@@ -230,7 +230,7 @@ export function AdminDocumentUploader() {
 
   const filteredClients = clients.filter(client =>
     client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email_address.toLowerCase().includes(searchTerm.toLowerCase())
+    client.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const selectedClientData = clients.find(c => c.id === selectedClient);
@@ -279,9 +279,7 @@ export function AdminDocumentUploader() {
                       <SelectItem key={client.id} value={client.id}>
                         <div className="flex items-center gap-2">
                           <span>{client.full_name}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {client.membership_plan}
-                          </Badge>
+                          <span className="text-xs text-muted-foreground">({client.email})</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -296,10 +294,10 @@ export function AdminDocumentUploader() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-semibold">{selectedClientData.full_name}</h3>
-                      <p className="text-sm text-muted-foreground">{selectedClientData.email_address}</p>
+                      <p className="text-sm text-muted-foreground">{selectedClientData.email}</p>
                     </div>
                     <div className="flex gap-2">
-                      <Badge variant="default">{selectedClientData.membership_plan}</Badge>
+                      <Badge variant="default">Client</Badge>
                       <Button
                         variant="outline"
                         size="sm"
