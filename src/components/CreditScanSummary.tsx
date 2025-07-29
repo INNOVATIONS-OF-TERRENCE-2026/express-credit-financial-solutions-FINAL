@@ -64,7 +64,9 @@ export function CreditScanSummary() {
           account_number: account.accountNumber,
           issue_type: account.issueType,
           additional_notes: `AI Flagged: ${account.reason}`,
-          generated_letter: null
+          generated_letter: null,
+          dispute_reason: 'Account dispute',
+          letter_title: `Dispute for ${account.creditorName}`
         });
 
       if (error) throw error;

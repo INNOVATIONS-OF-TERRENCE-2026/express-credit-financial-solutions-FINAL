@@ -196,13 +196,12 @@ export function ClientOnboarding() {
         .insert({
           user_id: user.id,
           full_name: formData.fullName,
-          date_of_birth: formData.dateOfBirth,
-          ssn: encryptedSSN,
-          phone_number: formData.phoneNumber,
-          email_address: formData.emailAddress,
-          drivers_license_path: driversLicensePath,
-          proof_of_address_path: proofOfAddressPath,
-          credit_reports_path: creditReportsPath,
+          dob: formData.dateOfBirth,
+          ssn_last4: formData.ssn.slice(-4),
+          phone: formData.phoneNumber,
+          email: formData.emailAddress,
+          address: 'Address to be updated',
+          membership_plan: 'Basic'
         });
 
       if (error) throw error;

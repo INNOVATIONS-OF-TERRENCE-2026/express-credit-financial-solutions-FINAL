@@ -38,7 +38,7 @@ export default function ClientPortals() {
         .eq('user_id', user.id)
         .single();
 
-      if (clientData && clientData.full_name === CLIENT_NAMES[clientSlug]) {
+      if (clientData?.full_name === CLIENT_NAMES[clientSlug]) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);

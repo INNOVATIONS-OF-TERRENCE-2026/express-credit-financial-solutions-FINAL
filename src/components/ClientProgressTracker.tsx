@@ -57,7 +57,7 @@ export function ClientProgressTracker({ clientId, userId, compact = false }: Cli
         const { data: agreement } = await supabase
           .from('client_agreements')
           .select('*')
-          .eq('user_id', client?.user_id)
+          .eq('user_id', client?.user_id || '')
           .single();
         agreementData = agreement;
 
@@ -65,7 +65,7 @@ export function ClientProgressTracker({ clientId, userId, compact = false }: Cli
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
-          .eq('user_id', client?.user_id)
+          .eq('user_id', client?.user_id || '')
           .single();
         membershipData = profile;
 
@@ -73,7 +73,7 @@ export function ClientProgressTracker({ clientId, userId, compact = false }: Cli
         const { data: disputes } = await supabase
           .from('dispute_letters')
           .select('*')
-          .eq('user_id', client?.user_id);
+          .eq('user_id', client?.user_id || '');
         disputeCount = disputes?.length || 0;
 
       } else if (userId) {

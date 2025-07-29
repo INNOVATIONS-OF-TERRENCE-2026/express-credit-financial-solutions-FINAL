@@ -198,7 +198,9 @@ export function DisputeCenter() {
         account_number: sanitizeAccountNumber(newDispute.account_number),
         issue_type: sanitizeInput(newDispute.issue_type),
         additional_notes: newDispute.additional_notes ? sanitizeDisputeContent(newDispute.additional_notes) : null,
-        generated_letter: null
+        generated_letter: null,
+        dispute_reason: 'User created dispute',
+        letter_title: `Dispute for ${sanitizeInput(newDispute.creditor_name)}`
       };
 
       const { error } = await supabase

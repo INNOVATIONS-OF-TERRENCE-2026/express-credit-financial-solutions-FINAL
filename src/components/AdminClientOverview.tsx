@@ -10,12 +10,18 @@ import { Users, FileText, CreditCard, Calendar } from 'lucide-react';
 interface ClientData {
   id: string;
   full_name: string;
-  email_address: string;
+  email: string;
   membership_plan: string;
   created_at: string;
-  date_of_birth?: string;
+  dob?: string;
   ssn_last4?: string;
   address?: string;
+  user_id?: string;
+  progress_status?: number;
+  agreement_signed?: boolean;
+  documents_uploaded?: number;
+  phone?: string;
+  updated_at?: string;
 }
 
 interface ClientStats {
@@ -188,7 +194,7 @@ export function AdminClientOverview() {
                   <TableCell className="font-medium">
                     {client.full_name}
                   </TableCell>
-                  <TableCell>{client.email_address}</TableCell>
+                  <TableCell>{client.email}</TableCell>
                   <TableCell>
                     <Badge variant={getMembershipBadgeVariant(client.membership_plan)}>
                       {client.membership_plan}

@@ -35,11 +35,12 @@ export function ClientLogin({ clientName, onSuccess }: ClientLoginProps) {
             await supabase.from('clients').upsert({
               user_id: userData.user.id,
               full_name: clientName,
-              email_address: email,
+              email: email,
               membership_plan: clientName === 'Jadlyn Nicole Starkey' ? 'Basic' : 'Pro',
-              date_of_birth: '1990-01-01', // Placeholder - clients can update this later
-              phone_number: '000-000-0000', // Placeholder
-              ssn: 'encrypted_placeholder' // Placeholder
+              dob: '1990-01-01', // Placeholder - clients can update this later
+              phone: '000-000-0000', // Placeholder
+              ssn_last4: '0000', // Placeholder
+              address: 'Address to be updated' // Required field
             });
           }
         }

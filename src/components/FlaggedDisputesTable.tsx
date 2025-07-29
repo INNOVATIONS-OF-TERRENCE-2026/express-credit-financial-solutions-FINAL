@@ -105,7 +105,9 @@ export function FlaggedDisputesTable() {
               account_number: dispute.account_number,
               issue_type: getIssueTypeFromFlag(dispute.flag_reason),
               additional_notes: dispute.flag_reason,
-              generated_letter: null
+              generated_letter: null,
+              dispute_reason: 'Admin approved dispute',
+              letter_title: `Dispute for ${dispute.creditor_name}`
             });
 
           if (disputeError) {

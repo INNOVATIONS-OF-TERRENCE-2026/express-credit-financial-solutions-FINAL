@@ -16,11 +16,18 @@ import { ReceiptGenerator } from '@/components/ReceiptGenerator';
 interface ClientData {
   id: string;
   full_name: string;
-  email_address: string;
+  email: string;
   membership_plan: string;
-  date_of_birth?: string;
+  dob?: string;
   ssn_last4?: string;
   address?: string;
+  user_id?: string;
+  progress_status?: number;
+  agreement_signed?: boolean;
+  documents_uploaded?: number;
+  phone?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface ClientPortalProps {
@@ -132,7 +139,7 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
       <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black">
         <div className="container mx-auto p-6">
           {/* Demo User Banner */}
-          <DemoUserBanner userEmail={clientData.email_address} />
+          <DemoUserBanner userEmail={clientData.email} />
           
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
@@ -179,10 +186,10 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p><strong>Name:</strong> {clientData.full_name}</p>
-                  <p><strong>Email:</strong> {clientData.email_address}</p>
+                  <p><strong>Email:</strong> {clientData.email}</p>
                   <p><strong>Plan:</strong> {clientData.membership_plan}</p>
-                  {clientData.date_of_birth && (
-                    <p><strong>DOB:</strong> {new Date(clientData.date_of_birth).toLocaleDateString()}</p>
+                  {clientData.dob && (
+                    <p><strong>DOB:</strong> {new Date(clientData.dob).toLocaleDateString()}</p>
                   )}
                   {clientData.ssn_last4 && (
                     <p><strong>SSN:</strong> ***-**-{clientData.ssn_last4}</p>

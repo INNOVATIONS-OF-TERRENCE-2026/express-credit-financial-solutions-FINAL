@@ -322,36 +322,51 @@ export type Database = {
       clients: {
         Row: {
           address: string
+          agreement_signed: boolean | null
           created_at: string
           dob: string
+          documents_uploaded: number | null
           email: string | null
           full_name: string
           id: string
+          membership_plan: string | null
           phone: string
+          progress_status: number | null
           ssn_last4: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address: string
+          agreement_signed?: boolean | null
           created_at?: string
           dob: string
+          documents_uploaded?: number | null
           email?: string | null
           full_name: string
           id?: string
+          membership_plan?: string | null
           phone: string
+          progress_status?: number | null
           ssn_last4: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string
+          agreement_signed?: boolean | null
           created_at?: string
           dob?: string
+          documents_uploaded?: number | null
           email?: string | null
           full_name?: string
           id?: string
+          membership_plan?: string | null
           phone?: string
+          progress_status?: number | null
           ssn_last4?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -667,48 +682,69 @@ export type Database = {
       }
       dispute_letters: {
         Row: {
-          account_number: string
+          account_name: string | null
+          account_number: string | null
           additional_notes: string | null
+          authorized_user: string | null
           bureau: string | null
           client_id: string | null
+          client_name: string | null
           created_at: string | null
-          creditor_name: string
+          creditor_name: string | null
+          date_created: string | null
+          dispute_reason: string
+          full_name: string | null
           generated_letter: string
           id: string
-          issue_type: string
-          letter_title: string | null
+          issue_type: string | null
+          letter_body: string | null
+          letter_title: string
           uploaded_file_url: string | null
-          user_id: string
+          user_id: string | null
           violation_notes: string | null
         }
         Insert: {
-          account_number: string
+          account_name?: string | null
+          account_number?: string | null
           additional_notes?: string | null
+          authorized_user?: string | null
           bureau?: string | null
           client_id?: string | null
+          client_name?: string | null
           created_at?: string | null
-          creditor_name: string
+          creditor_name?: string | null
+          date_created?: string | null
+          dispute_reason: string
+          full_name?: string | null
           generated_letter: string
           id?: string
-          issue_type: string
-          letter_title?: string | null
+          issue_type?: string | null
+          letter_body?: string | null
+          letter_title: string
           uploaded_file_url?: string | null
-          user_id: string
+          user_id?: string | null
           violation_notes?: string | null
         }
         Update: {
-          account_number?: string
+          account_name?: string | null
+          account_number?: string | null
           additional_notes?: string | null
+          authorized_user?: string | null
           bureau?: string | null
           client_id?: string | null
+          client_name?: string | null
           created_at?: string | null
-          creditor_name?: string
+          creditor_name?: string | null
+          date_created?: string | null
+          dispute_reason?: string
+          full_name?: string | null
           generated_letter?: string
           id?: string
-          issue_type?: string
-          letter_title?: string | null
+          issue_type?: string | null
+          letter_body?: string | null
+          letter_title?: string
           uploaded_file_url?: string | null
-          user_id?: string
+          user_id?: string | null
           violation_notes?: string | null
         }
         Relationships: []
@@ -1337,132 +1373,37 @@ export type Database = {
         }
         Relationships: []
       }
-      wrappers_fdw_stats: {
+      violation_flags: {
         Row: {
-          bytes_in: number | null
-          bytes_out: number | null
-          create_times: number | null
-          created_at: string
-          fdw_name: string
-          metadata: Json | null
-          rows_in: number | null
-          rows_out: number | null
-          updated_at: string
+          client_id: string
+          file_name: string
+          violation_type: string
         }
         Insert: {
-          bytes_in?: number | null
-          bytes_out?: number | null
-          create_times?: number | null
-          created_at?: string
-          fdw_name: string
-          metadata?: Json | null
-          rows_in?: number | null
-          rows_out?: number | null
-          updated_at?: string
+          client_id: string
+          file_name: string
+          violation_type: string
         }
         Update: {
-          bytes_in?: number | null
-          bytes_out?: number | null
-          create_times?: number | null
-          created_at?: string
-          fdw_name?: string
-          metadata?: Json | null
-          rows_in?: number | null
-          rows_out?: number | null
-          updated_at?: string
+          client_id?: string
+          file_name?: string
+          violation_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "violation_flags_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      airtable_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      airtable_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      airtable_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      auth0_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      auth0_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      auth0_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      big_query_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      big_query_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      big_query_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      click_house_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      click_house_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      click_house_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      cognito_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      cognito_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      cognito_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
       decrypt_ssn: {
         Args: { encrypted_ssn: string }
         Returns: string
@@ -1470,23 +1411,6 @@ export type Database = {
       decrypt_ssn_secure: {
         Args: { encrypted_ssn: string }
         Returns: string
-      }
-      duckdb_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      duckdb_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      duckdb_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
       }
       encrypt_ssn: {
         Args: { ssn_text: string }
@@ -1500,23 +1424,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      firebase_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      firebase_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      firebase_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1528,40 +1435,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      hello_world_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      hello_world_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      hello_world_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      iceberg_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      iceberg_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      iceberg_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
       log_security_event: {
         Args: {
           p_action: string
@@ -1571,108 +1444,6 @@ export type Database = {
           p_security_level?: string
           p_risk_score?: number
         }
-        Returns: undefined
-      }
-      logflare_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      logflare_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      logflare_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      mssql_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      mssql_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      mssql_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      redis_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      redis_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      redis_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      s3_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      s3_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      s3_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      stripe_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      stripe_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      stripe_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
-        Returns: undefined
-      }
-      wasm_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      wasm_fdw_meta: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          name: string
-          version: string
-          author: string
-          website: string
-        }[]
-      }
-      wasm_fdw_validator: {
-        Args: { options: string[]; catalog: unknown }
         Returns: undefined
       }
     }

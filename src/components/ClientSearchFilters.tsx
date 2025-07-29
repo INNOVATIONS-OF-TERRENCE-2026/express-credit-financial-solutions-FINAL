@@ -13,14 +13,18 @@ import { useToast } from '@/hooks/use-toast';
 interface Client {
   id: string;
   full_name: string;
-  email_address: string;
-  phone_number: string;
+  email: string;
+  phone: string;
   ssn_last4: string;
   membership_plan: string;
   progress_status: number;
   agreement_signed: boolean;
   created_at: string;
   documents_uploaded: number;
+  user_id?: string;
+  dob?: string;
+  address?: string;
+  updated_at?: string;
 }
 
 interface SearchFilters {
@@ -89,8 +93,8 @@ export function ClientSearchFilters({ onResultsChange }: ClientSearchFiltersProp
       const term = filters.searchTerm.toLowerCase();
       filtered = filtered.filter(client =>
         client.full_name?.toLowerCase().includes(term) ||
-        client.email_address?.toLowerCase().includes(term) ||
-        client.phone_number?.includes(term) ||
+        client.email?.toLowerCase().includes(term) ||
+        client.phone?.includes(term) ||
         client.ssn_last4?.includes(term)
       );
     }
