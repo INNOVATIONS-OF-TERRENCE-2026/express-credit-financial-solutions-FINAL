@@ -39,7 +39,7 @@ serve(async (req) => {
 
     // Download the PDF from Supabase Storage
     const { data: fileData, error: downloadError } = await supabase.storage
-      .from('documents')
+      .from('credit-reports')
       .download(creditReportPath);
 
     if (downloadError) {
@@ -179,6 +179,20 @@ Analyze the attached credit report PDF and identify all disputable items.`;
     });
 
     await Promise.all(insertPromises);
+
+    // Update the credit report upload record with analysis results
+    const { error: updateError } = await supabase
+      .from('credit_report_uploads')
+      .update({
+        analysis_status: 'completed',
+        flagged_accounts_count: flaggedAccounts.length,
+        ai_analysis_summary: `Found ${flaggedAccounts.length} potential dispute opportunities`
+      })
+      .eq('id', reportId);
+
+    if (updateError) {
+      console.error('Error updating upload record:', updateError);
+    }
 
     // Log the analysis completion
     await supabase.from('audit_logs').insert({

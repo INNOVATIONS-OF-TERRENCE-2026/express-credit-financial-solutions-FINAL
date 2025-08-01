@@ -27,6 +27,7 @@ import {
   Download,
   Eye
 } from 'lucide-react';
+import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 
 interface AdminUser {
   id: string;
@@ -270,11 +271,12 @@ export default function AdminDashboard() {
 
       <div className="container mx-auto p-6">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="disputes">Disputes</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="credit-reports">Credit Reports</TabsTrigger>
             <TabsTrigger value="email">Email Control</TabsTrigger>
             <TabsTrigger value="system">System</TabsTrigger>
           </TabsList>
@@ -606,6 +608,11 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Credit Reports Tab */}
+          <TabsContent value="credit-reports" className="space-y-6">
+            <AdminCreditReportManager />
           </TabsContent>
 
           {/* Email Control Tab */}

@@ -543,6 +543,65 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_report_uploads: {
+        Row: {
+          ai_analysis_summary: string | null
+          analysis_status: string | null
+          analysis_url: string | null
+          client_id: string | null
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          flagged_accounts_count: number | null
+          id: string
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_analysis_summary?: string | null
+          analysis_status?: string | null
+          analysis_url?: string | null
+          client_id?: string | null
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          flagged_accounts_count?: number | null
+          id?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_analysis_summary?: string | null
+          analysis_status?: string | null
+          analysis_url?: string | null
+          client_id?: string | null
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          flagged_accounts_count?: number | null
+          id?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_report_uploads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_reports: {
         Row: {
           bureau: string | null

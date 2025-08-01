@@ -16,7 +16,7 @@ import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, sanitizeAccountNumber, sanitizeDisputeContent, validateDisputeFormData } from '@/utils/inputValidation';
 import { useRoles } from '@/hooks/useRoles';
 import { useMembership } from '@/hooks/useMembership';
-import { CreditReportUpload } from '@/components/CreditReportUpload';
+import { EnhancedCreditReportUpload } from '@/components/EnhancedCreditReportUpload';
 import { FlaggedDisputesTable } from '@/components/FlaggedDisputesTable';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Eye, Sparkles } from 'lucide-react';
@@ -491,9 +491,7 @@ export function DisputeCenter() {
         )}
 
         {/* Credit Report Upload Section */}
-        <div className="mb-6">
-          <CreditReportUpload />
-        </div>
+        <EnhancedCreditReportUpload />
 
         {/* AI-Flagged Disputes Section */}
         <div className="mb-6">
