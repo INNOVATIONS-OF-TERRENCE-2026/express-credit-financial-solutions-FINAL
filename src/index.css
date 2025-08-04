@@ -51,15 +51,27 @@
 
     --radius: 0.5rem;
 
+    /* Midnight Blue Theme Colors */
+    --midnight-bg: 231 45% 9%;
+    --midnight-card: 231 40% 12%;
+    --midnight-text: 0 0% 95%;
+    --midnight-muted: 231 20% 30%;
+
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(0 0% 9%), hsl(0 0% 20%));
     --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(45 100% 35%));
+    --gradient-silver: linear-gradient(135deg, hsl(0 0% 75%), hsl(0 0% 85%));
     --gradient-elegant: linear-gradient(135deg, hsl(0 0% 9%), hsl(45 100% 51%));
+    --gradient-midnight: linear-gradient(135deg, hsl(231 45% 9%), hsl(231 40% 15%));
+    --gradient-midnight-gold: linear-gradient(135deg, hsl(231 45% 9%), hsl(45 100% 51%));
 
     /* Shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.3);
     --shadow-gold: 0 8px 25px -8px hsl(45 100% 51% / 0.4);
+    --shadow-silver: 0 8px 25px -8px hsl(0 0% 75% / 0.3);
     --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.1);
+    --shadow-neon-gold: 0 0 20px hsl(45 100% 51% / 0.6);
+    --shadow-neon-silver: 0 0 20px hsl(0 0% 75% / 0.4);
 
     --sidebar-background: 0 0% 98%;
 
@@ -181,6 +193,66 @@
 
   .hover-lift {
     @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  /* Midnight Blue Theme Classes */
+  .midnight-theme {
+    background: hsl(var(--midnight-bg));
+    color: hsl(var(--midnight-text));
+  }
+
+  .midnight-card {
+    background: hsl(var(--midnight-card));
+    border: 1px solid hsl(var(--midnight-muted) / 0.2);
+    color: hsl(var(--midnight-text));
+  }
+
+  .midnight-header {
+    background: var(--gradient-midnight);
+    color: hsl(var(--midnight-text));
+    text-shadow: var(--shadow-neon-gold);
+  }
+
+  .midnight-btn-gold {
+    background: linear-gradient(135deg, transparent, transparent);
+    border: 2px solid hsl(var(--gold));
+    color: hsl(var(--gold));
+    box-shadow: var(--shadow-neon-gold);
+    transition: all 0.3s ease;
+  }
+
+  .midnight-btn-gold:hover {
+    background: hsl(var(--gold));
+    color: hsl(var(--midnight-bg));
+    box-shadow: var(--shadow-neon-gold), 0 0 30px hsl(var(--gold) / 0.8);
+    transform: translateY(-2px);
+  }
+
+  .midnight-btn-silver {
+    background: linear-gradient(135deg, transparent, transparent);
+    border: 2px solid hsl(var(--silver));
+    color: hsl(var(--silver));
+    box-shadow: var(--shadow-neon-silver);
+    transition: all 0.3s ease;
+  }
+
+  .midnight-btn-silver:hover {
+    background: hsl(var(--silver));
+    color: hsl(var(--midnight-bg));
+    box-shadow: var(--shadow-neon-silver), 0 0 30px hsl(var(--silver) / 0.6);
+    transform: translateY(-2px);
+  }
+
+  .midnight-glow-text {
+    text-shadow: 0 0 10px hsl(var(--gold) / 0.5);
+  }
+
+  .midnight-section-title {
+    background: var(--gradient-gold);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: var(--shadow-neon-gold);
   }
 }
 

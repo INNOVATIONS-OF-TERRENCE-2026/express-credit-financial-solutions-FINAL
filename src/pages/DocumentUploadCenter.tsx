@@ -289,15 +289,15 @@ export function DocumentUploadCenter() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen midnight-theme">
       <NavigationHeader />
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
             <BackButton />
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Document Upload Center</h1>
-              <p className="text-muted-foreground mt-2">
+            <div className="midnight-header p-6 rounded-lg">
+              <h1 className="text-3xl font-bold midnight-section-title midnight-glow-text">Document Upload Center</h1>
+              <p className="text-midnight-text mt-2">
                 Upload sensitive ID documents for credit repair verification
               </p>
             </div>
@@ -305,13 +305,13 @@ export function DocumentUploadCenter() {
         </div>
 
         {/* Upload Area */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
+        <Card className="mb-8 midnight-card shadow-neon-gold">
+          <CardHeader className="bg-gradient-midnight">
+            <CardTitle className="flex items-center gap-2 text-gold">
+              <Upload className="h-5 w-5 text-gold" />
               Upload Documents
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-midnight-text">
               Accepted formats: PDF, JPG, PNG, JPEG, HEIC, DOCX (Max 10MB)
             </CardDescription>
           </CardHeader>
@@ -343,7 +343,7 @@ export function DocumentUploadCenter() {
               <Button
                 asChild
                 disabled={uploading}
-                className="cursor-pointer"
+                className="cursor-pointer midnight-btn-gold"
               >
                 <label htmlFor="file-upload">
                   {uploading ? 'Uploading...' : 'Choose Files'}

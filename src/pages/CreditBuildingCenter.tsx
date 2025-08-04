@@ -164,29 +164,8 @@ export default function CreditBuildingCenter() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen midnight-theme">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Agreement Section */}
-        {!hasSignedAgreement ? (
-          <Card className="mb-8 border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20">
-            <CardContent className="py-6">
-              <DigitalSignature onSignatureComplete={refetchAgreementStatus} />
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="mb-8 border-2 border-green-500/50 bg-green-50 dark:bg-green-900/20">
-            <CardContent className="py-6">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                  ✅ Agreement Signed
-                </h3>
-                <p className="text-green-700 dark:text-green-300">
-                  You have full access to all credit building tools and services.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Bank Account Connection */}
         {hasSignedAgreement && (
@@ -198,30 +177,30 @@ export default function CreditBuildingCenter() {
         )}
 
         {/* Header Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 midnight-header p-8 rounded-lg">
           <div className="flex items-center justify-center mb-4">
-            <Award className="h-12 w-12 text-primary mr-4" />
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
+            <Award className="h-12 w-12 text-gold mr-4" />
+            <h1 className="text-4xl md:text-5xl font-bold midnight-section-title midnight-glow-text">
               Credit Building Center
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-midnight-text max-w-3xl mx-auto leading-relaxed">
             Transform your financial future with strategic credit building after dispute completion
           </p>
-          <Badge variant="secondary" className="mt-4 px-6 py-2 text-lg">
+          <Badge variant="secondary" className="mt-4 px-6 py-2 text-lg midnight-btn-gold">
             <Shield className="h-4 w-4 mr-2" />
             {hasSignedAgreement ? 'Full Access Granted' : 'Agreement Required'}
           </Badge>
         </div>
 
         {/* Progress Tracker */}
-        <Card className="mb-8 border-2 border-primary/20 shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5">
-            <CardTitle className="flex items-center text-2xl">
-              <TrendingUp className="h-6 w-6 mr-3 text-primary" />
+        <Card className="mb-8 midnight-card shadow-neon-gold">
+          <CardHeader className="bg-gradient-midnight">
+            <CardTitle className="flex items-center text-2xl text-gold">
+              <TrendingUp className="h-6 w-6 mr-3 text-gold" />
               Your Credit Building Progress
             </CardTitle>
-            <CardDescription className="text-lg">
+            <CardDescription className="text-lg text-midnight-text">
               Track your journey to excellent credit
             </CardDescription>
           </CardHeader>

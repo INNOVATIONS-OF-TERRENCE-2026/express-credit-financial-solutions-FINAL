@@ -977,16 +977,16 @@ This personalized content addresses your specific learning goal while providing 
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen midnight-theme">
       <NavigationHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
           <BackButton />
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-4">
+          <div className="midnight-header p-8 rounded-lg">
+            <h1 className="text-4xl font-bold midnight-section-title midnight-glow-text mb-4">
               Credit Education Center
             </h1>
-            <p className="text-lg text-muted-foreground max-w-3xl">
+            <p className="text-lg text-midnight-text max-w-3xl">
               Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. 
               Knowledge is power in credit repair.
             </p>

@@ -75,17 +75,30 @@ export default {
 					DEFAULT: 'hsl(var(--silver))',
 					light: 'hsl(var(--silver-light))',
 					dark: 'hsl(var(--silver-dark))'
+				},
+				// Midnight Blue Theme Colors
+				midnight: {
+					bg: 'hsl(var(--midnight-bg))',
+					card: 'hsl(var(--midnight-card))',
+					text: 'hsl(var(--midnight-text))',
+					muted: 'hsl(var(--midnight-muted))'
 				}
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-gold': 'var(--gradient-gold)',
-				'gradient-elegant': 'var(--gradient-elegant)'
+				'gradient-silver': 'var(--gradient-silver)',
+				'gradient-elegant': 'var(--gradient-elegant)',
+				'gradient-midnight': 'var(--gradient-midnight)',
+				'gradient-midnight-gold': 'var(--gradient-midnight-gold)'
 			},
 			boxShadow: {
 				'elegant': 'var(--shadow-elegant)',
 				'gold': 'var(--shadow-gold)',
-				'card': 'var(--shadow-card)'
+				'silver': 'var(--shadow-silver)',
+				'card': 'var(--shadow-card)',
+				'neon-gold': 'var(--shadow-neon-gold)',
+				'neon-silver': 'var(--shadow-neon-silver)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

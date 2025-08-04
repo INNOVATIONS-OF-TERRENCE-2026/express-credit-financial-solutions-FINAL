@@ -11,6 +11,8 @@ import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, validateEmail, validatePhone, validateSSN, validateName } from '@/utils/inputValidation';
 import { encryptSSN } from '@/utils/ssnEncryption';
 import { BackButton } from '@/components/BackButton';
+import { useClientAgreement } from '@/hooks/useClientAgreement';
+import { DigitalSignature } from '@/components/DigitalSignature';
 
 interface ClientFormData {
   fullName: string;
@@ -46,6 +48,7 @@ export function ClientOnboarding() {
   const { toast } = useToast();
   const { validateFile, sanitizeFileName } = useFileUploadSecurity();
   const { logFileUpload } = useAuditLog();
+  const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
 
   const handleInputChange = (field: keyof ClientFormData, value: string) => {
     const sanitizedValue = sanitizeInput(value);
@@ -290,6 +293,34 @@ export function ClientOnboarding() {
           </p>
         </div>
       </div>
+
+      {/* Complete Your Client Agreement Section */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl">Complete Your Client Agreement</CardTitle>
+          <CardDescription className="text-center">
+            Please review and sign the client agreement to proceed with onboarding
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!hasSignedAgreement ? (
+            <div className="border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg">
+              <DigitalSignature onSignatureComplete={refetchAgreementStatus} />
+            </div>
+          ) : (
+            <div className="border-2 border-green-500/50 bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
+                  ✅ Agreement Signed
+                </h3>
+                <p className="text-green-700 dark:text-green-300">
+                  You have full access to all credit building tools and services.
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Personal Information */}
