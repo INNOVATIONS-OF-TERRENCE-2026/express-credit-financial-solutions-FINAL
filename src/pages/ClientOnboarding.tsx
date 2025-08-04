@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, User, FileText, Home } from 'lucide-react';
+import { Upload, User, FileText, Home, X } from 'lucide-react';
 import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, validateEmail, validatePhone, validateSSN, validateName } from '@/utils/inputValidation';
@@ -13,6 +13,8 @@ import { encryptSSN } from '@/utils/ssnEncryption';
 import { BackButton } from '@/components/BackButton';
 import { useClientAgreement } from '@/hooks/useClientAgreement';
 import { DigitalSignature } from '@/components/DigitalSignature';
+import { useNavigate } from 'react-router-dom';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ClientFormData {
   fullName: string;
@@ -49,6 +51,7 @@ export function ClientOnboarding() {
   const { validateFile, sanitizeFileName } = useFileUploadSecurity();
   const { logFileUpload } = useAuditLog();
   const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
+  const navigate = useNavigate();
 
   const handleInputChange = (field: keyof ClientFormData, value: string) => {
     const sanitizedValue = sanitizeInput(value);
@@ -295,9 +298,27 @@ export function ClientOnboarding() {
       </div>
 
       {/* Complete Your Client Agreement Section */}
-      <Card className="mb-8">
+      <Card className="mb-8 relative">
+        {/* Floating Exit Button */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => navigate('/dashboard')}
+                className="absolute top-4 right-4 z-10 w-10 h-10 p-0 rounded-full bg-transparent border-2 border-gold text-gold hover:bg-gold hover:text-midnight-bg shadow-neon-gold hover:shadow-neon-gold transition-all duration-300 hover:scale-110"
+                aria-label="Exit Sign Agreement Page"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Exit & Return to Dashboard</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Complete Your Client Agreement</CardTitle>
+          <CardTitle className="text-center text-2xl pr-12">Complete Your Client Agreement</CardTitle>
           <CardDescription className="text-center">
             Please review and sign the client agreement to proceed with onboarding
           </CardDescription>
