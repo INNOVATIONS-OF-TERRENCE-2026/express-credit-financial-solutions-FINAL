@@ -309,25 +309,25 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                   <div>
                     <h3 className="font-medium text-white">Current Plan: {clientData.membership_plan}</h3>
                     <p className="text-sm text-slate-400">
-                      {clientData.membership_plan === 'Basic' 
-                        ? '$99.99/month - Entry-level credit restoration'
+                      {clientData.membership_plan === 'Basic' || clientData.membership_plan === 'Gold Basic' 
+                        ? '$99.99 / 45 Days, then $49.99/month - Entry-level credit restoration'
                         : clientData.membership_plan === 'Pro' 
-                        ? '$179.99/month - Full service with coaching' 
+                        ? '$179.99 / 45 Days, then $79.99/month - Full service with coaching' 
                         : clientData.membership_plan === 'Elite'
-                        ? '$249.99/month - Premium unlimited service'
-                        : '$599.99 one-time - Complete audit package'}
+                        ? '$249.99 / 45 Days, then $99.99/month - Premium unlimited service'
+                        : '$599.99 One-Time, 45-Day Audit Service (VIP Ongoing: $124.99/month optional)'}
                     </p>
                     
                     {/* Package Details */}
                     <div className="mt-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
                       <h4 className="font-medium text-slate-200 mb-2">Your Plan Includes:</h4>
                       <ul className="text-sm text-slate-300 space-y-1">
-                        {clientData.membership_plan === 'Basic' && (
+                        {(clientData.membership_plan === 'Basic' || clientData.membership_plan === 'Gold Basic') && (
                           <>
                             <li>• Disputes for up to 4 accounts/month (1 bureau)</li>
                             <li>• Monthly Credit Report Review & Analysis</li>
                             <li>• Credit Monitoring Setup Guidance</li>
-                            <li>• Custom Onboarding Email with action checklist</li>
+                            <li>• Custom Onboarding Email with Action Checklist</li>
                             <li>• Access to Client Document Portal</li>
                             <li>• Limited Email Support</li>
                           </>
@@ -373,18 +373,18 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                         <div className="space-y-2">
                           <Button variant="outline" className="w-full justify-start bg-slate-800 border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
                             <CreditCard className="w-4 h-4 mr-2" />
-                            🔵 Upgrade to Pro - $179.99/month
+                            🔵 Upgrade to Pro - $179.99 / 45 Days, then $79.99/month
                           </Button>
                           <Button variant="outline" className="w-full justify-start bg-slate-800 border-red-500/30 text-red-400 hover:bg-red-500/10">
                             <CreditCard className="w-4 h-4 mr-2" />
-                            🔴 Upgrade to Elite - $249.99/month
+                            🔴 Upgrade to Elite - $249.99 / 45 Days, then $99.99/month
                           </Button>
                         </div>
                       )}
                       {clientData.membership_plan === 'Pro' && (
                         <Button variant="outline" className="w-full justify-start bg-slate-800 border-red-500/30 text-red-400 hover:bg-red-500/10">
                           <CreditCard className="w-4 h-4 mr-2" />
-                          🔴 Upgrade to Elite - $249.99/month
+                          🔴 Upgrade to Elite - $249.99 / 45 Days, then $99.99/month
                         </Button>
                       )}
                     </div>

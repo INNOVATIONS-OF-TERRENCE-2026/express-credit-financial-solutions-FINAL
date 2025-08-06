@@ -434,9 +434,9 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                                           <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          <SelectItem value="basic">Basic - $99.99/month</SelectItem>
-                                          <SelectItem value="pro">Pro - $179.99/month</SelectItem>
-                                          <SelectItem value="elite">Elite - $249.99/month</SelectItem>
+                                           <SelectItem value="basic">Gold Basic - $99.99 / 45 Days, then $49.99/month</SelectItem>
+                                           <SelectItem value="pro">Pro - $179.99 / 45 Days, then $79.99/month</SelectItem>
+                                           <SelectItem value="elite">Elite - $249.99 / 45 Days, then $99.99/month</SelectItem>
                                         </SelectContent>
                                       </Select>
                                     </div>

@@ -13,9 +13,10 @@ import { BackButton } from '@/components/BackButton';
 
 const plans = [
   {
-    name: "Basic Package",
+    name: "Gold Basic Package",
     price: 99.99,
-    frequency: "monthly",
+    monthlyPrice: 49.99,
+    frequency: "45 days",
     isOneTime: false,
     icon: Check,
     badge: "⭐️ Most Popular Entry-Level Plan",
@@ -24,7 +25,7 @@ const plans = [
       "Disputes for up to 4 accounts/month (1 bureau)",
       "Monthly Credit Report Review & Analysis",
       "Credit Monitoring Setup Guidance",
-      "Custom Onboarding Email with action checklist",
+      "Custom Onboarding Email with Action Checklist",
       "Access to Client Document Portal",
       "Limited Email Support"
     ]
@@ -32,7 +33,8 @@ const plans = [
   {
     name: "Pro Package",
     price: 179.99,
-    frequency: "monthly",
+    monthlyPrice: 79.99,
+    frequency: "45 days",
     isOneTime: false,
     icon: Star,
     badge: null,
@@ -48,9 +50,10 @@ const plans = [
     ]
   },
   {
-    name: "Elite Package",
+    name: "Elite Package (Premium Strategy Plan)",
     price: 249.99,
-    frequency: "monthly",
+    monthlyPrice: 99.99,
+    frequency: "45 days",
     isOneTime: false,
     icon: Crown,
     badge: "🔥 Premium Strategy Plan",
@@ -68,6 +71,7 @@ const plans = [
   {
     name: "All Exclusive Package",
     price: 599.99,
+    monthlyPrice: 124.99,
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
@@ -246,9 +250,17 @@ export default function MembershipPricing() {
                   <CardDescription className="text-white">
                     <span className="text-3xl font-bold">${plan.price}</span>
                     {plan.isOneTime ? (
-                      <span className="text-sm text-slate-400"> (One-Time)</span>
+                      <>
+                        <span className="text-sm text-slate-400"> / One-Time, 45-Day Audit Service</span>
+                        <br />
+                        <span className="text-lg font-semibold text-slate-300">VIP Ongoing: ${plan.monthlyPrice}/month (optional)</span>
+                      </>
                     ) : (
-                      <span className="text-sm text-slate-400">/month</span>
+                      <>
+                        <span className="text-sm text-slate-400"> / {plan.frequency}</span>
+                        <br />
+                        <span className="text-lg font-semibold text-slate-300">Then just ${plan.monthlyPrice}/month after first 45 days</span>
+                      </>
                     )}
                   </CardDescription>
                 </CardHeader>
@@ -282,6 +294,38 @@ export default function MembershipPricing() {
               </Card>
             );
           })}
+        </div>
+
+        {/* Payment Methods Section */}
+        <div className="mt-16 bg-gradient-to-r from-slate-800/50 to-slate-900/50 p-8 rounded-xl border border-slate-700">
+          <h3 className="text-2xl font-bold text-center text-white mb-6">Accepted Payment Methods</h3>
+          
+          <div className="grid grid-cols-3 md:grid-cols-9 gap-4 items-center justify-items-center mb-8">
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Visa</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">MasterCard</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Amex</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Discover</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">JCB</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Diners</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">UnionPay</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Apple Pay</div>
+            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Cash App</div>
+          </div>
+
+          <div className="text-center">
+            <h4 className="text-xl font-bold text-yellow-400 mb-4">Flexible Payment Plan Options Available!</h4>
+            <p className="text-slate-300 mb-4">We've partnered with industry-leading payment companies so you can get started today and pay your way:</p>
+            
+            <div className="flex justify-center gap-6 mb-4">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 rounded-lg font-semibold text-white">Affirm</div>
+              <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2 rounded-lg font-semibold text-white">Klarna</div>
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2 rounded-lg font-semibold text-white">Cash App Pay</div>
+            </div>
+            
+            <p className="text-sm text-slate-400 italic">
+              Choose your favorite payment method or sign up with a payment plan for even more flexibility. Getting started has never been easier!
+            </p>
+          </div>
         </div>
 
         <div className="text-center mt-12">

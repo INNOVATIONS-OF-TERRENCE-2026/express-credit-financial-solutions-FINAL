@@ -104,9 +104,9 @@ Client agrees to:
 
 3. FEES AND PAYMENT
 Client agrees to pay fees as outlined in the selected membership plan:
-- Basic Plan: $99.99/month
-- Pro Plan: $179.99/month  
-- Elite Plan: $249.99/month
+- Gold Basic Plan: $99.99 / 45 Days, then $49.99/month
+- Pro Plan: $179.99 / 45 Days, then $79.99/month  
+- Elite Plan: $249.99 / 45 Days, then $99.99/month
 
 4. TERM AND TERMINATION
 This agreement remains in effect until terminated by either party with 30 days written notice.

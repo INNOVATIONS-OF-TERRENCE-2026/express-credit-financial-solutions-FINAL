@@ -372,21 +372,22 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {/* Basic Package */}
+            {/* Gold Basic Package */}
             <Card className="relative bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
               <CardHeader className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <CardTitle className="text-lg text-primary-foreground">Basic Package</CardTitle>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <CardTitle className="text-lg text-primary-foreground">Gold Basic Package</CardTitle>
                 </div>
-                <div className="text-2xl font-bold text-accent">$99.99/month</div>
+                <div className="text-2xl font-bold text-accent">$99.99 / 45 Days</div>
+                <div className="text-sm text-primary-foreground/80">Then just $49.99/month</div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <ul className="text-sm text-primary-foreground/90 space-y-2">
                   <li>• Disputes for up to 4 accounts/month (1 bureau)</li>
                   <li>• Monthly Credit Report Review & Analysis</li>
                   <li>• Credit Monitoring Setup Guidance</li>
-                  <li>• Custom Onboarding Email with action checklist</li>
+                  <li>• Custom Onboarding Email with Action Checklist</li>
                   <li>• Access to Client Document Portal</li>
                   <li>• Limited Email Support</li>
                 </ul>
@@ -403,14 +404,15 @@ const Index = () => {
                   <Star className="w-4 h-4 text-accent" />
                   <CardTitle className="text-lg text-primary-foreground">Pro Package</CardTitle>
                 </div>
-                <div className="text-2xl font-bold text-accent">$179.99/month</div>
+                <div className="text-2xl font-bold text-accent">$179.99 / 45 Days</div>
+                <div className="text-sm text-primary-foreground/80">Then just $79.99/month</div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <ul className="text-sm text-primary-foreground/90 space-y-2">
                   <li>• Disputes for up to 10 accounts/month across 3 bureaus</li>
                   <li>• Includes everything in Basic</li>
                   <li>• Custom Dispute Letter Generation</li>
-                  <li>• Monthly Credit Coaching Call with expert</li>
+                  <li>• Monthly Credit Coaching Call with a credit expert</li>
                   <li>• Priority Email & Chat Support</li>
                   <li>• Soft Inquiry Removal Assistance</li>
                   <li>• Monthly Credit Score Progress Tracking Report</li>
@@ -423,9 +425,10 @@ const Index = () => {
               <CardHeader className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Award className="w-4 h-4 text-accent" />
-                  <CardTitle className="text-lg text-primary-foreground">Elite Package</CardTitle>
+                  <CardTitle className="text-lg text-primary-foreground">Elite Package (Premium Strategy Plan)</CardTitle>
                 </div>
-                <div className="text-2xl font-bold text-accent">$249.99/month</div>
+                <div className="text-2xl font-bold text-accent">$249.99 / 45 Days</div>
+                <div className="text-sm text-primary-foreground/80">Then just $99.99/month</div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <ul className="text-sm text-primary-foreground/90 space-y-2">
@@ -451,7 +454,8 @@ const Index = () => {
                   <CardTitle className="text-lg text-primary-foreground">All Exclusive Package</CardTitle>
                 </div>
                 <div className="text-2xl font-bold text-accent">$599.99</div>
-                <div className="text-sm text-primary-foreground/80">(One-Time)</div>
+                <div className="text-sm text-primary-foreground/80">One-Time, 45-Day Audit Service</div>
+                <div className="text-xs text-primary-foreground/60">VIP Ongoing Maintenance: $124.99/month (optional)</div>
               </CardHeader>
               <CardContent className="space-y-3 bg-transparent">
                 <ul className="text-sm text-primary-foreground/90 space-y-2">
@@ -464,6 +468,38 @@ const Index = () => {
                 </ul>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Payment Methods Section */}
+          <div className="mt-16 bg-gradient-to-r from-slate-800/50 to-slate-900/50 p-8 rounded-xl border border-slate-700">
+            <h3 className="text-2xl font-bold text-center text-primary-foreground mb-6">Accepted Payment Methods</h3>
+            
+            <div className="grid grid-cols-3 md:grid-cols-9 gap-4 items-center justify-items-center mb-8">
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Visa</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">MasterCard</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Amex</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Discover</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">JCB</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Diners</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">UnionPay</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Apple Pay</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Cash App</div>
+            </div>
+
+            <div className="text-center">
+              <h4 className="text-xl font-bold text-accent mb-4">Flexible Payment Plan Options Available!</h4>
+              <p className="text-primary-foreground/80 mb-4">We've partnered with industry-leading payment companies so you can get started today and pay your way:</p>
+              
+              <div className="flex justify-center gap-6 mb-4">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 rounded-lg font-semibold text-white">Affirm</div>
+                <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2 rounded-lg font-semibold text-white">Klarna</div>
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2 rounded-lg font-semibold text-white">Cash App Pay</div>
+              </div>
+              
+              <p className="text-sm text-primary-foreground/60 italic">
+                Choose your favorite payment method or sign up with a payment plan for even more flexibility. Getting started has never been easier!
+              </p>
+            </div>
           </div>
         </div>
       </div>

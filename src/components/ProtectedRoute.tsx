@@ -58,7 +58,7 @@ export function ProtectedRoute({ children, requiredFeature, featureName }: Prote
       switch (requiredFeature) {
         case 'dispute-generator':
         case 'credit-upload':
-          return 'Upgrade to Pro, Elite, or All Exclusive package to access this feature.';
+          return 'Upgrade to Pro, Elite (Premium Strategy Plan), or All Exclusive package to access this feature.';
         case 'exclusive-content':
           return 'Upgrade to All Exclusive package to access this feature.';
         default:

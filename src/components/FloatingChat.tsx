@@ -150,10 +150,10 @@ Our Credit Tracking feature can help you monitor improvements. What specific asp
     if (message.includes('membership') || message.includes('plan') || message.includes('pricing')) {
       return `We offer several membership tiers:
 
-**Basic Package** - Essential credit repair tools
-**Pro Package** - Advanced dispute features + credit monitoring
-**Elite Package** - Full-service credit repair + priority support
-**All Exclusive Package** - Complete credit solution with legal guidance
+**Gold Basic Package** - $99.99 / 45 Days, then $49.99/month - Essential credit repair tools
+**Pro Package** - $179.99 / 45 Days, then $79.99/month - Advanced dispute features + credit monitoring
+**Elite Package (Premium Strategy Plan)** - $249.99 / 45 Days, then $99.99/month - Full-service credit repair + priority support
+**All Exclusive Package** - $599.99 One-Time, 45-Day Audit Service (VIP Ongoing: $124.99/month optional) - Complete credit solution with legal guidance
 
 Each tier includes access to our educational resources. You can upgrade anytime from your membership page. What specific features are you interested in?`;
     }
