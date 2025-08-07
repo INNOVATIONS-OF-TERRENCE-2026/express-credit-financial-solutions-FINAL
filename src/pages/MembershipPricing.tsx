@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { VisaLogo } from '@/components/VisaLogo';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -343,12 +344,7 @@ export default function MembershipPricing() {
               className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
               style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
             />
-            <img 
-              src="/lovable-uploads/visa-logo.png" 
-              alt="Visa logo" 
-              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-            />
+            <VisaLogo />
           </div>
 
           <div className="text-center">

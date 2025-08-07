@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { VisaLogo } from '@/components/VisaLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { useMembership } from '@/hooks/useMembership';
 import { useRoles } from '@/hooks/useRoles';
@@ -492,12 +493,7 @@ const Index = () => {
                 className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
                 style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
               />
-              <img 
-                src="/lovable-uploads/visa-logo.png" 
-                alt="Visa logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
+              <VisaLogo />
             </div>
 
             <div className="text-center">
