@@ -90,7 +90,7 @@ export function NavigationHeader() {
     accessible: true
   }];
   if (!user) return null;
-  return <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-yellow-600 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-gradient-to-r supports-[backdrop-filter]:from-blue-900/95 supports-[backdrop-filter]:via-blue-800/95 supports-[backdrop-filter]:to-yellow-600/95 animate-pulse">
+  return <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-yellow-600 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-gradient-to-r supports-[backdrop-filter]:from-blue-900/95 supports-[backdrop-filter]:via-blue-800/95 supports-[backdrop-filter]:to-yellow-600/95 animate-[pulse_3s_ease-in-out_infinite]">
       <div className="container mx-auto px-4 py-3 bg-inherit">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-4 lg:space-x-6 min-w-0">
@@ -102,7 +102,7 @@ export function NavigationHeader() {
               {navItems.map(item => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap text-white hover:text-white hover:bg-white/20 disabled:text-white/50" style={{textShadow: '0 0 8px rgba(147, 51, 234, 0.8)'}}>
+               return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap text-white hover:text-white hover:bg-white/20 disabled:text-white/50 bg-black rounded-xl px-5 py-2" style={{textShadow: '0 0 8px rgba(147, 51, 234, 0.8)'}}>
                     <Icon className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
                     <span className="hidden lg:inline">{item.label}</span>
                   </Button>;
@@ -132,7 +132,7 @@ export function NavigationHeader() {
             {navItems.map(item => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap flex-shrink-0 text-white hover:text-white hover:bg-white/20 disabled:text-white/50" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
+            return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap flex-shrink-0 text-white hover:text-white hover:bg-white/20 disabled:text-white/50 bg-black rounded-xl px-5 py-2" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
                   <Icon className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
                   <span className="text-xs">{item.label}</span>
                 </Button>;

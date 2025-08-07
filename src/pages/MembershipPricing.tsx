@@ -343,9 +343,12 @@ export default function MembershipPricing() {
               className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
               style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
             />
-            <div className="bg-white/10 p-2 rounded text-center text-xs font-medium text-yellow-400 border border-yellow-500/30" style={{filter: 'drop-shadow(0 0 8px gold)'}}>
-              Visa • JCB • Diners • UnionPay
-            </div>
+            <img 
+              src="/lovable-uploads/visa-logo.png" 
+              alt="Visa logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
           </div>
 
           <div className="text-center">
