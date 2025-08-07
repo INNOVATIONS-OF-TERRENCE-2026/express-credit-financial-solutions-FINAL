@@ -298,28 +298,79 @@ export default function MembershipPricing() {
 
         {/* Payment Methods Section */}
         <div className="mt-16 bg-gradient-to-r from-slate-800/50 to-slate-900/50 p-8 rounded-xl border border-slate-700">
-          <h3 className="text-2xl font-bold text-center text-white mb-6">Accepted Payment Methods</h3>
+          <h3 className="text-2xl font-bold text-center text-yellow-400 mb-6">We Accept All Major Payment Methods</h3>
           
-          <div className="grid grid-cols-3 md:grid-cols-9 gap-4 items-center justify-items-center mb-8">
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Visa</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">MasterCard</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Amex</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Discover</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">JCB</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Diners</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">UnionPay</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Apple Pay</div>
-            <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Cash App</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center mb-8">
+            <img 
+              src="/lovable-uploads/607fa3b0-29f0-46a4-86de-39e4e8e1c245.png" 
+              alt="American Express logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
+            <img 
+              src="/lovable-uploads/c74587ad-a808-43ca-b093-cdc6ac5585c8.png" 
+              alt="MasterCard logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
+            <img 
+              src="/lovable-uploads/fc9628bb-8f09-450a-ae12-b97627dd735d.png" 
+              alt="Discover logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
+            <img 
+              src="/lovable-uploads/057496bb-7585-4c04-94b2-85d91eb244ea.png" 
+              alt="Apple Pay logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
+            <img 
+              src="/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png" 
+              alt="Cash App logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
+            <img 
+              src="/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png" 
+              alt="Affirm logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
+            <img 
+              src="/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png" 
+              alt="Klarna logo" 
+              className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
+              style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+            />
+            <div className="bg-white/10 p-2 rounded text-center text-xs font-medium text-yellow-400 border border-yellow-500/30" style={{filter: 'drop-shadow(0 0 8px gold)'}}>
+              Visa • JCB • Diners • UnionPay
+            </div>
           </div>
 
           <div className="text-center">
             <h4 className="text-xl font-bold text-yellow-400 mb-4">Flexible Payment Plan Options Available!</h4>
             <p className="text-slate-300 mb-4">We've partnered with industry-leading payment companies so you can get started today and pay your way:</p>
             
-            <div className="flex justify-center gap-6 mb-4">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 rounded-lg font-semibold text-white">Affirm</div>
-              <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2 rounded-lg font-semibold text-white">Klarna</div>
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2 rounded-lg font-semibold text-white">Cash App Pay</div>
+            <div className="flex justify-center gap-6 mb-4 flex-wrap">
+              <img 
+                src="/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png" 
+                alt="Affirm" 
+                className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
+                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+              />
+              <img 
+                src="/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png" 
+                alt="Klarna" 
+                className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
+                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+              />
+              <img 
+                src="/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png" 
+                alt="Cash App Pay" 
+                className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
+                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+              />
             </div>
             
             <p className="text-sm text-slate-400 italic">
