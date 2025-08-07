@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { VisaLogo } from '@/components/VisaLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { useMembership } from '@/hooks/useMembership';
 import { useRoles } from '@/hooks/useRoles';
@@ -448,77 +447,28 @@ const Index = () => {
 
           {/* Payment Methods Section */}
           <div className="mt-16 bg-gradient-to-r from-slate-800/50 to-slate-900/50 p-8 rounded-xl border border-slate-700">
-            <h3 className="text-2xl font-bold text-center text-accent mb-6">We Accept All Major Payment Methods</h3>
+            <h3 className="text-2xl font-bold text-center text-primary-foreground mb-6">Accepted Payment Methods</h3>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center mb-8">
-              <img 
-                src="/lovable-uploads/607fa3b0-29f0-46a4-86de-39e4e8e1c245.png" 
-                alt="American Express logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
-              <img 
-                src="/lovable-uploads/c74587ad-a808-43ca-b093-cdc6ac5585c8.png" 
-                alt="MasterCard logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
-              <img 
-                src="/lovable-uploads/fc9628bb-8f09-450a-ae12-b97627dd735d.png" 
-                alt="Discover logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
-              <img 
-                src="/lovable-uploads/057496bb-7585-4c04-94b2-85d91eb244ea.png" 
-                alt="Apple Pay logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
-              <img 
-                src="/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png" 
-                alt="Cash App logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
-              <img 
-                src="/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png" 
-                alt="Affirm logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
-              <img 
-                src="/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png" 
-                alt="Klarna logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-              />
-              <VisaLogo />
+            <div className="grid grid-cols-3 md:grid-cols-9 gap-4 items-center justify-items-center mb-8">
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Visa</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">MasterCard</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Amex</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Discover</div>
+              
+              
+              
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Apple Pay</div>
+              <div className="bg-white p-2 rounded text-center text-xs font-medium text-slate-800">Cash App</div>
             </div>
 
             <div className="text-center">
               <h4 className="text-xl font-bold text-accent mb-4">Flexible Payment Plan Options Available!</h4>
               <p className="text-primary-foreground/80 mb-4">We've partnered with industry-leading payment companies so you can get started today and pay your way:</p>
               
-              <div className="flex justify-center gap-6 mb-4 flex-wrap">
-                <img 
-                  src="/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png" 
-                  alt="Affirm" 
-                  className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
-                  style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-                />
-                <img 
-                  src="/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png" 
-                  alt="Klarna" 
-                  className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
-                  style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-                />
-                <img 
-                  src="/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png" 
-                  alt="Cash App Pay" 
-                  className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
-                  style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
-                />
+              <div className="flex justify-center gap-6 mb-4">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-2 rounded-lg font-semibold text-white">Affirm</div>
+                <div className="bg-gradient-to-r from-pink-500 to-rose-500 px-4 py-2 rounded-lg font-semibold text-white">Klarna</div>
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2 rounded-lg font-semibold text-white">Cash App Pay</div>
               </div>
               
               <p className="text-sm text-primary-foreground/60 italic">
@@ -563,20 +513,7 @@ const Index = () => {
           </DialogHeader>
           <ScrollArea className="h-[60vh] pr-4">
             <div className="space-y-4 text-sm leading-relaxed">
-              {policyModal === 'terms' && <div>
-                  <p className="mb-4">
-                    By accessing and using our website or subscribing to any service provided by Express Credit & Financial Solutions LLC ("we," "our," "us"), you agree to be bound by the following terms and conditions:
-                  </p>
-                  <div className="space-y-3">
-                    <p><strong>Eligibility:</strong> You must be at least 18 years old and legally capable of entering into a binding agreement.</p>
-                    <p><strong>Services:</strong> We offer credit repair, financial education, and credit consulting services via subscription-based plans.</p>
-                    <p><strong>Payments:</strong> Subscription fees are billed monthly through our Stripe payment processor. Late or failed payments may result in suspension of services.</p>
-                    <p><strong>Client Responsibility:</strong> You agree to provide accurate and truthful information. Results vary based on individual credit history and cooperation.</p>
-                    <p><strong>Communication:</strong> By subscribing, you consent to receive communications via email, phone, or SMS related to your account.</p>
-                    <p><strong>Termination:</strong> We reserve the right to cancel your service if fraudulent, abusive, or non-cooperative behavior is detected.</p>
-                    <p><strong>Disclaimers:</strong> We do not guarantee specific results or credit score increases. Our services are not a substitute for legal or financial advice.</p>
-                  </div>
-                </div>}
+              {policyModal === 'terms'}
               {policyModal === 'privacy' && <div>
                   <p className="mb-4">
                     Your privacy is important to us. This policy outlines how we collect, use, and protect your information:
