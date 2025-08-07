@@ -355,7 +355,7 @@ export default function MembershipPricing() {
               <img 
                 src="/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png" 
                 alt="Affirm" 
-                className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
+                className="max-h-[48px] px-2 py-1 transition-all duration-300 hover:scale-110"
                 style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
               />
               <img 
