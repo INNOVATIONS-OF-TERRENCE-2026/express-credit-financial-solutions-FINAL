@@ -356,14 +356,6 @@ export default function AdminDashboard() {
                   <span>Dispute Center</span>
                 </Button>
                 <Button 
-                  onClick={() => window.open('https://lovable.dev', '_blank')} 
-                  variant="outline"
-                  className="flex items-center space-x-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>Lovable Builder</span>
-                </Button>
-                <Button 
                   onClick={() => setEditModeEnabled(!editModeEnabled)} 
                   variant={editModeEnabled ? "destructive" : "secondary"}
                   className="flex items-center space-x-2"

@@ -56,6 +56,9 @@ export default function AdminClients() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
+  const [creditReports, setCreditReports] = useState<{ id: string; file_path: string; uploaded_at: string }[]>([]);
+  const [uploadingReports, setUploadingReports] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   
   // New client form
   const [newClient, setNewClient] = useState({
@@ -199,9 +202,79 @@ export default function AdminClients() {
     window.open(`/client/${clientSlug}`, '_blank');
   };
 
-  const openUploadModal = (clientId: string) => {
+  const openUploadModal = async (clientId: string) => {
     setSelectedClientId(clientId);
+    await fetchClientCreditReports(clientId);
     setShowUploadModal(true);
+  };
+
+  const fetchClientCreditReports = async (clientId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('documents')
+        .select('id, file_path, uploaded_at')
+        .eq('client_id', clientId)
+        .eq('doc_type', 'credit_report')
+        .order('uploaded_at', { ascending: false });
+      if (error) throw error;
+      setCreditReports(data || []);
+    } catch (error) {
+      console.error('Error fetching credit reports:', error);
+    }
+  };
+
+  const handleReportFiles = async (files: FileList | null) => {
+    if (!files || !selectedClientId) return;
+    setUploadingReports(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      for (const file of Array.from(files)) {
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+          toast({ title: 'Invalid file', description: 'Please upload PDF files only', variant: 'destructive' });
+          continue;
+        }
+        const storagePath = `${selectedClientId}/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('credit-reports')
+          .upload(storagePath, file);
+        if (uploadError) throw uploadError;
+
+        const { error: insertError } = await supabase
+          .from('documents')
+          .insert({
+            user_id: user.id,
+            client_id: selectedClientId,
+            doc_type: 'credit_report',
+            file_path: storagePath
+          });
+        if (insertError) throw insertError;
+      }
+
+      await fetchClientCreditReports(selectedClientId);
+      toast({ title: 'Report uploaded' });
+      setShowUploadModal(false);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ title: 'Upload failed', description: 'Could not upload one or more files.', variant: 'destructive' });
+    } finally {
+      setUploadingReports(false);
+      setUploadProgress({});
+    }
+  };
+
+  const viewReport = async (filePath: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('credit-reports')
+        .createSignedUrl(filePath, 60);
+      if (error) throw error;
+      window.open(data.signedUrl, '_blank');
+    } catch (error) {
+      console.error('View error:', error);
+      toast({ title: 'Error', description: 'Could not generate a view link.', variant: 'destructive' });
+    }
   };
 
   const startDispute = (clientId: string) => {
@@ -411,20 +484,48 @@ export default function AdminClients() {
 
         {/* Upload Documents Modal */}
         <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Upload Documents</DialogTitle>
+              <DialogTitle>Upload Credit Report (PDF)</DialogTitle>
               <DialogDescription>
-                Upload documents for the selected client
+                Select one or more PDF files. Files will be stored at credit-reports/CLIENT_ID/ and recorded in Documents.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Document upload functionality will be implemented here.
-                This will integrate with the AdminDocumentUploader component.
-              </p>
-              <div className="flex justify-end">
-                <Button onClick={() => setShowUploadModal(false)}>Close</Button>
+              <div className="space-y-2">
+                <Label htmlFor="report-upload">Choose PDF file(s)</Label>
+                <input
+                  id="report-upload"
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  multiple
+                  disabled={uploadingReports}
+                  onChange={(e) => handleReportFiles(e.target.files)}
+                  className="w-full border rounded p-3"
+                />
+                {uploadingReports && (
+                  <p className="text-sm text-muted-foreground">Uploading...</p>
+                )}
+              </div>
+
+              <div className="border rounded p-3 max-h-64 overflow-auto">
+                <p className="font-medium mb-2">Existing Reports</p>
+                {creditReports.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No reports uploaded yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {creditReports.map((r) => (
+                      <div key={r.id} className="flex items-center justify-between text-sm">
+                        <span className="truncate mr-3">{r.file_path.split('/').slice(-1)[0]}</span>
+                        <Button size="sm" variant="outline" onClick={() => viewReport(r.file_path)}>View</Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowUploadModal(false)} disabled={uploadingReports}>Close</Button>
               </div>
             </div>
           </DialogContent>
@@ -487,7 +588,7 @@ function ClientRow({
           </Button>
           <Button size="sm" variant="outline" onClick={onUploadDocs}>
             <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline ml-1">Upload Docs</span>
+            <span className="hidden sm:inline ml-1">Upload Credit Report</span>
           </Button>
           <Button size="sm" variant="outline" onClick={onStartDispute}>
             <FileText className="h-4 w-4" />
