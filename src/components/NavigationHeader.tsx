@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
 export function NavigationHeader() {
   const {
     user,
@@ -17,6 +18,16 @@ export function NavigationHeader() {
   } = useMembership();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showAdminShortcuts, setShowAdminShortcuts] = useState(false);
+  useEffect(() => {
+    const onKeydown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        setShowAdminShortcuts((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', onKeydown);
+    return () => window.removeEventListener('keydown', onKeydown);
+  }, []);
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -119,9 +130,9 @@ export function NavigationHeader() {
               <LogOut className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
               <span className="hidden sm:inline ml-2">Sign Out</span>
             </Button>
-            {isAdmin && <Button onClick={() => navigate('/admin')} variant="default" size="sm" className="flex items-center bg-gradient-elegant flex-shrink-0 text-white" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
+            {isAdmin && showAdminShortcuts && <Button onClick={() => navigate('/admin/settings')} variant="default" size="sm" className="flex items-center bg-gradient-elegant flex-shrink-0 text-white" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
                 <Shield className="h-4 w-4 mr-2" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
-                <span className="hidden lg:inline">Admin</span>
+                <span className="hidden lg:inline">Admin Tools</span>
               </Button>}
           </div>
         </div>

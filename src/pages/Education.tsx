@@ -998,9 +998,9 @@ This personalized content addresses your specific learning goal while providing 
           {categories.map((category) => (
             <Button
               key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => setSelectedCategory(category)}
-              className="mb-2"
+              variant="ghost"
+              className={`mb-2 px-4 py-2 rounded-md bg-midnight-bg text-foreground ring-1 ${selectedCategory === category ? 'ring-gold shadow-neon-gold' : 'ring-midnight-muted'} hover:ring-gold/60 focus-visible:ring-2 focus-visible:ring-gold ring-offset-2 ring-offset-midnight-bg transition`}
             >
               {category}
             </Button>
