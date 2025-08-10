@@ -1,10 +1,12 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminSettings() {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Admin Settings - Express Credit & Financial Solutions";
@@ -12,23 +14,14 @@ export default function AdminSettings() {
     if (meta) meta.setAttribute('content', 'Administrative settings for Express Credit & Financial Solutions.');
   }, []);
 
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate('/');
+    }
+  }, [isAdmin, navigate]);
+
   if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-background">
-        <NavigationHeader />
-        <div className="container mx-auto p-6">
-          <Card className="max-w-xl mx-auto">
-            <CardHeader>
-              <CardTitle>Access Denied</CardTitle>
-              <CardDescription>You must be an administrator to view this page.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              Please contact your system administrator if you believe this is an error.
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -66,26 +66,24 @@ export function CreditReportUploadPage() {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('documents')
-        .select('*')
+        .from('credit_reports')
+        .select('id, client_id, storage_path, file_name, uploaded_at, bureau, notes')
         .eq('user_id', user.id)
-        .eq('doc_type', 'Credit Report')
         .order('uploaded_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Map the data to match our interface
-      const mappedReports = (data || []).map(doc => ({
-        id: doc.id,
-        file_path: doc.file_path,
-        uploaded_at: doc.uploaded_at,
-        doc_type: doc.doc_type,
-        report_source: 'Credit Report', // Default for existing records
-        notes: null, // Default for existing records
-        full_name: user.email || 'User' // Default fallback
+
+      const mapped = (data || []).map((r) => ({
+        id: r.id,
+        file_path: r.storage_path,
+        uploaded_at: r.uploaded_at,
+        doc_type: r.bureau || 'Credit Report',
+        report_source: r.bureau || 'Credit Report',
+        notes: r.notes || null,
+        full_name: user.email || 'User'
       }));
-      
-      setCreditReports(mappedReports);
+
+      setCreditReports(mapped);
     } catch (error) {
       console.error('Error fetching credit reports:', error);
       toast({
@@ -124,11 +122,11 @@ export function CreditReportUploadPage() {
     const file = e.target.files?.[0] || null;
     
     if (file) {
-      const validation = validateFile(file);
-      if (!validation.isValid) {
+      const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      if (!isPdf) {
         toast({
-          title: "File Validation Error",
-          description: validation.error,
+          title: "PDF Required",
+          description: "Please upload PDF files only.",
           variant: "destructive",
         });
         e.target.value = '';
@@ -171,25 +169,26 @@ export function CreditReportUploadPage() {
     if (!user) throw new Error('User not authenticated');
 
     const sanitizedFileName = sanitizeFileName(file.name);
-    const fileName = `credit_report_${Date.now()}_${sanitizedFileName}`;
-    const filePath = `${user.id}/credit-reports/${fileName}`;
-    
-    // Simulate progress for user feedback
+    const fileName = `${Date.now()}_${sanitizedFileName}`;
+
+    // Find client id for current user
+    const { data: client } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const clientId = client?.id || user.id;
+
+    const filePath = `${clientId}/${fileName}`;
     setUploadProgress(10);
-    
+
     const { error } = await supabase.storage
-      .from('documents')
-      .upload(filePath, file, { upsert: true });
+      .from('credit-reports')
+      .upload(filePath, file, { upsert: false });
 
     if (error) throw error;
-    
-    setUploadProgress(80);
-    
-    // Log file upload
-    await logFileUpload(fileName, file.type, file.size);
-    
+
     setUploadProgress(100);
-    
     return filePath;
   };
 
@@ -208,86 +207,37 @@ export function CreditReportUploadPage() {
     setUploading(true);
     setUploadProgress(0);
 
-    try {
+  try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Please log in to upload credit reports');
 
-      // Upload file to storage
+      // Upload file to storage (credit-reports bucket under CLIENT_ID path)
       const filePath = await uploadFile(formData.file!);
-      const fileName = formData.file!.name;
+      const originalName = formData.file!.name;
 
-      // Save document record
-      const { data: documentRecord, error } = await supabase
-        .from('documents')
+      // Insert record into credit_reports
+      const { data: client } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const clientId = client?.id || null;
+
+      const { error } = await supabase
+        .from('credit_reports')
         .insert({
           user_id: user.id,
-          file_path: filePath,
-          doc_type: 'Credit Report'
-        })
-        .select()
-        .single();
+          client_id: clientId,
+          file_name: originalName,
+          storage_path: filePath,
+          uploaded_by: user.id,
+          bureau: formData.reportSource || null,
+          notes: formData.notes || null,
+        });
 
       if (error) throw error;
 
-      // Send notification email to admin
-      try {
-        await supabase.functions.invoke('send-notification-email', {
-          body: {
-            to: 'expresscreditfinancialsolution@gmail.com',
-            subject: 'New Credit Report Uploaded',
-            html: `
-              <h2>New Credit Report Upload</h2>
-              <p><strong>User:</strong> ${formData.fullName}</p>
-              <p><strong>Email:</strong> ${user.email}</p>
-              <p><strong>Report Source:</strong> ${formData.reportSource}</p>
-              <p><strong>Upload Date:</strong> ${new Date().toLocaleString()}</p>
-              ${formData.notes ? `<p><strong>Notes:</strong> ${formData.notes}</p>` : ''}
-            `
-          }
-        });
-      } catch (emailError) {
-        console.warn('Failed to send notification email:', emailError);
-        // Don't fail the upload if email fails
-      }
-
-      // Trigger AI analysis of the credit report
-      try {
-        console.log('Starting AI analysis of credit report:', fileName);
-        const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-credit-report', {
-          body: {
-            creditReportPath: filePath,
-            fileName: fileName,
-            reportId: documentRecord.id
-          }
-        });
-
-        if (analysisError) {
-          console.error('AI analysis failed:', analysisError);
-          toast({
-            title: "Upload Successful",
-            description: "File uploaded successfully, but AI analysis failed. You can still create disputes manually.",
-          });
-        } else {
-          console.log('AI analysis completed:', analysisData);
-          if (analysisData.flaggedAccountsCount > 0) {
-            toast({
-              title: "AI Analysis Complete",
-              description: `Credit report uploaded and analyzed! Found ${analysisData.flaggedAccountsCount} accounts that may need to be disputed. Check the Dispute Center for details.`,
-            });
-          } else {
-            toast({
-              title: "Success",
-              description: "Credit report uploaded and analyzed! No disputable items were automatically identified.",
-            });
-          }
-        }
-      } catch (analysisError) {
-        console.error('Error during AI analysis:', analysisError);
-        toast({
-          title: "Upload Successful",
-          description: "Credit report uploaded successfully! AI analysis will run in the background.",
-        });
-      }
+      toast({ title: 'Report uploaded' });
 
       // Reset form
       setFormData({
@@ -297,7 +247,6 @@ export function CreditReportUploadPage() {
         notes: ''
       });
 
-      // Reset file input
       const fileInput = document.getElementById('credit-report-file') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
 
@@ -319,22 +268,19 @@ export function CreditReportUploadPage() {
 
   const deleteReport = async (reportId: string, filePath: string) => {
     try {
-      // Delete from storage
       const { error: storageError } = await supabase.storage
-        .from('documents')
+        .from('credit-reports')
         .remove([filePath]);
 
       if (storageError) console.warn('Storage deletion error:', storageError);
 
-      // Delete from database
       const { error } = await supabase
-        .from('documents')
+        .from('credit_reports')
         .delete()
         .eq('id', reportId);
 
       if (error) throw error;
 
-      // Log file deletion
       await logFileDelete(reportId, filePath.split('/').pop() || '');
 
       toast({
@@ -356,8 +302,8 @@ export function CreditReportUploadPage() {
   const previewReport = async (filePath: string) => {
     try {
       const { data } = await supabase.storage
-        .from('documents')
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .from('credit-reports')
+        .createSignedUrl(filePath, 3600);
 
       if (data?.signedUrl) {
         window.open(data.signedUrl, '_blank');
@@ -465,13 +411,13 @@ export function CreditReportUploadPage() {
                 <div className="space-y-2">
                   <Label htmlFor="credit-report-file">Select File *</Label>
                   <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                    <input
-                      id="credit-report-file"
-                      type="file"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                    />
+                      <input
+                        id="credit-report-file"
+                        type="file"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept=".pdf,application/pdf"
+                      />
                     <label htmlFor="credit-report-file" className="cursor-pointer">
                       {formData.file ? (
                         <div className="text-sm text-green-600">

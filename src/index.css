@@ -254,6 +254,29 @@
     -webkit-text-fill-color: transparent;
     text-shadow: var(--shadow-neon-gold);
   }
+
+  /* Education category buttons */
+  .edu-filter-button {
+    background: hsl(var(--midnight-bg));
+    color: hsl(var(--midnight-text));
+    border: 1px solid hsl(var(--midnight-muted) / 0.6);
+    border-radius: var(--radius);
+    padding: 0.5rem 1rem;
+    transition: box-shadow 0.2s ease, outline-color 0.2s ease;
+  }
+  .edu-filter-button:hover {
+    outline: 2px solid hsl(var(--gold) / 0.4);
+    outline-offset: 2px;
+  }
+  .edu-filter-button:focus-visible {
+    outline: 2px solid hsl(var(--gold));
+    outline-offset: 2px;
+  }
+  .edu-filter-button-active {
+    outline: 2px solid hsl(var(--gold));
+    outline-offset: 2px;
+    box-shadow: var(--shadow-neon-gold);
+  }
 }
 
 @keyframes fadeIn {

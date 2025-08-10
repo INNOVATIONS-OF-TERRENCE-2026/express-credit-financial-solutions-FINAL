@@ -607,10 +607,14 @@ export type Database = {
           bureau: string | null
           client_id: string | null
           created_at: string | null
-          fico_score: number
+          fico_score: number | null
+          file_name: string | null
           id: string
           negative_items: string[] | null
           notes: string | null
+          storage_path: string | null
+          uploaded_at: string | null
+          uploaded_by: string | null
           uploaded_file_url: string | null
           user_id: string
         }
@@ -618,10 +622,14 @@ export type Database = {
           bureau?: string | null
           client_id?: string | null
           created_at?: string | null
-          fico_score: number
+          fico_score?: number | null
+          file_name?: string | null
           id?: string
           negative_items?: string[] | null
           notes?: string | null
+          storage_path?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
           uploaded_file_url?: string | null
           user_id: string
         }
@@ -629,10 +637,14 @@ export type Database = {
           bureau?: string | null
           client_id?: string | null
           created_at?: string | null
-          fico_score?: number
+          fico_score?: number | null
+          file_name?: string | null
           id?: string
           negative_items?: string[] | null
           notes?: string | null
+          storage_path?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
           uploaded_file_url?: string | null
           user_id?: string
         }

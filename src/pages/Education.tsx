@@ -1000,7 +1000,7 @@ This personalized content addresses your specific learning goal while providing 
               key={category}
               onClick={() => setSelectedCategory(category)}
               variant="ghost"
-              className={`mb-2 px-4 py-2 rounded-md bg-midnight-bg text-foreground ring-1 ${selectedCategory === category ? 'ring-gold shadow-neon-gold' : 'ring-midnight-muted'} hover:ring-gold/60 focus-visible:ring-2 focus-visible:ring-gold ring-offset-2 ring-offset-midnight-bg transition`}
+              className={`mb-2 edu-filter-button ${selectedCategory === category ? 'edu-filter-button-active' : ''}`}
             >
               {category}
             </Button>

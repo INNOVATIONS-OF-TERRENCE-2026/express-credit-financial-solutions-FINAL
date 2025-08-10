@@ -133,24 +133,23 @@ export function DocumentUploadCenter() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Please log in to upload documents');
 
-      // Create unique filename with user folder structure
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${file.name}`;
       const filePath = `${user.id}/uploads/${fileName}`;
 
-      // Upload file to Supabase storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      // Upload to public bucket for immediate UI viewing
+      const { error: uploadError } = await supabase.storage
         .from('document-uploads')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
+      // Get public URL for UI
       const { data: { publicUrl } } = supabase.storage
         .from('document-uploads')
         .getPublicUrl(filePath);
 
-      // Save document metadata
+      // Save to document_uploads (existing UI)
       const { data: documentData, error: dbError } = await supabase
         .from('document_uploads')
         .insert({
@@ -159,7 +158,7 @@ export function DocumentUploadCenter() {
           file_url: publicUrl,
           file_size: file.size,
           file_type: fileExt || 'unknown',
-          document_type: 'other', // Will be updated by AI
+          document_type: 'other',
           tag: null,
           ai_analysis_result: null,
           admin_status: 'pending'
@@ -169,7 +168,7 @@ export function DocumentUploadCenter() {
 
       if (dbError) throw dbError;
 
-      // Trigger AI analysis
+      // Trigger AI analysis (non-blocking)
       try {
         await supabase.functions.invoke('analyze-document', {
           body: {
@@ -179,8 +178,37 @@ export function DocumentUploadCenter() {
           }
         });
       } catch (aiError) {
-        console.error('AI analysis failed:', aiError);
-        // Non-critical error, document still uploaded
+        console.warn('AI analysis failed:', aiError);
+      }
+
+      // Mirror to secure documents bucket and table for automation center
+      // Find client_id for current user
+      const { data: client } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const clientId = client?.id || null;
+      const securePath = `${clientId || user.id}/uploads/${fileName}`;
+
+      // Upload to private 'documents' bucket
+      try {
+        await supabase.storage.from('documents').upload(securePath, file);
+      } catch (e) {
+        // Non-blocking if second upload fails
+        console.warn('Secondary upload failed:', e);
+      }
+
+      // Insert into documents table for automation flows
+      try {
+        await supabase.from('documents').insert({
+          user_id: user.id,
+          client_id: clientId,
+          doc_type: 'other',
+          file_path: securePath
+        });
+      } catch (e) {
+        console.warn('Insert into documents failed:', e);
       }
 
       toast({
