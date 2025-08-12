@@ -80,7 +80,7 @@ export function AdminFileUploader({ clientId, onUploadComplete }: AdminFileUploa
       .from('client-documents')
       .getPublicUrl(filePath);
 
-    return publicUrl;
+    return filePath;
   };
 
   const saveToDatabase = async (fileUrl: string) => {

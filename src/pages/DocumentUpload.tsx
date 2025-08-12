@@ -461,6 +461,8 @@ export function DocumentUpload() {
                               .createSignedUrl(doc.file_url, 300);
                             if (data?.signedUrl) window.open(data.signedUrl, '_blank');
                           }}
+                        >
+                          <Download className="h-4 w-4" />
                         </Button>
                         <Button
                           size="sm"

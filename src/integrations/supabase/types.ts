@@ -1472,19 +1472,64 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      bank_links_safe: {
+        Row: {
+          account_id: string | null
+          created_at: string | null
+          id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string | null
+          id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string | null
+          id?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      credit_api_credentials_safe: {
+        Row: {
+          api_provider: string | null
+          created_at: string | null
+          id: string | null
+          is_active: boolean | null
+          last_sync: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          api_provider?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_sync?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          api_provider?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_sync?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      decrypt_ssn: {
-        Args: { encrypted_ssn: string }
-        Returns: string
-      }
       decrypt_ssn_secure: {
         Args: { encrypted_ssn: string }
-        Returns: string
-      }
-      encrypt_ssn: {
-        Args: { ssn_text: string }
         Returns: string
       }
       encrypt_ssn_secure: {

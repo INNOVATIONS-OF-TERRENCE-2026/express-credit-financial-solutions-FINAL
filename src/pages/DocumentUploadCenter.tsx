@@ -144,18 +144,13 @@ export function DocumentUploadCenter() {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL for UI
-      const { data: { publicUrl } } = supabase.storage
-        .from('document-uploads')
-        .getPublicUrl(filePath);
-
-      // Save to document_uploads (existing UI)
+      // Save to document_uploads with private path
       const { data: documentData, error: dbError } = await supabase
         .from('document_uploads')
         .insert({
           user_id: user.id,
           file_name: file.name,
-          file_url: publicUrl,
+          file_url: filePath,
           file_size: file.size,
           file_type: fileExt || 'unknown',
           document_type: 'other',
@@ -472,7 +467,12 @@ export function DocumentUploadCenter() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(doc.file_url, '_blank')}
+                          onClick={async () => {
+                            const { data } = await supabase.storage
+                              .from('document-uploads')
+                              .createSignedUrl(doc.file_url, 300);
+                            if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                          }}
                           className="flex items-center gap-1"
                         >
                           <Eye className="h-4 w-4" />
@@ -482,8 +482,7 @@ export function DocumentUploadCenter() {
                           variant="destructive"
                           size="sm"
                           onClick={() => {
-                            const filePath = doc.file_url.split('/').slice(-3).join('/');
-                            deleteDocument(doc.id, filePath);
+                            deleteDocument(doc.id, doc.file_url);
                           }}
                           className="flex items-center gap-1"
                         >
