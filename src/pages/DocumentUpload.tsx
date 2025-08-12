@@ -242,10 +242,9 @@ export function DocumentUpload() {
 
   const deleteDocument = async (docId: string, fileUrl: string) => {
     try {
-      // Extract file path from URL for storage deletion
-      const urlParts = fileUrl.split('/');
-      const filePath = urlParts.slice(-2).join('/'); // user_id/filename
-      const fileName = urlParts[urlParts.length - 1];
+      // Use stored file path directly
+      const filePath = fileUrl; // e.g., user_id/filename
+      const fileName = (fileUrl.split('/').pop()) || fileUrl;
 
       // Delete from storage
       const { error: storageError } = await supabase.storage
@@ -456,9 +455,12 @@ export function DocumentUpload() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.open(doc.file_url, '_blank')}
-                        >
-                          <Download className="h-4 w-4" />
+                          onClick={async () => {
+                            const { data } = await supabase.storage
+                              .from('dispute-uploads')
+                              .createSignedUrl(doc.file_url, 300);
+                            if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                          }}
                         </Button>
                         <Button
                           size="sm"

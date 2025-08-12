@@ -60,11 +60,7 @@ export function FileUploader({
         throw uploadError;
       }
 
-      const { data: urlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
-
-      onUploadComplete(urlData.publicUrl);
+      onUploadComplete(fileName);
 
       toast({
         title: 'Upload successful',
