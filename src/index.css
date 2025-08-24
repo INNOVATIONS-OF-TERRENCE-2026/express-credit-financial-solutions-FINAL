@@ -81,6 +81,7 @@
     --gradient-midnight: linear-gradient(135deg, hsl(231 45% 9%), hsl(231 40% 15%));
     --gradient-midnight-gold: linear-gradient(135deg, hsl(231 45% 9%), hsl(45 100% 51%));
     --gradient-chrome-gold-green: linear-gradient(135deg, hsl(45 100% 70%), hsl(120 60% 20%));
+    --gradient-dark-blue-green: linear-gradient(135deg, hsl(220 60% 25%), hsl(120 50% 25%));
 
     /* Shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.3);
