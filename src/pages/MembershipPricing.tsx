@@ -86,6 +86,25 @@ const plans = [
       "VIP Concierge Priority Service",
       "60-Day Post Audit Follow-Up"
     ]
+  },
+  {
+    name: "SBA Loan Portal Package (Funding Access Plan)",
+    price: 399.99,
+    monthlyPrice: 99.99,
+    frequency: "setup + monthly",
+    isOneTime: false,
+    icon: Zap,
+    badge: "🚀 Funding Access",
+    color: "green",
+    features: [
+      "Access to SBA Loan Automation Portal (0804 Edition)",
+      "SBA Pre-qualification Quiz across 7(a), 504, Microloan, Express",
+      "Consent, Intake, Doc Upload, & Packet Builder (auto 0804 PDF)",
+      "Custom Borrower Dashboard with lender packet download",
+      "Direct 'Send to SBA Lender Match' link",
+      "Priority support for SBA loan applications",
+      "Includes everything in Elite Package"
+    ]
   }
 ];
 
@@ -177,8 +196,7 @@ export default function MembershipPricing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {plans.map((plan) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-[90rem] mx-auto">{plans.map((plan) => {
             const Icon = plan.icon;
             const getColorClasses = (color: string) => {
               switch (color) {
@@ -214,6 +232,14 @@ export default function MembershipPricing() {
                     badge: 'bg-purple-600 text-white',
                     title: 'text-purple-400'
                   };
+                case 'green':
+                  return {
+                    border: 'border-green-500/30 ring-2 ring-green-400/20',
+                    bg: 'bg-gradient-to-br from-green-500/10 to-blue-500/10',
+                    icon: 'bg-gradient-to-r from-green-500 to-blue-500 text-white',
+                    badge: 'bg-gradient-to-r from-green-500 to-blue-500 text-white border-0',
+                    title: 'bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent'
+                  };
                 default:
                   return {
                     border: 'border-slate-600',
@@ -247,6 +273,7 @@ export default function MembershipPricing() {
                     {plan.color === 'blue' && '🔵 '}
                     {plan.color === 'red' && '🔴 '}
                     {plan.color === 'purple' && '🟣 '}
+                    {plan.color === 'green' && '🚀 '}
                     {plan.name}
                   </CardTitle>
                   <CardDescription className="text-white">
@@ -289,6 +316,8 @@ export default function MembershipPricing() {
                         ? "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 hover:from-purple-700 hover:via-purple-800 hover:to-purple-900 text-white border-2 border-purple-400 shadow-lg shadow-purple-500/30"
                         : plan.badge?.includes("Premium")
                         ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white"
+                        : plan.badge?.includes("Funding Access")
+                        ? "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white border-0 shadow-lg shadow-green-500/30"
                         : "bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white border border-slate-600"
                     }`}
                   >

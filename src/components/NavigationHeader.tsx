@@ -55,6 +55,12 @@ export function NavigationHeader() {
     icon: Home,
     accessible: hasAccess('dashboard')
   }, {
+    label: 'SBA Portal',
+    path: '/sba-portal',
+    icon: Shield,
+    accessible: true,
+    special: 'gradient'
+  }, {
     label: 'Data Freeze',
     path: '/data-freeze',
     icon: Snowflake,
@@ -110,14 +116,14 @@ export function NavigationHeader() {
             </div>
             
             <nav className="hidden md:flex items-center space-x-1 overflow-x-auto">
-              {navItems.map(item => {
+               {navItems.map(item => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-               return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap text-white hover:text-white hover:bg-white/20 disabled:text-white/50 bg-black rounded-xl px-5 py-2" style={{textShadow: '0 0 8px rgba(147, 51, 234, 0.8)'}}>
-                    <Icon className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
-                    <span className="hidden lg:inline">{item.label}</span>
-                  </Button>;
-            })}
+                return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className={`flex items-center space-x-2 whitespace-nowrap text-white hover:text-white hover:bg-white/20 disabled:text-white/50 rounded-xl px-5 py-2 ${item.special === 'gradient' ? 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600' : 'bg-black'}`} style={{textShadow: '0 0 8px rgba(147, 51, 234, 0.8)'}}>
+                     <Icon className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
+                     <span className="hidden lg:inline">{item.label}</span>
+                   </Button>;
+             })}
             </nav>
           </div>
 
@@ -143,7 +149,7 @@ export function NavigationHeader() {
             {navItems.map(item => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className="flex items-center space-x-2 whitespace-nowrap flex-shrink-0 text-white hover:text-white hover:bg-white/20 disabled:text-white/50 bg-black rounded-xl px-5 py-2" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
+            return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className={`flex items-center space-x-2 whitespace-nowrap flex-shrink-0 text-white hover:text-white hover:bg-white/20 disabled:text-white/50 rounded-xl px-5 py-2 ${item.special === 'gradient' ? 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600' : 'bg-black'}`} style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
                   <Icon className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
                   <span className="text-xs">{item.label}</span>
                 </Button>;

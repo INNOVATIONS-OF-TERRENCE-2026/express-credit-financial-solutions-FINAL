@@ -64,6 +64,16 @@
     --sba-chrome-glow: 0 0% 85%;
 
     /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-variant)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-variant)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-variant)));
+    --gradient-elegant: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    --gradient-gold: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-light)));
+    --gradient-silver: linear-gradient(135deg, hsl(var(--silver)), hsl(var(--silver-light)));
+    --gradient-ocean: linear-gradient(135deg, hsl(var(--ocean-blue)), hsl(var(--ocean-blue-dark)));
+    --gradient-sba: linear-gradient(135deg, hsl(var(--sba-midnight)), hsl(var(--sba-midnight-dark)));
+    --gradient-sba-portal: linear-gradient(135deg, hsl(120, 50%, 45%), hsl(220, 70%, 50%));
+    --gradient-green-blue: linear-gradient(90deg, hsl(120, 50%, 45%) 0%, hsl(220, 70%, 50%) 100%);
     --gradient-primary: linear-gradient(135deg, hsl(0 0% 9%), hsl(0 0% 20%));
     --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(45 100% 35%));
     --gradient-silver: linear-gradient(135deg, hsl(0 0% 75%), hsl(0 0% 85%));

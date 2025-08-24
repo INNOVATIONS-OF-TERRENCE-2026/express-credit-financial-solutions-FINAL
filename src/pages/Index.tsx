@@ -99,6 +99,31 @@ const Index = () => {
         <main className="relative z-10 container mx-auto px-4 py-8">
           <div className="space-y-6">
             
+            {/* SBA Portal Banner - Always visible at top */}
+            <Card className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border-green-500/30 hover:from-green-600/30 hover:to-blue-600/30 transition-all duration-300 mb-6">
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                  <div className="text-center lg:text-left">
+                    <div className="flex items-center justify-center lg:justify-start gap-2 mb-2">
+                      <Badge className="bg-gradient-to-r from-green-500 to-blue-500 text-white border-0">🚀 Funding Access</Badge>
+                    </div>
+                    <h2 className="text-2xl font-bold text-primary-foreground mb-2">
+                      SBA Loan Automation Portal — 0804 Edition
+                    </h2>
+                    <p className="text-primary-foreground/90">
+                      Pre-qualify, upload docs, auto-generate your SBA packet, and get lender-ready faster than ever.
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => navigate('/sba-portal')}
+                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white border-0 px-8 py-3 text-lg font-semibold shadow-lg"
+                  >
+                    Enter SBA Portal
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Welcome Section */}
             <div className="text-center">
               <h1 className="font-bold text-primary-foreground mb-2 text-3xl">
@@ -291,11 +316,14 @@ const Index = () => {
               <div className="flex flex-col items-center justify-center mb-8">
                 
             <div className="text-center">
-                  <h1 className="text-4xl text-primary-foreground mb-2 font-bold mx-0 lg:text-5xl">
-                    Express Credit & Financial Solutions
-                  </h1>
-                  <p className="text-xl text-primary-foreground/80">Professional Credit & Financial Solutions Services</p>
-                </div>
+              <h1 className="text-4xl text-primary-foreground mb-4 font-bold mx-0 lg:text-5xl">
+                Fix Your Credit. Fund Your Business. Secure SBA Approval.
+              </h1>
+              {/* Green to Blue gradient accent strip */}
+              <div className="w-full max-w-4xl mx-auto h-1 mb-4" style={{background: 'var(--gradient-green-blue)'}}></div>
+              <p className="text-xl text-primary-foreground/90 mb-2">Express Credit makes it simple to get approved — credit repair + SBA loan automation, all in one portal.</p>
+              <p className="text-lg text-primary-foreground/70">From credit repair to capital — we don't just fix scores, we fund dreams.</p>
+            </div>
               </div>
               
               <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">Transform your financial future with our proven credit repair strategies. Our expert team has helped Thousands of clients improve their credit scores and achieve their financial goals.</p>
