@@ -31,7 +31,18 @@ const clients = [
 
 export default function ClientPortalLinks() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-slate-900 to-black relative overflow-hidden">
+      {/* Chrome effect overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/20 via-blue-950/30 to-black/80"></div>
+      <div className="absolute inset-0 opacity-10" style={{
+        backgroundImage: `radial-gradient(circle at 25% 25%, rgba(16, 185, 129, 0.3) 0px, transparent 2px),
+                         radial-gradient(circle at 75% 75%, rgba(30, 58, 138, 0.2) 0px, transparent 1px),
+                         radial-gradient(circle at 50% 10%, rgba(255,255,255,0.1) 0px, transparent 1px),
+                         radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.2) 0px, transparent 2px),
+                         radial-gradient(circle at 90% 40%, rgba(255,255,255,0.05) 0px, transparent 1px)`,
+        backgroundSize: '100px 100px, 80px 80px, 60px 60px, 120px 120px, 90px 90px'
+      }}></div>
+      <div className="relative z-10">
       <NavigationHeader />
       <div className="container mx-auto p-6">
         <div className="mb-6">
@@ -199,6 +210,7 @@ export default function ClientPortalLinks() {
             </TabsContent>
           </Tabs>
         </div>
+      </div>
       </div>
     </div>
   );
