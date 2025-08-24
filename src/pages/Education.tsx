@@ -987,8 +987,8 @@ This personalized content addresses your specific learning goal while providing 
               Credit Education Center
             </h1>
             <p className="text-lg text-midnight-text max-w-3xl">
-              Master the Fair Credit Reporting Act (FCRA), Fair Debt Collection Practices Act (FDCPA), and Consumer Financial Protection Bureau (CFPB) regulations. 
-              Learn to identify specific creditor violations like improper reporting, validation failures, and dispute handling errors that you can legally challenge to remove negative items from your credit report.
+              Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. 
+              Knowledge is power in credit repair.
             </p>
           </div>
         </div>
