@@ -272,79 +272,6 @@ export function CreditMonitoring() {
                 Track your credit scores, monitor changes, and stay alert to important updates
               </p>
             </div>
-            <div className="flex gap-2">
-              <Dialog open={showAddCredentials} onOpenChange={setShowAddCredentials}>
-                <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add API Credentials
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add Credit Monitoring API Credentials</DialogTitle>
-                    <DialogDescription>
-                      Add your IdentityIQ or Credit Hero API credentials to enable automatic credit monitoring
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleAddCredentials} className="space-y-4">
-                    <div>
-                      <Label htmlFor="provider">API Provider</Label>
-                      <Select value={newCredentials.provider} onValueChange={(value) => 
-                        setNewCredentials(prev => ({ ...prev, provider: value }))
-                      }>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select API provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="identityiq">IdentityIQ</SelectItem>
-                          <SelectItem value="credit_hero">Credit Hero</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="apiKey">API Key</Label>
-                      <Input
-                        id="apiKey"
-                        type="password"
-                        value={newCredentials.apiKey}
-                        onChange={(e) => 
-                          setNewCredentials(prev => ({ ...prev, apiKey: e.target.value }))
-                        }
-                        placeholder="Enter your API key"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="username">Username (Optional)</Label>
-                      <Input
-                        id="username"
-                        value={newCredentials.username}
-                        onChange={(e) => 
-                          setNewCredentials(prev => ({ ...prev, username: e.target.value }))
-                        }
-                        placeholder="Enter username if required"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="password">Password (Optional)</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={newCredentials.password}
-                        onChange={(e) => 
-                          setNewCredentials(prev => ({ ...prev, password: e.target.value }))
-                        }
-                        placeholder="Enter password if required"
-                      />
-                    </div>
-                    <Button type="submit" className="w-full">
-                      Add Credentials
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
           </div>
         </div>
 
@@ -474,11 +401,6 @@ export function CreditMonitoring() {
             {creditAlerts.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-muted-foreground">No credit alerts found.</p>
-                {apiCredentials.length === 0 && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Add API credentials to start monitoring your credit for changes.
-                  </p>
-                )}
               </div>
             ) : (
               <Table>
@@ -526,39 +448,6 @@ export function CreditMonitoring() {
           </CardContent>
         </Card>
 
-        {/* Setup Instructions */}
-        {apiCredentials.length === 0 && (
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Get Started with Credit Monitoring</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">1</div>
-                  <div>
-                    <h4 className="font-medium">Sign up for a credit monitoring service</h4>
-                    <p className="text-sm text-muted-foreground">Create an account with IdentityIQ or Credit Hero to get API access</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">2</div>
-                  <div>
-                    <h4 className="font-medium">Obtain your API credentials</h4>
-                    <p className="text-sm text-muted-foreground">Get your API key and any required authentication details</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">3</div>
-                  <div>
-                    <h4 className="font-medium">Add credentials to start monitoring</h4>
-                    <p className="text-sm text-muted-foreground">Click "Add API Credentials" above to enter your details</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );

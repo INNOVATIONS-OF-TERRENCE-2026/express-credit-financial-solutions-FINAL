@@ -14,6 +14,7 @@ import { DigitalSignature } from '@/components/DigitalSignature';
 import { PlaidBankLink } from '@/components/PlaidBankLink';
 import { BackButton } from '@/components/BackButton';
 import { NavigationHeader } from '@/components/NavigationHeader';
+import BackToDashboard from '@/components/BackToDashboard';
 
 export default function CreditBuildingCenter() {
   const [expandedSection, setExpandedSection] = useState<string | null>('education');
@@ -165,6 +166,11 @@ export default function CreditBuildingCenter() {
 
   return (
     <div className="min-h-screen midnight-theme">
+      <div className="sticky top-0 z-20 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="mx-auto max-w-7xl px-4 py-3">
+          <BackToDashboard />
+        </div>
+      </div>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
 
         {/* Bank Account Connection */}
