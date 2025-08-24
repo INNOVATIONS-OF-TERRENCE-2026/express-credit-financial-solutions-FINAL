@@ -102,7 +102,7 @@ const Index = () => {
             {/* SBA Portal Banner - Always visible at top */}
             <Card className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border-green-500/30 hover:from-green-600/30 hover:to-blue-600/30 transition-all duration-300 mb-6">
               <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 rounded-lg" style={{background: 'var(--gradient-chrome-gold-green)'}}>
                   <div className="text-center lg:text-left">
                     <div className="flex items-center justify-center lg:justify-start gap-2 mb-2">
                       <Badge className="bg-gradient-to-r from-green-500 to-blue-500 text-white border-0">🚀 Funding Access</Badge>
