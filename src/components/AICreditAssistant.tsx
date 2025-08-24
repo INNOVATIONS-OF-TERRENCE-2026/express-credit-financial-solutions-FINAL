@@ -195,7 +195,7 @@ export function AICreditAssistant({ isWidget = false }: AICreditAssistantProps) 
               {!isMinimized && (
                 <CardContent className="flex-1 flex flex-col p-0">
                   {/* Messages */}
-                  <ScrollArea ref={scrollAreaRef} className="flex-1 h-0 min-h-[400px]">
+                  <ScrollArea ref={scrollAreaRef} className="flex-1 h-[400px] overflow-y-auto">
                     <div className="space-y-4 p-4">
                       {messages.map((message) => (
                         <div
@@ -290,7 +290,7 @@ export function AICreditAssistant({ isWidget = false }: AICreditAssistantProps) 
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea ref={scrollAreaRef} className="flex-1 h-0 min-h-[450px]">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 h-[450px] overflow-y-auto">
           <div className="space-y-4 p-4">
             {messages.map((message) => (
               <div
