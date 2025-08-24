@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingChat } from "./components/FloatingChat";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SBAConfigProvider } from "./contexts/SBAConfig";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 // SBA Pages
 import SBAHome from "./pages/sba/Home";
@@ -60,6 +61,7 @@ const App = () => (
                 <Sonner />
                 <FloatingChat />
               <BrowserRouter>
+                <ScrollToTop />
               <Routes>
                 {/* SBA Routes */}
                 <Route path="/sba" element={<SBAHome />} />
