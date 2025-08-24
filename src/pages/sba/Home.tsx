@@ -11,7 +11,8 @@ import {
   ArrowRight,
   FileText,
   Users,
-  Home as HomeIcon
+  Home as HomeIcon,
+  ArrowLeft
 } from 'lucide-react';
 
 const PROGRAMS = [
@@ -78,13 +79,25 @@ export default function Home() {
       <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                Express Credit & Financial Solutions
-              </h1>
-              <p className="text-slate-400 text-sm">
-                SBA Loan Automation Portal — 0804 Edition
-              </p>
+            <div className="flex items-center gap-6">
+              <Button
+                asChild
+                variant="outline"
+                className="border-slate-600 text-slate-300 hover:bg-slate-800"
+              >
+                <Link to="/">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Link>
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-white">
+                  Express Credit & Financial Solutions
+                </h1>
+                <p className="text-slate-400 text-sm">
+                  SBA Loan Automation Portal — 0804 Edition
+                </p>
+              </div>
             </div>
             <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
               SBA Compliant
