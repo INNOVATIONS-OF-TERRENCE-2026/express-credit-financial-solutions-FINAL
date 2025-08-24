@@ -91,9 +91,12 @@ class APIClient {
 }
 
 // Create singleton instance
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-if (!apiBaseUrl) {
-  throw new Error('VITE_API_BASE_URL environment variable is required');
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://your-backend.onrender.com';
+
+// Show warning in development if no API URL is set
+if (!import.meta.env.VITE_API_BASE_URL && import.meta.env.DEV) {
+  console.warn('⚠️ VITE_API_BASE_URL not set. Using placeholder URL for development.');
+  console.warn('Create .env.local file with: VITE_API_BASE_URL=https://your-backend.onrender.com');
 }
 
 export const apiClient = new APIClient(apiBaseUrl);
