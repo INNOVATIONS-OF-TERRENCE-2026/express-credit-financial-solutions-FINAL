@@ -9,7 +9,7 @@ export default function BackToDashboard() {
       variant="ghost"
       className="pl-0"
       aria-label="Back to Dashboard"
-      onClick={() => navigate("/dashboard")}
+      onClick={() => navigate("/")}
     >
       <ArrowLeft className="mr-2 h-4 w-4" />
       Back to Dashboard
