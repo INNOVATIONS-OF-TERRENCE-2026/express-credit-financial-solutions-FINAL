@@ -961,7 +961,7 @@ This personalized content addresses your specific learning goal while providing 
             <h1 className="text-4xl font-bold midnight-section-title midnight-glow-text mb-4">
               Credit Education Center
             </h1>
-            <p className="text-lg text-midnight-text max-w-3xl">Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. Knowledge is power in credit repair.</p>
+            <p className="text-xl font-medium text-foreground max-w-3xl leading-relaxed tracking-wide antialiased">Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. Knowledge is power in credit repair.</p>
           </div>
         </div>
 
