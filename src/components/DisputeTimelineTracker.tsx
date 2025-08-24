@@ -3,9 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, CheckCircle, AlertCircle, Mail, FileText } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, AlertCircle, Mail, FileText, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { format, addDays } from 'date-fns';
+import { format, addDays, differenceInDays, isPast } from 'date-fns';
 
 interface DisputeTimelineEntry {
   id: string;
@@ -15,6 +15,7 @@ interface DisputeTimelineEntry {
   date_mailed: string | null;
   estimated_response_date: string | null;
   actual_response_date: string | null;
+  deadline_date: string | null;
   outcome: string | null;
   status: string;
   created_at: string;
@@ -81,10 +82,12 @@ export function DisputeTimelineTracker() {
   const markAsMailed = (entry: DisputeTimelineEntry) => {
     const mailedDate = new Date().toISOString();
     const estimatedResponse = addDays(new Date(), 30).toISOString();
+    const deadlineDate = addDays(new Date(), 30).toISOString();
     
     updateTimelineEntry(entry.id, {
       date_mailed: mailedDate,
       estimated_response_date: estimatedResponse,
+      deadline_date: deadlineDate,
       status: 'mailed'
     });
   };
@@ -106,6 +109,49 @@ export function DisputeTimelineTracker() {
         {status.toUpperCase()}
       </Badge>
     );
+  };
+
+  const getDaysUntilDeadline = (entry: DisputeTimelineEntry): number | null => {
+    if (!entry.deadline_date || entry.actual_response_date) return null;
+    const deadlineDate = new Date(entry.deadline_date);
+    const today = new Date();
+    return differenceInDays(deadlineDate, today);
+  };
+
+  const getDeadlineBadge = (entry: DisputeTimelineEntry) => {
+    const daysLeft = getDaysUntilDeadline(entry);
+    
+    if (daysLeft === null) return null;
+    
+    if (daysLeft < 0) {
+      return (
+        <Badge className="bg-red-500 text-white">
+          <AlertTriangle className="h-3 w-3 mr-1" />
+          Overdue ({Math.abs(daysLeft)} days)
+        </Badge>
+      );
+    } else if (daysLeft <= 5) {
+      return (
+        <Badge className="bg-red-100 text-red-800 animate-pulse">
+          <AlertTriangle className="h-3 w-3 mr-1" />
+          {daysLeft} day{daysLeft !== 1 ? 's' : ''} left
+        </Badge>
+      );
+    } else if (daysLeft <= 10) {
+      return (
+        <Badge className="bg-yellow-100 text-yellow-800">
+          <Clock className="h-3 w-3 mr-1" />
+          {daysLeft} days left
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge className="bg-green-100 text-green-800">
+          <Calendar className="h-3 w-3 mr-1" />
+          {daysLeft} days left
+        </Badge>
+      );
+    }
   };
 
   const getOutcomeBadge = (outcome: string | null) => {
@@ -159,19 +205,24 @@ export function DisputeTimelineTracker() {
         ) : (
           <div className="space-y-4">
             {timeline.map((entry) => (
-              <div key={entry.id} className="border rounded-lg p-4 space-y-3">
+              <div key={entry.id} className={`border rounded-lg p-4 space-y-3 ${
+                getDaysUntilDeadline(entry) !== null && getDaysUntilDeadline(entry)! <= 5 && getDaysUntilDeadline(entry)! >= 0
+                  ? 'border-red-200 bg-red-50/50' 
+                  : ''
+              }`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold">{entry.creditor_name}</h3>
                     <p className="text-sm text-muted-foreground">Account: {entry.account_number}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     {getStatusBadge(entry.status)}
                     {getOutcomeBadge(entry.outcome)}
+                    {getDeadlineBadge(entry)}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-muted-foreground" />
                     <div>
@@ -205,6 +256,23 @@ export function DisputeTimelineTracker() {
                       <p className="text-muted-foreground">
                         {entry.estimated_response_date 
                           ? format(new Date(entry.estimated_response_date), 'MMM dd, yyyy')
+                          : 'TBD'
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">30-Day Deadline</p>
+                      <p className={`text-muted-foreground ${
+                        getDaysUntilDeadline(entry) !== null && getDaysUntilDeadline(entry)! <= 5 && getDaysUntilDeadline(entry)! >= 0
+                          ? 'text-red-600 font-medium' 
+                          : ''
+                      }`}>
+                        {entry.deadline_date 
+                          ? format(new Date(entry.deadline_date), 'MMM dd, yyyy')
                           : 'TBD'
                         }
                       </p>

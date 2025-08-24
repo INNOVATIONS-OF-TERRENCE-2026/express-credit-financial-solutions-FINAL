@@ -869,6 +869,7 @@ export type Database = {
           creditor_name: string
           date_generated: string | null
           date_mailed: string | null
+          deadline_date: string | null
           dispute_letter_id: string | null
           estimated_response_date: string | null
           id: string
@@ -884,6 +885,7 @@ export type Database = {
           creditor_name: string
           date_generated?: string | null
           date_mailed?: string | null
+          deadline_date?: string | null
           dispute_letter_id?: string | null
           estimated_response_date?: string | null
           id?: string
@@ -899,6 +901,7 @@ export type Database = {
           creditor_name?: string
           date_generated?: string | null
           date_mailed?: string | null
+          deadline_date?: string | null
           dispute_letter_id?: string | null
           estimated_response_date?: string | null
           id?: string

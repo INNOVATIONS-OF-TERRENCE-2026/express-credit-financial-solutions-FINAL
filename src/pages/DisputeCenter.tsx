@@ -18,6 +18,7 @@ import { useRoles } from '@/hooks/useRoles';
 import { useMembership } from '@/hooks/useMembership';
 import { EnhancedCreditReportUpload } from '@/components/EnhancedCreditReportUpload';
 import { FlaggedDisputesTable } from '@/components/FlaggedDisputesTable';
+import { BulkDisputeWizard } from '@/components/BulkDisputeWizard';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Eye, Sparkles } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
@@ -374,13 +375,16 @@ export function DisputeCenter() {
                 </p>
               </div>
             </div>
-            <Button 
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              {showForm ? 'Cancel' : 'Create New Dispute'}
-            </Button>
+            <div className="flex gap-2">
+              <BulkDisputeWizard />
+              <Button 
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                {showForm ? 'Cancel' : 'Create New Dispute'}
+              </Button>
+            </div>
           </div>
         </div>
 
