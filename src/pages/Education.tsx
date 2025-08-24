@@ -15,69 +15,63 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { BackButton } from '@/components/BackButton';
-
-const educationItems = [
-  {
-    title: "Understanding Your Credit Report",
-    type: "Interactive Guide",
-    duration: "15 min",
-    description: "Learn how to identify FCRA violations and inaccuracies that creditors hope you'll miss.",
-    icon: FileText,
-    level: "Essential",
-    category: "Credit Reports"
-  },
-  {
-    title: "FCRA Rights and Protections",
-    type: "Legal Guide",
-    duration: "20 min", 
-    description: "Know your rights under federal law and how creditors commonly violate them without consequences.",
-    icon: Scale,
-    level: "Essential",
-    category: "Legal Rights"
-  },
-  {
-    title: "Dealing with Collections",
-    type: "Action Plan",
-    duration: "18 min",
-    description: "Stop illegal collection practices and enforce your FDCPA rights that many don't know exist.",
-    icon: Shield,
-    level: "Intermediate",
-    category: "Collections"
-  },
-  {
-    title: "Credit Laws and Regulations", 
-    type: "Legal Overview",
-    duration: "25 min",
-    description: "Comprehensive overview of laws protecting consumers from creditor abuses and violations.",
-    icon: Gavel,
-    level: "Advanced",
-    category: "Legal Rights"
-  },
-  {
-    title: "Dispute Letter Strategies",
-    type: "Templates & Guide",
-    duration: "12 min",
-    description: "Legally compliant dispute strategies that creditors must respond to under federal law.",
-    icon: BookOpen,
-    level: "Intermediate", 
-    category: "Disputes"
-  },
-  {
-    title: "Credit Building and Protection",
-    type: "Strategy Guide",
-    duration: "22 min",
-    description: "Build credit while protecting yourself from creditor violations and unauthorized reporting.",
-    icon: AlertTriangle,
-    level: "Intermediate",
-    category: "Credit Building"
-  }
-];
-
+const educationItems = [{
+  title: "Understanding Your Credit Report",
+  type: "Interactive Guide",
+  duration: "15 min",
+  description: "Learn how to identify FCRA violations and inaccuracies that creditors hope you'll miss.",
+  icon: FileText,
+  level: "Essential",
+  category: "Credit Reports"
+}, {
+  title: "FCRA Rights and Protections",
+  type: "Legal Guide",
+  duration: "20 min",
+  description: "Know your rights under federal law and how creditors commonly violate them without consequences.",
+  icon: Scale,
+  level: "Essential",
+  category: "Legal Rights"
+}, {
+  title: "Dealing with Collections",
+  type: "Action Plan",
+  duration: "18 min",
+  description: "Stop illegal collection practices and enforce your FDCPA rights that many don't know exist.",
+  icon: Shield,
+  level: "Intermediate",
+  category: "Collections"
+}, {
+  title: "Credit Laws and Regulations",
+  type: "Legal Overview",
+  duration: "25 min",
+  description: "Comprehensive overview of laws protecting consumers from creditor abuses and violations.",
+  icon: Gavel,
+  level: "Advanced",
+  category: "Legal Rights"
+}, {
+  title: "Dispute Letter Strategies",
+  type: "Templates & Guide",
+  duration: "12 min",
+  description: "Legally compliant dispute strategies that creditors must respond to under federal law.",
+  icon: BookOpen,
+  level: "Intermediate",
+  category: "Disputes"
+}, {
+  title: "Credit Building and Protection",
+  type: "Strategy Guide",
+  duration: "22 min",
+  description: "Build credit while protecting yourself from creditor violations and unauthorized reporting.",
+  icon: AlertTriangle,
+  level: "Intermediate",
+  category: "Credit Building"
+}];
 const categories = ["All", "Legal Rights", "Credit Reports", "Collections", "Disputes", "Credit Building"];
-
 export default function Education() {
-  const { session } = useAuth();
-  const { toast } = useToast();
+  const {
+    session
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedItem, setSelectedItem] = useState<typeof educationItems[0] | null>(null);
   const [content, setContent] = useState<string>("");
@@ -89,38 +83,33 @@ export default function Education() {
   const [currentSituation, setCurrentSituation] = useState("");
   const [aiContent, setAiContent] = useState<string>("");
   const [isAILoading, setIsAILoading] = useState(false);
-
-  const filteredItems = selectedCategory === "All" 
-    ? educationItems 
-    : educationItems.filter(item => item.category === selectedCategory);
-
+  const filteredItems = selectedCategory === "All" ? educationItems : educationItems.filter(item => item.category === selectedCategory);
   const handleItemClick = async (item: typeof educationItems[0]) => {
     setSelectedItem(item);
     setIsDialogOpen(true);
     setIsLoading(true);
     setContent("");
-
     try {
-      const { data, error } = await supabase.functions.invoke('education-content', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('education-content', {
         body: {
           topic: item.title,
           contentType: item.type.toLowerCase()
         },
         headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+          Authorization: `Bearer ${session?.access_token}`
+        }
       });
-
       if (error) throw error;
-
       setContent(data.content);
     } catch (error) {
       console.error('Error loading content:', error);
-      
+
       // Provide fallback content for each topic
       const fallbackContent = getFallbackContent(item.title);
       setContent(fallbackContent);
-      
       toast({
         title: "Using Offline Content",
         description: "AI content generation is currently unavailable. Showing stored educational content.",
@@ -130,7 +119,6 @@ export default function Education() {
       setIsLoading(false);
     }
   };
-
   const getFallbackContent = (title: string): string => {
     const fallbackContents: Record<string, string> = {
       "Understanding Your Credit Report": `# Understanding Your Credit Report
@@ -185,7 +173,6 @@ Your credit report is a detailed record of your credit history maintained by cre
 5. Monitor your credit regularly
 
 Remember: Credit reporting agencies have 30 days to investigate disputes and must remove or correct inaccurate information.`,
-
       "FCRA Rights and Protections": `# Fair Credit Reporting Act (FCRA) Rights and Protections
 
 ## Overview
@@ -235,7 +222,6 @@ The Fair Credit Reporting Act (FCRA) is a federal law that regulates how consume
 5. Know when to seek legal help
 
 The FCRA is a powerful tool for consumers - use it to protect your credit rights.`,
-
       "Dealing with Collections": `# Dealing with Collections: Your Rights Under FDCPA
 
 ## Fair Debt Collection Practices Act (FDCPA)
@@ -292,7 +278,6 @@ The FDCPA protects consumers from abusive debt collection practices. Knowing the
 - Ensure accurate credit reporting after resolution
 
 Remember: You have rights even when you owe money. Use the FDCPA to protect yourself from illegal collection practices.`,
-
       "Credit Laws and Regulations": `# Consumer Credit Laws and Regulations
 
 ## Overview
@@ -362,7 +347,6 @@ Multiple federal laws protect consumers in credit transactions. Understanding th
 5. Stay informed about regulatory changes
 
 These laws exist to protect you - use them effectively to maintain your credit rights.`,
-
       "Dispute Letter Strategies": `# Effective Dispute Letter Strategies
 
 ## Legal Foundation
@@ -443,7 +427,6 @@ Dispute letters are protected under Section 1681i of the Fair Credit Reporting A
 - Updated credit report must be provided within 5 days
 
 Remember: Persistence and proper documentation are key to successful disputes. The FCRA gives you powerful tools - use them effectively.`,
-
       "Credit Building and Protection": `# Credit Building and Protection Strategies
 
 ## Foundation Principles
@@ -549,7 +532,6 @@ Building credit while protecting your rights requires understanding both scoring
 
 Building credit is a marathon, not a sprint. Combine good credit habits with active protection of your rights under federal law for the best results.`
     };
-
     return fallbackContents[title] || `# ${title}
 
 Educational content for this topic is currently being updated. Please check back soon for comprehensive information about ${title.toLowerCase()}.
@@ -561,15 +543,15 @@ In the meantime, you can:
 
 We apologize for any inconvenience and appreciate your patience as we enhance our educational resources.`;
   };
-
   const handleAILearning = async () => {
     if (!learningGoal.trim()) return;
-    
     setIsAILoading(true);
     setAiContent("");
-
     try {
-      const { data, error } = await supabase.functions.invoke('education-content', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('education-content', {
         body: {
           topic: `Personalized Learning: ${learningGoal}`,
           contentType: 'personalized_learning',
@@ -588,14 +570,11 @@ We apologize for any inconvenience and appreciate your patience as we enhance ou
           Make this content highly valuable, professional, and specifically tailored to their learning goal and situation.`
         },
         headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-        },
+          Authorization: `Bearer ${session?.access_token}`
+        }
       });
-
       if (error) throw error;
-
       setAiContent(data.content);
-      
       toast({
         title: "AI Learning Content Generated",
         description: "Your personalized learning content has been created successfully.",
@@ -603,11 +582,10 @@ We apologize for any inconvenience and appreciate your patience as we enhance ou
       });
     } catch (error) {
       console.error('Error generating AI content:', error);
-      
+
       // Provide intelligent fallback content based on the learning goal
       const fallbackContent = generateFallbackAIContent(learningGoal, currentSituation);
       setAiContent(fallbackContent);
-      
       toast({
         title: "Using Enhanced Content",
         description: "AI generation is currently unavailable. Showing comprehensive educational content.",
@@ -617,10 +595,8 @@ We apologize for any inconvenience and appreciate your patience as we enhance ou
       setIsAILoading(false);
     }
   };
-
   const generateFallbackAIContent = (goal: string, situation: string): string => {
     const lowerGoal = goal.toLowerCase();
-    
     if (lowerGoal.includes('dispute') || lowerGoal.includes('remove') || lowerGoal.includes('delete')) {
       return `# Personalized Dispute Strategy Guide
 
@@ -675,7 +651,6 @@ If disputes are "verified" without proper documentation:
 
 Remember: Persistence and proper documentation are key to successful disputes.`;
     }
-
     if (lowerGoal.includes('build') || lowerGoal.includes('improve') || lowerGoal.includes('increase')) {
       return `# Personalized Credit Building Strategy
 
@@ -758,7 +733,6 @@ Since you mentioned collections, prioritize:
 
 Building excellent credit is a marathon, not a sprint. Consistency and strategic planning yield the best results.`;
     }
-
     if (lowerGoal.includes('law') || lowerGoal.includes('rights') || lowerGoal.includes('legal')) {
       return `# Understanding Your Credit Rights and Legal Protections
 
@@ -966,18 +940,19 @@ Based on your learning goal, here's a tailored approach to help you master this 
 
 This personalized content addresses your specific learning goal while providing comprehensive, actionable guidance for your credit improvement journey.`;
   };
-
   const getLevelColor = (level: string) => {
     switch (level) {
-      case "Essential": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-      case "Intermediate": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-      case "Advanced": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+      case "Essential":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+      case "Intermediate":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "Advanced":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
   };
-
-  return (
-    <div className="min-h-screen midnight-theme">
+  return <div className="min-h-screen midnight-theme">
       <NavigationHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
@@ -986,37 +961,22 @@ This personalized content addresses your specific learning goal while providing 
             <h1 className="text-4xl font-bold midnight-section-title midnight-glow-text mb-4">
               Credit Education Center
             </h1>
-            <p className="text-lg text-midnight-text max-w-3xl">
-              Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. 
-              Knowledge is power in credit repair.
-            </p>
+            <p className="text-lg text-midnight-text max-w-3xl">Discover your rights under federal credit laws and learn how creditors commonly violate consumer protections. Knowledge is power in credit repair.</p>
           </div>
         </div>
 
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              variant="ghost"
-              className={`mb-2 edu-filter-button ${selectedCategory === category ? 'edu-filter-button-active' : ''}`}
-            >
+          {categories.map(category => <Button key={category} onClick={() => setSelectedCategory(category)} variant="ghost" className={`mb-2 edu-filter-button ${selectedCategory === category ? 'edu-filter-button-active' : ''}`}>
               {category}
-            </Button>
-          ))}
+            </Button>)}
         </div>
 
         {/* Education Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {filteredItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <Card 
-                key={index} 
-                className="card-elegant hover-lift cursor-pointer transition-all duration-300 border-l-4 border-l-accent" 
-                onClick={() => handleItemClick(item)}
-              >
+          const Icon = item.icon;
+          return <Card key={index} className="card-elegant hover-lift cursor-pointer transition-all duration-300 border-l-4 border-l-accent" onClick={() => handleItemClick(item)}>
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
@@ -1042,9 +1002,8 @@ This personalized content addresses your specific learning goal while providing 
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </Button>
                 </CardContent>
-              </Card>
-            );
-          })}
+              </Card>;
+        })}
         </div>
 
         {/* Call to Action */}
@@ -1079,11 +1038,7 @@ This personalized content addresses your specific learning goal while providing 
                 </div>
               </div>
               <div className="flex justify-center">
-                <Button 
-                  className="max-w-xs" 
-                  size="lg"
-                  onClick={() => setIsAILearningOpen(true)}
-                >
+                <Button className="max-w-xs" size="lg" onClick={() => setIsAILearningOpen(true)}>
                   <Brain className="mr-2 h-5 w-5" />
                   Start AI-Powered Learning Today
                 </Button>
@@ -1107,22 +1062,18 @@ This personalized content addresses your specific learning goal while providing 
           </DialogHeader>
           
           <ScrollArea className="max-h-[60vh] pr-4">
-            {isLoading ? (
-              <div className="space-y-4">
+            {isLoading ? <div className="space-y-4">
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-5/6" />
                 <Skeleton className="h-32 w-full" />
                 <Skeleton className="h-4 w-2/3" />
                 <Skeleton className="h-4 w-4/5" />
-              </div>
-            ) : (
-              <div className="prose prose-sm max-w-none dark:prose-invert">
+              </div> : <div className="prose prose-sm max-w-none dark:prose-invert">
                 <div className="whitespace-pre-wrap leading-relaxed">
                   {content}
                 </div>
-              </div>
-            )}
+              </div>}
           </ScrollArea>
           
           <div className="flex justify-end gap-2 pt-4 border-t">
@@ -1150,46 +1101,26 @@ This personalized content addresses your specific learning goal while providing 
           </DialogHeader>
           
           <ScrollArea className="max-h-[70vh] pr-4">
-            {!aiContent && !isAILoading ? (
-              <div className="space-y-6">
+            {!aiContent && !isAILoading ? <div className="space-y-6">
                 <div className="space-y-3">
                   <Label htmlFor="learning-goal" className="text-sm font-medium">
                     What do you want to learn about? (e.g., "How to dispute incorrect items", "Understanding credit laws", "Building credit fast")
                   </Label>
-                  <Textarea
-                    id="learning-goal"
-                    placeholder="I want to learn how to..."
-                    value={learningGoal}
-                    onChange={(e) => setLearningGoal(e.target.value)}
-                    className="min-h-[100px]"
-                  />
+                  <Textarea id="learning-goal" placeholder="I want to learn how to..." value={learningGoal} onChange={e => setLearningGoal(e.target.value)} className="min-h-[100px]" />
                 </div>
                 
                 <div className="space-y-3">
                   <Label htmlFor="current-situation" className="text-sm font-medium">
                     Describe your current credit situation (optional - helps personalize the content)
                   </Label>
-                  <Textarea
-                    id="current-situation"
-                    placeholder="I have collections on my report, my score is 580, I was denied for credit..."
-                    value={currentSituation}
-                    onChange={(e) => setCurrentSituation(e.target.value)}
-                    className="min-h-[100px]"
-                  />
+                  <Textarea id="current-situation" placeholder="I have collections on my report, my score is 580, I was denied for credit..." value={currentSituation} onChange={e => setCurrentSituation(e.target.value)} className="min-h-[100px]" />
                 </div>
                 
-                <Button 
-                  onClick={handleAILearning}
-                  disabled={!learningGoal.trim() || isAILoading}
-                  className="w-full"
-                  size="lg"
-                >
+                <Button onClick={handleAILearning} disabled={!learningGoal.trim() || isAILoading} className="w-full" size="lg">
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Generate Personalized Learning Content
                 </Button>
-              </div>
-            ) : isAILoading ? (
-              <div className="space-y-4">
+              </div> : isAILoading ? <div className="space-y-4">
                 <div className="flex items-center gap-2 text-accent">
                   <Brain className="h-5 w-5 animate-pulse" />
                   <span className="text-sm">AI is analyzing your needs and creating personalized content...</span>
@@ -1201,9 +1132,7 @@ This personalized content addresses your specific learning goal while providing 
                 <Skeleton className="h-4 w-2/3" />
                 <Skeleton className="h-4 w-4/5" />
                 <Skeleton className="h-24 w-full" />
-              </div>
-            ) : (
-              <div className="space-y-4">
+              </div> : <div className="space-y-4">
                 <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Brain className="h-4 w-4 text-accent" />
@@ -1221,26 +1150,18 @@ This personalized content addresses your specific learning goal while providing 
                 </div>
                 
                 <div className="flex gap-2 pt-4">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setAiContent("");
-                      setLearningGoal("");
-                      setCurrentSituation("");
-                    }}
-                    className="flex-1"
-                  >
+                  <Button variant="outline" onClick={() => {
+                setAiContent("");
+                setLearningGoal("");
+                setCurrentSituation("");
+              }} className="flex-1">
                     Ask Another Question
                   </Button>
-                  <Button 
-                    onClick={() => setIsAILearningOpen(false)}
-                    className="flex-1"
-                  >
+                  <Button onClick={() => setIsAILearningOpen(false)} className="flex-1">
                     Save & Close
                   </Button>
                 </div>
-              </div>
-            )}
+              </div>}
           </ScrollArea>
         </DialogContent>
       </Dialog>
@@ -1263,6 +1184,5 @@ This personalized content addresses your specific learning goal while providing 
           </ScrollArea>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 }
