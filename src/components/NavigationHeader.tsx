@@ -126,7 +126,7 @@ export function NavigationHeader() {
             <div className="hidden lg:block text-sm text-white truncate max-w-32" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
               {user.email}
             </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut} className="flex-shrink-0 border-white/30 text-white hover:text-white hover:bg-white/20 hover:border-white/50" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="flex-shrink-0 bg-[hsl(var(--ocean-blue))] hover:bg-[hsl(var(--ocean-blue-hover))] border-[hsl(var(--ocean-blue))] text-white hover:text-white" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
               <LogOut className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
               <span className="hidden sm:inline ml-2">Sign Out</span>
             </Button>

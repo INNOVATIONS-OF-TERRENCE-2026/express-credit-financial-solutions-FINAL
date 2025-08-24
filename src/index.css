@@ -39,6 +39,10 @@
     --silver-light: 0 0% 85%;
     --silver-dark: 0 0% 65%;
 
+    /* Ocean Blue Variants */
+    --ocean-blue: 214 95% 20%;
+    --ocean-blue-hover: 214 95% 25%;
+
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
