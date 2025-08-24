@@ -83,7 +83,7 @@ export default function Home() {
               <Button
                 asChild
                 variant="outline"
-                className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                className="bg-gradient-to-r from-yellow-200 to-blue-400 border-transparent text-slate-800 hover:from-yellow-300 hover:to-blue-500"
               >
                 <Link to="/">
                   <ArrowLeft className="mr-2 h-4 w-4" />
