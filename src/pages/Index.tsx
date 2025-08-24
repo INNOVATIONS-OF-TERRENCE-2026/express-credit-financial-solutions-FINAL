@@ -227,6 +227,15 @@ const Index = () => {
                 </CardHeader>
               </Card>
 
+              {/* SBA Loan Portal */}
+              <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/sba')}>
+                <CardHeader className="text-center bg-transparent">
+                  <Shield className="h-8 w-8 text-accent mx-auto mb-2" />
+                  <CardTitle className="text-lg text-primary-foreground">SBA Loan Portal</CardTitle>
+                  <CardDescription className="text-primary-foreground/90 font-medium">Apply for SBA loans & funding</CardDescription>
+                </CardHeader>
+              </Card>
+
               {/* Client Portals - Admin Only */}
               {isAdmin() && <Card className="cursor-pointer hover:shadow-md transition-shadow bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20" onClick={() => navigate('/client-portals')}>
                   <CardHeader className="text-center bg-transparent">
