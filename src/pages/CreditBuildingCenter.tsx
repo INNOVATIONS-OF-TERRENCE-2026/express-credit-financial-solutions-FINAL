@@ -190,7 +190,10 @@ export default function CreditBuildingCenter() {
               Credit Building Center
             </h1>
           </div>
-          <p className="text-xl text-midnight-text max-w-3xl mx-auto leading-relaxed">
+          <p className="text-2xl font-semibold text-chrome max-w-3xl mx-auto leading-relaxed tracking-wide" style={{
+            textShadow: "0 0 20px rgba(192, 192, 192, 0.8), 0 0 40px rgba(192, 192, 192, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)",
+            filter: "contrast(1.2) brightness(1.1)"
+          }}>
             Transform your financial future with strategic credit building after dispute completion
           </p>
           <Badge variant="secondary" className="mt-4 px-6 py-2 text-lg midnight-btn-gold">
