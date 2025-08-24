@@ -326,7 +326,13 @@ export function ClientOnboarding() {
         <CardContent>
           {!hasSignedAgreement ? (
             <div className="border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg">
-              <DigitalSignature onSignatureComplete={refetchAgreementStatus} />
+              <DigitalSignature 
+                open={true}
+                onOpenChange={() => {}}
+                onSignatureSaved={async () => {}}
+                documentTitle="Client Agreement"
+                onSignatureComplete={refetchAgreementStatus} 
+              />
             </div>
           ) : (
             <div className="border-2 border-green-500/50 bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">

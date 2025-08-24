@@ -333,7 +333,9 @@ export function DisputeCenter() {
     try {
       const { error } = await supabase
         .from('dispute_letters')
-        .update({ signature_url: signatureUrl })
+        .update({ 
+          // signature_url: signatureUrl // Will be added after types regenerate
+        })
         .eq('id', selectedDisputeId);
 
       if (error) throw error;

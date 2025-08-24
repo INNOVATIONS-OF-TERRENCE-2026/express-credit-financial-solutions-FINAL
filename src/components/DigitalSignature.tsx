@@ -3,15 +3,26 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { PenTool, FileText, Download } from 'lucide-react';
 
 interface DigitalSignatureProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSignatureSaved: (signatureUrl: string) => Promise<void>;
+  documentTitle: string;
   onSignatureComplete?: () => void;
 }
 
-export function DigitalSignature({ onSignatureComplete }: DigitalSignatureProps) {
+export function DigitalSignature({ 
+  open, 
+  onOpenChange, 
+  onSignatureSaved, 
+  documentTitle, 
+  onSignatureComplete 
+}: DigitalSignatureProps) {
   const [fullName, setFullName] = useState('');
   const [isSigning, setIsSigning] = useState(false);
   const [signatureData, setSignatureData] = useState('');
@@ -90,32 +101,36 @@ export function DigitalSignature({ onSignatureComplete }: DigitalSignatureProps)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { error } = await supabase
-        .from('client_agreements')
-        .insert({
-          user_id: user.id,
-          full_name: fullName,
-          signature_data: signatureData,
-          signed_at: new Date().toISOString(),
-          ip_address: await fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
-            .then(data => data.ip)
-            .catch(() => 'unknown')
-        });
+      // Convert signature to blob and upload to storage
+      const response = await fetch(signatureData);
+      const blob = await response.blob();
+      
+      const fileName = `signature_${user.id}_${Date.now()}.png`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('signatures')
+        .upload(fileName, blob);
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('signatures')
+        .getPublicUrl(fileName);
+
+      // Save signature record
+      await onSignatureSaved(publicUrl);
 
       toast({
         title: "Success",
-        description: "Agreement signed successfully!",
+        description: "Signature saved successfully!",
       });
 
       onSignatureComplete?.();
+      onOpenChange(false);
     } catch (error) {
-      console.error('Error signing agreement:', error);
+      console.error('Error signing:', error);
       toast({
         title: "Error",
-        description: "Failed to sign agreement. Please try again.",
+        description: "Failed to save signature. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -165,81 +180,83 @@ By signing below, you acknowledge that you have read, understood, and agree to a
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <PenTool className="h-5 w-5" />
-          Sign Agreement
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex gap-2">
-          <Button
-            onClick={downloadAgreement}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <FileText className="h-4 w-4" />
-            View Agreement
-          </Button>
-          <Button
-            onClick={downloadAgreement}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Download PDF
-          </Button>
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <PenTool className="h-5 w-5" />
+            Sign {documentTitle}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="flex gap-2">
+            <Button
+              onClick={downloadAgreement}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              View Agreement
+            </Button>
+            <Button
+              onClick={downloadAgreement}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download PDF
+            </Button>
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="fullName">Full Legal Name *</Label>
-          <Input
-            id="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Enter your full legal name"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Digital Signature *</Label>
-          <div className="border rounded-lg p-4 bg-muted/50">
-            <canvas
-              ref={canvasRef}
-              width={500}
-              height={150}
-              className="border-2 border-dashed border-muted-foreground/50 w-full cursor-crosshair bg-white rounded"
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={stopDrawing}
-              onMouseLeave={stopDrawing}
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Full Legal Name *</Label>
+            <Input
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full legal name"
+              required
             />
-            <div className="flex justify-between items-center mt-2">
-              <p className="text-sm text-muted-foreground">
-                Sign above with your mouse or finger
-              </p>
-              <Button
-                onClick={clearSignature}
-                variant="outline"
-                size="sm"
-              >
-                Clear
-              </Button>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Digital Signature *</Label>
+            <div className="border rounded-lg p-4 bg-muted/50">
+              <canvas
+                ref={canvasRef}
+                width={500}
+                height={150}
+                className="border-2 border-dashed border-muted-foreground/50 w-full cursor-crosshair bg-white rounded"
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseLeave={stopDrawing}
+              />
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-sm text-muted-foreground">
+                  Sign above with your mouse or finger
+                </p>
+                <Button
+                  onClick={clearSignature}
+                  variant="outline"
+                  size="sm"
+                >
+                  Clear
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <Button
-          onClick={handleSign}
-          disabled={isSigning}
-          className="w-full"
-          size="lg"
-        >
-          {isSigning ? 'Signing...' : 'Sign Agreement'}
-        </Button>
-      </CardContent>
-    </Card>
+          <Button
+            onClick={handleSign}
+            disabled={isSigning}
+            className="w-full"
+            size="lg"
+          >
+            {isSigning ? 'Signing...' : 'Save Signature'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

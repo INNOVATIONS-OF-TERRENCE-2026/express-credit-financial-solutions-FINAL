@@ -811,6 +811,7 @@ export type Database = {
           issue_type: string | null
           letter_body: string | null
           letter_title: string
+          signature_url: string | null
           uploaded_file_url: string | null
           user_id: string | null
           violation_notes: string | null
@@ -833,6 +834,7 @@ export type Database = {
           issue_type?: string | null
           letter_body?: string | null
           letter_title: string
+          signature_url?: string | null
           uploaded_file_url?: string | null
           user_id?: string | null
           violation_notes?: string | null
@@ -855,6 +857,7 @@ export type Database = {
           issue_type?: string | null
           letter_body?: string | null
           letter_title?: string
+          signature_url?: string | null
           uploaded_file_url?: string | null
           user_id?: string | null
           violation_notes?: string | null
