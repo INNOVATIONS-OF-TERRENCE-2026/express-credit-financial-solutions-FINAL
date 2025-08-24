@@ -33,8 +33,8 @@ export function AICreditAssistantPage() {
               <MessageCircle className="h-8 w-8 text-gold mx-auto mb-2" />
               <CardTitle className="text-lg text-gold">Chat-Based Help</CardTitle>
             </CardHeader>
-            <CardContent>
-              <CardDescription className="text-center text-midnight-text">
+            <CardContent className="bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(var(--gold-dark))] text-accent-foreground">
+              <CardDescription className="text-center text-accent-foreground font-medium">
                 Have a conversation with our AI about your credit questions in a natural, friendly way.
               </CardDescription>
             </CardContent>
