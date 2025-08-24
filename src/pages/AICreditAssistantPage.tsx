@@ -45,8 +45,16 @@ export function AICreditAssistantPage() {
               <TrendingUp className="h-8 w-8 text-silver mx-auto mb-2" />
               <CardTitle className="text-lg text-silver">Expert Knowledge</CardTitle>
             </CardHeader>
-            <CardContent>
-              <CardDescription className="text-center text-midnight-text">
+            <CardContent className="bg-gradient-to-br from-[hsl(var(--gold))] via-[hsl(var(--gold-light))] to-[hsl(var(--gold-dark))] text-accent-foreground relative overflow-hidden">
+              <div className="absolute inset-0 opacity-30" style={{
+                backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 1px, transparent 1px),
+                                 radial-gradient(circle at 75% 75%, rgba(255,255,255,0.6) 1px, transparent 1px),
+                                 radial-gradient(circle at 50% 10%, rgba(255,255,255,0.7) 0.5px, transparent 0.5px),
+                                 radial-gradient(circle at 20% 80%, rgba(255,255,255,0.5) 1.5px, transparent 1.5px),
+                                 radial-gradient(circle at 90% 40%, rgba(255,255,255,0.4) 0.8px, transparent 0.8px)`,
+                backgroundSize: '120px 120px, 80px 80px, 60px 60px, 100px 100px, 90px 90px'
+              }}></div>
+              <CardDescription className="text-center text-accent-foreground font-medium relative z-10">
                 Access expert-level credit advice covering scores, disputes, utilization, and building strategies.
               </CardDescription>
             </CardContent>
