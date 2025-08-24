@@ -44,7 +44,7 @@ export default function CreditBuildingCenter() {
       deposit: '$200 minimum',
       reportTime: '30-45 days',
       bureaus: 'All 3 Bureaus',
-      link: 'https://www.opensky.com',
+      link: 'https://www.openskycc.com',
       description: 'No credit check required, ideal for rebuilding'
     },
     {
