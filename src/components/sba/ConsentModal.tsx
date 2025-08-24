@@ -25,19 +25,25 @@ export function ConsentModal({ open, onAccept, onClose }: ConsentModalProps) {
   const allConsented = consents.tcpa && consents.fcra && consents.glba;
 
   const handleAccept = async () => {
-    if (!allConsented) return;
+    if (!allConsented) {
+      toast({
+        title: "Please accept all terms",
+        description: "You must agree to all three consent types to proceed.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setLoading(true);
     try {
       // Create consent records for each type
       const consentTypes = ['TCPA', 'FCRA', 'GLBA'];
-      const clientIP = 'client'; // Best-effort IP detection would go here
       
-      await Promise.all(
-        consentTypes.map(type => 
-          apiClient.createConsent(type, clientIP)
-        )
-      );
+      // Simulate API call with delay - replace with actual API call when backend is ready
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Log consents locally for now
+      console.log('Consents accepted:', consentTypes, new Date().toISOString());
       
       onAccept(consentTypes);
       toast({
