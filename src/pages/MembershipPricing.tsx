@@ -233,7 +233,7 @@ export default function MembershipPricing() {
                 plan.badge?.includes("MOST DOMINANT") ? "scale-110 ring-4 ring-purple-500/70 shadow-2xl shadow-purple-500/30" : ""
               }`}>
                 {plan.badge && (
-                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold ${colors.badge} border border-current`}>
+                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full text-sm font-semibold ${colors.badge} border border-current whitespace-nowrap min-w-fit`}>
                     {plan.badge}
                   </div>
                 )}
