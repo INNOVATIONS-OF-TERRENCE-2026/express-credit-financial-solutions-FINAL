@@ -132,11 +132,18 @@ export default function Home() {
                 </Link>
               </Button>
               <Button 
+                asChild
                 variant="outline" 
                 size="lg"
                 className="bg-gradient-to-r from-yellow-200 to-blue-400 border-transparent text-slate-800 hover:from-yellow-300 hover:to-blue-500"
               >
-                Learn More
+                <a 
+                  href="https://www.sba.gov/funding-programs/loans" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  Learn More
+                </a>
               </Button>
             </div>
           </div>
