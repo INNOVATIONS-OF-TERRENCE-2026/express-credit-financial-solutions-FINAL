@@ -76,8 +76,19 @@ export function AICreditAssistantPage() {
               <HelpCircle className="h-8 w-8 text-gold mx-auto mb-2" />
               <CardTitle className="text-lg text-gold">24/7 Availability</CardTitle>
             </CardHeader>
-            <CardContent>
-              <CardDescription className="text-center text-midnight-text">
+            <CardContent className="bg-gradient-to-br from-[hsl(var(--gold))] via-[hsl(var(--gold-light))] to-[hsl(var(--gold-dark))] text-accent-foreground relative overflow-hidden">
+              <div className="absolute inset-0 opacity-30" style={{
+                backgroundImage: `radial-gradient(circle at 30% 20%, rgba(255,255,255,0.8) 1px, transparent 1px),
+                                 radial-gradient(circle at 70% 80%, rgba(255,255,255,0.6) 1px, transparent 1px),
+                                 radial-gradient(circle at 45% 15%, rgba(255,255,255,0.7) 0.5px, transparent 0.5px),
+                                 radial-gradient(circle at 25% 85%, rgba(255,255,255,0.5) 1.5px, transparent 1.5px),
+                                 radial-gradient(circle at 85% 45%, rgba(255,255,255,0.4) 0.8px, transparent 0.8px),
+                                 radial-gradient(circle at 10% 70%, rgba(255,255,255,0.6) 0.7px, transparent 0.7px),
+                                 radial-gradient(circle at 75% 25%, rgba(255,255,255,0.5) 1.2px, transparent 1.2px),
+                                 radial-gradient(circle at 50% 95%, rgba(255,255,255,0.7) 0.6px, transparent 0.6px)`,
+                backgroundSize: '110px 110px, 85px 85px, 65px 65px, 105px 105px, 95px 95px, 115px 115px, 75px 75px, 100px 100px'
+              }}></div>
+              <CardDescription className="text-center text-accent-foreground font-medium relative z-10">
                 Get answers to your credit questions anytime, day or night, whenever you need guidance.
               </CardDescription>
             </CardContent>
