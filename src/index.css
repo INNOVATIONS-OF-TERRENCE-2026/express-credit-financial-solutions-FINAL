@@ -55,11 +55,13 @@
 
     --radius: 0.5rem;
 
-    /* Midnight Blue Theme Colors */
-    --midnight-bg: 231 45% 9%;
-    --midnight-card: 231 40% 12%;
-    --midnight-text: 0 0% 95%;
-    --midnight-muted: 231 20% 30%;
+    /* Midnight Blue SBA Theme Colors */
+    --sba-midnight: 231 45% 9%;
+    --sba-card: 231 40% 12%;
+    --sba-green: 142 76% 36%;
+    --sba-green-light: 142 76% 46%;
+    --sba-chrome: 0 0% 75%;
+    --sba-chrome-glow: 0 0% 85%;
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(0 0% 9%), hsl(0 0% 20%));

@@ -9,6 +9,18 @@ import { RolesProvider } from "./hooks/useRoles";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingChat } from "./components/FloatingChat";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { SBAConfigProvider } from "./contexts/SBAConfig";
+
+// SBA Pages
+import SBAHome from "./pages/sba/Home";
+import SBAPreCheck from "./pages/sba/PreCheck";
+import SBAConsent from "./pages/sba/Consent";
+import SBAIntake from "./pages/sba/Intake";
+import SBADocuments from "./pages/sba/Documents";
+import SBAPacket from "./pages/sba/Packet";
+import SBADashboard from "./pages/sba/Dashboard";
+import SBAAdmin from "./pages/sba/Admin";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { DisputeCenter } from "./pages/DisputeCenter";
@@ -39,16 +51,28 @@ const queryClient = new QueryClient();
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RolesProvider>
-          <MembershipProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <FloatingChat />
-            <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
+      <SBAConfigProvider>
+        <AuthProvider>
+          <RolesProvider>
+            <MembershipProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <FloatingChat />
+              <BrowserRouter>
+              <Routes>
+                {/* SBA Routes */}
+                <Route path="/sba" element={<SBAHome />} />
+                <Route path="/sba/precheck" element={<SBAPreCheck />} />
+                <Route path="/sba/consent" element={<SBAConsent />} />
+                <Route path="/sba/intake" element={<SBAIntake />} />
+                <Route path="/sba/documents" element={<SBADocuments />} />
+                <Route path="/sba/packet" element={<SBAPacket />} />
+                <Route path="/sba/dashboard" element={<SBADashboard />} />
+                <Route path="/sba/admin" element={<SBAAdmin />} />
+                
+                {/* Existing Routes */}
+                <Route path="/" element={<Index />} />
               <Route 
                 path="/dispute-center" 
                 element={
@@ -150,7 +174,8 @@ const App = () => (
         </MembershipProvider>
       </RolesProvider>
     </AuthProvider>
-  </QueryClientProvider>
+  </SBAConfigProvider>
+</QueryClientProvider>
 </ErrorBoundary>
 );
 
