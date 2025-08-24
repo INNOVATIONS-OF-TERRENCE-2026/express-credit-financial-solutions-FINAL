@@ -214,21 +214,21 @@ export type Database = {
           account_id: string | null
           created_at: string
           id: number
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           access_token?: string | null
           account_id?: string | null
           created_at?: string
           id?: number
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           access_token?: string | null
           account_id?: string | null
           created_at?: string
           id?: number
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
