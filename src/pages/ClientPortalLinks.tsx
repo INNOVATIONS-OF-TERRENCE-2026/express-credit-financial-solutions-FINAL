@@ -51,7 +51,10 @@ export default function ClientPortalLinks() {
         
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Admin Client Portal Management</h1>
+            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-600 bg-clip-text text-transparent drop-shadow-lg" style={{
+              textShadow: '0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3), 0 0 30px rgba(255, 215, 0, 0.2)',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+            }}>Admin Client Portal Management</h1>
             <p className="text-muted-foreground">
               Comprehensive client management, document upload, and portal access
             </p>
