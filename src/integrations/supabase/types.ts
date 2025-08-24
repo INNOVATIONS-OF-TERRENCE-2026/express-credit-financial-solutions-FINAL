@@ -691,6 +691,47 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_scores: {
+        Row: {
+          bureau: string
+          client_id: string | null
+          created_at: string
+          id: string
+          score: number
+          score_date: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          bureau: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          score: number
+          score_date: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          bureau?: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          score?: number
+          score_date?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_scores_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_users: {
         Row: {
           created_at: string

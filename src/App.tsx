@@ -32,6 +32,7 @@ import { DocumentUploadCenter } from "./pages/DocumentUploadCenter";
 import AdminClients from "./pages/AdminClients";
 import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
+import CreditScoreTracker from "./pages/CreditScoreTracker";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,14 @@ const App = () => (
                  element={
                    <ProtectedRoute requiredFeature="dashboard" featureName="Document Upload Center">
                      <DocumentUploadCenter />
+                   </ProtectedRoute>
+                 } 
+               />
+               <Route 
+                 path="/score-tracker" 
+                 element={
+                   <ProtectedRoute requiredFeature="dashboard" featureName="Credit Score Tracker">
+                     <CreditScoreTracker />
                    </ProtectedRoute>
                  } 
                />
