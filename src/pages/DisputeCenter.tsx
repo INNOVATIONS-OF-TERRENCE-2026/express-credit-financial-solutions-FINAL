@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { Download, FileText, Plus } from 'lucide-react';
+import { Download, FileText, Plus, Mail, PenTool } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { sanitizeInput, sanitizeAccountNumber, sanitizeDisputeContent, validateDisputeFormData } from '@/utils/inputValidation';
@@ -19,6 +19,8 @@ import { useMembership } from '@/hooks/useMembership';
 import { EnhancedCreditReportUpload } from '@/components/EnhancedCreditReportUpload';
 import { FlaggedDisputesTable } from '@/components/FlaggedDisputesTable';
 import { BulkDisputeWizard } from '@/components/BulkDisputeWizard';
+import { DigitalSignature } from '@/components/DigitalSignature';
+import { MailingLabelGenerator } from '@/components/MailingLabelGenerator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Eye, Sparkles } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
@@ -31,6 +33,7 @@ interface DisputeLetter {
   additional_notes: string | null;
   generated_letter: string | null;
   created_at: string;
+  signature_url?: string | null;
 }
 
 export function DisputeCenter() {
@@ -50,6 +53,9 @@ export function DisputeCenter() {
   const [aiPreviewGenerating, setAiPreviewGenerating] = useState<string | null>(null);
   const [showAiPreviewModal, setShowAiPreviewModal] = useState(false);
   const [aiPreviewText, setAiPreviewText] = useState('');
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [selectedDisputeId, setSelectedDisputeId] = useState<string | null>(null);
+  const [showMailingModal, setShowMailingModal] = useState(false);
   const { toast } = useToast();
   const { logDisputeLetterGeneration } = useAuditLog();
   const { isAdmin } = useRoles();
@@ -321,7 +327,34 @@ export function DisputeCenter() {
     );
   };
 
-  const downloadPDF = (dispute: DisputeLetter) => {
+  const handleSignatureSaved = async (signatureUrl: string) => {
+    if (!selectedDisputeId) return;
+
+    try {
+      const { error } = await supabase
+        .from('dispute_letters')
+        .update({ signature_url: signatureUrl })
+        .eq('id', selectedDisputeId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Signature saved to dispute letter",
+      });
+
+      await fetchDisputes();
+    } catch (error) {
+      console.error('Error saving signature to dispute:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save signature",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadSignedPDF = async (dispute: DisputeLetter) => {
     if (!dispute.generated_letter) {
       toast({
         title: "Error",
@@ -334,22 +367,54 @@ export function DisputeCenter() {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const margin = 20;
-    const lineHeight = 6;
     
-    // Split the letter into lines that fit the page width
+    // Add letter content
     const splitText = doc.splitTextToSize(dispute.generated_letter, pageWidth - 2 * margin);
-    
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(12);
     doc.text(splitText, margin, margin);
     
-    const fileName = `Dispute_Letter_${dispute.creditor_name.replace(/[^a-z0-9]/gi, '_')}.pdf`;
-    doc.save(fileName);
-    
-    toast({
-      title: "Success",
-      description: "PDF downloaded successfully",
-    });
+    // Add signature if available
+    if (dispute.signature_url) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 60;
+        const imgHeight = (img.height / img.width) * imgWidth;
+        const yPos = doc.internal.pageSize.height - margin - imgHeight - 10;
+        
+        doc.addImage(imgData, 'PNG', margin, yPos, imgWidth, imgHeight);
+        
+        const fileName = `Signed_Dispute_${dispute.creditor_name.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+        doc.save(fileName);
+        
+        toast({
+          title: "Success",
+          description: "Signed PDF downloaded successfully",
+        });
+      };
+      img.src = dispute.signature_url;
+    } else {
+      const fileName = `Dispute_Letter_${dispute.creditor_name.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+      doc.save(fileName);
+      
+      toast({
+        title: "Success", 
+        description: "PDF downloaded successfully",
+      });
+    }
+  };
+
+  const downloadPDF = (dispute: DisputeLetter) => {
+    // Now use downloadSignedPDF instead
+    downloadSignedPDF(dispute);
   };
 
   if (loading) {
@@ -699,15 +764,38 @@ export function DisputeCenter() {
                           </div>
                         )}
                         {dispute.generated_letter && (
-                          <Button
-                            onClick={() => downloadPDF(dispute)}
-                            size="sm"
-                            variant="outline"
-                            className="flex items-center gap-1"
-                          >
-                            <Download className="h-4 w-4" />
-                            Download PDF
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => downloadSignedPDF(dispute)}
+                              className="flex items-center gap-1"
+                            >
+                              <Download className="h-4 w-4" />
+                              Download PDF
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedDisputeId(dispute.id);
+                                setShowSignatureModal(true);
+                              }}
+                              className="flex items-center gap-1"
+                            >
+                              <PenTool className="h-4 w-4" />
+                              {dispute.signature_url ? 'Update Signature' : 'Add Signature'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setShowMailingModal(true)}
+                              className="flex items-center gap-1"
+                            >
+                              <Mail className="h-4 w-4" />
+                              Mailing Label
+                            </Button>
+                          </>
                         )}
                       </div>
                     </TableCell>
@@ -717,7 +805,24 @@ export function DisputeCenter() {
             </Table>
           )}
         </CardContent>
-      </Card>
+        </Card>
+
+        {/* Digital Signature Modal */}
+        <DigitalSignature
+          open={showSignatureModal}
+          onOpenChange={setShowSignatureModal}
+          onSignatureSaved={handleSignatureSaved}
+          documentTitle={disputes.find(d => d.id === selectedDisputeId)?.creditor_name ? 
+            `Dispute Letter - ${disputes.find(d => d.id === selectedDisputeId)?.creditor_name}` : 
+            "Dispute Letter"
+          }
+        />
+
+        {/* Mailing Label Modal */}
+        <MailingLabelGenerator
+          open={showMailingModal}
+          onOpenChange={setShowMailingModal}
+        />
       </div>
     </div>
   );
