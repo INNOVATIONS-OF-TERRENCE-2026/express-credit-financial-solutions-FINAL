@@ -33,8 +33,19 @@ export function AICreditAssistantPage() {
               <MessageCircle className="h-8 w-8 text-gold mx-auto mb-2" />
               <CardTitle className="text-lg text-gold">Chat-Based Help</CardTitle>
             </CardHeader>
-            <CardContent className="bg-gradient-to-br from-[hsl(var(--gold))] to-[hsl(var(--gold-dark))] text-accent-foreground">
-              <CardDescription className="text-center text-accent-foreground font-medium">
+            <CardContent className="bg-gradient-to-br from-[hsl(var(--gold))] via-[hsl(var(--gold-light))] to-[hsl(var(--gold-dark))] text-accent-foreground relative overflow-hidden">
+              <div className="absolute inset-0 opacity-30" style={{
+                backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 1px, transparent 1px),
+                                 radial-gradient(circle at 75% 75%, rgba(255,255,255,0.6) 1px, transparent 1px),
+                                 radial-gradient(circle at 50% 10%, rgba(255,255,255,0.7) 0.5px, transparent 0.5px),
+                                 radial-gradient(circle at 20% 80%, rgba(255,255,255,0.5) 1.5px, transparent 1.5px),
+                                 radial-gradient(circle at 90% 40%, rgba(255,255,255,0.4) 0.8px, transparent 0.8px),
+                                 radial-gradient(circle at 15% 60%, rgba(255,255,255,0.6) 0.7px, transparent 0.7px),
+                                 radial-gradient(circle at 80% 20%, rgba(255,255,255,0.5) 1.2px, transparent 1.2px),
+                                 radial-gradient(circle at 40% 90%, rgba(255,255,255,0.7) 0.6px, transparent 0.6px)`,
+                backgroundSize: '120px 120px, 80px 80px, 60px 60px, 100px 100px, 90px 90px, 110px 110px, 70px 70px, 95px 95px'
+              }}></div>
+              <CardDescription className="text-center text-accent-foreground font-medium relative z-10">
                 Have a conversation with our AI about your credit questions in a natural, friendly way.
               </CardDescription>
             </CardContent>
