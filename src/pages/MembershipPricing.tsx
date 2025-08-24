@@ -20,7 +20,7 @@ const plans = [
     frequency: "45 days",
     isOneTime: false,
     icon: Check,
-    badge: "⭐️ Most Popular Entry-Level Plan",
+    badge: "⭐️ Entry-Level Plan",
     color: "yellow",
     features: [
       "Disputes for up to 4 accounts/month (1 bureau)",
@@ -38,7 +38,7 @@ const plans = [
     frequency: "45 days",
     isOneTime: false,
     icon: Star,
-    badge: null,
+    badge: "⭐️ Most Popular Plan",
     color: "blue",
     features: [
       "Disputes for up to 10 accounts/month across 3 bureaus",
@@ -76,7 +76,7 @@ const plans = [
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
-    badge: null,
+    badge: "👑 MOST DOMINANT PLAN",
     color: "purple",
     features: [
       "Full Credit Report Audit + Violation Flagging",
@@ -229,7 +229,8 @@ export default function MembershipPricing() {
             
             return (
               <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/20 bg-black/80 backdrop-blur-sm ${colors.border} ${colors.bg} ${
-                plan.badge?.includes("Most Popular") ? "scale-105 ring-2 ring-yellow-500/50" : ""
+                plan.badge?.includes("Most Popular") ? "scale-105 ring-2 ring-blue-500/50" : 
+                plan.badge?.includes("MOST DOMINANT") ? "scale-110 ring-4 ring-purple-500/70 shadow-2xl shadow-purple-500/30" : ""
               }`}>
                 {plan.badge && (
                   <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold ${colors.badge} border border-current`}>
@@ -283,7 +284,9 @@ export default function MembershipPricing() {
                     disabled={loading === plan.name}
                     className={`w-full font-semibold transition-all duration-200 ${
                       plan.badge?.includes("Most Popular") 
-                        ? "bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-black" 
+                        ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" 
+                        : plan.badge?.includes("MOST DOMINANT")
+                        ? "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 hover:from-purple-700 hover:via-purple-800 hover:to-purple-900 text-white border-2 border-purple-400 shadow-lg shadow-purple-500/30"
                         : plan.badge?.includes("Premium")
                         ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white"
                         : "bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white border border-slate-600"
