@@ -107,7 +107,7 @@ export function NavigationHeader() {
     accessible: true
   }];
   if (!user) return null;
-  return <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-yellow-600 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-gradient-to-r supports-[backdrop-filter]:from-blue-900/95 supports-[backdrop-filter]:via-blue-800/95 supports-[backdrop-filter]:to-yellow-600/95 animate-[pulse_3s_ease-in-out_infinite]">
+  return <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-yellow-600 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-gradient-to-r supports-[backdrop-filter]:from-blue-900/95 supports-[backdrop-filter]:via-blue-800/95 supports-[backdrop-filter]:to-yellow-600/95">
       <div className="container mx-auto px-4 py-3 bg-inherit">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-4 lg:space-x-6 min-w-0">
