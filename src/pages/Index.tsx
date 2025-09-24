@@ -23,6 +23,7 @@ import { DocumentArchive } from '@/components/DocumentArchive';
 import { DisputeTimelineTracker } from '@/components/DisputeTimelineTracker';
 import { ChatHistoryPanel } from '@/components/ChatHistoryPanel';
 import { CreditScanSummary } from '@/components/CreditScanSummary';
+import { EmailVerificationBanner } from '@/components/EmailVerificationBanner';
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
@@ -98,6 +99,9 @@ const Index = () => {
         <NavigationHeader />
         <main className="relative z-10 container mx-auto px-4 py-8">
           <div className="space-y-6">
+            
+            {/* Email Verification Banner */}
+            <EmailVerificationBanner />
             
             {/* SBA Portal Banner - Always visible at top */}
             <Card className="bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border-green-500/30 hover:from-green-600/30 hover:to-blue-600/30 transition-all duration-300 mb-6">
