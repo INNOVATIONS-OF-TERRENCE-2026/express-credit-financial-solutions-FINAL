@@ -18,11 +18,13 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Professional CRM variants
         gold: "btn-gold shadow-md hover:shadow-gold font-semibold",
         elegant: "btn-elegant shadow-md hover:shadow-elegant font-semibold", 
         silver: "btn-silver shadow-sm border border-silver/30",
-        premium: "bg-gradient-elegant text-primary-foreground shadow-elegant hover:shadow-gold transition-all duration-300"
+        premium: "bg-gradient-elegant text-primary-foreground shadow-elegant hover:shadow-gold transition-all duration-300",
+        "fintech-primary": "bg-fintech-accent text-fintech-primary font-semibold hover:shadow-[0_0_20px_rgba(0,195,232,0.4)] hover:bg-fintech-accent/90 transition-all duration-300",
+        "fintech-outline": "border-2 border-fintech-accent bg-transparent text-fintech-light hover:bg-fintech-accent hover:text-fintech-primary font-semibold transition-all duration-300",
+        "fintech-dark": "bg-fintech-primary/80 text-fintech-light font-semibold hover:shadow-[0_0_20px_rgba(0,195,232,0.3)] border border-fintech-accent/30 backdrop-blur-sm hover:bg-fintech-primary transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",

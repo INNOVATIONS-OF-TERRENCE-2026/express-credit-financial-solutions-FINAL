@@ -20,8 +20,17 @@ export default {
 		extend: {
 			fontFamily: {
 				'inter': ['Inter', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
 			},
 			colors: {
+				fintech: {
+					primary: 'hsl(var(--fintech-primary))',
+					secondary: 'hsl(var(--fintech-secondary))',
+					accent: 'hsl(var(--fintech-accent))',
+					light: 'hsl(var(--fintech-light))',
+					dark: 'hsl(var(--fintech-dark))',
+					support: 'hsl(var(--fintech-support))',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

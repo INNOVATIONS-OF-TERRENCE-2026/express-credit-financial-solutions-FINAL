@@ -302,268 +302,332 @@ const Index = () => {
   }
 
   // Landing page with login/register forms
-  return <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="absolute inset-0 bg-gradient-elegant opacity-80" />
+  return <div className="min-h-screen bg-fintech-primary">
+      {/* Hero Section with Video Background */}
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/EXPRESS_CREDIT.mp4" type="video/mp4" />
+        </video>
         
-        {/* Background Logo */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-15">
-          <img src="/lovable-uploads/9e7b0b62-1d6a-4100-90af-cef2cfc9b187.png" alt="Background Logo" className="w-96 h-96 object-contain filter brightness-200 contrast-150 mix-blend-overlay" />
-        </div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-fintech-primary/95 via-fintech-primary/75 to-fintech-secondary/85" />
         
+        {/* Subtle Financial Pattern Overlay */}
+        <div 
+          className="absolute inset-0 opacity-5" 
+          style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,195,232,0.3) 35px, rgba(0,195,232,0.3) 36px)'
+          }} 
+        />
         
-        <div className="relative z-10 container mx-auto px-4">
+        <div className="relative z-10 container mx-auto px-4 py-20">
           <div className="flex flex-col items-center justify-center gap-12">
             {/* Hero Content */}
-            <div className="text-center">
-              <div className="flex flex-col items-center justify-center mb-8">
-                
-            <div className="text-center">
-              <h1 className="text-4xl text-primary-foreground mb-4 font-bold mx-0 lg:text-5xl">
-                Fix Your Credit. Fund Your Business. Secure SBA Approval.
+            <div className="text-center max-w-5xl animate-fade-in">
+              <h1 className="font-poppins text-5xl md:text-6xl lg:text-7xl font-bold text-fintech-light mb-6 leading-tight">
+                Fix Your Credit. Fund Your Business.
+                <span className="block text-fintech-accent mt-2">Secure SBA Approval.</span>
               </h1>
-              {/* Green to Blue gradient accent strip */}
-              <div className="w-full max-w-4xl mx-auto h-1 mb-4" style={{background: 'var(--gradient-green-blue)'}}></div>
-              <p className="text-xl text-primary-foreground/90 mb-2">Express Credit makes it simple to get approved — credit repair + SBA loan automation, all in one portal.</p>
-              <p className="text-lg text-primary-foreground/70">From credit repair to capital — we don't just fix scores, we fund dreams.</p>
-            </div>
-              </div>
               
-              <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">Transform your financial future with our proven credit repair strategies. Our expert team has helped Thousands of clients improve their credit scores and achieve their financial goals.</p>
+              <p className="text-xl md:text-2xl text-fintech-light/90 mb-4 font-light">
+                Express Credit makes it simple to get approved — credit repair + SBA loan automation, all in one portal.
+              </p>
+              
+              <p className="text-lg md:text-xl text-fintech-light/70 mb-12 font-light">
+                From credit repair to capital — we don't just fix scores, we fund dreams.
+              </p>
 
-              {/* Features Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-all duration-300" onClick={() => setModalContent('fcra')}>
-                  <Star className="h-8 w-8 text-accent mx-auto mb-2" />
-                  <h3 className="text-primary-foreground mb-1 font-semibold text-base">FCRA & CFPB Analysis</h3>
-                  <p className="text-primary-foreground/80 text-sm">Advanced Credit File Investigations by Certified FCRA Experts: </p>
+              {/* Features Grid - Glassmorphic Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div 
+                  className="group cursor-pointer p-6 bg-fintech-primary/40 backdrop-blur-md rounded-xl border border-fintech-accent/30 hover:border-fintech-accent hover:bg-fintech-primary/60 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,195,232,0.3)]"
+                  onClick={() => setModalContent('fcra')}
+                >
+                  <Star className="h-12 w-12 text-fintech-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+                  <h3 className="font-poppins font-semibold text-lg text-fintech-light mb-2">FCRA & CFPB Analysis</h3>
+                  <p className="text-fintech-light/80 text-sm">Advanced credit file investigations by certified FCRA experts</p>
                 </div>
-                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-all duration-300" onClick={() => setModalContent('legal')}>
-                  <Award className="h-8 w-8 text-accent mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground mb-1">Legal Dispute Precision</h3>
-                  <p className="text-sm text-primary-foreground/80">95% success rate using verified methods</p>
+                
+                <div 
+                  className="group cursor-pointer p-6 bg-fintech-primary/40 backdrop-blur-md rounded-xl border border-fintech-accent/30 hover:border-fintech-accent hover:bg-fintech-primary/60 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,195,232,0.3)]"
+                  onClick={() => setModalContent('legal')}
+                >
+                  <Award className="h-12 w-12 text-fintech-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+                  <h3 className="font-poppins font-semibold text-lg text-fintech-light mb-2">Legal Dispute Precision</h3>
+                  <p className="text-fintech-light/80 text-sm">95% success rate using verified legal methods</p>
                 </div>
-                <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm cursor-pointer hover:bg-white/20 transition-all duration-300" onClick={() => setModalContent('rapid')}>
-                  <TrendingUp className="h-8 w-8 text-accent mx-auto mb-2" />
-                  <h3 className="font-semibold text-primary-foreground mb-1">Rapid Dispute Turnaround</h3>
-                  <p className="text-sm text-primary-foreground/80">See improvements in 15-30 days</p>
+                
+                <div 
+                  className="group cursor-pointer p-6 bg-fintech-primary/40 backdrop-blur-md rounded-xl border border-fintech-accent/30 hover:border-fintech-accent hover:bg-fintech-primary/60 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,195,232,0.3)]"
+                  onClick={() => setModalContent('rapid')}
+                >
+                  <TrendingUp className="h-12 w-12 text-fintech-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+                  <h3 className="font-poppins font-semibold text-lg text-fintech-light mb-2">Rapid Turnaround</h3>
+                  <p className="text-fintech-light/80 text-sm">See improvements in 15-30 days</p>
                 </div>
               </div>
 
               {!showForms && <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button onClick={() => setShowForms(true)} className="btn-gold text-lg px-8 py-3" size="lg">
+                  <Button 
+                    onClick={() => setShowForms(true)} 
+                    variant="fintech-primary"
+                    size="lg"
+                    className="text-lg px-10 py-6 h-auto"
+                  >
                     Get Started Today
                   </Button>
-                  <Button onClick={() => {
-                setShowForms(true);
-                setIsLogin(true);
-              }} className="btn-silver text-lg px-8 py-3" size="lg">Client Login Portal</Button>
+                  <Button 
+                    onClick={() => {
+                      setShowForms(true);
+                      setIsLogin(true);
+                    }} 
+                    variant="fintech-outline"
+                    size="lg"
+                    className="text-lg px-10 py-6 h-auto"
+                  >
+                    Client Login Portal
+                  </Button>
                 </div>}
             </div>
 
             {/* Login/Register Forms */}
-            {showForms && <div className="animate-slide-up flex justify-center">
-                {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
+            {showForms && <div className="animate-slide-up w-full max-w-md">
+                <div className="bg-fintech-secondary/90 backdrop-blur-md rounded-xl border border-fintech-accent/30 p-8 shadow-[0_0_50px_rgba(0,195,232,0.2)]">
+                  {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
+                </div>
               </div>}
           </div>
-
         </div>
       </div>
       
       {/* Content Modal */}
       <ContentModal isOpen={modalContent !== null} onClose={() => setModalContent(null)} content={modalContent || 'fcra'} />
       
-      {/* Membership Plans Section */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16">
+      {/* Section 1: Why Choose Us - Dark Background */}
+      <div className="bg-fintech-primary py-20 border-t border-fintech-accent/20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-              MEMBERSHIP PLAN OPTIONS
+          <div className="text-center mb-16">
+            <h2 className="font-poppins text-4xl md:text-5xl font-bold text-fintech-light mb-4">
+              Why Choose <span className="text-fintech-accent">Express Credit?</span>
             </h2>
-            <p className="text-lg text-primary-foreground/80 max-w-4xl mx-auto">
-              Explore our premium credit restoration packages designed to meet your goals, whether you're rebuilding, 
-              optimizing, or transforming your financial profile. Each plan includes expert guidance, compliance-driven 
-              dispute strategies, and personalized service.
+            <p className="text-lg text-fintech-light/80 max-w-3xl mx-auto">
+              Transform your financial future with our proven strategies and expert guidance
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-8 bg-fintech-secondary/50 backdrop-blur-sm rounded-xl border border-fintech-accent/20 hover:border-fintech-accent/50 transition-all duration-300 hover:scale-105">
+              <Shield className="h-16 w-16 text-fintech-accent mx-auto mb-4" />
+              <h3 className="font-poppins font-semibold text-xl text-fintech-light mb-3">Proven Results</h3>
+              <p className="text-fintech-light/70">Thousands of clients have improved their credit scores with our expert methods</p>
+            </div>
+            
+            <div className="text-center p-8 bg-fintech-secondary/50 backdrop-blur-sm rounded-xl border border-fintech-accent/20 hover:border-fintech-accent/50 transition-all duration-300 hover:scale-105">
+              <Lock className="h-16 w-16 text-fintech-accent mx-auto mb-4" />
+              <h3 className="font-poppins font-semibold text-xl text-fintech-light mb-3">Secure & Compliant</h3>
+              <p className="text-fintech-light/70">FCRA compliant strategies that protect your rights and your data</p>
+            </div>
+            
+            <div className="text-center p-8 bg-fintech-secondary/50 backdrop-blur-sm rounded-xl border border-fintech-accent/20 hover:border-fintech-accent/50 transition-all duration-300 hover:scale-105">
+              <Clock className="h-16 w-16 text-fintech-accent mx-auto mb-4" />
+              <h3 className="font-poppins font-semibold text-xl text-fintech-light mb-3">Fast Results</h3>
+              <p className="text-fintech-light/70">See improvements in as little as 15-30 days with our rapid process</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Section 2: Membership Plans - Light Background */}
+      <div className="bg-fintech-support py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="font-poppins text-4xl md:text-5xl font-bold text-fintech-dark mb-4">
+              Choose Your <span className="text-fintech-accent">Membership Plan</span>
+            </h2>
+            <p className="text-lg text-fintech-dark/80 max-w-4xl mx-auto">
+              Premium credit restoration packages designed to meet your goals, whether you're rebuilding, 
+              optimizing, or transforming your financial profile.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {/* Gold Basic Package */}
-            <Card className="relative bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
+            <Card className="relative bg-white border-fintech-accent/20 hover:border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.2)] transition-all duration-300 hover:scale-105">
               <CardHeader className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <CardTitle className="text-lg text-primary-foreground">Gold Basic Package</CardTitle>
+                  <CardTitle className="font-poppins text-lg text-fintech-dark">Gold Basic</CardTitle>
                 </div>
-                <div className="text-2xl font-bold text-accent">$99.99 / 45 Days</div>
-                <div className="text-sm text-primary-foreground/80">Then just $49.99/month</div>
+                <div className="text-3xl font-bold text-fintech-accent">$99.99</div>
+                <div className="text-sm text-fintech-dark/70">45 Days, then $49.99/mo</div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <ul className="text-sm text-primary-foreground/90 space-y-2">
-                  <li>• Disputes for up to 4 accounts/month (1 bureau)</li>
-                  <li>• Monthly Credit Report Review & Analysis</li>
-                  <li>• Credit Monitoring Setup Guidance</li>
-                  <li>• Custom Onboarding Email with Action Checklist</li>
-                  <li>• Access to Client Document Portal</li>
-                  <li>• Limited Email Support</li>
+                <ul className="text-sm text-fintech-dark/90 space-y-2">
+                  <li>✓ Disputes for up to 4 accounts/month</li>
+                  <li>✓ Monthly credit report review</li>
+                  <li>✓ Credit monitoring guidance</li>
+                  <li>✓ Document portal access</li>
+                  <li>✓ Email support</li>
                 </ul>
               </CardContent>
             </Card>
 
             {/* Pro Package */}
-            <Card className="relative bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
+            <Card className="relative bg-white border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.3)] transition-all duration-300 scale-105 shadow-[0_0_20px_rgba(0,195,232,0.2)]">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-accent text-accent-foreground">⭐ Most Popular</Badge>
+                <Badge className="bg-fintech-accent text-fintech-primary font-semibold">⭐ Most Popular</Badge>
               </div>
               <CardHeader className="text-center pt-6">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Star className="w-4 h-4 text-accent" />
-                  <CardTitle className="text-lg text-primary-foreground">Pro Package</CardTitle>
+                  <Star className="w-4 h-4 text-fintech-accent" />
+                  <CardTitle className="font-poppins text-lg text-fintech-dark">Pro Package</CardTitle>
                 </div>
-                <div className="text-2xl font-bold text-accent">$179.99 / 45 Days</div>
-                <div className="text-sm text-primary-foreground/80">Then just $79.99/month</div>
+                <div className="text-3xl font-bold text-fintech-accent">$179.99</div>
+                <div className="text-sm text-fintech-dark/70">45 Days, then $79.99/mo</div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <ul className="text-sm text-primary-foreground/90 space-y-2">
-                  <li>• Disputes for up to 10 accounts/month across 3 bureaus</li>
-                  <li>• Includes everything in Basic</li>
-                  <li>• Custom Dispute Letter Generation</li>
-                  <li>• Monthly Credit Coaching Call with a credit expert</li>
-                  <li>• Priority Email & Chat Support</li>
-                  <li>• Soft Inquiry Removal Assistance</li>
-                  <li>• Monthly Credit Score Progress Tracking Report</li>
+                <ul className="text-sm text-fintech-dark/90 space-y-2">
+                  <li>✓ Up to 10 disputes/month (3 bureaus)</li>
+                  <li>✓ Everything in Basic</li>
+                  <li>✓ Custom dispute letters</li>
+                  <li>✓ Monthly coaching call</li>
+                  <li>✓ Priority support</li>
+                  <li>✓ Soft inquiry removal</li>
                 </ul>
               </CardContent>
             </Card>
 
             {/* Elite Package */}
-            <Card className="relative bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all duration-300">
+            <Card className="relative bg-white border-fintech-accent/20 hover:border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.2)] transition-all duration-300 hover:scale-105">
               <CardHeader className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Award className="w-4 h-4 text-accent" />
-                  <CardTitle className="text-lg text-primary-foreground">Elite Package (Premium Strategy Plan)</CardTitle>
+                  <Award className="w-4 h-4 text-fintech-accent" />
+                  <CardTitle className="font-poppins text-lg text-fintech-dark">Elite Package</CardTitle>
                 </div>
-                <div className="text-2xl font-bold text-accent">$249.99 / 45 Days</div>
-                <div className="text-sm text-primary-foreground/80">Then just $99.99/month</div>
+                <div className="text-3xl font-bold text-fintech-accent">$249.99</div>
+                <div className="text-sm text-fintech-dark/70">45 Days, then $99.99/mo</div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <ul className="text-sm text-primary-foreground/90 space-y-2">
-                  <li>• Unlimited Disputes with advanced bureau tactics</li>
-                  <li>• Includes everything in Pro</li>
-                  <li>• Direct Assigned Credit Coach</li>
-                  <li>• 24–48 Hour Dispute Prep Turnaround</li>
-                  <li>• Rebuilding Strategy Session (tradelines, AU options)</li>
-                  <li>• Cease & Desist & Debt Validation Letters</li>
-                  <li>• Data Freeze Setup Support (LexisNexis, SageStream, etc.)</li>
+                <ul className="text-sm text-fintech-dark/90 space-y-2">
+                  <li>✓ Unlimited disputes</li>
+                  <li>✓ Everything in Pro</li>
+                  <li>✓ Assigned credit coach</li>
+                  <li>✓ 24-48hr turnaround</li>
+                  <li>✓ Rebuilding strategy</li>
+                  <li>✓ Data freeze support</li>
                 </ul>
               </CardContent>
             </Card>
 
             {/* All Exclusive Package */}
-            <Card className="relative bg-gradient-to-br from-accent/20 to-accent/5 backdrop-blur-sm border-accent/30 hover:border-accent/50 transition-all duration-300 bg-transparent">
+            <Card className="relative bg-gradient-to-br from-fintech-accent/10 to-fintech-accent/5 border-fintech-accent hover:shadow-[0_0_40px_rgba(0,195,232,0.3)] transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(0,195,232,0.15)]">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-gradient-elegant text-primary-foreground">🔥 Premium</Badge>
+                <Badge className="bg-fintech-primary text-fintech-light font-semibold">🔥 Premium</Badge>
               </div>
-              <CardHeader className="text-center pt-6 bg-transparent">
+              <CardHeader className="text-center pt-6">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-accent" />
-                  <CardTitle className="text-lg text-primary-foreground">All Exclusive Package</CardTitle>
+                  <TrendingUp className="w-4 h-4 text-fintech-accent" />
+                  <CardTitle className="font-poppins text-lg text-fintech-dark">All Exclusive</CardTitle>
                 </div>
-                <div className="text-2xl font-bold text-accent">$599.99</div>
-                <div className="text-sm text-primary-foreground/80">One-Time, 45-Day Audit Service</div>
-                <div className="text-xs text-primary-foreground/60">VIP Ongoing Maintenance: $124.99/month (optional)</div>
+                <div className="text-3xl font-bold text-fintech-accent">$599.99</div>
+                <div className="text-sm text-fintech-dark/70">One-Time 45-Day Audit</div>
+                <div className="text-xs text-fintech-dark/60">VIP Maintenance: $124.99/mo</div>
               </CardHeader>
-              <CardContent className="space-y-3 bg-transparent">
-                <ul className="text-sm text-primary-foreground/90 space-y-2">
-                  <li>• Full Credit Report Audit + Violation Flagging</li>
-                  <li>• Unlimited Disputes across all accounts</li>
-                  <li>• Custom Dispute Strategy Playbook</li>
-                  <li>• Upload & Review of All Supporting Documents</li>
-                  <li>• VIP Concierge Priority Service</li>
-                  <li>• 60-Day Post Audit Follow-Up</li>
+              <CardContent className="space-y-3">
+                <ul className="text-sm text-fintech-dark/90 space-y-2">
+                  <li>✓ Full credit report audit</li>
+                  <li>✓ Unlimited disputes</li>
+                  <li>✓ Custom strategy playbook</li>
+                  <li>✓ Document review</li>
+                  <li>✓ VIP concierge service</li>
+                  <li>✓ 60-day follow-up</li>
                 </ul>
               </CardContent>
             </Card>
           </div>
-
-          {/* Payment Methods Section */}
-          <div className="mt-16 bg-gradient-to-r from-slate-800/50 to-slate-900/50 p-8 rounded-xl border border-slate-700">
-            <h3 className="text-2xl font-bold text-center text-accent mb-6">We Accept All Major Payment Methods</h3>
+        </div>
+      </div>
+      
+      {/* Section 3: Payment Methods - Dark Background */}
+      <div className="bg-fintech-secondary py-20">
+        <div className="container mx-auto px-4">
+          <div className="bg-fintech-primary/50 backdrop-blur-sm p-10 rounded-2xl border border-fintech-accent/30">
+            <h3 className="font-poppins text-3xl font-bold text-center text-fintech-light mb-8">
+              We Accept All Major <span className="text-fintech-accent">Payment Methods</span>
+            </h3>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center mb-10">
               <img 
                 src="/lovable-uploads/607fa3b0-29f0-46a4-86de-39e4e8e1c245.png" 
-                alt="American Express logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                alt="American Express" 
+                className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_10px_rgba(0,195,232,0.5)]"
               />
               <img 
                 src="/lovable-uploads/c74587ad-a808-43ca-b093-cdc6ac5585c8.png" 
-                alt="MasterCard logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                alt="MasterCard" 
+                className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_10px_rgba(0,195,232,0.5)]"
               />
               <img 
                 src="/lovable-uploads/fc9628bb-8f09-450a-ae12-b97627dd735d.png" 
-                alt="Discover logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                alt="Discover" 
+                className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_10px_rgba(0,195,232,0.5)]"
               />
               <img 
                 src="/lovable-uploads/057496bb-7585-4c04-94b2-85d91eb244ea.png" 
-                alt="Apple Pay logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                alt="Apple Pay" 
+                className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_10px_rgba(0,195,232,0.5)]"
               />
               <img 
                 src="/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png" 
-                alt="Cash App logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                alt="Cash App" 
+                className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_10px_rgba(0,195,232,0.5)]"
               />
               <img 
                 src="/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png" 
-                alt="Affirm logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                alt="Affirm" 
+                className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_10px_rgba(0,195,232,0.5)]"
               />
               <img 
                 src="/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png" 
-                alt="Klarna logo" 
-                className="payment-logo max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110"
-                style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                alt="Klarna" 
+                className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_10px_rgba(0,195,232,0.5)]"
               />
               <VisaLogo />
             </div>
 
             <div className="text-center">
-              <h4 className="text-xl font-bold text-accent mb-4">Flexible Payment Plan Options Available!</h4>
-              <p className="text-primary-foreground/80 mb-4">We've partnered with industry-leading payment companies so you can get started today and pay your way:</p>
+              <h4 className="font-poppins text-2xl font-bold text-fintech-accent mb-4">Flexible Payment Plans Available!</h4>
+              <p className="text-fintech-light/80 mb-6 max-w-2xl mx-auto">
+                We've partnered with industry-leading payment companies so you can get started today and pay your way
+              </p>
               
-              <div className="flex justify-center gap-6 mb-4 flex-wrap">
+              <div className="flex justify-center gap-8 mb-6 flex-wrap">
                 <img 
                   src="/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png" 
                   alt="Affirm" 
-                  className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
-                  style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                  className="max-h-[36px] px-2 py-1 transition-all duration-300 hover:scale-110"
                 />
                 <img 
                   src="/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png" 
                   alt="Klarna" 
-                  className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
-                  style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                  className="max-h-[36px] px-2 py-1 transition-all duration-300 hover:scale-110"
                 />
                 <img 
                   src="/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png" 
                   alt="Cash App Pay" 
-                  className="max-h-[32px] px-2 py-1 transition-all duration-300 hover:scale-110"
-                  style={{filter: 'drop-shadow(0 0 8px gold) drop-shadow(0 0 16px #FFD700)'}}
+                  className="max-h-[36px] px-2 py-1 transition-all duration-300 hover:scale-110"
                 />
               </div>
               
-              <p className="text-sm text-primary-foreground/60 italic">
-                Choose your favorite payment method or sign up with a payment plan for even more flexibility. Getting started has never been easier!
+              <p className="text-sm text-fintech-light/60 italic">
+                Choose your favorite payment method or sign up with a payment plan for even more flexibility
               </p>
             </div>
           </div>
@@ -571,21 +635,30 @@ const Index = () => {
       </div>
       
       {/* Footer */}
-      <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8 border-t border-white/10">
+      <footer className="bg-fintech-primary py-10 border-t border-fintech-accent/20">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-4 md:gap-8">
-              <button onClick={() => setPolicyModal('terms')} className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
+              <button 
+                onClick={() => setPolicyModal('terms')} 
+                className="text-fintech-light/70 hover:text-fintech-accent transition-colors text-sm font-medium"
+              >
                 Terms & Conditions
               </button>
-              <button onClick={() => setPolicyModal('privacy')} className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline">
+              <button 
+                onClick={() => setPolicyModal('privacy')} 
+                className="text-fintech-light/70 hover:text-fintech-accent transition-colors text-sm font-medium"
+              >
                 Privacy Policy
               </button>
-              <button onClick={() => setPolicyModal('refund')} className="text-primary-foreground/80 hover:text-accent transition-colors text-sm underline">
+              <button 
+                onClick={() => setPolicyModal('refund')} 
+                className="text-fintech-light/70 hover:text-fintech-accent transition-colors text-sm font-medium"
+              >
                 Refund Policy
               </button>
             </div>
-            <div className="text-xs text-primary-foreground/60 text-center md:text-right">
+            <div className="text-sm text-fintech-light/60 text-center md:text-right">
               © 2024 Express Credit & Financial Solutions LLC. All rights reserved.
             </div>
           </div>
