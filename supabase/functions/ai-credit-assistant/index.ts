@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -7,6 +8,21 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const chatRequestSchema = z.object({
+  message: z.string()
+    .trim()
+    .min(1, "Message cannot be empty")
+    .max(2000, "Message must be less than 2000 characters"),
+  conversationHistory: z.array(z.object({
+    role: z.enum(["user", "assistant", "system"]),
+    content: z.string().max(5000, "Message content too long")
+  }))
+    .max(20, "Conversation history too long")
+    .optional()
+    .nullable()
+});
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -29,15 +45,24 @@ serve(async (req) => {
       });
     }
 
-    const { message, conversationHistory } = await req.json();
-    logStep("Received request", { messageLength: message?.length, historyLength: conversationHistory?.length });
-
-    if (!message || typeof message !== 'string') {
-      return new Response(JSON.stringify({ error: 'Message is required' }), {
-        status: 400,
+    // Parse and validate request body
+    const requestBody = await req.json();
+    const validationResult = chatRequestSchema.safeParse(requestBody);
+    
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      logStep("Validation failed", { errors });
+      return new Response(JSON.stringify({ 
+        error: "Invalid input",
+        details: errors 
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
       });
     }
+
+    const { message, conversationHistory } = validationResult.data;
+    logStep("Received validated request", { messageLength: message.length, historyLength: conversationHistory?.length });
 
     // Build conversation context
     const messages = [

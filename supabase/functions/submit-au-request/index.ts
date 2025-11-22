@@ -1,10 +1,33 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Input validation schema
+const auRequestSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .regex(/^[a-zA-Z\s'-]+$/, "Name contains invalid characters"),
+  tradelineId: z.string()
+    .trim()
+    .min(1, "Tradeline ID is required")
+    .max(50, "Tradeline ID must be less than 50 characters")
+    .regex(/^[a-zA-Z0-9_-]+$/, "Tradeline ID contains invalid characters"),
+  creditBureau: z.enum(["Experian", "Equifax", "TransUnion"], {
+    errorMap: () => ({ message: "Invalid credit bureau" })
+  }),
+  phone: z.string()
+    .trim()
+    .regex(/^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/, "Invalid phone number format")
+    .optional()
+    .nullable()
+});
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -37,8 +60,24 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { fullName, tradelineId, creditBureau, phone } = await req.json();
-    logStep("Request data received", { fullName, tradelineId, creditBureau });
+    // Parse and validate request body
+    const requestBody = await req.json();
+    const validationResult = auRequestSchema.safeParse(requestBody);
+    
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      logStep("Validation failed", { errors });
+      return new Response(JSON.stringify({ 
+        error: "Invalid input",
+        details: errors 
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    const { fullName, tradelineId, creditBureau, phone } = validationResult.data;
+    logStep("Request data validated", { fullName, tradelineId, creditBureau });
 
     // Insert AU request into database
     const { data: auRequest, error: insertError } = await supabaseClient
