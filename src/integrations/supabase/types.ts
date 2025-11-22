@@ -207,7 +207,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           record_id: string | null
           risk_score: number | null
           security_level: string | null
@@ -221,7 +221,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           risk_score?: number | null
           security_level?: string | null
@@ -235,7 +235,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           risk_score?: number | null
           security_level?: string | null
@@ -1648,20 +1648,11 @@ export type Database = {
       }
     }
     Functions: {
-      decrypt_ssn_secure: {
-        Args: { encrypted_ssn: string }
-        Returns: string
-      }
-      encrypt_ssn_secure: {
-        Args: { ssn_text: string }
-        Returns: string
-      }
-      expire_vip_trials: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      decrypt_ssn_secure: { Args: { encrypted_ssn: string }; Returns: string }
+      encrypt_ssn_secure: { Args: { ssn_text: string }; Returns: string }
+      expire_vip_trials: { Args: never; Returns: undefined }
       get_current_user_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       has_role: {
