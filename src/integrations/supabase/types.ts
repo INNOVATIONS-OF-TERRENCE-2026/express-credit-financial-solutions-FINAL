@@ -2004,7 +2004,16 @@ export type Database = {
       }
     }
     Functions: {
+      decrypt_plaid_token: {
+        Args: { encrypted_token: string }
+        Returns: string
+      }
+      decrypt_plaid_token_with_audit: {
+        Args: { encrypted_token: string }
+        Returns: string
+      }
       decrypt_ssn_secure: { Args: { encrypted_ssn: string }; Returns: string }
+      encrypt_plaid_token: { Args: { token_text: string }; Returns: string }
       encrypt_ssn_secure: { Args: { ssn_text: string }; Returns: string }
       expire_vip_trials: { Args: never; Returns: undefined }
       get_current_user_role: {
