@@ -333,6 +333,56 @@ export type Database = {
         }
         Relationships: []
       }
+      client_documents: {
+        Row: {
+          created_at: string | null
+          document_type: string
+          file_name: string | null
+          file_path: string | null
+          id: string
+          notes: string | null
+          purchase_id: string | null
+          status: string | null
+          uploaded_at: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_type: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          purchase_id?: string | null
+          status?: string | null
+          uploaded_at?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          document_type?: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          purchase_id?: string | null
+          status?: string | null
+          uploaded_at?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_documents_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_search_filters: {
         Row: {
           admin_user_id: string | null
@@ -356,6 +406,53 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      client_timers: {
+        Row: {
+          created_at: string | null
+          current_day: number | null
+          end_date: string
+          id: string
+          paused_reason: string | null
+          purchase_id: string | null
+          start_date: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_day?: number | null
+          end_date: string
+          id?: string
+          paused_reason?: string | null
+          purchase_id?: string | null
+          start_date?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_day?: number | null
+          end_date?: string
+          id?: string
+          paused_reason?: string | null
+          purchase_id?: string | null
+          start_date?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_timers_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: true
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clients: {
         Row: {
@@ -1122,6 +1219,47 @@ export type Database = {
         }
         Relationships: []
       }
+      experian_credentials: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_verified: string | null
+          password_encrypted: string | null
+          purchase_id: string | null
+          submitted_at: string | null
+          user_id: string
+          username_encrypted: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_verified?: string | null
+          password_encrypted?: string | null
+          purchase_id?: string | null
+          submitted_at?: string | null
+          user_id: string
+          username_encrypted?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_verified?: string | null
+          password_encrypted?: string | null
+          purchase_id?: string | null
+          submitted_at?: string | null
+          user_id?: string
+          username_encrypted?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experian_credentials_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       file_upload_config: {
         Row: {
           allowed_file_types: string[]
@@ -1263,6 +1401,50 @@ export type Database = {
         }
         Relationships: []
       }
+      messaging_log: {
+        Row: {
+          channel: string
+          created_at: string | null
+          id: string
+          message_content: string | null
+          message_type: string
+          purchase_id: string | null
+          sent_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string | null
+          id?: string
+          message_content?: string | null
+          message_type: string
+          purchase_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string | null
+          id?: string
+          message_content?: string | null
+          message_type?: string
+          purchase_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messaging_log_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_logs: {
         Row: {
           created_at: string
@@ -1370,6 +1552,95 @@ export type Database = {
           },
         ]
       }
+      pipeline_stages: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          day_number: number
+          id: string
+          notes: string | null
+          purchase_id: string | null
+          stage_description: string | null
+          stage_name: string
+          started_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          day_number: number
+          id?: string
+          notes?: string | null
+          purchase_id?: string | null
+          stage_description?: string | null
+          stage_name: string
+          started_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          day_number?: number
+          id?: string
+          notes?: string | null
+          purchase_id?: string | null
+          stage_description?: string | null
+          stage_name?: string
+          started_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_stages_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          stripe_product_id: string
+          turnaround_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price: number
+          stripe_product_id: string
+          turnaround_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          stripe_product_id?: string
+          turnaround_days?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           access_expires_at: string | null
@@ -1426,6 +1697,50 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          product_id: string | null
+          purchased_at: string | null
+          status: string | null
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          purchased_at?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          purchased_at?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referrals: {
         Row: {
@@ -1563,6 +1878,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      verification_codes: {
+        Row: {
+          code: string
+          code_type: string | null
+          created_at: string | null
+          id: string
+          purchase_id: string | null
+          status: string | null
+          submitted_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          code_type?: string | null
+          created_at?: string | null
+          id?: string
+          purchase_id?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          code_type?: string | null
+          created_at?: string | null
+          id?: string
+          purchase_id?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_codes_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       violation_flags: {
         Row: {
