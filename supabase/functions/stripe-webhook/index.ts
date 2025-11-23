@@ -16,6 +16,12 @@ const logStep = (step: string, details?: any) => {
 // Map Stripe price IDs to membership types
 const getMembershipFromPriceId = (priceId: string): { membership: string; planType: string; isVip?: boolean } => {
   switch (priceId) {
+    // New Limited Time Offers
+    case "prod_TTIxsMKwfsi1gH":
+      return { membership: "fast5", planType: "Fast-5" };
+    case "prod_TTIz96EHwxsiJQ":
+      return { membership: "unlimited_clean_slate", planType: "Unlimited Clean-Slate" };
+    // Existing Plans
     case "price_1Rp5ZgAyM7nkjbCbR8xz28QQ":
       return { membership: "basic", planType: "Basic Package" };
     case "price_1Rp5kYAyM7nkjbCbq3f23mYC":
@@ -36,6 +42,10 @@ const getMembershipFromPriceId = (priceId: string): { membership: string; planTy
 // Legacy fallback - Map Stripe amounts to plan types (for old sessions)
 const getPlanTypeFromAmount = (amount: number): string => {
   switch (amount) {
+    case 35000: // $350.00
+      return "Fast-5";
+    case 55000: // $550.00
+      return "Unlimited Clean-Slate";
     case 100: // $1.00
       return "$1 24-Hour VIP Pass";
     case 9999: // $99.99

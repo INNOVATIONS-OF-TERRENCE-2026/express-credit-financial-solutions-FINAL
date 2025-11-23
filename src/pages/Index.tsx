@@ -458,6 +458,92 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {/* Fast-5 Package - NEW */}
+            <Card className="relative bg-gradient-to-br from-cyan-50 via-white to-blue-50 border-cyan-400 hover:shadow-[0_0_50px_rgba(6,182,212,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(6,182,212,0.3)] animate-pulse">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-sm px-4 py-1 shadow-lg border-2 border-cyan-300 animate-pulse">🚀 Limited Time Offer</Badge>
+              </div>
+              <CardHeader className="text-center pt-8">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.6)]">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Fast-5</CardTitle>
+                <div className="text-4xl font-bold text-cyan-600 mt-2">$350</div>
+                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Fast-Track Service</div>
+              </CardHeader>
+              <CardContent className="space-y-2 px-4">
+                <ul className="text-xs text-fintech-dark/90 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>Fast-Track 5-Day Credit Boost</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>All 3 Bureaus Rapid Processing</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>Priority Queue Immediate Action</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>48-Hour Response Guarantee</span>
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => navigate('/membership')}
+                  className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-lg"
+                >
+                  Get Started Now
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Unlimited Clean-Slate Package - NEW */}
+            <Card className="relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-slate-400 hover:shadow-[0_0_50px_rgba(203,213,225,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(203,213,225,0.4)] animate-pulse">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-slate-300 to-slate-500 text-slate-900 font-bold text-sm px-4 py-1 shadow-lg border-2 border-slate-300 animate-pulse">👑 Limited Time Offer</Badge>
+              </div>
+              <CardHeader className="text-center pt-8">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-12 h-12 bg-gradient-to-br from-slate-300 to-slate-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(203,213,225,0.7)]">
+                    <Award className="w-6 h-6 text-slate-900" />
+                  </div>
+                </div>
+                <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-slate-500 to-slate-700 bg-clip-text text-transparent">Unlimited Clean-Slate</CardTitle>
+                <div className="text-4xl font-bold text-slate-700 mt-2">$550</div>
+                <div className="text-sm text-fintech-dark/70 font-semibold">Complete Profile Reset</div>
+              </CardHeader>
+              <CardContent className="space-y-2 px-4">
+                <ul className="text-xs text-fintech-dark/90 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-600 font-bold">✓</span>
+                    <span>Unlimited Disputes Until Clean</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-600 font-bold">✓</span>
+                    <span>All Bureaus + Consumer Databases</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-600 font-bold">✓</span>
+                    <span>Dedicated Credit Strategist</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-slate-600 font-bold">✓</span>
+                    <span>90-Day Success Guarantee</span>
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => navigate('/membership')}
+                  className="w-full mt-4 bg-gradient-to-r from-slate-400 to-slate-600 hover:from-slate-500 hover:to-slate-700 text-white font-semibold shadow-lg"
+                >
+                  Get Started Now
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Gold Basic Package */}
             <Card className="relative bg-white border-fintech-accent/20 hover:border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.2)] transition-all duration-300 hover:scale-105">
               <CardHeader className="text-center">

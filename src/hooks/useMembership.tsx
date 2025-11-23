@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useRoles } from './useRoles';
 
-export type PlanType = 'Gold Basic Package' | 'Basic Package' | 'Pro Package' | 'Elite Package' | 'Elite Package (Premium Strategy Plan)' | 'All Exclusive Package';
+export type PlanType = 'Fast-5' | 'Unlimited Clean-Slate' | 'Gold Basic Package' | 'Basic Package' | 'Pro Package' | 'Elite Package' | 'Elite Package (Premium Strategy Plan)' | 'All Exclusive Package';
 
 interface MembershipContextType {
   planType: PlanType | null;
@@ -96,13 +96,13 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     switch (feature) {
       case 'dispute-generator':
       case 'credit-upload':
-        return ['Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'pro', 'elite', 'exclusive'].includes(planType || '');
+        return ['Fast-5', 'Unlimited Clean-Slate', 'Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
       
       case 'exclusive-content':
         return ['All Exclusive Package', 'exclusive'].includes(planType || '');
       
       case 'document-center':
-        return ['Gold Basic Package', 'Basic Package', 'Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'basic', 'pro', 'elite', 'exclusive'].includes(planType || '');
+        return ['Fast-5', 'Unlimited Clean-Slate', 'Gold Basic Package', 'Basic Package', 'Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'basic', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
       
       default:
         return false;
