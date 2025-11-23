@@ -14,8 +14,8 @@ serve(async (req) => {
 
   try {
     console.log("Creating checkout session...");
-    const { plan, amount, isOneTime } = await req.json();
-    console.log("Request data:", { plan, amount, isOneTime });
+    const { plan, amount, isOneTime, stripeProductId } = await req.json();
+    console.log("Request data:", { plan, amount, isOneTime, stripeProductId });
 
     // Create Supabase client with anon key for user authentication
     const supabaseClient = createClient(
@@ -57,11 +57,44 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://856f1e4e-3cd3-4ba8-bc81-51cf0128071c.lovableproject.com";
     console.log("Origin:", origin);
 
+    // If stripeProductId is provided, fetch or create a price for it
+    let priceId = stripeProductId;
+    if (stripeProductId && stripeProductId.startsWith('prod_')) {
+      console.log("Creating price for product:", stripeProductId);
+      
+      // Check if price already exists for this product
+      const prices = await stripe.prices.list({ 
+        product: stripeProductId, 
+        active: true,
+        limit: 1 
+      });
+      
+      if (prices.data.length > 0) {
+        priceId = prices.data[0].id;
+        console.log("Found existing price:", priceId);
+      } else {
+        // Create a new price for this product
+        const price = await stripe.prices.create({
+          product: stripeProductId,
+          unit_amount: Math.round(amount * 100),
+          currency: 'usd',
+          ...(isOneTime ? {} : { recurring: { interval: 'month' } })
+        });
+        priceId = price.id;
+        console.log("Created new price:", priceId);
+      }
+    }
+
     // Create checkout session
     const sessionConfig: any = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      line_items: [
+      line_items: priceId ? [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ] : [
         {
           price_data: {
             currency: "usd",
@@ -74,15 +107,17 @@ serve(async (req) => {
       mode: isOneTime ? "payment" : "subscription",
       success_url: `${origin}/membership-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/membership`,
+      payment_method_types: ['card', 'klarna', 'affirm', 'cashapp'],
       metadata: {
         plan: plan,
         user_id: user.id,
-        payment_frequency: isOneTime ? "one-time" : "monthly"
+        payment_frequency: isOneTime ? "one-time" : "monthly",
+        stripe_product_id: stripeProductId || ""
       }
     };
 
-    // Add recurring interval for subscription plans
-    if (!isOneTime) {
+    // Add recurring interval for subscription plans (only if not using Stripe Product/Price ID)
+    if (!isOneTime && !priceId) {
       sessionConfig.line_items[0].price_data.recurring = { interval: "month" };
     }
 

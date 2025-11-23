@@ -14,6 +14,46 @@ import { BackButton } from '@/components/BackButton';
 
 const plans = [
   {
+    name: "Fast-5",
+    price: 350,
+    monthlyPrice: 350,
+    frequency: "one-time",
+    isOneTime: true,
+    icon: Zap,
+    badge: "🚀 Limited Time Offer",
+    color: "cyan",
+    stripeProductId: "prod_TTIxsMKwfsi1gH",
+    features: [
+      "Fast-Track 5-Day Credit Boost Service",
+      "Rapid Dispute Processing Across All 3 Bureaus",
+      "Priority Queue for Immediate Action",
+      "Expedited Letter Generation & Submission",
+      "Emergency Credit Coaching Session",
+      "48-Hour Response Time Guarantee",
+      "5-Day Turnaround for Maximum Impact"
+    ]
+  },
+  {
+    name: "Unlimited Clean-Slate",
+    price: 550,
+    monthlyPrice: 550,
+    frequency: "one-time",
+    isOneTime: true,
+    icon: Crown,
+    badge: "👑 Limited Time Offer",
+    color: "platinum",
+    stripeProductId: "prod_TTIz96EHwxsiJQ",
+    features: [
+      "Comprehensive Full Credit Profile Reset",
+      "Unlimited Disputes Until Clean Report Achieved",
+      "All 3 Bureaus + Consumer Databases (LexisNexis, etc.)",
+      "Dedicated Credit Strategist Assigned to Your Case",
+      "Advanced Legal Tactics & Cease & Desist Letters",
+      "Complete Document Package Review & Submission",
+      "90-Day Success Guarantee with Unlimited Revisions"
+    ]
+  },
+  {
     name: "Gold Basic Package",
     price: 99.99,
     monthlyPrice: 49.99,
@@ -135,7 +175,8 @@ export default function MembershipPricing() {
         body: {
           plan: plan.name,
           amount: plan.price,
-          isOneTime: plan.isOneTime
+          isOneTime: plan.isOneTime,
+          stripeProductId: (plan as any).stripeProductId
         }
       });
 
@@ -200,6 +241,22 @@ export default function MembershipPricing() {
             const Icon = plan.icon;
             const getColorClasses = (color: string) => {
               switch (color) {
+                case 'cyan':
+                  return {
+                    border: 'border-cyan-400/50 ring-4 ring-cyan-500/30',
+                    bg: 'bg-gradient-to-br from-cyan-500/20 via-blue-500/15 to-cyan-600/20 backdrop-blur-xl',
+                    icon: 'bg-gradient-to-br from-cyan-400 to-cyan-600 text-white shadow-[0_0_30px_rgba(6,182,212,0.5)]',
+                    badge: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-2 border-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.6)] animate-pulse',
+                    title: 'bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(6,182,212,0.8)]'
+                  };
+                case 'platinum':
+                  return {
+                    border: 'border-slate-300/50 ring-4 ring-slate-400/40',
+                    bg: 'bg-gradient-to-br from-slate-100/20 via-slate-200/15 to-slate-300/20 backdrop-blur-xl',
+                    icon: 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900 shadow-[0_0_30px_rgba(203,213,225,0.6)]',
+                    badge: 'bg-gradient-to-r from-slate-300 to-slate-400 text-slate-900 border-2 border-slate-200 shadow-[0_0_20px_rgba(203,213,225,0.8)] animate-pulse',
+                    title: 'bg-gradient-to-r from-slate-200 via-slate-300 to-slate-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(203,213,225,0.9)]'
+                  };
                 case 'yellow':
                   return {
                     border: 'border-yellow-500/30',
@@ -254,7 +311,8 @@ export default function MembershipPricing() {
             const colors = getColorClasses(plan.color);
             
             return (
-              <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/20 bg-black/80 backdrop-blur-sm ${colors.border} ${colors.bg} ${
+              <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-2xl bg-black/80 backdrop-blur-sm ${colors.border} ${colors.bg} ${
+                plan.badge?.includes("Limited Time Offer") ? "scale-110 shadow-2xl animate-pulse" :
                 plan.badge?.includes("Most Popular") ? "scale-105 ring-2 ring-blue-500/50" : 
                 plan.badge?.includes("MOST DOMINANT") ? "scale-110 ring-4 ring-purple-500/70 shadow-2xl shadow-purple-500/30" : ""
               }`}>
@@ -310,7 +368,11 @@ export default function MembershipPricing() {
                     onClick={() => handleSignUp(plan)}
                     disabled={loading === plan.name}
                     className={`w-full font-semibold transition-all duration-200 ${
-                      plan.badge?.includes("Most Popular") 
+                      plan.badge?.includes("Limited Time Offer") && plan.color === "cyan"
+                        ? "bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-600 hover:via-cyan-700 hover:to-blue-700 text-white border-2 border-cyan-400 shadow-lg shadow-cyan-500/50"
+                        : plan.badge?.includes("Limited Time Offer") && plan.color === "platinum"
+                        ? "bg-gradient-to-r from-slate-300 via-slate-400 to-slate-500 hover:from-slate-400 hover:via-slate-500 hover:to-slate-600 text-slate-900 border-2 border-slate-300 shadow-lg shadow-slate-400/50"
+                        : plan.badge?.includes("Most Popular") 
                         ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" 
                         : plan.badge?.includes("MOST DOMINANT")
                         ? "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 hover:from-purple-700 hover:via-purple-800 hover:to-purple-900 text-white border-2 border-purple-400 shadow-lg shadow-purple-500/30"
