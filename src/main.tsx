@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -6,8 +6,14 @@ import { MembershipProvider } from "@/hooks/useMembership";
 import { RolesProvider } from "@/hooks/useRoles";
 import App from "./App.tsx";
 import "./index.css";
+import { initializeAnalytics } from "@/utils/analytics";
 
 const queryClient = new QueryClient();
+
+// Initialize SEO analytics and Core Web Vitals tracking
+if (typeof window !== 'undefined') {
+  initializeAnalytics();
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
