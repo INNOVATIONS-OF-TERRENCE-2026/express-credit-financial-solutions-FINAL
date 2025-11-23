@@ -24,6 +24,9 @@ import { DisputeTimelineTracker } from '@/components/DisputeTimelineTracker';
 import { ChatHistoryPanel } from '@/components/ChatHistoryPanel';
 import { CreditScanSummary } from '@/components/CreditScanSummary';
 import { EmailVerificationBanner } from '@/components/EmailVerificationBanner';
+import { SEOHead } from '@/components/SEOHead';
+import { TrustSignals } from '@/components/TrustSignals';
+import { FAQSection } from '@/components/FAQSection';
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
@@ -303,6 +306,7 @@ const Index = () => {
 
   // Landing page with login/register forms
   return <div className="min-h-screen bg-fintech-primary">
+      <SEOHead />
       {/* Hero Section with Video Background */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Video Background */}
@@ -640,6 +644,12 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Trust Signals & EEAT Section */}
+      <TrustSignals />
+
+      {/* FAQ Section with Schema */}
+      <FAQSection />
       
       {/* Section 3: Payment Methods - Dark Background */}
       <div className="bg-fintech-secondary py-20">
