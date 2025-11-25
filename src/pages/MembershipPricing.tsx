@@ -4,15 +4,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star, Crown, Zap } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
 import { BackButton } from '@/components/BackButton';
+import { createCheckoutSession } from "@/lib/createCheckout";
+import type { PlanKey } from "@/config/priceMap";
+import confetti from "canvas-confetti";
 
 
-const plans = [
+const plans: Array<{
+  name: string;
+  price: number;
+  monthlyPrice: number;
+  frequency: string;
+  isOneTime: boolean;
+  icon: any;
+  badge: string;
+  color: string;
+  planKey: PlanKey;
+  features: string[];
+}> = [
   {
     name: "Fast-5",
     price: 350,
@@ -22,7 +35,7 @@ const plans = [
     icon: Zap,
     badge: "🚀 Limited Time Offer",
     color: "cyan",
-    stripeProductId: "prod_TTIxsMKwfsi1gH",
+    planKey: "fast5",
     features: [
       "Fast-Track 5-Day Credit Boost Service",
       "Rapid Dispute Processing Across All 3 Bureaus",
@@ -42,7 +55,7 @@ const plans = [
     icon: Crown,
     badge: "👑 Limited Time Offer",
     color: "platinum",
-    stripeProductId: "prod_TTIz96EHwxsiJQ",
+    planKey: "unlimited",
     features: [
       "Comprehensive Full Credit Profile Reset",
       "Unlimited Disputes Until Clean Report Achieved",
@@ -62,6 +75,7 @@ const plans = [
     icon: Check,
     badge: "⭐️ Entry-Level Plan",
     color: "yellow",
+    planKey: "basic",
     features: [
       "Disputes for up to 4 accounts/month (1 bureau)",
       "Monthly Credit Report Review & Analysis",
@@ -80,6 +94,7 @@ const plans = [
     icon: Star,
     badge: "⭐️ Most Popular Plan",
     color: "blue",
+    planKey: "pro",
     features: [
       "Disputes for up to 10 accounts/month across 3 bureaus",
       "Includes everything in Basic",
@@ -99,6 +114,7 @@ const plans = [
     icon: Crown,
     badge: "🔥 Premium Strategy Plan",
     color: "red",
+    planKey: "elite",
     features: [
       "Unlimited Disputes with advanced bureau tactics",
       "Includes everything in Pro",
@@ -118,6 +134,7 @@ const plans = [
     icon: Zap,
     badge: "👑 MOST DOMINANT PLAN",
     color: "purple",
+    planKey: "allExclusive",
     features: [
       "Full Credit Report Audit + Violation Flagging",
       "Unlimited Disputes across all accounts",
@@ -125,25 +142,6 @@ const plans = [
       "Upload & Review of All Supporting Documents",
       "VIP Concierge Priority Service",
       "60-Day Post Audit Follow-Up"
-    ]
-  },
-  {
-    name: "SBA Loan Portal Package (Funding Access Plan)",
-    price: 399.99,
-    monthlyPrice: 99.99,
-    frequency: "setup + monthly",
-    isOneTime: false,
-    icon: Zap,
-    badge: "🚀 Funding Access",
-    color: "green",
-    features: [
-      "Access to SBA Loan Automation Portal (0804 Edition)",
-      "SBA Pre-qualification Quiz across 7(a), 504, Microloan, Express",
-      "Consent, Intake, Doc Upload, & Packet Builder (auto 0804 PDF)",
-      "Custom Borrower Dashboard with lender packet download",
-      "Direct 'Send to SBA Lender Match' link",
-      "Priority support for SBA loan applications",
-      "Includes everything in Elite Package"
     ]
   }
 ];
@@ -156,65 +154,30 @@ export default function MembershipPricing() {
   
 
   const handleSignUp = async (plan: typeof plans[0]) => {
-    try {
-      setLoading(plan.name);
-
-      // Get current session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          title: "Authentication Required",
-          description: "Please log in to purchase a membership plan.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Call Stripe checkout function
-      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
-        body: {
-          plan: plan.name,
-          amount: plan.price,
-          isOneTime: plan.isOneTime,
-          stripeProductId: (plan as any).stripeProductId
-        }
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to purchase a membership",
+        variant: "destructive",
       });
+      return;
+    }
 
-      if (error) throw error;
-
-      // Detect mobile device using navigator.userAgent
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-      // Redirect to Stripe Checkout
-      if (data?.url) {
-        if (isMobile) {
-          // On mobile, use same window to avoid popup blockers
-          window.location.href = data.url;
-        } else {
-          // On desktop, open in new tab
-          window.open(data.url, '_blank');
-          
-          // Clear loading state immediately and show success message for desktop
-          setLoading(null);
-          
-          toast({
-            title: "Redirected to Payment",
-            description: "Please complete your payment in the new tab. Your membership will be activated automatically.",
-            variant: "default"
-          });
-
-          // Set up a timer to refresh membership after giving time for payment
-          setTimeout(() => {
-            refreshMembership();
-          }, 10000); // Refresh after 10 seconds
-        }
-      }
-    } catch (error) {
-      console.error('Error creating checkout:', error);
+    setLoading(plan.name);
+    try {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+      
+      await createCheckoutSession(plan.planKey);
+    } catch (error: any) {
+      console.error("Checkout error:", error);
       toast({
         title: "Error",
-        description: "Failed to create checkout session. Please try again.",
-        variant: "destructive"
+        description: error.message || "Failed to create checkout session",
+        variant: "destructive",
       });
     } finally {
       setLoading(null);

@@ -27,6 +27,8 @@ import { EmailVerificationBanner } from '@/components/EmailVerificationBanner';
 import { SEOHead } from '@/components/SEOHead';
 import { TrustSignals } from '@/components/TrustSignals';
 import { FAQSection } from '@/components/FAQSection';
+import { createCheckoutSession } from "@/lib/createCheckout";
+import type { PlanKey } from "@/config/priceMap";
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
@@ -57,6 +59,42 @@ const Index = () => {
     skipTour
   } = useOnboarding();
   const navigate = useNavigate();
+  
+  const handleGetStarted = () => {
+    if (user) {
+      if (hasAccess("dispute-generator")) {
+        navigate("/client-portal");
+      } else {
+        navigate("/membership");
+      }
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const handlePlanClick = async (planKey: PlanKey) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to purchase a membership",
+        variant: "destructive",
+      });
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await createCheckoutSession(planKey);
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create checkout session",
+        variant: "destructive",
+      });
+    }
+  };
+  
   const handleLogin = async (email: string, password: string) => {
     const {
       error
@@ -497,7 +535,7 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button 
-                  onClick={() => navigate('/membership')}
+                  onClick={() => handlePlanClick("fast5")}
                   className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-lg"
                 >
                   Get Started Now
@@ -540,7 +578,7 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button 
-                  onClick={() => navigate('/membership')}
+                  onClick={() => handlePlanClick("unlimited")}
                   className="w-full mt-4 bg-gradient-to-r from-slate-400 to-slate-600 hover:from-slate-500 hover:to-slate-700 text-white font-semibold shadow-lg"
                 >
                   Get Started Now
