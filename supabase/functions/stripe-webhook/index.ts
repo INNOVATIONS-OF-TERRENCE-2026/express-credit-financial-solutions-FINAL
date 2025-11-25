@@ -13,28 +13,28 @@ const logStep = (step: string, details?: any) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
-// Map Stripe price IDs to membership types
+// Map Stripe price IDs to membership types using PRICE_MAP from config
 const getMembershipFromPriceId = (priceId: string): { membership: string; planType: string; isVip?: boolean } => {
+  // PRICE_MAP mapping - LIVE MODE ONLY
   switch (priceId) {
-    // New Limited Time Offers
-    case "prod_TTIxsMKwfsi1gH":
-      return { membership: "fast5", planType: "Fast-5" };
-    case "prod_TTIz96EHwxsiJQ":
+    // ONE-TIME PURCHASES
+    case "price_1SWMNmAyM7nkjbCbsRqFfZ13": // Unlimited Clean-Slate - $550
       return { membership: "unlimited_clean_slate", planType: "Unlimited Clean-Slate" };
-    // Existing Plans
-    case "price_1Rp5ZgAyM7nkjbCbR8xz28QQ":
-      return { membership: "basic", planType: "Basic Package" };
-    case "price_1Rp5kYAyM7nkjbCbq3f23mYC":
-      return { membership: "pro", planType: "Pro Package" };
-    case "price_1Rp5rxAyM7nkjbCbaCPXVpxo":
-      return { membership: "elite", planType: "Elite Package" };
-    case "price_1Rp61BAyM7nkjbCb5Psvz":
+    case "price_1SWMLEAyM7nkjbCbybhfkQYs": // Fast-5 Deletion - $350
+      return { membership: "fast5", planType: "Fast-5" };
+    case "price_1Rp61BAyM7nkjbCb5PsvzMPY": // All Exclusive Package - $599.99
       return { membership: "exclusive", planType: "All Exclusive Package" };
-    case "price_1Rp66ZAyM7nkjbCbz5jXiZDE":
-      return { membership: "vip", planType: "$1 24-Hour VIP Pass", isVip: true };
-    case "price_1Rp15nAyM7nkjbCbgzjS4NNT":
-      return { membership: "test", planType: "Test Membership" };
+    
+    // RECURRING SUBSCRIPTIONS
+    case "price_1Rp5yXAyM7nkjbCboTWkDKQo": // Elite Package - $249.99/mo
+      return { membership: "elite", planType: "Elite Package" };
+    case "price_1Rp5kYAyM7nkjbCbq3f23mYC": // Pro Package - $179.99/mo
+      return { membership: "pro", planType: "Pro Package" };
+    case "price_1Rp5ZgAyM7nkjbCbR8xz28QQ": // Basic Package - $99/mo
+      return { membership: "basic", planType: "Basic Package" };
+    
     default:
+      logStep("Unknown price ID", { priceId });
       return { membership: "unknown", planType: "Unknown" };
   }
 };
@@ -42,21 +42,20 @@ const getMembershipFromPriceId = (priceId: string): { membership: string; planTy
 // Legacy fallback - Map Stripe amounts to plan types (for old sessions)
 const getPlanTypeFromAmount = (amount: number): string => {
   switch (amount) {
-    case 35000: // $350.00
-      return "Fast-5";
     case 55000: // $550.00
       return "Unlimited Clean-Slate";
-    case 100: // $1.00
-      return "$1 24-Hour VIP Pass";
-    case 9999: // $99.99
-      return "Basic Package";
-    case 17999: // $179.99
-      return "Pro Package";
-    case 24999: // $249.99
-      return "Elite Package";
+    case 35000: // $350.00
+      return "Fast-5";
     case 59999: // $599.99
       return "All Exclusive Package";
+    case 24999: // $249.99
+      return "Elite Package";
+    case 17999: // $179.99
+      return "Pro Package";
+    case 9900: // $99.00
+      return "Basic Package";
     default:
+      logStep("Unknown amount", { amount });
       return "Unknown";
   }
 };
