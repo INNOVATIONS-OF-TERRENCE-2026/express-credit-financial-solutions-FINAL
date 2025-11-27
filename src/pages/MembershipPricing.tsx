@@ -9,9 +9,7 @@ import { NavigationHeader } from "@/components/NavigationHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
 import { BackButton } from '@/components/BackButton';
-import { redirectToCheckout } from "@/lib/createCheckout";
-import { EngineerCredit } from "@/components/EngineerCredit";
-import { useExpressAdAudioOnce } from "@/hooks/useExpressAdAudioOnce";
+import { createCheckoutSession } from "@/lib/createCheckout";
 import type { PlanKey } from "@/config/priceMap";
 import confetti from "canvas-confetti";
 
@@ -35,16 +33,17 @@ const plans: Array<{
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
-    badge: "🎄 CHRISTMAS SALE — ENDS DEC 26, 2025",
+    badge: "🚀 Limited Time Offer",
     color: "cyan",
     planKey: "fast5",
     features: [
-      "⚡ Fast-Track 5-Day Credit Boost Service",
-      "🎯 Rapid Dispute Processing Across All 3 Bureaus",
-      "🔥 Priority Queue for Immediate Action",
-      "🛡️ Backed by our 5 BUSINESS DAYS SUCCESS GUARANTEE",
-      "⚡ Expedited Letter Generation & Submission",
-      "💬 Emergency Credit Coaching Session"
+      "Fast-Track 5-Day Credit Boost Service",
+      "Rapid Dispute Processing Across All 3 Bureaus",
+      "Priority Queue for Immediate Action",
+      "Expedited Letter Generation & Submission",
+      "Emergency Credit Coaching Session",
+      "48-Hour Response Time Guarantee",
+      "5-Day Turnaround for Maximum Impact"
     ]
   },
   {
@@ -54,20 +53,21 @@ const plans: Array<{
     frequency: "one-time",
     isOneTime: true,
     icon: Crown,
-    badge: "🎄 CHRISTMAS SALE — ENDS DEC 26, 2025",
+    badge: "👑 Limited Time Offer",
     color: "platinum",
     planKey: "unlimited",
     features: [
-      "♾️ Unlimited Disputes Until Clean Report Achieved",
-      "🎯 All 3 Bureaus + Consumer Databases",
-      "⚡ Full-Service Credit Repair in 5 Business Days",
-      "🛡️ Backed by our 5 BUSINESS DAYS SUCCESS GUARANTEE",
-      "👨‍⚖️ Advanced Legal Tactics & Cease & Desist Letters",
-      "📄 Complete Document Package Review"
+      "Comprehensive Full Credit Profile Reset",
+      "Unlimited Disputes Until Clean Report Achieved",
+      "All 3 Bureaus + Consumer Databases (LexisNexis, etc.)",
+      "Dedicated Credit Strategist Assigned to Your Case",
+      "Advanced Legal Tactics & Cease & Desist Letters",
+      "Complete Document Package Review & Submission",
+      "90-Day Success Guarantee with Unlimited Revisions"
     ]
   },
   {
-    name: "Basic Package",
+    name: "Gold Basic Package",
     price: 99.99,
     monthlyPrice: 49.99,
     frequency: "45 days",
@@ -147,8 +147,6 @@ const plans: Array<{
 ];
 
 export default function MembershipPricing() {
-  useExpressAdAudioOnce();
-  
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -173,7 +171,7 @@ export default function MembershipPricing() {
         origin: { y: 0.6 },
       });
       
-      await redirectToCheckout(plan.planKey);
+      await createCheckoutSession(plan.planKey);
     } catch (error: any) {
       console.error("Checkout error:", error);
       toast({
@@ -188,7 +186,6 @@ export default function MembershipPricing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black">
-      <EngineerCredit position="top" />
       <NavigationHeader />
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
@@ -447,7 +444,6 @@ export default function MembershipPricing() {
           </p>
         </div>
       </div>
-      <EngineerCredit position="bottom" />
     </div>
   );
 }

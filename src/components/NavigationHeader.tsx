@@ -102,7 +102,7 @@ export function NavigationHeader() {
     accessible: hasAccess('dashboard')
   }, {
     label: 'Membership',
-    path: paymentStatus === 'active' ? '/' : '/membership',
+    path: '/membership',
     icon: Settings,
     accessible: true
   }];

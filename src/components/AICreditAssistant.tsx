@@ -37,7 +37,7 @@ export function AICreditAssistant({ isWidget = false }: AICreditAssistantProps) 
       setMessages([{
         id: '1',
         role: 'assistant',
-        content: "👋 Hi! I'm LUCY LOUNGE AI, your credit repair assistant.\n\nI was engineered by Software AI Tech Engineer TERRENCE MILLINER SR.\n\nAsk me anything about improving your credit! I can help with:\n\n• Understanding credit scores\n• Dispute strategies\n• Debt utilization tips\n• Removing collections\n• Building credit history\n• And much more!\n\nWhat would you like to know about your credit journey?",
+        content: "👋 Hi there! I'm your AI Credit Assistant. Ask me anything about improving your credit! I can help with:\n\n• Understanding credit scores\n• Dispute strategies\n• Debt utilization tips\n• Removing collections\n• Building credit history\n• And much more!\n\nWhat would you like to know about your credit journey?",
         timestamp: new Date()
       }]);
     }

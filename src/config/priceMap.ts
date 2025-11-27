@@ -23,16 +23,6 @@ export const PRICE_MAP = {
 
 export type PlanKey = keyof typeof PRICE_MAP;
 
-// Direct Stripe Payment Links (Live Mode)
-export const PAYMENT_LINKS = {
-  fast5: "https://buy.stripe.com/fZu4gybcK03t3al81agbm05",
-  unlimited: "https://buy.stripe.com/6oU00ibcKdUj12A0ylgbm04",
-  elite: "https://buy.stripe.com/6oUfZg6Wu5nNeTq5T2gbm03",
-  basic: "https://buy.stripe.com/9B614m2GebMbdPm5T2gbm02",
-  pro: null, // Uses edge function
-  allExclusive: null, // Uses edge function
-} as const;
-
 // Plan details for reference
 export const PLAN_DETAILS = {
   unlimited: {
