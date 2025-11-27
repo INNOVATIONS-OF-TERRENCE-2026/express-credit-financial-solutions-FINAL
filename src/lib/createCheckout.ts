@@ -1,8 +1,25 @@
 import { supabase } from "@/integrations/supabase/client";
-import { PRICE_MAP, PLAN_DETAILS, type PlanKey } from "@/config/priceMap";
+import { PRICE_MAP, PLAN_DETAILS, PAYMENT_LINKS, type PlanKey } from "@/config/priceMap";
 
 /**
- * Creates a Stripe checkout session using Supabase edge function
+ * Redirects to checkout - uses direct Stripe Payment Link if available, otherwise uses edge function
+ * @param plan - The plan key from PRICE_MAP
+ */
+export async function redirectToCheckout(plan: PlanKey) {
+  const paymentLink = PAYMENT_LINKS[plan];
+  
+  // If direct payment link exists, redirect immediately
+  if (paymentLink) {
+    window.location.href = paymentLink;
+    return;
+  }
+  
+  // Otherwise, use edge function for plans without direct links (Pro, All Exclusive)
+  await createCheckoutSession(plan);
+}
+
+/**
+ * Creates a Stripe checkout session using Supabase edge function (for Pro and All Exclusive)
  * @param plan - The plan key from PRICE_MAP
  */
 export async function createCheckoutSession(plan: PlanKey) {
