@@ -27,8 +27,8 @@ import { EmailVerificationBanner } from '@/components/EmailVerificationBanner';
 import { SEOHead } from '@/components/SEOHead';
 import { TrustSignals } from '@/components/TrustSignals';
 import { FAQSection } from '@/components/FAQSection';
-import { createCheckoutSession } from "@/lib/createCheckout";
-import type { PlanKey } from "@/config/priceMap";
+import { EngineerCredit } from '@/components/EngineerCredit';
+import { STRIPE_LINKS, type StripeLinkKey } from "@/config/stripeLinks";
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
@@ -72,7 +72,7 @@ const Index = () => {
     }
   };
 
-  const handlePlanClick = async (planKey: PlanKey) => {
+  const handlePlanClick = (stripeKey: StripeLinkKey) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -83,14 +83,13 @@ const Index = () => {
       return;
     }
 
-    try {
-      await createCheckoutSession(planKey);
-    } catch (error: any) {
-      console.error("Checkout error:", error);
+    // Direct Stripe payment links - NO edge functions
+    if (STRIPE_LINKS[stripeKey]) {
+      window.location.href = STRIPE_LINKS[stripeKey];
+    } else {
       toast({
-        title: "Error",
-        description: error.message || "Failed to create checkout session",
-        variant: "destructive",
+        title: "Coming Soon",
+        description: "This plan will be available shortly.",
       });
     }
   };
@@ -345,6 +344,10 @@ const Index = () => {
   // Landing page with login/register forms
   return <div className="min-h-screen bg-fintech-primary">
       <SEOHead />
+      
+      {/* Engineer Credit - TOP */}
+      <EngineerCredit position="top" />
+      
       {/* Hero Section with Video Background */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Video Background */}
@@ -363,7 +366,7 @@ const Index = () => {
         
         {/* Subtle Financial Pattern Overlay */}
         <div 
-          className="absolute inset-0 opacity-5" 
+          className="absolute inset-0 opacity-5"
           style={{
             backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,195,232,0.3) 35px, rgba(0,195,232,0.3) 36px)'
           }} 
@@ -500,12 +503,15 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {/* Fast-5 Package - NEW */}
-            <Card className="relative bg-gradient-to-br from-cyan-50 via-white to-blue-50 border-cyan-400 hover:shadow-[0_0_50px_rgba(6,182,212,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(6,182,212,0.3)] animate-pulse">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-sm px-4 py-1 shadow-lg border-2 border-cyan-300 animate-pulse">🚀 Limited Time Offer</Badge>
+            {/* Fast-5 Package */}
+            <Card className="relative bg-gradient-to-br from-cyan-50 via-white to-blue-50 border-cyan-400 hover:shadow-[0_0_50px_rgba(6,182,212,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
+                <Badge className="bg-gradient-to-r from-red-600 via-green-600 to-red-600 text-white font-bold text-xs px-3 py-1 shadow-lg border-2 border-white/50 whitespace-nowrap animate-pulse">🎄 CHRISTMAS SALE — ENDS DEC 26, 2025</Badge>
               </div>
-              <CardHeader className="text-center pt-8">
+              <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-sm px-4 py-1 shadow-lg border-2 border-cyan-300">🚀 Limited Time Offer</Badge>
+              </div>
+              <CardHeader className="text-center pt-10">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.6)]">
                     <TrendingUp className="w-6 h-6 text-white" />
@@ -513,21 +519,21 @@ const Index = () => {
                 </div>
                 <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Fast-5</CardTitle>
                 <div className="text-4xl font-bold text-cyan-600 mt-2">$350</div>
-                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Fast-Track Service</div>
+                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Payment</div>
               </CardHeader>
               <CardContent className="space-y-2 px-4">
                 <ul className="text-xs text-fintech-dark/90 space-y-2">
                   <li className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span className="text-green-600 font-bold">5 BUSINESS DAYS SUCCESS GUARANTEE</span>
+                  </li>
+                  <li className="flex items-start gap-2">
                     <span className="text-cyan-600 font-bold">✓</span>
-                    <span>Fast-Track 5-Day Credit Boost</span>
+                    <span>Fast-Track Credit Boost</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-cyan-600 font-bold">✓</span>
                     <span>All 3 Bureaus Rapid Processing</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-600 font-bold">✓</span>
-                    <span>Priority Queue Immediate Action</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-cyan-600 font-bold">✓</span>
@@ -543,12 +549,15 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Unlimited Clean-Slate Package - NEW */}
-            <Card className="relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-slate-400 hover:shadow-[0_0_50px_rgba(203,213,225,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(203,213,225,0.4)] animate-pulse">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-slate-300 to-slate-500 text-slate-900 font-bold text-sm px-4 py-1 shadow-lg border-2 border-slate-300 animate-pulse">👑 Limited Time Offer</Badge>
+            {/* Unlimited Clean-Slate Package */}
+            <Card className="relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-slate-400 hover:shadow-[0_0_50px_rgba(203,213,225,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(203,213,225,0.4)]">
+              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
+                <Badge className="bg-gradient-to-r from-red-600 via-green-600 to-red-600 text-white font-bold text-xs px-3 py-1 shadow-lg border-2 border-white/50 whitespace-nowrap animate-pulse">🎄 CHRISTMAS SALE — ENDS DEC 26, 2025</Badge>
               </div>
-              <CardHeader className="text-center pt-8">
+              <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-slate-300 to-slate-500 text-slate-900 font-bold text-sm px-4 py-1 shadow-lg border-2 border-slate-300">👑 Limited Time Offer</Badge>
+              </div>
+              <CardHeader className="text-center pt-10">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="w-12 h-12 bg-gradient-to-br from-slate-300 to-slate-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(203,213,225,0.7)]">
                     <Award className="w-6 h-6 text-slate-900" />
@@ -556,10 +565,14 @@ const Index = () => {
                 </div>
                 <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-slate-500 to-slate-700 bg-clip-text text-transparent">Unlimited Clean-Slate</CardTitle>
                 <div className="text-4xl font-bold text-slate-700 mt-2">$550</div>
-                <div className="text-sm text-fintech-dark/70 font-semibold">Complete Profile Reset</div>
+                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Payment</div>
               </CardHeader>
               <CardContent className="space-y-2 px-4">
                 <ul className="text-xs text-fintech-dark/90 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">✓</span>
+                    <span className="text-green-600 font-bold">5 BUSINESS DAYS SUCCESS GUARANTEE</span>
+                  </li>
                   <li className="flex items-start gap-2">
                     <span className="text-slate-600 font-bold">✓</span>
                     <span>Unlimited Disputes Until Clean</span>
@@ -572,10 +585,6 @@ const Index = () => {
                     <span className="text-slate-600 font-bold">✓</span>
                     <span>Dedicated Credit Strategist</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-slate-600 font-bold">✓</span>
-                    <span>90-Day Success Guarantee</span>
-                  </li>
                 </ul>
                 <Button 
                   onClick={() => handlePlanClick("unlimited")}
@@ -586,15 +595,15 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Gold Basic Package */}
+            {/* Basic Package */}
             <Card className="relative bg-white border-fintech-accent/20 hover:border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.2)] transition-all duration-300 hover:scale-105">
               <CardHeader className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <CardTitle className="font-poppins text-lg text-fintech-dark">Gold Basic</CardTitle>
+                  <CardTitle className="font-poppins text-lg text-fintech-dark">Basic Package</CardTitle>
                 </div>
                 <div className="text-3xl font-bold text-fintech-accent">$99.99</div>
-                <div className="text-sm text-fintech-dark/70">45 Days, then $49.99/mo</div>
+                <div className="text-sm text-fintech-dark/70">/month</div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <ul className="text-sm text-fintech-dark/90 space-y-2">
@@ -604,72 +613,61 @@ const Index = () => {
                   <li>✓ Document portal access</li>
                   <li>✓ Email support</li>
                 </ul>
-              </CardContent>
-            </Card>
-
-            {/* Pro Package */}
-            <Card className="relative bg-white border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.3)] transition-all duration-300 scale-105 shadow-[0_0_20px_rgba(0,195,232,0.2)]">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-fintech-accent text-fintech-primary font-semibold">⭐ Most Popular</Badge>
-              </div>
-              <CardHeader className="text-center pt-6">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Star className="w-4 h-4 text-fintech-accent" />
-                  <CardTitle className="font-poppins text-lg text-fintech-dark">Pro Package</CardTitle>
-                </div>
-                <div className="text-3xl font-bold text-fintech-accent">$179.99</div>
-                <div className="text-sm text-fintech-dark/70">45 Days, then $79.99/mo</div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <ul className="text-sm text-fintech-dark/90 space-y-2">
-                  <li>✓ Up to 10 disputes/month (3 bureaus)</li>
-                  <li>✓ Everything in Basic</li>
-                  <li>✓ Custom dispute letters</li>
-                  <li>✓ Monthly coaching call</li>
-                  <li>✓ Priority support</li>
-                  <li>✓ Soft inquiry removal</li>
-                </ul>
+                <Button 
+                  onClick={() => handlePlanClick("basic")}
+                  className="w-full mt-4 bg-fintech-accent hover:bg-fintech-accent/90 text-fintech-dark font-semibold"
+                >
+                  Choose Plan
+                </Button>
               </CardContent>
             </Card>
 
             {/* Elite Package */}
             <Card className="relative bg-white border-fintech-accent/20 hover:border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.2)] transition-all duration-300 hover:scale-105">
-              <CardHeader className="text-center">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-red-600 text-white font-semibold">🔥 Premium</Badge>
+              </div>
+              <CardHeader className="text-center pt-6">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Award className="w-4 h-4 text-fintech-accent" />
                   <CardTitle className="font-poppins text-lg text-fintech-dark">Elite Package</CardTitle>
                 </div>
                 <div className="text-3xl font-bold text-fintech-accent">$249.99</div>
-                <div className="text-sm text-fintech-dark/70">45 Days, then $99.99/mo</div>
+                <div className="text-sm text-fintech-dark/70">/month</div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <ul className="text-sm text-fintech-dark/90 space-y-2">
                   <li>✓ Unlimited disputes</li>
-                  <li>✓ Everything in Pro</li>
                   <li>✓ Assigned credit coach</li>
                   <li>✓ 24-48hr turnaround</li>
                   <li>✓ Rebuilding strategy</li>
                   <li>✓ Data freeze support</li>
+                  <li>✓ Priority support</li>
                 </ul>
+                <Button 
+                  onClick={() => handlePlanClick("elite")}
+                  className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold"
+                >
+                  Choose Plan
+                </Button>
               </CardContent>
             </Card>
 
-            {/* All Exclusive Package */}
-            <Card className="relative bg-gradient-to-br from-fintech-accent/10 to-fintech-accent/5 border-fintech-accent hover:shadow-[0_0_40px_rgba(0,195,232,0.3)] transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(0,195,232,0.15)]">
+            {/* All Exclusive Package - FIXED CONTRAST */}
+            <Card className="relative bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 border-purple-400 hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(168,85,247,0.25)]">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-fintech-primary text-fintech-light font-semibold">🔥 Premium</Badge>
+                <Badge className="bg-gradient-to-r from-purple-500 to-purple-700 text-white font-semibold border-2 border-purple-300">👑 MOST DOMINANT</Badge>
               </div>
               <CardHeader className="text-center pt-6">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-fintech-accent" />
-                  <CardTitle className="font-poppins text-lg text-fintech-dark">All Exclusive</CardTitle>
+                  <TrendingUp className="w-4 h-4 text-purple-300" />
+                  <CardTitle className="font-poppins text-lg text-white">All Exclusive</CardTitle>
                 </div>
-                <div className="text-3xl font-bold text-fintech-accent">$599.99</div>
-                <div className="text-sm text-fintech-dark/70">One-Time 45-Day Audit</div>
-                <div className="text-xs text-fintech-dark/60">VIP Maintenance: $124.99/mo</div>
+                <div className="text-3xl font-bold text-purple-300">$599.99</div>
+                <div className="text-sm text-purple-200/80">One-Time Audit</div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <ul className="text-sm text-fintech-dark/90 space-y-2">
+                <ul className="text-sm text-purple-100 space-y-2">
                   <li>✓ Full credit report audit</li>
                   <li>✓ Unlimited disputes</li>
                   <li>✓ Custom strategy playbook</li>
@@ -677,6 +675,12 @@ const Index = () => {
                   <li>✓ VIP concierge service</li>
                   <li>✓ 60-day follow-up</li>
                 </ul>
+                <Button 
+                  onClick={() => navigate('/membership')}
+                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold border-2 border-purple-300"
+                >
+                  View Details
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -769,6 +773,7 @@ const Index = () => {
       </div>
       
       {/* Footer */}
+      <EngineerCredit position="bottom" />
       <footer className="bg-fintech-primary py-10 border-t border-fintech-accent/20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
