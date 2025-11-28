@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useRoles } from './useRoles';
 
-export type PlanType = 'Fast-5' | 'Unlimited Clean-Slate' | 'Basic Package' | 'Pro Package' | 'Elite Package' | 'All Exclusive Package';
+export type PlanType = 'Fast-5' | 'Unlimited Clean-Slate' | 'Gold Basic Package' | 'Basic Package' | 'Pro Package' | 'Elite Package' | 'Elite Package (Premium Strategy Plan)' | 'All Exclusive Package';
 
 interface MembershipContextType {
   planType: PlanType | null;
@@ -63,7 +63,7 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     } catch (error) {
       console.error('Error fetching membership:', error);
       // Set default fallback state for graceful degradation
-      setPlanType('Basic Package');
+      setPlanType('Gold Basic Package');
       setPaymentStatus('active');
     } finally {
       setLoading(false);
@@ -96,13 +96,13 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     switch (feature) {
       case 'dispute-generator':
       case 'credit-upload':
-        return ['Fast-5', 'Unlimited Clean-Slate', 'Pro Package', 'Elite Package', 'All Exclusive Package', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
+        return ['Fast-5', 'Unlimited Clean-Slate', 'Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
       
       case 'exclusive-content':
         return ['All Exclusive Package', 'exclusive'].includes(planType || '');
       
       case 'document-center':
-        return ['Fast-5', 'Unlimited Clean-Slate', 'Basic Package', 'Pro Package', 'Elite Package', 'All Exclusive Package', 'basic', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
+        return ['Fast-5', 'Unlimited Clean-Slate', 'Gold Basic Package', 'Basic Package', 'Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'basic', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
       
       default:
         return false;
