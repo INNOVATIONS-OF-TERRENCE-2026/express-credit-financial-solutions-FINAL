@@ -17,11 +17,11 @@ export function AICreditAssistantPage() {
             <div className="flex items-center justify-center mb-4">
               <Sparkles className="h-12 w-12 text-gold mr-4" />
               <h1 className="text-4xl font-bold midnight-section-title midnight-glow-text">
-                AI Credit Assistant
+                LUCY LOUNGE AI
               </h1>
             </div>
             <p className="text-xl text-midnight-text max-w-3xl mx-auto leading-relaxed">
-              Get personalized credit advice powered by AI. Ask questions about credit scores, disputes, debt management, and building credit.
+              Your intelligent credit repair assistant, engineered by Software AI Tech Engineer Terrence Milliner Sr. Ask questions about credit scores, disputes, debt management, and building credit.
             </p>
           </div>
         </div>

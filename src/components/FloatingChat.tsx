@@ -57,7 +57,7 @@ export function FloatingChat({
       const welcomeMessage: Message = {
         id: 'welcome',
         role: 'assistant',
-        content: "Hi! I'm your credit repair assistant. I can help you understand credit processes, explain dispute outcomes, and guide you through our platform. What would you like to know?",
+        content: "👋 Hi! I'm LUCY LOUNGE AI, your intelligent credit repair assistant.\nI was engineered by Software AI Tech Engineer Terrence Milliner Sr.\n\nI can help you understand credit processes, explain dispute outcomes, and guide you through our platform. What would you like to know?",
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
@@ -288,7 +288,7 @@ Is there a specific credit repair topic you'd like guidance on?`;
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
-              <span className="font-semibold">Credit Assistant</span>
+              <span className="font-semibold">LUCY LOUNGE AI</span>
               <Badge variant="secondary" className="text-xs bg-white/20">
                 AI
               </Badge>
@@ -355,7 +355,7 @@ Is there a specific credit repair topic you'd like guidance on?`;
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="text-xs text-muted-foreground mt-2 bg-zinc-100">AI assistant for credit repair guidance • Always verify important information "EXPRESS CREDIT & FINANCIAL SOLUTIONS"</div>
+              <div className="text-xs text-muted-foreground mt-2 bg-zinc-100">LUCY LOUNGE AI assistant for credit repair guidance • Engineered by Terrence Milliner Sr. • "EXPRESS CREDIT & FINANCIAL SOLUTIONS"</div>
             </div>
           </CardContent>}
       </Card>

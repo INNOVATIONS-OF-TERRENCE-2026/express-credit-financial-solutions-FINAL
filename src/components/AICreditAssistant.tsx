@@ -37,7 +37,7 @@ export function AICreditAssistant({ isWidget = false }: AICreditAssistantProps) 
       setMessages([{
         id: '1',
         role: 'assistant',
-        content: "👋 Hi there! I'm your AI Credit Assistant. Ask me anything about improving your credit! I can help with:\n\n• Understanding credit scores\n• Dispute strategies\n• Debt utilization tips\n• Removing collections\n• Building credit history\n• And much more!\n\nWhat would you like to know about your credit journey?",
+        content: "👋 Hi! I'm LUCY LOUNGE AI, your intelligent credit repair assistant.\nI was engineered by Software AI Tech Engineer Terrence Milliner Sr.\n\nI can help with:\n\n• Understanding credit scores\n• Dispute strategies\n• Debt utilization tips\n• Removing collections\n• Building credit history\n• And much more!\n\nWhat would you like to know about your credit journey?",
         timestamp: new Date()
       }]);
     }
@@ -133,7 +133,7 @@ export function AICreditAssistant({ isWidget = false }: AICreditAssistantProps) 
     setMessages([{
       id: '1',
       role: 'assistant',
-      content: "Chat cleared! Ask me anything about improving your credit!",
+      content: "Chat cleared! I'm LUCY LOUNGE AI - ask me anything about improving your credit!",
       timestamp: new Date()
     }]);
   };
@@ -169,7 +169,7 @@ export function AICreditAssistant({ isWidget = false }: AICreditAssistantProps) 
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-elegant text-primary-foreground">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5" />
-                  <CardTitle className="text-base font-semibold">AI Credit Assistant</CardTitle>
+                  <CardTitle className="text-base font-semibold">LUCY LOUNGE AI</CardTitle>
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
@@ -286,7 +286,7 @@ export function AICreditAssistant({ isWidget = false }: AICreditAssistantProps) 
       <CardHeader className="bg-gradient-elegant text-primary-foreground">
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
-          AI Credit Assistant
+          LUCY LOUNGE AI
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
