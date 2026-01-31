@@ -494,192 +494,175 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="font-poppins text-4xl md:text-5xl font-bold text-fintech-dark mb-4">
-              Choose Your <span className="text-fintech-accent">Membership Plan</span>
+              Choose Your <span className="text-fintech-accent">Credit Solution</span>
             </h2>
             <p className="text-lg text-fintech-dark/80 max-w-4xl mx-auto">
-              Premium credit restoration packages designed to meet your goals, whether you're rebuilding, 
-              optimizing, or transforming your financial profile.
+              Professional credit restoration services designed to help you achieve your financial goals with expert guidance and FCRA-compliant processes.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {/* Fast-5 Package */}
-            <Card className="relative bg-gradient-to-br from-cyan-50 via-white to-blue-50 border-cyan-400 hover:shadow-[0_0_50px_rgba(6,182,212,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
-              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
-                <Badge className="bg-gradient-to-r from-red-600 via-green-600 to-red-600 text-white font-bold text-xs px-3 py-1 shadow-lg border-2 border-white/50 whitespace-nowrap animate-pulse">🎄 CHRISTMAS SALE — ENDS DEC 26, 2025</Badge>
-              </div>
-              <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-sm px-4 py-1 shadow-lg border-2 border-cyan-300">🚀 Limited Time Offer</Badge>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
+            {/* Plan 1: Full Blown Credit Repair - $600 */}
+            <Card className="relative bg-gradient-to-br from-cyan-50 via-white to-blue-50 border-cyan-400 hover:shadow-[0_0_50px_rgba(6,182,212,0.5)] transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-sm px-4 py-1 shadow-lg border-2 border-cyan-300">👑 Elite Service</Badge>
               </div>
               <CardHeader className="text-center pt-10">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.6)]">
-                    <TrendingUp className="w-6 h-6 text-white" />
+                    <Award className="w-6 h-6 text-white" />
                   </div>
                 </div>
-                <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Fast-5</CardTitle>
-                <div className="text-4xl font-bold text-cyan-600 mt-2">$350</div>
-                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Payment</div>
+                <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Full Blown Credit Repair</CardTitle>
+                <div className="text-4xl font-bold text-cyan-600 mt-2">$600</div>
+                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Investment</div>
               </CardHeader>
               <CardContent className="space-y-2 px-4">
                 <ul className="text-xs text-fintech-dark/90 space-y-2">
                   <li className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold">✓</span>
-                    <span className="text-green-600 font-bold">5 BUSINESS DAYS SUCCESS GUARANTEE</span>
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>Full credit file audit & analysis</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-cyan-600 font-bold">✓</span>
-                    <span>Fast-Track Credit Boost</span>
+                    <span>Targeted dispute preparation across all three bureaus</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-cyan-600 font-bold">✓</span>
-                    <span>All 3 Bureaus Rapid Processing</span>
+                    <span>Inaccurate, unverifiable & outdated data challenges</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-cyan-600 font-bold">✓</span>
-                    <span>48-Hour Response Guarantee</span>
-                  </li>
-                </ul>
-                <Button 
-                  onClick={() => handlePlanClick("fast5")}
-                  className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-lg"
-                >
-                  Get Started Now
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Unlimited Clean-Slate Package */}
-            <Card className="relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-slate-400 hover:shadow-[0_0_50px_rgba(203,213,225,0.5)] transition-all duration-300 scale-105 shadow-[0_0_30px_rgba(203,213,225,0.4)]">
-              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
-                <Badge className="bg-gradient-to-r from-red-600 via-green-600 to-red-600 text-white font-bold text-xs px-3 py-1 shadow-lg border-2 border-white/50 whitespace-nowrap animate-pulse">🎄 CHRISTMAS SALE — ENDS DEC 26, 2025</Badge>
-              </div>
-              <div className="absolute -top-0 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-slate-300 to-slate-500 text-slate-900 font-bold text-sm px-4 py-1 shadow-lg border-2 border-slate-300">👑 Limited Time Offer</Badge>
-              </div>
-              <CardHeader className="text-center pt-10">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="w-12 h-12 bg-gradient-to-br from-slate-300 to-slate-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(203,213,225,0.7)]">
-                    <Award className="w-6 h-6 text-slate-900" />
-                  </div>
-                </div>
-                <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-slate-500 to-slate-700 bg-clip-text text-transparent">Unlimited Clean-Slate</CardTitle>
-                <div className="text-4xl font-bold text-slate-700 mt-2">$550</div>
-                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Payment</div>
-              </CardHeader>
-              <CardContent className="space-y-2 px-4">
-                <ul className="text-xs text-fintech-dark/90 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold">✓</span>
-                    <span className="text-green-600 font-bold">5 BUSINESS DAYS SUCCESS GUARANTEE</span>
+                    <span>Professional correspondence handled on your behalf</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-slate-600 font-bold">✓</span>
-                    <span>Unlimited Disputes Until Clean</span>
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>Consumer database review</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-slate-600 font-bold">✓</span>
-                    <span>All Bureaus + Consumer Databases</span>
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>Progress tracking inside client portal</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-slate-600 font-bold">✓</span>
-                    <span>Dedicated Credit Strategist</span>
+                    <span className="text-cyan-600 font-bold">✓</span>
+                    <span>FCRA-compliant processes</span>
                   </li>
                 </ul>
                 <Button 
                   onClick={() => handlePlanClick("unlimited")}
-                  className="w-full mt-4 bg-gradient-to-r from-slate-400 to-slate-600 hover:from-slate-500 hover:to-slate-700 text-white font-semibold shadow-lg"
+                  className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-lg"
                 >
-                  Get Started Now
+                  Start Full Credit Repair
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Basic Package */}
-            <Card className="relative bg-white border-fintech-accent/20 hover:border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.2)] transition-all duration-300 hover:scale-105">
-              <CardHeader className="text-center">
+            {/* Plan 2: Full ChexSystems Removal - $350 */}
+            <Card className="relative bg-gradient-to-br from-emerald-50 via-white to-green-50 border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.5)] transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold text-sm px-4 py-1 shadow-lg border-2 border-emerald-300">🏦 Banking Access</Badge>
+              </div>
+              <CardHeader className="text-center pt-10">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <CardTitle className="font-poppins text-lg text-fintech-dark">Basic Package</CardTitle>
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.6)]">
+                    <TrendingUp className="w-6 h-6 text-white" />
+                  </div>
                 </div>
-                <div className="text-3xl font-bold text-fintech-accent">$99.99</div>
-                <div className="text-sm text-fintech-dark/70">/month</div>
+                <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">Full ChexSystems Removal</CardTitle>
+                <div className="text-4xl font-bold text-emerald-600 mt-2">$350</div>
+                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Investment</div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <ul className="text-sm text-fintech-dark/90 space-y-2">
-                  <li>✓ Disputes for up to 4 accounts/month</li>
-                  <li>✓ Monthly credit report review</li>
-                  <li>✓ Credit monitoring guidance</li>
-                  <li>✓ Document portal access</li>
-                  <li>✓ Email support</li>
+              <CardContent className="space-y-2 px-4">
+                <ul className="text-xs text-fintech-dark/90 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>ChexSystems consumer file review</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>Identification of inaccurate or unverifiable reporting</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>Professional dispute submission & follow-up</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>Support for banking access restoration</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>Secondary consumer reporting agency review</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>Secure documentation review</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✓</span>
+                    <span>Client portal access with status tracking</span>
+                  </li>
                 </ul>
                 <Button 
-                  onClick={() => handlePlanClick("basic")}
-                  className="w-full mt-4 bg-fintech-accent hover:bg-fintech-accent/90 text-fintech-dark font-semibold"
+                  onClick={() => handlePlanClick("fast5")}
+                  className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold shadow-lg"
                 >
-                  Choose Plan
+                  Fix My ChexSystems File
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Elite Package */}
-            <Card className="relative bg-white border-fintech-accent/20 hover:border-fintech-accent hover:shadow-[0_0_30px_rgba(0,195,232,0.2)] transition-all duration-300 hover:scale-105">
+            {/* Plan 3: Tradelines Add-Ons - $500 */}
+            <Card className="relative bg-gradient-to-br from-purple-50 via-white to-pink-50 border-purple-400 hover:shadow-[0_0_50px_rgba(168,85,247,0.5)] transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-red-600 text-white font-semibold">🔥 Premium</Badge>
+                <Badge className="bg-gradient-to-r from-purple-500 to-purple-700 text-white font-bold text-sm px-4 py-1 shadow-lg border-2 border-purple-300">⭐ Credit Enhancement</Badge>
               </div>
-              <CardHeader className="text-center pt-6">
+              <CardHeader className="text-center pt-10">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Award className="w-4 h-4 text-fintech-accent" />
-                  <CardTitle className="font-poppins text-lg text-fintech-dark">Elite Package</CardTitle>
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.6)]">
+                    <Star className="w-6 h-6 text-white" />
+                  </div>
                 </div>
-                <div className="text-3xl font-bold text-fintech-accent">$249.99</div>
-                <div className="text-sm text-fintech-dark/70">/month</div>
+                <CardTitle className="font-poppins text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Tradelines Add-Ons</CardTitle>
+                <div className="text-4xl font-bold text-purple-600 mt-2">$500</div>
+                <div className="text-sm text-fintech-dark/70 font-semibold">One-Time Investment</div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <ul className="text-sm text-fintech-dark/90 space-y-2">
-                  <li>✓ Unlimited disputes</li>
-                  <li>✓ Assigned credit coach</li>
-                  <li>✓ 24-48hr turnaround</li>
-                  <li>✓ Rebuilding strategy</li>
-                  <li>✓ Data freeze support</li>
-                  <li>✓ Priority support</li>
+              <CardContent className="space-y-2 px-4">
+                <ul className="text-xs text-fintech-dark/90 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">✓</span>
+                    <span>Personalized credit profile evaluation</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">✓</span>
+                    <span>Tradeline compatibility analysis</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">✓</span>
+                    <span>Education-based tradeline recommendations</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">✓</span>
+                    <span>Strategic integration guidance</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">✓</span>
+                    <span>Monitoring alignment with existing accounts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">✓</span>
+                    <span>Risk-aware placement strategy</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">✓</span>
+                    <span>Client consultation before implementation</span>
+                  </li>
                 </ul>
                 <Button 
                   onClick={() => handlePlanClick("elite")}
-                  className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold"
+                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold shadow-lg"
                 >
-                  Choose Plan
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* All Exclusive Package - FIXED CONTRAST */}
-            <Card className="relative bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900 border-purple-400 hover:shadow-[0_0_40px_rgba(168,85,247,0.4)] transition-all duration-300 hover:scale-105 shadow-[0_0_20px_rgba(168,85,247,0.25)]">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-purple-500 to-purple-700 text-white font-semibold border-2 border-purple-300">👑 MOST DOMINANT</Badge>
-              </div>
-              <CardHeader className="text-center pt-6">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-purple-300" />
-                  <CardTitle className="font-poppins text-lg text-white">All Exclusive</CardTitle>
-                </div>
-                <div className="text-3xl font-bold text-purple-300">$599.99</div>
-                <div className="text-sm text-purple-200/80">One-Time Audit</div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <ul className="text-sm text-purple-100 space-y-2">
-                  <li>✓ Full credit report audit</li>
-                  <li>✓ Unlimited disputes</li>
-                  <li>✓ Custom strategy playbook</li>
-                  <li>✓ Document review</li>
-                  <li>✓ VIP concierge service</li>
-                  <li>✓ 60-day follow-up</li>
-                </ul>
-                <Button 
-                  onClick={() => navigate('/membership')}
-                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold border-2 border-purple-300"
-                >
-                  View Details
+                  Add Tradelines
                 </Button>
               </CardContent>
             </Card>

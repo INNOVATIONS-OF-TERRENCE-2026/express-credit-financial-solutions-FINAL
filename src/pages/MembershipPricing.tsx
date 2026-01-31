@@ -20,103 +20,71 @@ const plans: Array<{
   isOneTime: boolean;
   icon: any;
   badge: string;
-  specialBadge?: string;
   color: string;
   stripeKey?: StripeLinkKey;
   features: string[];
+  ctaText: string;
 }> = [
   {
-    name: "Fast-5",
+    name: "Full Blown Credit Repair",
+    price: 600,
+    frequency: "one-time",
+    isOneTime: true,
+    icon: Crown,
+    badge: "👑 Elite Service",
+    color: "cyan",
+    stripeKey: "unlimited",
+    ctaText: "Start Full Credit Repair",
+    features: [
+      "Full credit file audit & analysis",
+      "Targeted dispute preparation across all three bureaus",
+      "Inaccurate, unverifiable, and outdated data challenges",
+      "Professional correspondence handled on client's behalf",
+      "Consumer database review (where applicable)",
+      "Document intake, verification, and review",
+      "Progress tracking inside client portal",
+      "Ongoing case management until objectives are met",
+      "Secure handling under FCRA-compliant processes"
+    ]
+  },
+  {
+    name: "Full ChexSystems Removal",
     price: 350,
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
-    badge: "🚀 Limited Time Offer",
-    specialBadge: "🎄 CHRISTMAS SALE — ENDS DECEMBER 26, 2025",
-    color: "cyan",
+    badge: "🏦 Banking Access",
+    color: "green",
     stripeKey: "fast5",
+    ctaText: "Fix My ChexSystems File",
     features: [
-      "5 BUSINESS DAYS SUCCESS GUARANTEE",
-      "Fast-Track 5-Day Credit Boost Service",
-      "Rapid Dispute Processing Across All 3 Bureaus",
-      "Priority Queue for Immediate Action",
-      "Expedited Letter Generation & Submission",
-      "Emergency Credit Coaching Session",
-      "48-Hour Response Time Guarantee"
+      "ChexSystems consumer file review",
+      "Identification of inaccurate or unverifiable reporting",
+      "Professional dispute submission and follow-up",
+      "Support for banking access restoration",
+      "Secondary consumer reporting agency review (as applicable)",
+      "Secure documentation review",
+      "Client portal access with status tracking"
     ]
   },
   {
-    name: "Unlimited Clean-Slate",
-    price: 550,
+    name: "Tradelines Add-Ons",
+    price: 500,
     frequency: "one-time",
     isOneTime: true,
-    icon: Crown,
-    badge: "👑 Limited Time Offer",
-    specialBadge: "🎄 CHRISTMAS SALE — ENDS DECEMBER 26, 2025",
-    color: "platinum",
-    stripeKey: "unlimited",
-    features: [
-      "5 BUSINESS DAYS SUCCESS GUARANTEE",
-      "Comprehensive Full Credit Profile Reset",
-      "Unlimited Disputes Until Clean Report Achieved",
-      "All 3 Bureaus + Consumer Databases (LexisNexis, etc.)",
-      "Dedicated Credit Strategist Assigned to Your Case",
-      "Advanced Legal Tactics & Cease & Desist Letters",
-      "Complete Document Package Review & Submission"
-    ]
-  },
-  {
-    name: "Basic Package",
-    price: 99.99,
-    frequency: "monthly",
-    isOneTime: false,
-    icon: Check,
-    badge: "⭐️ Entry-Level Plan",
-    color: "yellow",
-    stripeKey: "basic",
-    features: [
-      "Disputes for up to 4 accounts/month (1 bureau)",
-      "Monthly Credit Report Review & Analysis",
-      "Credit Monitoring Setup Guidance",
-      "Custom Onboarding Email with Action Checklist",
-      "Access to Client Document Portal",
-      "Limited Email Support"
-    ]
-  },
-  {
-    name: "Elite Package",
-    price: 249.99,
-    frequency: "monthly",
-    isOneTime: false,
-    icon: Crown,
-    badge: "🔥 Premium Strategy Plan",
-    color: "red",
-    stripeKey: "elite",
-    features: [
-      "Unlimited Disputes with advanced bureau tactics",
-      "Direct Assigned Credit Coach",
-      "24–48 Hour Dispute Prep Turnaround",
-      "Rebuilding Strategy Session (tradelines, AU options)",
-      "Cease & Desist & Debt Validation Letters",
-      "Data Freeze Setup Support (LexisNexis, SageStream, etc.)",
-      "Priority Email & Chat Support"
-    ]
-  },
-  {
-    name: "All Exclusive Package",
-    price: 599.99,
-    frequency: "one-time",
-    isOneTime: true,
-    icon: Zap,
-    badge: "👑 MOST DOMINANT PLAN",
+    icon: Star,
+    badge: "⭐ Credit Enhancement",
     color: "purple",
+    stripeKey: "elite",
+    ctaText: "Add Tradelines",
     features: [
-      "Full Credit Report Audit + Violation Flagging",
-      "Unlimited Disputes across all accounts",
-      "Custom Dispute Strategy Playbook",
-      "Upload & Review of All Supporting Documents",
-      "VIP Concierge Priority Service",
-      "60-Day Post Audit Follow-Up"
+      "Personalized credit profile evaluation",
+      "Tradeline compatibility analysis",
+      "Education-based tradeline recommendations",
+      "Strategic integration guidance",
+      "Monitoring alignment with existing accounts",
+      "Risk-aware placement strategy",
+      "Client consultation before implementation"
     ]
   }
 ];
@@ -187,7 +155,7 @@ export default function MembershipPricing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-[90rem] mx-auto">{plans.map((plan) => {
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">{plans.map((plan) => {
             const Icon = plan.icon;
             const getColorClasses = (color: string) => {
               switch (color) {
@@ -196,40 +164,18 @@ export default function MembershipPricing() {
                     border: 'border-cyan-400/50 ring-4 ring-cyan-500/30',
                     bg: 'bg-gradient-to-br from-cyan-500/20 via-blue-500/15 to-cyan-600/20 backdrop-blur-xl',
                     icon: 'bg-gradient-to-br from-cyan-400 to-cyan-600 text-white shadow-[0_0_30px_rgba(6,182,212,0.5)]',
-                    badge: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-2 border-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.6)] animate-pulse',
-                    title: 'bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(6,182,212,0.8)]'
+                    badge: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-2 border-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.6)]',
+                    title: 'bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(6,182,212,0.8)]',
+                    button: 'bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-600 hover:via-cyan-700 hover:to-blue-700 text-white border-2 border-cyan-400 shadow-lg shadow-cyan-500/50'
                   };
-                case 'platinum':
+                case 'green':
                   return {
-                    border: 'border-slate-300/50 ring-4 ring-slate-400/40',
-                    bg: 'bg-gradient-to-br from-slate-100/20 via-slate-200/15 to-slate-300/20 backdrop-blur-xl',
-                    icon: 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900 shadow-[0_0_30px_rgba(203,213,225,0.6)]',
-                    badge: 'bg-gradient-to-r from-slate-300 to-slate-400 text-slate-900 border-2 border-slate-200 shadow-[0_0_20px_rgba(203,213,225,0.8)] animate-pulse',
-                    title: 'bg-gradient-to-r from-slate-200 via-slate-300 to-slate-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(203,213,225,0.9)]'
-                  };
-                case 'yellow':
-                  return {
-                    border: 'border-yellow-500/30',
-                    bg: 'bg-yellow-500/5',
-                    icon: 'bg-yellow-500/20 text-yellow-400',
-                    badge: 'bg-yellow-600 text-black',
-                    title: 'text-yellow-400'
-                  };
-                case 'blue':
-                  return {
-                    border: 'border-blue-500/30',
-                    bg: 'bg-blue-500/5',
-                    icon: 'bg-blue-500/20 text-blue-400',
-                    badge: 'bg-blue-600 text-white',
-                    title: 'text-blue-400'
-                  };
-                case 'red':
-                  return {
-                    border: 'border-red-500/30',
-                    bg: 'bg-red-500/5',
-                    icon: 'bg-red-500/20 text-red-400',
-                    badge: 'bg-red-600 text-white',
-                    title: 'text-red-400'
+                    border: 'border-emerald-400/50 ring-4 ring-emerald-500/30',
+                    bg: 'bg-gradient-to-br from-emerald-500/20 via-green-500/15 to-emerald-600/20 backdrop-blur-xl',
+                    icon: 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)]',
+                    badge: 'bg-gradient-to-r from-emerald-500 to-green-500 text-white border-2 border-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.6)]',
+                    title: 'bg-gradient-to-r from-emerald-300 via-emerald-400 to-green-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(16,185,129,0.8)]',
+                    button: 'bg-gradient-to-r from-emerald-500 via-emerald-600 to-green-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-green-700 text-white border-2 border-emerald-400 shadow-lg shadow-emerald-500/50'
                   };
                 case 'purple':
                   return {
@@ -237,7 +183,8 @@ export default function MembershipPricing() {
                     bg: 'bg-gradient-to-br from-purple-900/40 via-purple-800/30 to-purple-900/40 backdrop-blur-xl',
                     icon: 'bg-gradient-to-br from-purple-400 to-purple-600 text-white shadow-[0_0_30px_rgba(168,85,247,0.5)]',
                     badge: 'bg-gradient-to-r from-purple-500 to-purple-700 text-white border-2 border-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.6)]',
-                    title: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(168,85,247,0.8)]'
+                    title: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(168,85,247,0.8)]',
+                    button: 'bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 hover:from-purple-700 hover:via-purple-800 hover:to-purple-900 text-white border-2 border-purple-400 shadow-lg shadow-purple-500/30'
                   };
                 default:
                   return {
@@ -245,7 +192,8 @@ export default function MembershipPricing() {
                     bg: 'bg-slate-800/50',
                     icon: 'bg-slate-700 text-slate-300',
                     badge: 'bg-slate-600 text-white',
-                    title: 'text-slate-300'
+                    title: 'text-slate-300',
+                    button: 'bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white border border-slate-600'
                   };
               }
             };
@@ -253,21 +201,9 @@ export default function MembershipPricing() {
             const colors = getColorClasses(plan.color);
             
             return (
-              <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-2xl bg-black/80 backdrop-blur-sm ${colors.border} ${colors.bg} ${
-                plan.badge?.includes("Limited Time Offer") ? "scale-110 shadow-2xl" :
-                plan.badge?.includes("MOST DOMINANT") ? "scale-110 ring-4 ring-purple-500/70 shadow-2xl shadow-purple-500/30" : ""
-              }`}>
-                {/* Special Christmas Sale Badge */}
-                {plan.specialBadge && (
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
-                    <Badge className="bg-gradient-to-r from-red-600 via-green-600 to-red-600 text-white font-bold text-xs px-3 py-1 shadow-lg border-2 border-white/50 whitespace-nowrap animate-pulse">
-                      {plan.specialBadge}
-                    </Badge>
-                  </div>
-                )}
-                
+              <Card key={plan.name} className={`relative transition-all duration-300 hover:shadow-2xl hover:scale-105 bg-black/80 backdrop-blur-sm ${colors.border} ${colors.bg}`}>
                 {plan.badge && (
-                  <div className={`absolute ${plan.specialBadge ? '-top-0' : '-top-3'} left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full text-sm font-semibold ${colors.badge} border border-current whitespace-nowrap min-w-fit`}>
+                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full text-sm font-semibold ${colors.badge} border border-current whitespace-nowrap min-w-fit`}>
                     {plan.badge}
                   </div>
                 )}
@@ -281,11 +217,7 @@ export default function MembershipPricing() {
                   </CardTitle>
                   <CardDescription className="text-white">
                     <span className="text-3xl font-bold">${plan.price}</span>
-                    {plan.isOneTime ? (
-                      <span className="text-sm text-slate-400"> / One-Time Payment</span>
-                    ) : (
-                      <span className="text-sm text-slate-400"> / {plan.frequency}</span>
-                    )}
+                    <span className="text-sm text-slate-400"> — One-Time Investment</span>
                   </CardDescription>
                 </CardHeader>
 
@@ -293,14 +225,8 @@ export default function MembershipPricing() {
                   <ul className="space-y-3">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                          feature.includes("5 BUSINESS DAYS") ? "text-green-400" : "text-yellow-400"
-                        }`} />
-                        <span className={`text-sm leading-relaxed ${
-                          feature.includes("5 BUSINESS DAYS") 
-                            ? "text-green-400 font-bold" 
-                            : "text-slate-200"
-                        }`}>{feature}</span>
+                        <Check className="w-4 h-4 mt-0.5 flex-shrink-0 text-yellow-400" />
+                        <span className="text-sm leading-relaxed text-slate-200">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -310,19 +236,9 @@ export default function MembershipPricing() {
                   <Button
                     onClick={() => handleSignUp(plan)}
                     disabled={loading === plan.name}
-                    className={`w-full font-semibold transition-all duration-200 ${
-                      plan.badge?.includes("Limited Time Offer") && plan.color === "cyan"
-                        ? "bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-600 hover:via-cyan-700 hover:to-blue-700 text-white border-2 border-cyan-400 shadow-lg shadow-cyan-500/50"
-                        : plan.badge?.includes("Limited Time Offer") && plan.color === "platinum"
-                        ? "bg-gradient-to-r from-slate-300 via-slate-400 to-slate-500 hover:from-slate-400 hover:via-slate-500 hover:to-slate-600 text-slate-900 border-2 border-slate-300 shadow-lg shadow-slate-400/50"
-                        : plan.badge?.includes("MOST DOMINANT")
-                        ? "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 hover:from-purple-700 hover:via-purple-800 hover:to-purple-900 text-white border-2 border-purple-400 shadow-lg shadow-purple-500/30"
-                        : plan.badge?.includes("Premium")
-                        ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white"
-                        : "bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 text-white border border-slate-600"
-                    }`}
+                    className={`w-full font-semibold transition-all duration-200 ${colors.button}`}
                   >
-                    {loading === plan.name ? "Processing..." : "Choose Plan"}
+                    {loading === plan.name ? "Processing..." : plan.ctaText}
                   </Button>
                 </CardFooter>
               </Card>
