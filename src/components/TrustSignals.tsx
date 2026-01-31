@@ -66,10 +66,10 @@ export const TrustSignals = () => {
             <h3 className="text-xl font-bold text-fintech-accent mb-4">Contact Information</h3>
             <div className="space-y-2 text-fintech-light/90">
               <p><strong>Business Name:</strong> Express Credit & Financial Solutions LLC</p>
-              <p><strong>Address:</strong> Dallas, TX 75201</p>
-              <p><strong>Phone:</strong> +1-XXX-XXX-XXXX</p>
-              <p><strong>Email:</strong> info@expresscreditfinancials.org</p>
-              <p><strong>Hours:</strong> Monday-Friday, 9:00 AM - 6:00 PM CST</p>
+              <p><strong>Address:</strong> 6363 Dallas Pkwy, Frisco, TX 75034</p>
+              <p><strong>Phone:</strong> 531-348-9321</p>
+              <p><strong>Email:</strong> expresscreditfinancialsolution@gmail.com</p>
+              <p><strong>Hours:</strong> Monday–Friday, 9:00 AM – 6:00 PM CST</p>
               <p className="text-sm text-fintech-light/70 mt-4">Serving Dallas, Fort Worth, Arlington, Plano, and all of Texas</p>
             </div>
           </div>
