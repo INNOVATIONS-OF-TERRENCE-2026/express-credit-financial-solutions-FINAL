@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Upload, FileText, TrendingUp, Shield, Star, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SecureVerificationUpload } from './SecureVerificationUpload';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ClientData {
   name: string;
@@ -23,6 +25,8 @@ interface ClientDashboardProps {
 }
 
 export function ClientDashboard({ clientData, onUploadDocument, onLogout }: ClientDashboardProps) {
+  const { user } = useAuth();
+  
   const getMembershipBadge = (tier: string) => {
     switch (tier) {
       case 'setup':
@@ -170,6 +174,13 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
               </div>
             </CardContent>
           </Card>
+
+          {/* Secure Verification Upload Module */}
+          {user && (
+            <div className="lg:col-span-3">
+              <SecureVerificationUpload userId={user.id} />
+            </div>
+          )}
 
           {/* Document Upload */}
           <Card className="card-elegant hover-lift lg:col-span-2">

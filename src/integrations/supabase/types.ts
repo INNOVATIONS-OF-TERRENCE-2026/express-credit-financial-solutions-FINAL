@@ -454,6 +454,45 @@ export type Database = {
           },
         ]
       }
+      client_verification_secure: {
+        Row: {
+          address_document_url: string | null
+          created_at: string
+          experian_password_encrypted: string | null
+          experian_username_encrypted: string | null
+          id: string
+          id_document_url: string | null
+          ssn_document_url: string | null
+          ssn_encrypted: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_document_url?: string | null
+          created_at?: string
+          experian_password_encrypted?: string | null
+          experian_username_encrypted?: string | null
+          id?: string
+          id_document_url?: string | null
+          ssn_document_url?: string | null
+          ssn_encrypted?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_document_url?: string | null
+          created_at?: string
+          experian_password_encrypted?: string | null
+          experian_username_encrypted?: string | null
+          id?: string
+          id_document_url?: string | null
+          ssn_document_url?: string | null
+          ssn_encrypted?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           address: string
