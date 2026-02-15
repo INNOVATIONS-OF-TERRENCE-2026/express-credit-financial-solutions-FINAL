@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { VisaLogo } from '@/components/VisaLogo';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,45 +95,17 @@ export default function MembershipPricing() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { planType, paymentStatus, refreshMembership } = useMembership();
+  const navigate = useNavigate();
   
 
-  const handleSignUp = async (plan: typeof plans[0]) => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to purchase a membership",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(plan.name);
-    try {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-      
-      // Use direct Stripe payment links - NO edge functions
-      if (plan.stripeKey && STRIPE_LINKS[plan.stripeKey]) {
-        window.location.href = STRIPE_LINKS[plan.stripeKey];
-      } else {
-        toast({
-          title: "Coming Soon",
-          description: "This plan will be available shortly. Please contact support.",
-        });
-      }
-    } catch (error: any) {
-      console.error("Checkout error:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to redirect to checkout",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(null);
-    }
+  const handleSignUp = (plan: typeof plans[0]) => {
+    const planMap: Record<string, string> = {
+      "Full Blown Credit Repair": "full-repair",
+      "Full ChexSystems Removal": "chexsystems",
+      "Tradelines Add-Ons": "tradelines",
+    };
+    const slug = planMap[plan.name] || "full-repair";
+    navigate(`/checkout?plan=${slug}`);
   };
 
   return (
@@ -235,10 +208,9 @@ export default function MembershipPricing() {
                 <CardFooter className="pt-0">
                   <Button
                     onClick={() => handleSignUp(plan)}
-                    disabled={loading === plan.name}
                     className={`w-full font-semibold transition-all duration-200 ${colors.button}`}
                   >
-                    {loading === plan.name ? "Processing..." : plan.ctaText}
+                    Secure Enrollment
                   </Button>
                 </CardFooter>
               </Card>

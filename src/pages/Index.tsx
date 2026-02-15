@@ -549,10 +549,10 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button 
-                  onClick={() => handlePlanClick("unlimited")}
+                  onClick={() => navigate("/checkout?plan=full-repair")}
                   className="w-full mt-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-lg"
                 >
-                  Start Full Credit Repair
+                  Secure Enrollment
                 </Button>
               </CardContent>
             </Card>
@@ -604,10 +604,10 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button 
-                  onClick={() => handlePlanClick("fast5")}
+                  onClick={() => navigate("/checkout?plan=chexsystems")}
                   className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-semibold shadow-lg"
                 >
-                  Fix My ChexSystems File
+                  Secure Enrollment
                 </Button>
               </CardContent>
             </Card>
@@ -659,10 +659,10 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button 
-                  onClick={() => handlePlanClick("elite")}
+                  onClick={() => navigate("/checkout?plan=tradelines")}
                   className="w-full mt-4 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-semibold shadow-lg"
                 >
-                  Add Tradelines
+                  Secure Enrollment
                 </Button>
               </CardContent>
             </Card>

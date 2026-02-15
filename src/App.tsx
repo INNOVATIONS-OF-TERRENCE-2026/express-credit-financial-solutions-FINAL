@@ -46,6 +46,8 @@ import AdminClients from "./pages/AdminClients";
 import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
 import CreditScoreTracker from "./pages/CreditScoreTracker";
+import CashAppCheckout from "./pages/CashAppCheckout";
+import AdminCashApp from "./pages/AdminCashApp";
 
 const queryClient = new QueryClient();
 
@@ -174,6 +176,8 @@ const App = () => (
               <Route path="/admin/clients" element={<AdminClients />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/tools" element={<AdminTools />} />
+              <Route path="/admin/cashapp" element={<AdminCashApp />} />
+              <Route path="/checkout" element={<CashAppCheckout />} />
               <Route path="/client-portals" element={<ClientPortalLinks />} />
               <Route path="/client/:clientSlug" element={<ClientPortals />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
