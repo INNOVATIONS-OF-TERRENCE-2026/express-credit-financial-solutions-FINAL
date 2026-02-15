@@ -270,6 +270,45 @@ export type Database = {
         }
         Relationships: []
       }
+      cashapp_orders: {
+        Row: {
+          amount: number
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          plan: string
+          screenshot_url: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          plan: string
+          screenshot_url: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          plan?: string
+          screenshot_url?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       chat_history: {
         Row: {
           created_at: string
