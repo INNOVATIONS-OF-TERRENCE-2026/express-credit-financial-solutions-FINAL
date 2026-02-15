@@ -1963,16 +1963,19 @@ export type Database = {
         Row: {
           client_id: string
           file_name: string
+          id: string
           violation_type: string
         }
         Insert: {
           client_id: string
           file_name: string
+          id?: string
           violation_type: string
         }
         Update: {
           client_id?: string
           file_name?: string
+          id?: string
           violation_type?: string
         }
         Relationships: [
