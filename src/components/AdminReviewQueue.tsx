@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import {
   type DisputeLetterRow,
 } from '@/services/disputeWorkflow';
 import { CheckCircle, XCircle, Clock, Eye, Loader2, RefreshCw } from 'lucide-react';
+import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
 
 export function AdminReviewQueue() {
   const [queue, setQueue] = useState<DisputeLetterRow[]>([]);
@@ -28,7 +29,7 @@ export function AdminReviewQueue() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchQueue = () => {
+  const fetchQueue = useCallback(() => {
     setLoading(true);
     getAdminReviewQueue()
       .then(setQueue)
@@ -37,9 +38,12 @@ export function AdminReviewQueue() {
         toast({ title: 'Error', description: 'Failed to load review queue', variant: 'destructive' });
       })
       .finally(() => setLoading(false));
-  };
+  }, [toast]);
 
-  useEffect(() => { fetchQueue(); }, []);
+  useEffect(() => { fetchQueue(); }, [fetchQueue]);
+
+  // Real-time auto-refresh when disputes change
+  useRealtimeRefresh(['dispute_letters'], fetchQueue);
 
   const handleApprove = async (disputeId: string) => {
     if (!user) return;

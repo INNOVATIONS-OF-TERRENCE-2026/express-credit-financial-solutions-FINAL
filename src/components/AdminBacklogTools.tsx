@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -150,6 +151,9 @@ export function AdminBacklogTools() {
   }, [toast]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  // Real-time auto-refresh
+  useRealtimeRefresh(['dispute_letters', 'flagged_disputes', 'credit_report_uploads'], fetchAll);
 
   const handleAnalyze = async (userId: string) => {
     setProcessing(userId);
