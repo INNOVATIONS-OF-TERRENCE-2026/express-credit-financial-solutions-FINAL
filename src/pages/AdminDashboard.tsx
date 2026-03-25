@@ -864,6 +864,14 @@ export default function AdminDashboard() {
           )}
         </main>
       </div>
+
+      {/* Client Editor Dialog */}
+      <AdminClientEditor
+        clientId={editingClientId}
+        open={!!editingClientId}
+        onOpenChange={(open) => { if (!open) setEditingClientId(null); }}
+        onSaved={fetchAdminData}
+      />
     </div>
   );
 }
