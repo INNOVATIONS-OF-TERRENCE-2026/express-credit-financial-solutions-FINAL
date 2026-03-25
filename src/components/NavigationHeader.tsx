@@ -37,14 +37,14 @@ export function NavigationHeader() {
       return;
     }
     switch (planType) {
-      case 'Basic Package':
+      case 'basic':
         return <Badge variant="default">Basic</Badge>;
-      case 'Pro Package':
+      case 'pro':
         return <Badge variant="secondary">Pro</Badge>;
-      case 'Elite Package':
+      case 'elite':
         return <Badge variant="outline">Elite</Badge>;
-      case 'All Exclusive Package':
-        return <Badge variant="destructive">Exclusive</Badge>;
+      case 'vip':
+        return <Badge variant="destructive">VIP</Badge>;
       default:
         return <Badge variant="secondary">Free</Badge>;
     }

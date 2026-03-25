@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useRoles } from './useRoles';
 
-export type PlanType = 'Fast-5' | 'Unlimited Clean-Slate' | 'Gold Basic Package' | 'Basic Package' | 'Pro Package' | 'Elite Package' | 'Elite Package (Premium Strategy Plan)' | 'All Exclusive Package';
+export type PlanType = 'basic' | 'pro' | 'elite' | 'vip';
 
 interface MembershipContextType {
   planType: PlanType | null;
@@ -30,6 +30,8 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     if (!user) {
       setPlanType(null);
       setPaymentStatus(null);
+      setMembershipType(null);
+      setExpiresAt(null);
       setLoading(false);
       return;
     }
@@ -43,6 +45,7 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching membership:', error);
+        setLoading(false);
         return;
       }
 
@@ -51,20 +54,19 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
         setPaymentStatus(data.payment_status);
         setMembershipType(data.membership_type);
         setExpiresAt(data.expires_at);
-        
+
         // Auto-expire VIP trials if past expiration
         if (data.membership_type === 'vip_trial' && data.expires_at && new Date(data.expires_at) <= new Date()) {
           await supabase.from('profiles').update({
-            membership_type: 'expired_trial'
+            membership_type: 'expired_trial',
+            payment_status: 'inactive',
           }).eq('user_id', user.id);
           setMembershipType('expired_trial');
+          setPaymentStatus('inactive');
         }
       }
     } catch (error) {
       console.error('Error fetching membership:', error);
-      // Set default fallback state for graceful degradation
-      setPlanType('Gold Basic Package');
-      setPaymentStatus('active');
     } finally {
       setLoading(false);
     }
@@ -75,35 +77,26 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   }, [user]);
 
   const hasAccess = (feature: string): boolean => {
-    // Admins have access to all features - check both loading states
-    if (!loading && !rolesLoading && isAdmin()) {
-      return true;
-    }
-    
-    // Check for VIP trial access first - they get full access until expiration
-    if (membershipType === 'vip_trial' && paymentStatus === 'active') {
-      return true;
-    }
-    
-    
-    // Publicly accessible features (no login or membership required)
-    if (feature === 'education' || feature === 'dashboard' || feature === 'credit-building' || feature === 'data-freeze') {
-      return true;
-    }
-    
+    // Admins have access to all features
+    if (!loading && !rolesLoading && isAdmin()) return true;
+
+    // VIP trial gets full access until expiration
+    if (membershipType === 'vip_trial' && paymentStatus === 'active') return true;
+
+    // Publicly accessible features
+    if (['education', 'dashboard', 'credit-building', 'data-freeze'].includes(feature)) return true;
+
+    // Must have active status for gated features
     if (paymentStatus !== 'active') return false;
-    
+
     switch (feature) {
       case 'dispute-generator':
       case 'credit-upload':
-        return ['Fast-5', 'Unlimited Clean-Slate', 'Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
-      
+        return ['pro', 'elite', 'vip'].includes(planType || '');
       case 'exclusive-content':
-        return ['All Exclusive Package', 'exclusive'].includes(planType || '');
-      
+        return ['vip'].includes(planType || '');
       case 'document-center':
-        return ['Fast-5', 'Unlimited Clean-Slate', 'Gold Basic Package', 'Basic Package', 'Pro Package', 'Elite Package', 'Elite Package (Premium Strategy Plan)', 'All Exclusive Package', 'basic', 'pro', 'elite', 'exclusive', 'fast5', 'unlimited_clean_slate'].includes(planType || '');
-      
+        return ['basic', 'pro', 'elite', 'vip'].includes(planType || '');
       default:
         return false;
     }

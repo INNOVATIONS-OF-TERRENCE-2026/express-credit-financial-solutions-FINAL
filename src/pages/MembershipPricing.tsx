@@ -11,8 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
 import { BackButton } from '@/components/BackButton';
 import { EngineerCredit } from '@/components/EngineerCredit';
-import { STRIPE_LINKS, type StripeLinkKey } from "@/config/stripeLinks";
-import confetti from "canvas-confetti";
 
 const plans: Array<{
   name: string;
@@ -22,7 +20,7 @@ const plans: Array<{
   icon: any;
   badge: string;
   color: string;
-  stripeKey?: StripeLinkKey;
+  
   features: string[];
   ctaText: string;
 }> = [
@@ -34,7 +32,7 @@ const plans: Array<{
     icon: Crown,
     badge: "👑 Elite Service",
     color: "cyan",
-    stripeKey: "unlimited",
+    
     ctaText: "Start Full Credit Repair",
     features: [
       "Full credit file audit & analysis",
@@ -56,7 +54,7 @@ const plans: Array<{
     icon: Zap,
     badge: "🏦 Banking Access",
     color: "green",
-    stripeKey: "fast5",
+    
     ctaText: "Fix My ChexSystems File",
     features: [
       "ChexSystems consumer file review",
@@ -76,7 +74,7 @@ const plans: Array<{
     icon: Star,
     badge: "⭐ Credit Enhancement",
     color: "purple",
-    stripeKey: "elite",
+    
     ctaText: "Add Tradelines",
     features: [
       "Personalized credit profile evaluation",
@@ -99,13 +97,10 @@ export default function MembershipPricing() {
   
 
   const handleSignUp = (plan: typeof plans[0]) => {
-    const planMap: Record<string, string> = {
-      "Full Blown Credit Repair": "full-repair",
-      "Full ChexSystems Removal": "chexsystems",
-      "Tradelines Add-Ons": "tradelines",
-    };
-    const slug = planMap[plan.name] || "full-repair";
-    navigate(`/checkout?plan=${slug}`);
+    toast({
+      title: "Enrollment Request",
+      description: "Contact our admin team to activate your membership. Call or email us to get started!",
+    });
   };
 
   return (

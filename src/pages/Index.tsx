@@ -28,7 +28,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { TrustSignals } from '@/components/TrustSignals';
 import { FAQSection } from '@/components/FAQSection';
 import { EngineerCredit } from '@/components/EngineerCredit';
-import { STRIPE_LINKS, type StripeLinkKey } from "@/config/stripeLinks";
+
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
@@ -72,27 +72,6 @@ const Index = () => {
     }
   };
 
-  const handlePlanClick = (stripeKey: StripeLinkKey) => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to purchase a membership",
-        variant: "destructive",
-      });
-      navigate("/login");
-      return;
-    }
-
-    // Direct Stripe payment links - NO edge functions
-    if (STRIPE_LINKS[stripeKey]) {
-      window.location.href = STRIPE_LINKS[stripeKey];
-    } else {
-      toast({
-        title: "Coming Soon",
-        description: "This plan will be available shortly.",
-      });
-    }
-  };
   
   const handleLogin = async (email: string, password: string) => {
     const {
