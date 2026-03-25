@@ -46,7 +46,10 @@ export function BulkDocumentIntelligence() {
         // ✅ STORAGE UPLOAD
         const { error: uploadError } = await supabase.storage.from("documents").upload(storagePath, file);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("STORAGE UPLOAD ERROR:", uploadError);
+          throw new Error(`Storage upload failed: ${uploadError.message}`);
+        }
 
         // ✅ DB RECORD
         const { data, error: dbError } = await supabase
@@ -60,7 +63,10 @@ export function BulkDocumentIntelligence() {
           .select()
           .single();
 
-        if (dbError) throw dbError;
+        if (dbError) {
+          console.error("DB INSERT ERROR:", dbError);
+          throw new Error(`DB insert failed: ${dbError.message}`);
+        }
 
         const db_file_id = (data as any)?.id;
 
