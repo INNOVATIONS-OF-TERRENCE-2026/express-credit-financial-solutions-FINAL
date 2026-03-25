@@ -637,7 +637,7 @@ export default function AdminDashboard() {
                             <TableCell><Badge variant="outline">{u.plan_type || 'None'}</Badge></TableCell>
                             <TableCell><Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge></TableCell>
                             <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
-                            <TableCell><Button size="sm" variant="outline"><Eye className="h-4 w-4" /></Button></TableCell>
+                            <TableCell><div className="flex gap-1"><Button size="sm" variant="outline"><Eye className="h-4 w-4" /></Button><Button size="sm" variant="outline" onClick={() => setEditingClientId(u.id)}><Pencil className="h-4 w-4" /></Button></div></TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
