@@ -74,6 +74,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'PRIORITY' },
   { section: 'documents', label: 'Documents', icon: Upload, group: 'PRIORITY' },
   { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'PRIORITY' },
+  { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
