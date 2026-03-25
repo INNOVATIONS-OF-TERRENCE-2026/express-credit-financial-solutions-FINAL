@@ -37,20 +37,10 @@ export function AdminAIControlPanel() {
   const [letterResult, setLetterResult] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  // Double gate
-  if (!isAdmin() || user?.email !== 'admin@expresscredit.com') {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Shield className="h-12 w-12 text-destructive mx-auto mb-2" />
-          <p className="font-semibold">Access Restricted</p>
-          <p className="text-sm text-muted-foreground">This panel is only available to the primary admin.</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const isAuthorized = isAdmin() && user?.email === 'admin@expresscredit.com';
 
   useEffect(() => {
+    if (!isAuthorized) return;
     fetchData();
   }, []);
 

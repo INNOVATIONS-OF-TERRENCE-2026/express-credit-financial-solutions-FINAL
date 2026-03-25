@@ -133,13 +133,13 @@ export async function transitionDisputeStatus(
   // Log transition
   const { error: logError } = await supabase
     .from('case_workflow_log')
-    .insert({
+    .insert([{
       dispute_letter_id: disputeId,
       from_status: currentStatus,
       to_status: newStatus,
       changed_by: userId,
-      metadata,
-    });
+      metadata: metadata as any,
+    }]);
 
   if (logError) console.error('Failed to log transition:', logError);
 }
