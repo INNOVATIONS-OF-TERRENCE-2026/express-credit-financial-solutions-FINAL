@@ -211,6 +211,16 @@ export function AutonomousControlPanel() {
                 min={20} max={80} step={5}
               />
             </div>
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <Label className="text-sm font-medium">Auto-Generate Disputes</Label>
+                <p className="text-xs text-muted-foreground">Automatically generate dispute letters when credit reports are analyzed</p>
+              </div>
+              <Switch
+                checked={settings?.auto_generate_disputes || false}
+                onCheckedChange={(checked) => settings && setSettings({ ...settings, auto_generate_disputes: checked })}
+              />
+            </div>
             <Button onClick={saveThresholds} size="sm">Save Thresholds</Button>
           </div>
         </CardContent>
