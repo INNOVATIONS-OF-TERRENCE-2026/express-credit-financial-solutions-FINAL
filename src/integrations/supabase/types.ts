@@ -296,6 +296,80 @@ export type Database = {
         }
         Relationships: []
       }
+      autonomous_jobs: {
+        Row: {
+          client_id: string | null
+          completed_at: string | null
+          confidence_score: number | null
+          created_at: string
+          document_upload_id: string | null
+          error_message: string | null
+          id: string
+          job_type: string
+          result_data: Json | null
+          status: string
+        }
+        Insert: {
+          client_id?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          document_upload_id?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          result_data?: Json | null
+          status?: string
+        }
+        Update: {
+          client_id?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          document_upload_id?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          result_data?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "autonomous_jobs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      autonomous_settings: {
+        Row: {
+          auto_attach_threshold: number | null
+          autonomous_enabled: boolean | null
+          id: string
+          review_threshold: number | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          auto_attach_threshold?: number | null
+          autonomous_enabled?: boolean | null
+          id?: string
+          review_threshold?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          auto_attach_threshold?: number | null
+          autonomous_enabled?: boolean | null
+          id?: string
+          review_threshold?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       bank_links: {
         Row: {
           access_token: string | null
@@ -1340,6 +1414,65 @@ export type Database = {
             columns: ["dispute_letter_id"]
             isOneToOne: false
             referencedRelation: "dispute_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_ai_results: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          detected_doc_type: string | null
+          document_id: string | null
+          extracted_address: string | null
+          extracted_dob: string | null
+          extracted_name: string | null
+          extracted_ssn_last4: string | null
+          id: string
+          is_verified: boolean | null
+          match_reason: string | null
+          matched_client_id: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          detected_doc_type?: string | null
+          document_id?: string | null
+          extracted_address?: string | null
+          extracted_dob?: string | null
+          extracted_name?: string | null
+          extracted_ssn_last4?: string | null
+          id?: string
+          is_verified?: boolean | null
+          match_reason?: string | null
+          matched_client_id?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          detected_doc_type?: string | null
+          document_id?: string | null
+          extracted_address?: string | null
+          extracted_dob?: string | null
+          extracted_name?: string | null
+          extracted_ssn_last4?: string | null
+          id?: string
+          is_verified?: boolean | null
+          match_reason?: string | null
+          matched_client_id?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_ai_results_matched_client_id_fkey"
+            columns: ["matched_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
