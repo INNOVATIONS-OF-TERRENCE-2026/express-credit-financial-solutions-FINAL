@@ -217,21 +217,46 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
 
           {/* Dashboard */}
           {activeTab === 'dashboard' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
-              {[
-                { label: 'Profile', icon: User, content: <><p className="text-sm"><strong>Name:</strong> {clientData.full_name}</p><p className="text-sm"><strong>Plan:</strong> {clientData.membership_plan}</p></> },
-                { label: 'Credit Reports', icon: FileText, content: <><div className="stat-number">{creditReports.length}</div><p className="text-xs text-muted-foreground">Reports uploaded</p></> },
-                { label: 'Disputes', icon: Brain, content: <><div className="stat-number">{disputeLetters.length}</div><p className="text-xs text-muted-foreground">Total dispute letters</p></> },
-                { label: 'Flagged Items', icon: Shield, content: <><div className="stat-number">{creditReports.reduce((sum, r) => sum + (r.flagged_accounts_count || 0), 0)}</div><p className="text-xs text-muted-foreground">AI-flagged accounts</p></> },
-              ].map(card => {
-                const Icon = card.icon;
-                return (
-                  <Card key={card.label} className="glass-card-hover">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><Icon className="w-4 h-4 text-primary" />{card.label}</CardTitle></CardHeader>
-                    <CardContent>{card.content}</CardContent>
-                  </Card>
-                );
-              })}
+            <div className="space-y-4 animate-fade-in">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { label: 'Profile', icon: User, content: <><p className="text-sm"><strong>Name:</strong> {clientData.full_name}</p><p className="text-sm"><strong>Plan:</strong> {clientData.membership_plan}</p></> },
+                  { label: 'Credit Reports', icon: FileText, content: <><div className="stat-number">{creditReports.length}</div><p className="text-xs text-muted-foreground">Reports uploaded</p></> },
+                  { label: 'Disputes', icon: Brain, content: <><div className="stat-number">{disputeLetters.length}</div><p className="text-xs text-muted-foreground">Total dispute letters</p></> },
+                  { label: 'Flagged Items', icon: Shield, content: <><div className="stat-number">{creditReports.reduce((sum, r) => sum + (r.flagged_accounts_count || 0), 0)}</div><p className="text-xs text-muted-foreground">AI-flagged accounts</p></> },
+                ].map(card => {
+                  const Icon = card.icon;
+                  return (
+                    <Card key={card.label} className="glass-card-hover">
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><Icon className="w-4 h-4 text-primary" />{card.label}</CardTitle></CardHeader>
+                      <CardContent>{card.content}</CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Credit Scores - Live Sync */}
+              {creditScores && (creditScores.experian_score || creditScores.equifax_score || creditScores.transunion_score) && (
+                <Card className="glass-card">
+                  <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><CreditCard className="w-4 h-4 text-primary" />Credit Scores</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="p-3 rounded-lg border border-border">
+                        <p className="text-xs text-muted-foreground">Experian</p>
+                        <p className="text-2xl font-bold text-foreground">{creditScores.experian_score ?? '—'}</p>
+                      </div>
+                      <div className="p-3 rounded-lg border border-border">
+                        <p className="text-xs text-muted-foreground">Equifax</p>
+                        <p className="text-2xl font-bold text-foreground">{creditScores.equifax_score ?? '—'}</p>
+                      </div>
+                      <div className="p-3 rounded-lg border border-border">
+                        <p className="text-xs text-muted-foreground">TransUnion</p>
+                        <p className="text-2xl font-bold text-foreground">{creditScores.transunion_score ?? '—'}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
