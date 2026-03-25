@@ -320,6 +320,102 @@ export type Database = {
         }
         Relationships: []
       }
+      bulk_upload_batches: {
+        Row: {
+          created_at: string
+          created_by: string
+          failed_files: number
+          id: string
+          matched_files: number
+          needs_review_count: number
+          processed_files: number
+          status: string
+          total_files: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          failed_files?: number
+          id?: string
+          matched_files?: number
+          needs_review_count?: number
+          processed_files?: number
+          status?: string
+          total_files?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          failed_files?: number
+          id?: string
+          matched_files?: number
+          needs_review_count?: number
+          processed_files?: number
+          status?: string
+          total_files?: number
+        }
+        Relationships: []
+      }
+      bulk_upload_files: {
+        Row: {
+          ai_reason: string | null
+          batch_id: string
+          confidence_score: number | null
+          created_at: string
+          detected_document_type: string | null
+          extracted_fields: Json | null
+          file_name: string
+          file_type: string | null
+          id: string
+          match_status: string
+          matched_client_id: string | null
+          storage_path: string | null
+        }
+        Insert: {
+          ai_reason?: string | null
+          batch_id: string
+          confidence_score?: number | null
+          created_at?: string
+          detected_document_type?: string | null
+          extracted_fields?: Json | null
+          file_name: string
+          file_type?: string | null
+          id?: string
+          match_status?: string
+          matched_client_id?: string | null
+          storage_path?: string | null
+        }
+        Update: {
+          ai_reason?: string | null
+          batch_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          detected_document_type?: string | null
+          extracted_fields?: Json | null
+          file_name?: string
+          file_type?: string | null
+          id?: string
+          match_status?: string
+          matched_client_id?: string | null
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulk_upload_files_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "bulk_upload_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bulk_upload_files_matched_client_id_fkey"
+            columns: ["matched_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       case_workflow_log: {
         Row: {
           changed_by: string | null
@@ -1283,6 +1379,102 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      document_classification_results: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          document_type: string | null
+          extracted_text: string | null
+          file_id: string
+          id: string
+          structured_data: Json | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          document_type?: string | null
+          extracted_text?: string | null
+          file_id: string
+          id?: string
+          structured_data?: Json | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          document_type?: string | null
+          extracted_text?: string | null
+          file_id?: string
+          id?: string
+          structured_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_classification_results_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "bulk_upload_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_match_reviews: {
+        Row: {
+          admin_selected_client_id: string | null
+          created_at: string
+          file_id: string
+          id: string
+          notes: string | null
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          suggested_client_id: string | null
+        }
+        Insert: {
+          admin_selected_client_id?: string | null
+          created_at?: string
+          file_id: string
+          id?: string
+          notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          suggested_client_id?: string | null
+        }
+        Update: {
+          admin_selected_client_id?: string | null
+          created_at?: string
+          file_id?: string
+          id?: string
+          notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          suggested_client_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_match_reviews_admin_selected_client_id_fkey"
+            columns: ["admin_selected_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_match_reviews_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "bulk_upload_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_match_reviews_suggested_client_id_fkey"
+            columns: ["suggested_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       document_uploads: {
         Row: {
