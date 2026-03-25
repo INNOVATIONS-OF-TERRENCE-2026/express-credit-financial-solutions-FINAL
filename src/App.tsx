@@ -109,7 +109,7 @@ const App = () => (
                 } 
               />
               <Route path="/membership" element={<MembershipPricing />} />
-              <Route path="/membership-success" element={<MembershipSuccess />} />
+              
               <Route 
                 path="/education" 
                 element={
