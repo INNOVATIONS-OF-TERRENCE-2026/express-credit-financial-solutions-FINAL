@@ -31,6 +31,7 @@ import { AdminBacklogTools } from '@/components/AdminBacklogTools';
 import { ClientProcessingGrid } from '@/components/ClientProcessingGrid';
 import { BulkDocumentIntelligence } from '@/components/BulkDocumentIntelligence';
 import { cn } from '@/lib/utils';
+import { AutonomousControlPanel } from '@/components/AutonomousControlPanel';
 
 interface AdminUser {
   id: string;
