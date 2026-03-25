@@ -1,124 +1,168 @@
 
 
-# Full Credit Automation System Upgrade
+# Full Automation Layer Implementation
 
 ## Overview
-Add autonomous dispute generation, admin client editing with credit score overrides, and live client portal sync — all layered on top of existing systems without breaking anything.
+Add a production-ready automation layer with event queuing, client activity timeline, multi-channel notifications (in-app now, SMS/email ready for future providers), score history tracking, score predictions, and an admin Automation Control Center. All layered on top of existing systems.
 
-## 1. Database Migration
+## 1. Database Migration (single migration file)
 
-**New table: `dispute_cases`**
-- `id` uuid PK, `client_id` uuid, `user_id` text
-- `bureau` text (Experian/Equifax/TransUnion)
-- `account_name` text, `account_number_last4` text
-- `violation_type` text, `dispute_reason` text
-- `status` text default 'pending' (pending/generated/sent/completed)
-- `source` text default 'manual' (manual/ai_auto)
-- `flagged_dispute_id` uuid nullable (link to existing flagged_disputes)
-- `created_at` timestamp
-- RLS: admin-only + user can read own (via user_id match)
+**New tables:**
 
-**New table: `ai_dispute_letters`**
-- `id` uuid PK, `client_id` uuid, `user_id` text
-- `dispute_case_id` uuid references dispute_cases
-- `letter_content` text, `letter_type` text
-- `bureau` text, `confidence_score` numeric
-- `status` text default 'draft' (draft/approved/sent)
-- `generated_at` timestamp default now()
-- RLS: admin-only + user can read own
+- **`automation_events`** — Central event queue. Columns: `id`, `client_id` (uuid nullable), `user_id` (uuid nullable), `event_type` (text), `event_source` (text), `payload` (jsonb), `status` (text default 'pending'), `created_at`, `processed_at`, `error_message`. RLS: admin-only + service role.
 
-**New table: `client_credit_scores`** (separate from existing `credit_scores` which uses different schema)
-- `id` uuid PK, `client_id` uuid references clients
-- `user_id` uuid
-- `experian_score` integer, `equifax_score` integer, `transunion_score` integer
-- `source` text default 'manual' (manual/ai_parsed)
-- `updated_at` timestamp, `updated_by` uuid
-- RLS: admin full access, user can read own
-- Unique constraint on `client_id` (one active row per client)
+- **`client_activity_timeline`** — Operational history feed. Columns: `id`, `client_id` (uuid nullable), `user_id` (uuid nullable), `activity_type` (text), `title` (text), `description` (text), `metadata` (jsonb), `visible_to_client` (boolean default true), `visible_to_admin` (boolean default true), `created_at`, `created_by_source` (text default 'system'). RLS: admin full access, users read own (where `visible_to_client = true` and `user_id = auth.uid()`).
 
-## 2. Edge Function: `generate-dispute-ai`
+- **`client_notifications`** — Multi-channel notification queue. Columns: `id`, `client_id` (uuid nullable), `user_id` (uuid nullable), `channel` (text — 'email'/'sms'/'in_app'), `notification_type` (text), `subject` (text), `message` (text), `payload` (jsonb), `status` (text default 'queued'), `provider` (text default 'internal'), `created_at`, `sent_at`, `error_message`. RLS: admin full access, users read own in_app notifications.
 
-Accepts: `{ client_id, flagged_accounts?: array, mode: 'auto' | 'manual' }`
+- **`notification_preferences`** — Per-client opt-in/out. Columns: `id`, `client_id` (uuid nullable), `user_id` (uuid nullable), `email_enabled` (boolean default true), `sms_enabled` (boolean default true), `in_app_enabled` (boolean default true), `marketing_enabled` (boolean default false), `transactional_enabled` (boolean default true), `updated_at`. RLS: admin full, users manage own. Unique on `user_id`.
+
+- **`score_history`** — Bureau score over time. Columns: `id`, `client_id` (uuid nullable), `user_id` (uuid nullable), `bureau` (text), `score_value` (integer), `source` (text default 'manual'), `report_id` (uuid nullable), `recorded_at` (timestamp default now()). RLS: admin full, users read own.
+
+- **`score_predictions`** — AI-estimated score ranges. Columns: `id`, `client_id` (uuid nullable), `user_id` (uuid nullable), `current_experian`/`current_equifax`/`current_transunion` (integer nullable), `predicted_experian_min`/`max`, `predicted_equifax_min`/`max`, `predicted_transunion_min`/`max` (integer nullable), `factors` (jsonb), `confidence_level` (numeric), `based_on_report_id` (uuid nullable), `created_at`. RLS: admin full, users read own.
+
+- **`notification_templates`** — Admin-editable message templates. Columns: `id`, `event_type` (text unique), `channel` (text default 'in_app'), `subject_template` (text), `message_template` (text), `is_active` (boolean default true), `updated_at`, `updated_by` (uuid nullable). RLS: admin-only.
+
+Seed `notification_templates` with default rows for each event type (document_uploaded, credit_report_analyzed, dispute_letter_generated, etc.) with sensible default messages.
+
+Seed `notification_preferences` default row creation will happen on-demand via upsert in the edge function.
+
+## 2. Edge Function: `process-automation-event`
+
+Accepts: `{ event_type, client_id?, user_id?, payload?, source? }`
 
 Logic:
-1. Auth check (admin or service role)
-2. Fetch client data from `clients` table
-3. Fetch flagged disputes for client from `flagged_disputes`
-4. For each flagged account: call OpenAI to generate a bureau-specific dispute letter (605B/611/623 based on `violation_type`)
-5. Insert into `dispute_cases` with status='generated'
-6. Insert generated letter into `ai_dispute_letters`
-7. If autonomous mode ON and confidence > threshold: auto-approve
-8. Otherwise: set to needs_admin_review
-9. Return summary of generated cases
+1. Insert into `automation_events` (status: processing)
+2. Insert into `client_activity_timeline` with appropriate title/description based on event_type mapping
+3. Look up `notification_templates` for this event_type
+4. If template active, check `notification_preferences` for the user
+5. For `in_app` channel: insert into `client_notifications` with status='sent'
+6. For `email` channel: attempt to invoke existing `send-notification-email` function; mark sent/failed
+7. For `sms` channel: check if `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` secrets exist; if not, insert with status='skipped' and error_message='SMS provider not configured'; if yes, call Twilio API
+8. Update `automation_events` to 'processed' or 'failed'
+9. Return summary
 
-Reuses the existing letter generation prompt patterns from `generate-dispute-letter-secure`.
+This is the single dispatch point. All other edge functions and frontend actions call this to trigger automation.
 
-## 3. New Component: `AdminClientEditor.tsx`
+## 3. Edge Function: `predict-credit-score`
 
-Full client profile editor accessible from admin Users section:
-- Opens as a dialog/sheet when clicking a client row
-- Editable fields: full_name, email, phone, address, dob, ssn_last4, membership_plan
-- Credit score section: experian_score, equifax_score, transunion_score (reads/writes `client_credit_scores`)
-- Save button updates `clients` table + `client_credit_scores` via upsert
-- "Generate Disputes" button triggers `generate-dispute-ai` for this client
+Accepts: `{ client_id, user_id?, report_id? }`
 
-## 4. New Component: `DisputeCommandCenter.tsx`
+Logic:
+1. Fetch current scores from `client_credit_scores`
+2. Fetch flagged disputes count from `flagged_disputes` for client
+3. Fetch dispute cases count and status from `dispute_cases`
+4. Use OpenAI (gpt-4o-mini) with a structured prompt to estimate score ranges based on: number of negative accounts, collections, charge-offs, projected removals, utilization
+5. Insert into `score_predictions`
+6. Trigger automation event `score_predicted`
+7. Return prediction data
 
-New admin section ('dispute-command') showing:
-- **Stats row**: Total cases, Pending, Generated, Sent, Completed
-- **Table**: All dispute_cases joined with ai_dispute_letters
-  - Columns: Client, Bureau, Account, Violation, Status, Letter Preview, Actions
-  - Actions: Approve, Regenerate, Mark Sent, Mark Completed
-- **Bulk actions**: "Generate All Pending" button runs AI on all clients with flagged disputes that lack cases
-- Filter tabs: All / Pending / Generated / Sent / Completed
-- Uses `useRealtimeRefresh` on `dispute_cases` and `ai_dispute_letters`
+Include disclaimer text in the response.
 
-## 5. Dashboard Integration
+## 4. New Component: `AutomationControlCenter.tsx`
 
-In `AdminDashboard.tsx`:
-- Add `'dispute-command'` and `'client-editor'` to Section type
-- Add nav items for Dispute Command Center (Gavel icon, WORKFLOW group + PRIORITY group)
-- Add COMMAND_CARD for "Dispute Command Center"
-- Add pinned action bar button: "Generate Disputes"
-- Render `<DisputeCommandCenter />` and `<AdminClientEditor />` for their sections
-- Update Users section: add Edit button per row that opens `AdminClientEditor` as a dialog
+Admin section with tabs:
 
-## 6. Client Portal Live Sync
+**Overview Tab:**
+- 6 stat cards: Notifications Sent Today, Pending Events, Failed Automations, Score Updates Today, Follow-ups Due, Active Automations
+- All fetched from the new tables with date filters
 
-In `ClientPortal.tsx`:
-- Add Supabase realtime subscription on `client_credit_scores` filtered by user_id
-- Add subscription on `dispute_cases` filtered by user_id
-- Fetch and display credit scores from `client_credit_scores`
-- Show dispute cases with their status in the Disputes tab
-- All data auto-refreshes via realtime — no manual refresh needed
+**Event Queue Tab:**
+- Table of `automation_events` with filters (All/Pending/Processed/Failed)
+- "Re-run" button for failed events (re-invokes `process-automation-event`)
 
-## 7. Auto-Dispute Pipeline Integration
+**Notifications Tab:**
+- Table of `client_notifications` with channel/status filters
+- Shows delivery status per channel
 
-In `AutonomousControlPanel.tsx` and the autonomous edge function flow:
-- After credit report analysis completes (existing `analyze-credit-report` function), if autonomous mode is ON, automatically invoke `generate-dispute-ai` for the client
-- This chains: Upload → Parse → Flag Accounts → Generate Disputes → Review Queue
-- Add a checkbox in autonomous settings: `auto_generate_disputes` boolean (default false)
+**Timeline Tab:**
+- Searchable/filterable view of `client_activity_timeline` (admin-only entries included)
 
-## 8. Real-time Updates
+**Templates Tab:**
+- Editable list of `notification_templates`
+- Toggle active/inactive
+- Edit subject/message templates inline
 
-Add `dispute_cases` and `ai_dispute_letters` to `useRealtimeRefresh.tsx` subscriptions.
+**Score Predictions Tab:**
+- Table of latest predictions per client
+- "Generate Prediction" button per client
+
+**Provider Status:**
+- Shows Email: configured/not, SMS/Twilio: configured/not (checks if secrets exist via a simple indicator)
+
+## 5. New Component: `ClientActivityTimeline.tsx`
+
+Reusable component that renders timeline entries for a given `client_id` or `user_id`.
+- Vertical timeline with icons per activity_type
+- Used in both admin views and client portal
+- Accepts `showAdminOnly` prop to filter visibility
+
+## 6. New Component: `ScorePredictionCard.tsx`
+
+Displays score prediction ranges with visual bar indicators.
+- Shows current vs predicted for each bureau
+- Disclaimer: "AI-assisted estimates, not guaranteed outcomes"
+- Used in both admin and client portal
+
+## 7. New Component: `ClientNotificationsPanel.tsx`
+
+Client-facing in-app notification list.
+- Fetches from `client_notifications` where channel='in_app' and user_id matches
+- Shows unread count badge
+- Mark as read functionality (update status)
+
+## 8. Dashboard Integration (`AdminDashboard.tsx`)
+
+- Add `'automation'` to Section type
+- Add nav item: `{ section: 'automation', label: 'Automation Center', icon: Zap, group: 'PRIORITY' }` and in WORKFLOW group
+- Add COMMAND_CARD with Zap icon and green accent
+- Add pinned action bar button: "Automation Center"
+- Render `<AutomationControlCenter />` when `activeSection === 'automation'`
+
+## 9. Client Portal Integration (`ClientPortal.tsx`)
+
+- Add new tabs: 'timeline' (Activity Timeline) and 'notifications' (In-App Messages)
+- Add `<ScorePredictionCard />` below credit scores on dashboard tab
+- Add `<ClientActivityTimeline />` in timeline tab
+- Add `<ClientNotificationsPanel />` in notifications tab
+- Add realtime subscriptions on `client_activity_timeline`, `client_notifications`, `score_predictions`
+- Show notification count badge on the notifications tab
+
+## 10. Real-time Updates (`useRealtimeRefresh.tsx`)
+
+Add subscriptions for: `automation_events`, `client_activity_timeline`, `client_notifications`, `score_predictions`, `score_history`
+
+## 11. Automation Trigger Integration
+
+Add calls to `process-automation-event` in key existing flows (via frontend `supabase.functions.invoke`):
+- In `AdminFileUploader.tsx`: after upload success, fire `document_uploaded` event
+- In `AutonomousControlPanel.tsx`: after AI match, fire `document_classified`/`document_matched`
+- In `DisputeCommandCenter.tsx`: after dispute actions, fire appropriate events
+- In `AdminClientEditor.tsx`: after save, fire `client_profile_updated` and `score_updated`
+
+These are lightweight additions — just a `supabase.functions.invoke('process-automation-event', { body: {...} })` call after existing logic.
 
 ## Files to Create
-- `supabase/migrations/[timestamp]_dispute_automation.sql` — 3 tables + RLS
-- `supabase/functions/generate-dispute-ai/index.ts` — AI dispute engine
-- `src/components/AdminClientEditor.tsx` — client edit dialog with score overrides
-- `src/components/DisputeCommandCenter.tsx` — dispute management panel
+- `supabase/migrations/[timestamp]_automation_layer.sql` — 7 tables + RLS + seed templates
+- `supabase/functions/process-automation-event/index.ts` — event dispatcher
+- `supabase/functions/predict-credit-score/index.ts` — score prediction engine
+- `src/components/AutomationControlCenter.tsx` — admin UI
+- `src/components/ClientActivityTimeline.tsx` — timeline component
+- `src/components/ScorePredictionCard.tsx` — prediction display
+- `src/components/ClientNotificationsPanel.tsx` — client notification inbox
 
 ## Files to Edit
-- `src/pages/AdminDashboard.tsx` — add sections, nav, command cards, render new components
-- `src/components/ClientPortal.tsx` — add credit score display + realtime subscriptions
+- `src/pages/AdminDashboard.tsx` — add section, nav, command card, render
+- `src/components/ClientPortal.tsx` — add tabs, components, realtime subscriptions
 - `src/hooks/useRealtimeRefresh.tsx` — add new table subscriptions
-- `src/components/AutonomousControlPanel.tsx` — add auto_generate_disputes toggle
-- `src/integrations/supabase/types.ts` — auto-updates after migration
+- `src/components/DisputeCommandCenter.tsx` — add automation event triggers
+- `src/components/AdminClientEditor.tsx` — add automation event triggers
+- `src/components/AdminFileUploader.tsx` — add automation event trigger
 
 ## Safety
-- All existing dispute_letters, flagged_disputes, and manual workflows remain untouched
-- New tables are additive — no schema changes to existing tables
-- Admin client editing writes to the existing `clients` table (which already has admin RLS)
-- Credit scores use a new dedicated table to avoid conflicts with existing `credit_scores`
+- All existing workflows untouched — automation is purely additive
+- SMS gracefully skips if Twilio not configured (no errors, just logged as 'skipped')
+- Admin-only access enforced via `has_role()` RLS
+- Client portal only sees their own data with `visible_to_client = true` filter
+- No secrets exposed in frontend
 
