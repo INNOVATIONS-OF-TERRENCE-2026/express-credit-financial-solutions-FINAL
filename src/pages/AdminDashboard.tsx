@@ -478,6 +478,15 @@ export default function AdminDashboard() {
           >
             <Bot className="h-4 w-4 mr-1.5" />
             Autonomous Mode
+           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-amber-500/30 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            onClick={() => setActiveSection('dispute-command')}
+          >
+            <Gavel className="h-4 w-4 mr-1.5" />
+            Generate Disputes
           </Button>
           {liveCounts.needsReview > 0 && (
             <Badge variant="destructive" className="shrink-0 ml-auto animate-pulse">
