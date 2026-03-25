@@ -35,6 +35,10 @@ export function useRealtimeRefresh(
       .on('postgres_changes', { event: '*', schema: 'public', table: 'client_notifications' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'score_predictions' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'score_history' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_intelligence_packets' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ai_workflows' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ai_agent_runs' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'execution_queue' }, debouncedRefresh)
       .subscribe();
 
     return () => {
