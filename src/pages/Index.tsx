@@ -369,8 +369,10 @@ const Index = () => {
                 </div>
                 <CardHeader className="text-center pt-10">
                   <CardTitle className="font-poppins text-xl font-bold text-foreground">{plan.title}</CardTitle>
-                  <div className="text-4xl font-bold text-primary mt-2">{plan.price}</div>
-                  <div className="text-sm text-muted-foreground font-semibold">One-Time Investment</div>
+                  <div className={`${plan.plan === 'tradelines' ? 'text-2xl' : 'text-4xl'} font-bold text-primary mt-2`}>{plan.price}</div>
+                  <div className="text-sm text-muted-foreground font-semibold">
+                    {plan.plan === 'tradelines' ? 'Based on credit age, limit & reporting cycle' : 'One-Time Investment'}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2 px-4">
                   <ul className="text-xs text-foreground/90 space-y-2">
