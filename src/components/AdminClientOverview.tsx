@@ -215,10 +215,6 @@ export function AdminClientOverview() {
                           }
                         }}
                       >
-                          const clientSlug = client.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                          window.open(`/client/${clientSlug}`, '_blank');
-                        }}
-                      >
                         View Portal
                       </Button>
                       <Button 
