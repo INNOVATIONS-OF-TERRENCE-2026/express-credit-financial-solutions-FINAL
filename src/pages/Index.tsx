@@ -28,7 +28,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { TrustSignals } from '@/components/TrustSignals';
 import { FAQSection } from '@/components/FAQSection';
 import { EngineerCredit } from '@/components/EngineerCredit';
-import { STRIPE_LINKS, type StripeLinkKey } from "@/config/stripeLinks";
+
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showForms, setShowForms] = useState(false);
