@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Crown, FileText, Upload, Mail, Settings, Users, Activity, ExternalLink,
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
-  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle
+  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
