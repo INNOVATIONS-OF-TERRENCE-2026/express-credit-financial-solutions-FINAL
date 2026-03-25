@@ -32,6 +32,8 @@ import { ClientProcessingGrid } from '@/components/ClientProcessingGrid';
 import { BulkDocumentIntelligence } from '@/components/BulkDocumentIntelligence';
 import { cn } from '@/lib/utils';
 import { AutonomousControlPanel } from '@/components/AutonomousControlPanel';
+import { DisputeCommandCenter } from '@/components/DisputeCommandCenter';
+import { AdminClientEditor } from '@/components/AdminClientEditor';
 
 interface AdminUser {
   id: string;
