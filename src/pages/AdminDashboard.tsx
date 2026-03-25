@@ -29,6 +29,11 @@ import {
   Eye
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
+import { BacklogOverview } from '@/components/BacklogOverview';
+import { AdminReviewQueue } from '@/components/AdminReviewQueue';
+import { CasePipelineDashboard } from '@/components/CasePipelineDashboard';
+import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
+import { AdminAIControlPanel } from '@/components/AdminAIControlPanel';
 
 interface AdminUser {
   id: string;
