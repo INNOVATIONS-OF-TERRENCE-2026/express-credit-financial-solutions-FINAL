@@ -26,7 +26,7 @@ const plans: Array<{
 }> = [
   {
     name: "Full Blown Credit Repair",
-    price: 600,
+    price: 1499.99,
     frequency: "one-time",
     isOneTime: true,
     icon: Crown,
