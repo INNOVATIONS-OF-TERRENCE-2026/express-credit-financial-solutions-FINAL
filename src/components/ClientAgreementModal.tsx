@@ -233,7 +233,7 @@ Date: ${new Date().toLocaleDateString()}
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button variant="outline" type="button" onClick={onClose}>
+              <Button variant="outline" type="button" onClick={handleClose}>
                 Cancel
               </Button>
               <Button 
