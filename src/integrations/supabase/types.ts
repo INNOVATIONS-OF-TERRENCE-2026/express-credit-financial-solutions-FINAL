@@ -1846,13 +1846,18 @@ export type Database = {
       profiles: {
         Row: {
           access_expires_at: string | null
+          active_services: string[] | null
           created_at: string
+          date_of_birth: string | null
           email: string
           expires_at: string | null
+          first_name: string | null
           id: string
+          last_name: string | null
           membership: string | null
           membership_plan: string | null
           membership_type: string | null
+          middle_name: string | null
           payment_status: string | null
           plan_type: string | null
           stripe_customer_id: string | null
@@ -1864,13 +1869,18 @@ export type Database = {
         }
         Insert: {
           access_expires_at?: string | null
+          active_services?: string[] | null
           created_at?: string
+          date_of_birth?: string | null
           email: string
           expires_at?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           membership?: string | null
           membership_plan?: string | null
           membership_type?: string | null
+          middle_name?: string | null
           payment_status?: string | null
           plan_type?: string | null
           stripe_customer_id?: string | null
@@ -1882,13 +1892,18 @@ export type Database = {
         }
         Update: {
           access_expires_at?: string | null
+          active_services?: string[] | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string
           expires_at?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           membership?: string | null
           membership_plan?: string | null
           membership_type?: string | null
+          middle_name?: string | null
           payment_status?: string | null
           plan_type?: string | null
           stripe_customer_id?: string | null
