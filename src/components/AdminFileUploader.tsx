@@ -157,6 +157,22 @@ export function AdminFileUploader({ clientId, onUploadComplete }: AdminFileUploa
         description: `${category} uploaded successfully`,
       });
 
+      // Trigger autonomous processing if enabled
+      try {
+        const { data: settings } = await supabase
+          .from('autonomous_settings' as any)
+          .select('autonomous_enabled')
+          .limit(1)
+          .single();
+        if ((settings as any)?.autonomous_enabled) {
+          await supabase.functions.invoke('process-document-autonomous', {
+            body: { document_id: fileUrl, file_url: fileUrl, file_name: selectedFile!.name, file_type: selectedFile!.type },
+          });
+        }
+      } catch (autoErr) {
+        console.log('Autonomous processing skipped:', autoErr);
+      }
+
       // Reset form
       setSelectedFile(null);
       setCategory('');

@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Crown, FileText, Upload, Mail, Settings, Users, Activity, ExternalLink,
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
-  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle
+  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
@@ -31,6 +31,7 @@ import { AdminBacklogTools } from '@/components/AdminBacklogTools';
 import { ClientProcessingGrid } from '@/components/ClientProcessingGrid';
 import { BulkDocumentIntelligence } from '@/components/BulkDocumentIntelligence';
 import { cn } from '@/lib/utils';
+import { AutonomousControlPanel } from '@/components/AutonomousControlPanel';
 
 interface AdminUser {
   id: string;
@@ -62,7 +63,7 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   // ⚡ PRIORITY TOOLS — top of sidebar for instant access
@@ -70,6 +71,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'PRIORITY' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'PRIORITY' },
   { section: 'documents', label: 'Documents', icon: Upload, group: 'PRIORITY' },
+  { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
@@ -78,6 +80,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'WORKFLOW' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'WORKFLOW' },
   { section: 'ai-analysis', label: 'AI Analysis', icon: Brain, group: 'WORKFLOW' },
+  { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'WORKFLOW' },
   { section: 'ai-ops', label: 'AI Ops', icon: Cpu, group: 'OPERATIONS' },
   { section: 'users', label: 'Clients', icon: Users, group: 'MANAGEMENT' },
   { section: 'membership', label: 'Membership', icon: Crown, group: 'MANAGEMENT' },
@@ -144,6 +147,17 @@ const COMMAND_CARDS = [
     subLinks: [
       { label: 'System', section: 'system' as Section },
       { label: 'Email', section: 'email' as Section },
+    ],
+  },
+  {
+    title: 'Autonomous Processing',
+    desc: 'AI Background Processing, Auto-Match, Review Queue',
+    icon: Bot,
+    accent: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+    mainSection: 'autonomous' as Section,
+    subLinks: [
+      { label: 'Autonomous Mode', section: 'autonomous' as Section },
+      { label: 'AI Analysis', section: 'ai-analysis' as Section },
     ],
   },
 ];
@@ -440,6 +454,15 @@ export default function AdminDashboard() {
             <ClipboardCheck className="h-4 w-4 mr-1.5" />
             Open Review Queue
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-purple-500/30 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400"
+            onClick={() => setActiveSection('autonomous')}
+          >
+            <Bot className="h-4 w-4 mr-1.5" />
+            Autonomous Mode
+          </Button>
           {liveCounts.needsReview > 0 && (
             <Badge variant="destructive" className="shrink-0 ml-auto animate-pulse">
               <AlertTriangle className="h-3 w-3 mr-1" />
@@ -560,6 +583,7 @@ export default function AdminDashboard() {
           {activeSection === 'backlog' && <div className="animate-fade-in"><AdminBacklogTools /></div>}
           {activeSection === 'processing' && <div className="animate-fade-in"><ClientProcessingGrid /></div>}
           {activeSection === 'bulk-docs' && <div className="animate-fade-in"><BulkDocumentIntelligence /></div>}
+          {activeSection === 'autonomous' && <div className="animate-fade-in"><AutonomousControlPanel /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
