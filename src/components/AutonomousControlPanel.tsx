@@ -62,8 +62,8 @@ export function AutonomousControlPanel() {
         supabase.from('clients').select('id, full_name'),
       ]);
 
-      if (settingsRes.data) setSettings(settingsRes.data as any);
-      const jobsData = (jobsRes.data || []) as Job[];
+      if (settingsRes.data) setSettings(settingsRes.data as unknown as AutonomousSettings);
+      const jobsData = ((jobsRes.data || []) as unknown) as Job[];
       setJobs(jobsData);
       setAiResults((resultsRes.data || []) as AIResult[]);
       setClients((clientsRes.data || []) as any[]);
