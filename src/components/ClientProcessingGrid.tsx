@@ -335,43 +335,13 @@ export function ClientProcessingGrid() {
         </CardContent>
       </Card>
 
-      {/* Client Detail Modal */}
-      <Dialog open={!!detailModal} onOpenChange={() => setDetailModal(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Client Detail — {detailModal?.full_name || detailModal?.email}</DialogTitle></DialogHeader>
-          {detailModal && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><span className="text-muted-foreground">Email:</span> {detailModal.email}</div>
-                <div><span className="text-muted-foreground">Reports:</span> {detailModal.report_count} ({detailModal.unanalyzed_reports} unanalyzed)</div>
-                <div><span className="text-muted-foreground">Flagged:</span> {detailModal.flagged_count} ({detailModal.pending_flags} pending)</div>
-                <div><span className="text-muted-foreground">Disputes:</span> {detailModal.dispute_count}</div>
-                <div><span className="text-muted-foreground">In Review:</span> {detailModal.review_count}</div>
-                <div><span className="text-muted-foreground">Approved:</span> {detailModal.approved_count}</div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Document Readiness</p>
-                <div className="flex gap-2">
-                  <Badge variant={detailModal.has_agreement ? 'default' : 'destructive'}>{detailModal.has_agreement ? '✓' : '✗'} Agreement</Badge>
-                  <Badge variant={detailModal.has_id ? 'default' : 'destructive'}>{detailModal.has_id ? '✓' : '✗'} Gov ID</Badge>
-                  <Badge variant={detailModal.has_address ? 'default' : 'destructive'}>{detailModal.has_address ? '✓' : '✗'} Address</Badge>
-                  <Badge variant={detailModal.has_credit_report ? 'default' : 'destructive'}>{detailModal.has_credit_report ? '✓' : '✗'} Credit Report</Badge>
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Recommended Next Action</p>
-                <p className="text-sm font-medium">{getNextAction(detailModal).action}</p>
-              </div>
-              {detailModal.latest_status && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Current Status</p>
-                  <Badge variant="outline">{detailModal.latest_status.replace(/_/g, ' ')}</Badge>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Client Detail Operations Modal */}
+      <ClientDetailOperations
+        client={detailModal}
+        open={!!detailModal}
+        onClose={() => setDetailModal(null)}
+        onRefresh={fetchData}
+      />
 
       {/* Note Modal */}
       <Dialog open={!!noteModal} onOpenChange={() => { setNoteModal(null); setNoteText(''); }}>
