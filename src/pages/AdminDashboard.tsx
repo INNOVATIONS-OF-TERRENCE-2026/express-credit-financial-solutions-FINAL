@@ -149,6 +149,17 @@ const COMMAND_CARDS = [
       { label: 'Email', section: 'email' as Section },
     ],
   },
+  {
+    title: 'Autonomous Processing',
+    desc: 'AI Background Processing, Auto-Match, Review Queue',
+    icon: Bot,
+    accent: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+    mainSection: 'autonomous' as Section,
+    subLinks: [
+      { label: 'Autonomous Mode', section: 'autonomous' as Section },
+      { label: 'AI Analysis', section: 'ai-analysis' as Section },
+    ],
+  },
 ];
 
 export default function AdminDashboard() {
