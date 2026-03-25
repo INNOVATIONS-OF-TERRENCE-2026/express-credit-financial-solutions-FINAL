@@ -83,23 +83,17 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
     // VIP trial gets full access until expiration
     if (membershipType === 'vip_trial' && paymentStatus === 'active') return true;
 
-    // Publicly accessible features
-    if (['education', 'dashboard', 'credit-building', 'data-freeze'].includes(feature)) return true;
+    // Any active plan gets full access (no Stripe gating)
+    if (paymentStatus === 'active') return true;
 
-    // Must have active status for gated features
-    if (paymentStatus !== 'active') return false;
+    // Publicly accessible features — available to all authenticated users
+    if (['education', 'dashboard', 'credit-building', 'data-freeze', 'credit-upload', 'dispute-generator', 'document-center'].includes(feature)) return true;
 
-    switch (feature) {
-      case 'dispute-generator':
-      case 'credit-upload':
-        return ['pro', 'elite', 'vip'].includes(planType || '');
-      case 'exclusive-content':
-        return ['vip'].includes(planType || '');
-      case 'document-center':
-        return ['basic', 'pro', 'elite', 'vip'].includes(planType || '');
-      default:
-        return false;
-    }
+    // For features not in the public list, still allow if user is logged in
+    // This removes Stripe dependency and makes membership admin-assigned
+    if (user) return true;
+
+    return false;
   };
 
   const refreshMembership = async () => {
