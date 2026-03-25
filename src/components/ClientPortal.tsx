@@ -264,6 +264,9 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Score Predictions */}
+              <ScorePredictionCard clientId={clientData.id} userId={user?.id} />
             </div>
           )}
 
