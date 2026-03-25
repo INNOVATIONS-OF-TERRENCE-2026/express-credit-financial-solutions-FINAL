@@ -609,6 +609,7 @@ export default function AdminDashboard() {
           {activeSection === 'processing' && <div className="animate-fade-in"><ClientProcessingGrid /></div>}
           {activeSection === 'bulk-docs' && <div className="animate-fade-in"><BulkDocumentIntelligence /></div>}
           {activeSection === 'autonomous' && <div className="animate-fade-in"><AutonomousControlPanel /></div>}
+          {activeSection === 'dispute-command' && <div className="animate-fade-in"><DisputeCommandCenter /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
