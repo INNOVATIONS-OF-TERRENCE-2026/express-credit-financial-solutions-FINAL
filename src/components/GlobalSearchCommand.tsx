@@ -92,6 +92,7 @@ export function GlobalSearchCommand() {
   const adminSections: SearchEntry[] = [
     { label: 'Overview Dashboard', keywords: 'overview stats summary metrics', icon: LayoutDashboard, category: 'Admin Sections', action: () => goAdmin('overview'), adminOnly: true },
     { label: 'Backlog Tools', keywords: 'backlog priority queue processing clients', icon: Zap, category: 'Admin Sections', action: () => goAdmin('backlog'), adminOnly: true },
+    { label: 'Client Processing Grid', keywords: 'processing grid bulk clients table actions', icon: Users, category: 'Admin Sections', action: () => goAdmin('processing'), adminOnly: true },
     { label: 'Review Queue', keywords: 'review approve reject dispute letters queue', icon: ClipboardCheck, category: 'Admin Sections', action: () => goAdmin('review-queue'), adminOnly: true },
     { label: 'Pipeline', keywords: 'pipeline case workflow status progression', icon: GitBranch, category: 'Admin Sections', action: () => goAdmin('pipeline'), adminOnly: true },
     { label: 'AI Analysis', keywords: 'ai analysis credit report violations flagged', icon: Brain, category: 'Admin Sections', action: () => goAdmin('ai-analysis'), adminOnly: true },
