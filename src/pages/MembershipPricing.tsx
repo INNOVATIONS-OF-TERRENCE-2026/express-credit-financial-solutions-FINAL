@@ -74,7 +74,7 @@ const plans: Array<{
     icon: Star,
     badge: "⭐ Credit Enhancement",
     color: "purple",
-    stripeKey: "elite",
+    
     ctaText: "Add Tradelines",
     features: [
       "Personalized credit profile evaluation",
