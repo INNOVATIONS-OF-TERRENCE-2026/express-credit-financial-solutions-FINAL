@@ -350,6 +350,53 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_events: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          error_message: string | null
+          event_source: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          processed_at: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          event_source?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          processed_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          event_source?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          processed_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       autonomous_jobs: {
         Row: {
           client_id: string | null
@@ -654,6 +701,56 @@ export type Database = {
         }
         Relationships: []
       }
+      client_activity_timeline: {
+        Row: {
+          activity_type: string
+          client_id: string | null
+          created_at: string
+          created_by_source: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          title: string
+          user_id: string | null
+          visible_to_admin: boolean | null
+          visible_to_client: boolean | null
+        }
+        Insert: {
+          activity_type: string
+          client_id?: string | null
+          created_at?: string
+          created_by_source?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          title: string
+          user_id?: string | null
+          visible_to_admin?: boolean | null
+          visible_to_client?: boolean | null
+        }
+        Update: {
+          activity_type?: string
+          client_id?: string | null
+          created_at?: string
+          created_by_source?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          title?: string
+          user_id?: string | null
+          visible_to_admin?: boolean | null
+          visible_to_client?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_activity_timeline_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_agreements: {
         Row: {
           agreement_version: string | null
@@ -777,6 +874,65 @@ export type Database = {
             columns: ["purchase_id"]
             isOneToOne: false
             referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_notifications: {
+        Row: {
+          channel: string
+          client_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          payload: Json | null
+          provider: string | null
+          sent_at: string | null
+          status: string
+          subject: string | null
+          user_id: string | null
+        }
+        Insert: {
+          channel?: string
+          client_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          payload?: Json | null
+          provider?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          channel?: string
+          client_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          payload?: Json | null
+          provider?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_notifications_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -2156,6 +2312,83 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          client_id: string | null
+          email_enabled: boolean | null
+          id: string
+          in_app_enabled: boolean | null
+          marketing_enabled: boolean | null
+          sms_enabled: boolean | null
+          transactional_enabled: boolean | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          in_app_enabled?: boolean | null
+          marketing_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          transactional_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          in_app_enabled?: boolean | null
+          marketing_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          transactional_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_templates: {
+        Row: {
+          channel: string | null
+          event_type: string
+          id: string
+          is_active: boolean | null
+          message_template: string
+          subject_template: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          channel?: string | null
+          event_type: string
+          id?: string
+          is_active?: boolean | null
+          message_template: string
+          subject_template?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          channel?: string | null
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          message_template?: string
+          subject_template?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       payment_receipts: {
         Row: {
           amount_paid: number
@@ -2466,6 +2699,112 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "referrals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      score_history: {
+        Row: {
+          bureau: string
+          client_id: string | null
+          id: string
+          recorded_at: string
+          report_id: string | null
+          score_value: number
+          source: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bureau: string
+          client_id?: string | null
+          id?: string
+          recorded_at?: string
+          report_id?: string | null
+          score_value: number
+          source?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bureau?: string
+          client_id?: string | null
+          id?: string
+          recorded_at?: string
+          report_id?: string | null
+          score_value?: number
+          source?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "score_history_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      score_predictions: {
+        Row: {
+          based_on_report_id: string | null
+          client_id: string | null
+          confidence_level: number | null
+          created_at: string
+          current_equifax: number | null
+          current_experian: number | null
+          current_transunion: number | null
+          factors: Json | null
+          id: string
+          predicted_equifax_max: number | null
+          predicted_equifax_min: number | null
+          predicted_experian_max: number | null
+          predicted_experian_min: number | null
+          predicted_transunion_max: number | null
+          predicted_transunion_min: number | null
+          user_id: string | null
+        }
+        Insert: {
+          based_on_report_id?: string | null
+          client_id?: string | null
+          confidence_level?: number | null
+          created_at?: string
+          current_equifax?: number | null
+          current_experian?: number | null
+          current_transunion?: number | null
+          factors?: Json | null
+          id?: string
+          predicted_equifax_max?: number | null
+          predicted_equifax_min?: number | null
+          predicted_experian_max?: number | null
+          predicted_experian_min?: number | null
+          predicted_transunion_max?: number | null
+          predicted_transunion_min?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          based_on_report_id?: string | null
+          client_id?: string | null
+          confidence_level?: number | null
+          created_at?: string
+          current_equifax?: number | null
+          current_experian?: number | null
+          current_transunion?: number | null
+          factors?: Json | null
+          id?: string
+          predicted_equifax_max?: number | null
+          predicted_equifax_min?: number | null
+          predicted_experian_max?: number | null
+          predicted_experian_min?: number | null
+          predicted_transunion_max?: number | null
+          predicted_transunion_min?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "score_predictions_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
