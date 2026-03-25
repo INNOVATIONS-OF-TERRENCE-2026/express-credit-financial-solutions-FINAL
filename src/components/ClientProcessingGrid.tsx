@@ -67,6 +67,9 @@ export function ClientProcessingGrid() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Real-time auto-refresh
+  useRealtimeRefresh(['dispute_letters', 'flagged_disputes', 'credit_report_uploads'], fetchData);
+
   const addProc = (id: string) => setProcessing(p => new Set(p).add(id));
   const delProc = (id: string) => setProcessing(p => { const n = new Set(p); n.delete(id); return n; });
 
