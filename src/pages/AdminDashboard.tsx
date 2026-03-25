@@ -29,6 +29,7 @@ import { AdminAIControlPanel } from '@/components/AdminAIControlPanel';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { AdminBacklogTools } from '@/components/AdminBacklogTools';
 import { ClientProcessingGrid } from '@/components/ClientProcessingGrid';
+import { BulkDocumentIntelligence } from '@/components/BulkDocumentIntelligence';
 import { cn } from '@/lib/utils';
 
 interface AdminUser {
@@ -61,12 +62,13 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
   { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'WORKFLOW' },
+  { section: 'bulk-docs', label: 'Bulk Doc Intel', icon: FileSearch, group: 'WORKFLOW' },
   { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'WORKFLOW' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'WORKFLOW' },
   { section: 'ai-analysis', label: 'AI Analysis', icon: Brain, group: 'WORKFLOW' },
@@ -412,6 +414,7 @@ export default function AdminDashboard() {
           {activeSection === 'ai-ops' && <div className="animate-fade-in"><AdminAIControlPanel /></div>}
           {activeSection === 'backlog' && <div className="animate-fade-in"><AdminBacklogTools /></div>}
           {activeSection === 'processing' && <div className="animate-fade-in"><ClientProcessingGrid /></div>}
+          {activeSection === 'bulk-docs' && <div className="animate-fade-in"><BulkDocumentIntelligence /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
