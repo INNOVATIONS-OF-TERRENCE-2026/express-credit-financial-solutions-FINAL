@@ -68,7 +68,7 @@ const plans: Array<{
   },
   {
     name: "Tradelines Add-Ons",
-    price: 500,
+    price: 499.99,
     frequency: "one-time",
     isOneTime: true,
     icon: Star,
@@ -77,8 +77,10 @@ const plans: Array<{
     
     ctaText: "Add Tradelines",
     features: [
+      "Pricing: $499.99 – $1,499.99 based on tradeline profile",
       "Personalized credit profile evaluation",
-      "Tradeline compatibility analysis",
+      "Tradeline compatibility analysis based on credit age & limit",
+      "Pricing varies by credit age, credit limit & reporting cycle",
       "Education-based tradeline recommendations",
       "Strategic integration guidance",
       "Monitoring alignment with existing accounts",
