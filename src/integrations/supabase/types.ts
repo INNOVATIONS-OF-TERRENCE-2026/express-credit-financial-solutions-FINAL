@@ -116,6 +116,47 @@ export type Database = {
           },
         ]
       }
+      ai_agent_runs: {
+        Row: {
+          agent_name: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          input_payload: Json | null
+          output_payload: Json | null
+          status: string
+          workflow_id: string
+        }
+        Insert: {
+          agent_name: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          input_payload?: Json | null
+          output_payload?: Json | null
+          status?: string
+          workflow_id: string
+        }
+        Update: {
+          agent_name?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          input_payload?: Json | null
+          output_payload?: Json | null
+          status?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_agent_runs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "ai_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_analysis_results: {
         Row: {
           analysis_type: string
@@ -173,6 +214,7 @@ export type Database = {
           confidence_score: number | null
           dispute_case_id: string | null
           generated_at: string
+          generated_from_cip_id: string | null
           id: string
           letter_content: string
           letter_type: string | null
@@ -185,6 +227,7 @@ export type Database = {
           confidence_score?: number | null
           dispute_case_id?: string | null
           generated_at?: string
+          generated_from_cip_id?: string | null
           id?: string
           letter_content: string
           letter_type?: string | null
@@ -197,6 +240,7 @@ export type Database = {
           confidence_score?: number | null
           dispute_case_id?: string | null
           generated_at?: string
+          generated_from_cip_id?: string | null
           id?: string
           letter_content?: string
           letter_type?: string | null
@@ -216,6 +260,13 @@ export type Database = {
             columns: ["dispute_case_id"]
             isOneToOne: false
             referencedRelation: "dispute_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_dispute_letters_generated_from_cip_id_fkey"
+            columns: ["generated_from_cip_id"]
+            isOneToOne: false
+            referencedRelation: "client_intelligence_packets"
             referencedColumns: ["id"]
           },
         ]
@@ -262,6 +313,60 @@ export type Database = {
             columns: ["letter_id"]
             isOneToOne: false
             referencedRelation: "dispute_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_workflows: {
+        Row: {
+          client_id: string
+          confidence_score: number | null
+          created_at: string
+          current_step: string | null
+          cycle_id: string | null
+          id: string
+          results: Json | null
+          status: string
+          updated_at: string
+          workflow_type: string
+        }
+        Insert: {
+          client_id: string
+          confidence_score?: number | null
+          created_at?: string
+          current_step?: string | null
+          cycle_id?: string | null
+          id?: string
+          results?: Json | null
+          status?: string
+          updated_at?: string
+          workflow_type?: string
+        }
+        Update: {
+          client_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          current_step?: string | null
+          cycle_id?: string | null
+          id?: string
+          results?: Json | null
+          status?: string
+          updated_at?: string
+          workflow_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_workflows_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_workflows_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "client_processing_cycles"
             referencedColumns: ["id"]
           },
         ]
@@ -878,6 +983,87 @@ export type Database = {
           },
         ]
       }
+      client_intelligence_packets: {
+        Row: {
+          bureau_summary: Json | null
+          client_id: string
+          created_at: string
+          cycle_id: string | null
+          dob: string | null
+          full_address: string | null
+          full_name: string | null
+          id: string
+          identity_summary: Json | null
+          inquiries: Json | null
+          negative_accounts: Json | null
+          outdated_personal_info: Json | null
+          source_report_id: string | null
+          ssn_last4: string | null
+          status: string
+          strategy_confidence: number | null
+          strategy_type: string | null
+          updated_at: string
+          violations_identified: Json | null
+        }
+        Insert: {
+          bureau_summary?: Json | null
+          client_id: string
+          created_at?: string
+          cycle_id?: string | null
+          dob?: string | null
+          full_address?: string | null
+          full_name?: string | null
+          id?: string
+          identity_summary?: Json | null
+          inquiries?: Json | null
+          negative_accounts?: Json | null
+          outdated_personal_info?: Json | null
+          source_report_id?: string | null
+          ssn_last4?: string | null
+          status?: string
+          strategy_confidence?: number | null
+          strategy_type?: string | null
+          updated_at?: string
+          violations_identified?: Json | null
+        }
+        Update: {
+          bureau_summary?: Json | null
+          client_id?: string
+          created_at?: string
+          cycle_id?: string | null
+          dob?: string | null
+          full_address?: string | null
+          full_name?: string | null
+          id?: string
+          identity_summary?: Json | null
+          inquiries?: Json | null
+          negative_accounts?: Json | null
+          outdated_personal_info?: Json | null
+          source_report_id?: string | null
+          ssn_last4?: string | null
+          status?: string
+          strategy_confidence?: number | null
+          strategy_type?: string | null
+          updated_at?: string
+          violations_identified?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_intelligence_packets_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_intelligence_packets_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "client_processing_cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_notifications: {
         Row: {
           channel: string
@@ -930,6 +1116,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "client_notifications_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_processing_cycles: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          cycle_type: string
+          id: string
+          source_credit_report_id: string | null
+          source_document_batch_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          cycle_type?: string
+          id?: string
+          source_credit_report_id?: string | null
+          source_document_batch_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          cycle_type?: string
+          id?: string
+          source_credit_report_id?: string | null
+          source_document_batch_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_processing_cycles_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
@@ -1494,6 +1721,7 @@ export type Database = {
           bureau: string | null
           client_id: string | null
           created_at: string
+          cycle_id: string | null
           dispute_reason: string | null
           flagged_dispute_id: string | null
           id: string
@@ -1508,6 +1736,7 @@ export type Database = {
           bureau?: string | null
           client_id?: string | null
           created_at?: string
+          cycle_id?: string | null
           dispute_reason?: string | null
           flagged_dispute_id?: string | null
           id?: string
@@ -1522,6 +1751,7 @@ export type Database = {
           bureau?: string | null
           client_id?: string | null
           created_at?: string
+          cycle_id?: string | null
           dispute_reason?: string | null
           flagged_dispute_id?: string | null
           id?: string
@@ -1536,6 +1766,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_cases_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "client_processing_cycles"
             referencedColumns: ["id"]
           },
         ]
@@ -2043,6 +2280,54 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      execution_queue: {
+        Row: {
+          client_id: string
+          created_at: string
+          cycle_id: string | null
+          id: string
+          item_id: string
+          item_type: string
+          priority: number | null
+          queue_status: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          cycle_id?: string | null
+          id?: string
+          item_id: string
+          item_type: string
+          priority?: number | null
+          queue_status?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          cycle_id?: string | null
+          id?: string
+          item_id?: string
+          item_type?: string
+          priority?: number | null
+          queue_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_queue_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execution_queue_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "client_processing_cycles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       experian_credentials: {
         Row: {
