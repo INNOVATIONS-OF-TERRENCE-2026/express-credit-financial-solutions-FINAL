@@ -152,6 +152,9 @@ export function AdminBacklogTools() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  // Real-time auto-refresh
+  useRealtimeRefresh(['dispute_letters', 'flagged_disputes', 'credit_report_uploads'], fetchAll);
+
   const handleAnalyze = async (userId: string) => {
     setProcessing(userId);
     try {

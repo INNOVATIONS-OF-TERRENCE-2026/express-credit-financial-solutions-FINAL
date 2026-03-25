@@ -29,7 +29,7 @@ export function AdminReviewQueue() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchQueue = () => {
+  const fetchQueue = useCallback(() => {
     setLoading(true);
     getAdminReviewQueue()
       .then(setQueue)
@@ -38,9 +38,12 @@ export function AdminReviewQueue() {
         toast({ title: 'Error', description: 'Failed to load review queue', variant: 'destructive' });
       })
       .finally(() => setLoading(false));
-  };
+  }, [toast]);
 
-  useEffect(() => { fetchQueue(); }, []);
+  useEffect(() => { fetchQueue(); }, [fetchQueue]);
+
+  // Real-time auto-refresh when disputes change
+  useRealtimeRefresh(['dispute_letters'], fetchQueue);
 
   const handleApprove = async (disputeId: string) => {
     if (!user) return;
