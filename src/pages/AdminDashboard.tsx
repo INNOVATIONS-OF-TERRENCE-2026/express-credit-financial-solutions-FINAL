@@ -66,6 +66,7 @@ type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-op
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
+  { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'WORKFLOW' },
   { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'WORKFLOW' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'WORKFLOW' },
   { section: 'ai-analysis', label: 'AI Analysis', icon: Brain, group: 'WORKFLOW' },
