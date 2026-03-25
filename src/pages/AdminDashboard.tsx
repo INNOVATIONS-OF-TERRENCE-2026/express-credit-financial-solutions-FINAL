@@ -411,6 +411,7 @@ export default function AdminDashboard() {
           {activeSection === 'ai-analysis' && <div className="animate-fade-in"><AIAnalysisViewer isAdmin /></div>}
           {activeSection === 'ai-ops' && <div className="animate-fade-in"><AdminAIControlPanel /></div>}
           {activeSection === 'backlog' && <div className="animate-fade-in"><AdminBacklogTools /></div>}
+          {activeSection === 'processing' && <div className="animate-fade-in"><ClientProcessingGrid /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
