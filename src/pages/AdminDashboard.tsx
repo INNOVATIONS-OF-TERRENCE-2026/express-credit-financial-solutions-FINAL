@@ -192,6 +192,18 @@ const COMMAND_CARDS = [
       { label: 'Email', section: 'email' as Section },
     ],
   },
+  {
+    title: 'AI Execution Center',
+    desc: 'CIP Engine, Multi-Agent Workflows, Strategy Decisions',
+    icon: Cpu,
+    accent: 'text-violet-500 bg-violet-500/10 border-violet-500/20',
+    mainSection: 'ai-execution' as Section,
+    subLinks: [
+      { label: 'CIP Center', section: 'ai-execution' as Section },
+      { label: 'AI Analysis', section: 'ai-analysis' as Section },
+      { label: 'Dispute Command', section: 'dispute-command' as Section },
+    ],
+  },
 ];
 
 export default function AdminDashboard() {
