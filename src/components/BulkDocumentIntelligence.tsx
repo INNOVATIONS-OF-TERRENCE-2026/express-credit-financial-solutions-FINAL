@@ -330,7 +330,7 @@ export function BulkDocumentIntelligence() {
             ? {
                 ...f,
                 status: "processing" as const,
-                db_file_id: dbFileId,
+                db_file_id: db_file_id,
                 storage_path: storagePath,
               }
             : f,
@@ -351,7 +351,7 @@ export function BulkDocumentIntelligence() {
             "bulk-document-intelligence-processor",
             {
               body: {
-                file_id: dbFileId,
+                file_id: db_file_id,
                 file_name: current.file.name,
                 file_content_base64: fileBase64,
                 batch_id: batchId,
