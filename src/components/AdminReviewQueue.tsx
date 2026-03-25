@@ -185,10 +185,18 @@ export function AdminReviewQueue() {
                       <TableCell>
                         <Checkbox checked={selected.has(dispute.id)} onCheckedChange={() => toggleSelect(dispute.id)} />
                       </TableCell>
-                      <TableCell className="font-medium text-sm">{dispute.user_email}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-sm">{dispute.client_name || '—'}</p>
+                          <p className="text-xs text-muted-foreground">{dispute.user_email}</p>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-sm">{dispute.creditor_name}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className="text-xs">{dispute.letter_type || dispute.issue_type || 'Standard'}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="text-[10px]">{(dispute.case_status || '').replace(/_/g, ' ')}</Badge>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">{new Date(dispute.created_at).toLocaleDateString()}</TableCell>
                       <TableCell>
