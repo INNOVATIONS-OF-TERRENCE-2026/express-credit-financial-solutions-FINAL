@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Crown, FileText, Upload, Mail, Settings, Users, Activity, ExternalLink,
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
-  Brain, Cpu, FileSearch, Menu, LogOut
+  Brain, Cpu, FileSearch, Menu, LogOut, Zap
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
@@ -27,6 +27,7 @@ import { CasePipelineDashboard } from '@/components/CasePipelineDashboard';
 import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
 import { AdminAIControlPanel } from '@/components/AdminAIControlPanel';
 import { ThemeSelector } from '@/components/ThemeSelector';
+import { AdminBacklogTools } from '@/components/AdminBacklogTools';
 import { cn } from '@/lib/utils';
 
 interface AdminUser {
@@ -59,10 +60,11 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
+  { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
   { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'WORKFLOW' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'WORKFLOW' },
   { section: 'ai-analysis', label: 'AI Analysis', icon: Brain, group: 'WORKFLOW' },
@@ -336,10 +338,11 @@ export default function AdminDashboard() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {[
+                      { section: 'backlog' as Section, label: 'Backlog Tools', icon: Zap, desc: 'Process client files fast', color: 'text-red-500 bg-red-500/10' },
+                      { section: 'ai-ops' as Section, label: 'AI Ops Panel', icon: Cpu, desc: 'Run AI operations', color: 'text-rose-500 bg-rose-500/10' },
                       { section: 'review-queue' as Section, label: 'Review Queue', icon: ClipboardCheck, desc: 'Approve or reject disputes', color: 'text-orange-500 bg-orange-500/10' },
                       { section: 'pipeline' as Section, label: 'Case Pipeline', icon: GitBranch, desc: 'Track all case stages', color: 'text-purple-500 bg-purple-500/10' },
                       { section: 'ai-analysis' as Section, label: 'AI Analysis', icon: Brain, desc: 'View AI credit insights', color: 'text-cyan-500 bg-cyan-500/10' },
-                      { section: 'ai-ops' as Section, label: 'AI Ops Panel', icon: Cpu, desc: 'Run AI operations', color: 'text-rose-500 bg-rose-500/10' },
                       { section: 'disputes' as Section, label: 'All Disputes', icon: FileText, desc: 'Manage dispute letters', color: 'text-indigo-500 bg-indigo-500/10' },
                       { section: 'credit-reports' as Section, label: 'Credit Reports', icon: FileSearch, desc: 'Manage uploaded reports', color: 'text-emerald-500 bg-emerald-500/10' },
                       { section: 'users' as Section, label: 'Client Manager', icon: Users, desc: 'View & manage clients', color: 'text-blue-500 bg-blue-500/10' },
@@ -386,6 +389,7 @@ export default function AdminDashboard() {
           {activeSection === 'pipeline' && <div className="animate-fade-in"><CasePipelineDashboard /></div>}
           {activeSection === 'ai-analysis' && <div className="animate-fade-in"><AIAnalysisViewer isAdmin /></div>}
           {activeSection === 'ai-ops' && <div className="animate-fade-in"><AdminAIControlPanel /></div>}
+          {activeSection === 'backlog' && <div className="animate-fade-in"><AdminBacklogTools /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
