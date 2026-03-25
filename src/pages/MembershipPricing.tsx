@@ -54,7 +54,7 @@ const plans: Array<{
     icon: Zap,
     badge: "🏦 Banking Access",
     color: "green",
-    stripeKey: "fast5",
+    
     ctaText: "Fix My ChexSystems File",
     features: [
       "ChexSystems consumer file review",
