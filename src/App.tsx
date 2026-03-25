@@ -174,8 +174,6 @@ const App = () => (
               <Route path="/admin/clients" element={<AdminClients />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/tools" element={<AdminTools />} />
-              <Route path="/admin/cashapp" element={<AdminCashApp />} />
-              <Route path="/checkout" element={<CashAppCheckout />} />
               <Route path="/client-portals" element={<ClientPortalLinks />} />
               <Route path="/client/:clientSlug" element={<ClientPortals />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

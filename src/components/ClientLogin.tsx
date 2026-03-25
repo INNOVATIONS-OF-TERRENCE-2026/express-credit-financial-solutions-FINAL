@@ -154,7 +154,7 @@ export function ClientLogin({ clientName, onSuccess }: ClientLoginProps) {
         {/* Footer */}
         <div className="text-center pb-4">
           <p className="text-xs text-slate-600">
-            Powered by OpenAI GPT + Stripe
+            Powered by Express Credit & Financial Solutions
           </p>
         </div>
       </Card>

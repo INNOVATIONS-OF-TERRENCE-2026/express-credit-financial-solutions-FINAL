@@ -97,13 +97,10 @@ export default function MembershipPricing() {
   
 
   const handleSignUp = (plan: typeof plans[0]) => {
-    const planMap: Record<string, string> = {
-      "Full Blown Credit Repair": "full-repair",
-      "Full ChexSystems Removal": "chexsystems",
-      "Tradelines Add-Ons": "tradelines",
-    };
-    const slug = planMap[plan.name] || "full-repair";
-    navigate(`/checkout?plan=${slug}`);
+    toast({
+      title: "Enrollment Request",
+      description: "Contact our admin team to activate your membership. Call or email us to get started!",
+    });
   };
 
   return (
