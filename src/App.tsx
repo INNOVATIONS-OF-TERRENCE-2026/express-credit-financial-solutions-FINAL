@@ -13,6 +13,7 @@ import { FloatingChat } from "./components/FloatingChat";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SBAConfigProvider } from "./contexts/SBAConfig";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { GlobalSearchCommand } from "./components/GlobalSearchCommand";
 
 // SBA Pages
 import SBAHome from "./pages/sba/Home";
