@@ -11,8 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
 import { BackButton } from '@/components/BackButton';
 import { EngineerCredit } from '@/components/EngineerCredit';
-import { STRIPE_LINKS, type StripeLinkKey } from "@/config/stripeLinks";
-import confetti from "canvas-confetti";
 
 const plans: Array<{
   name: string;
