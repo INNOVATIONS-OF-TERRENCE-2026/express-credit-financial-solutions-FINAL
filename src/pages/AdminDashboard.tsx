@@ -10,23 +10,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Crown, 
-  FileText, 
-  Upload, 
-  Mail, 
-  Settings, 
-  Users, 
-  Activity,
-  ExternalLink,
-  Shield,
-  Search,
-  Download,
-  Eye
+  Crown, FileText, Upload, Mail, Settings, Users, Activity, ExternalLink,
+  Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
+  Brain, Cpu, FileSearch, Menu, LogOut
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
@@ -34,6 +26,8 @@ import { AdminReviewQueue } from '@/components/AdminReviewQueue';
 import { CasePipelineDashboard } from '@/components/CasePipelineDashboard';
 import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
 import { AdminAIControlPanel } from '@/components/AdminAIControlPanel';
+import { ThemeSelector } from '@/components/ThemeSelector';
+import { cn } from '@/lib/utils';
 
 interface AdminUser {
   id: string;
@@ -65,6 +59,23 @@ interface NotificationLog {
   details: any;
 }
 
+type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+
+const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
+  { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
+  { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'WORKFLOW' },
+  { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'WORKFLOW' },
+  { section: 'ai-analysis', label: 'AI Analysis', icon: Brain, group: 'WORKFLOW' },
+  { section: 'ai-ops', label: 'AI Ops', icon: Cpu, group: 'OPERATIONS' },
+  { section: 'users', label: 'Clients', icon: Users, group: 'MANAGEMENT' },
+  { section: 'membership', label: 'Membership', icon: Crown, group: 'MANAGEMENT' },
+  { section: 'disputes', label: 'Disputes', icon: FileText, group: 'MANAGEMENT' },
+  { section: 'documents', label: 'Documents', icon: Upload, group: 'MANAGEMENT' },
+  { section: 'credit-reports', label: 'Credit Reports', icon: FileSearch, group: 'MANAGEMENT' },
+  { section: 'email', label: 'Email', icon: Mail, group: 'OPERATIONS' },
+  { section: 'system', label: 'System', icon: Settings, group: 'OPERATIONS' },
+];
+
 export default function AdminDashboard() {
   const { user, signOut } = useAuth();
   const { isAdmin, loading: rolesLoading } = useRoles();
@@ -77,80 +88,38 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editModeEnabled, setEditModeEnabled] = useState(false);
+  const [activeSection, setActiveSection] = useState<Section>('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Email form state
-  const [emailForm, setEmailForm] = useState({
-    recipient: '',
-    subject: '',
-    message: ''
-  });
+  const [emailForm, setEmailForm] = useState({ recipient: '', subject: '', message: '' });
 
   useEffect(() => {
     if (!rolesLoading && !isAdmin()) {
       navigate('/');
       return;
     }
-    
-    if (isAdmin()) {
-      fetchAdminData();
-    }
+    if (isAdmin()) fetchAdminData();
   }, [isAdmin, rolesLoading, navigate]);
 
   const fetchAdminData = async () => {
     try {
-      // Fetch users with profiles
-      const { data: usersData, error: usersError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (usersError) throw usersError;
+      const { data: usersData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
       setUsers(usersData || []);
 
-      // Fetch dispute letters separately and get user emails
-      const { data: disputesData, error: disputesError } = await supabase
-        .from('dispute_letters')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (disputesError) throw disputesError;
-      
-      // Get user emails for disputes
+      const { data: disputesData } = await supabase.from('dispute_letters').select('*').order('created_at', { ascending: false });
       const disputesWithEmails = await Promise.all(
         (disputesData || []).map(async (dispute) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('email')
-            .eq('user_id', dispute.user_id)
-            .single();
-          
-          return {
-            ...dispute,
-            user_email: profile?.email || 'Unknown',
-            status: dispute.generated_letter ? 'Completed' : 'Pending'
-          };
+          const { data: profile } = await supabase.from('profiles').select('email').eq('user_id', dispute.user_id).single();
+          return { ...dispute, user_email: profile?.email || 'Unknown', status: dispute.generated_letter ? 'Completed' : 'Pending' };
         })
       );
-      
       setDisputes(disputesWithEmails);
 
-      // Fetch notification logs
-      const { data: notificationsData, error: notificationsError } = await supabase
-        .from('notification_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (notificationsError) throw notificationsError;
+      const { data: notificationsData } = await supabase.from('notification_logs').select('*').order('created_at', { ascending: false }).limit(50);
       setNotifications(notificationsData || []);
-
     } catch (error) {
       console.error('Error fetching admin data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load admin data",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to load admin data", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -158,70 +127,33 @@ export default function AdminDashboard() {
 
   const sendEmailNotification = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
       const { error } = await supabase.functions.invoke('send-notification-email', {
-        body: {
-          to: emailForm.recipient,
-          subject: emailForm.subject,
-          message: emailForm.message,
-          from_admin: true
-        }
+        body: { to: emailForm.recipient, subject: emailForm.subject, message: emailForm.message, from_admin: true }
       });
-
       if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Email sent successfully",
-      });
-
+      toast({ title: "Success", description: "Email sent successfully" });
       setEmailForm({ recipient: '', subject: '', message: '' });
     } catch (error) {
-      console.error('Error sending email:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send email",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to send email", variant: "destructive" });
     }
   };
 
-  const updateDisputeStatus = async (disputeId: string, status: string) => {
-    try {
-      // For this demo, we'll update a note field if it exists
-      toast({
-        title: "Status Updated",
-        description: `Dispute marked as ${status}`,
-      });
-      
-      // Refresh disputes
-      fetchAdminData();
-    } catch (error) {
-      console.error('Error updating dispute status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update dispute status",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const filteredUsers = users.filter(user => 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredDisputes = disputes.filter(dispute => 
-    dispute.creditor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dispute.user_email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredDisputes = disputes.filter(d => d.creditor_name.toLowerCase().includes(searchTerm.toLowerCase()) || d.user_email?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   if (rolesLoading || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-2"></div>
-          <p className="text-muted-foreground">Loading admin dashboard...</p>
+        <div className="space-y-4 w-full max-w-md px-4">
+          <Skeleton className="h-8 w-3/4 mx-auto" />
+          <Skeleton className="h-4 w-1/2 mx-auto" />
+          <div className="grid grid-cols-2 gap-4">
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+          </div>
         </div>
       </div>
     );
@@ -234,711 +166,403 @@ export default function AdminDashboard() {
           <CardHeader className="text-center">
             <Shield className="h-12 w-12 text-destructive mx-auto mb-4" />
             <CardTitle>Access Denied</CardTitle>
-            <CardDescription>
-              You don't have permission to access the admin dashboard.
-            </CardDescription>
+            <CardDescription>You don't have permission to access the admin dashboard.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate('/')} className="w-full">
-              Return to Dashboard
-            </Button>
+            <Button onClick={() => navigate('/')} className="w-full">Return to Dashboard</Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Crown className="h-8 w-8 text-primary" />
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-                <p className="text-sm text-muted-foreground">
-                  Express Credit & Financial Solutions LLC
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <p className="text-sm text-muted-foreground">
-                Welcome back, Admin • {new Date().toLocaleDateString()}
-              </p>
-              <Button onClick={signOut} variant="outline" size="sm">
-                Sign Out
-              </Button>
-            </div>
+  const groups = ['OVERVIEW', 'WORKFLOW', 'MANAGEMENT', 'OPERATIONS'];
+
+  const SidebarNav = ({ onItemClick }: { onItemClick?: () => void }) => (
+    <div className="flex flex-col h-full">
+      <div className="p-4 border-b border-border">
+        <div className="flex items-center gap-3">
+          <Crown className="h-6 w-6 text-primary" />
+          <div>
+            <h2 className="font-poppins font-bold text-foreground text-sm">Admin Panel</h2>
+            <p className="text-xs text-muted-foreground">Express Credit CRM</p>
           </div>
         </div>
       </div>
-
-      <div className="container mx-auto p-6">
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="review-queue">Review Queue</TabsTrigger>
-            <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
-            <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
-            <TabsTrigger value="ai-ops">AI Ops</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="membership">Membership</TabsTrigger>
-            <TabsTrigger value="disputes">Disputes</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="credit-reports">Credit Reports</TabsTrigger>
-            <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="system">System</TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <BacklogOverview />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{users.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Registered clients
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Disputes</CardTitle>
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{disputes.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Total dispute letters
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Completed Letters</CardTitle>
-                  <Activity className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {disputes.filter(d => d.generated_letter).length}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Generated this month
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Notifications Sent</CardTitle>
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{notifications.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Email notifications
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>
-                  Common administrative tasks
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button 
-                  onClick={() => navigate('/dispute-center')} 
-                  className="flex items-center space-x-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Dispute Center</span>
-                </Button>
-                <Button 
-                  onClick={() => setEditModeEnabled(!editModeEnabled)} 
-                  variant={editModeEnabled ? "destructive" : "secondary"}
-                  className="flex items-center space-x-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  <span>{editModeEnabled ? 'Disable' : 'Enable'} Edit Mode</span>
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Review Queue Tab */}
-          <TabsContent value="review-queue" className="space-y-6">
-            <AdminReviewQueue />
-          </TabsContent>
-
-          {/* Pipeline Tab */}
-          <TabsContent value="pipeline" className="space-y-6">
-            <CasePipelineDashboard />
-          </TabsContent>
-
-          {/* AI Analysis Tab */}
-          <TabsContent value="ai-analysis" className="space-y-6">
-            <AIAnalysisViewer isAdmin />
-          </TabsContent>
-
-          {/* AI Ops Tab */}
-          <TabsContent value="ai-ops" className="space-y-6">
-            <AdminAIControlPanel />
-          </TabsContent>
-
-          {/* Users Tab */}
-          <TabsContent value="users" className="space-y-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex-1">
-                <Label htmlFor="user-search">Search Users</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="user-search"
-                    placeholder="Search by email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
+      <nav className="flex-1 p-2 space-y-4 overflow-y-auto">
+        {groups.map(group => {
+          const items = NAV_ITEMS.filter(i => i.group === group);
+          return (
+            <div key={group}>
+              <p className="section-label px-3 mb-1">{group}</p>
+              <div className="space-y-0.5">
+                {items.map(item => {
+                  const Icon = item.icon;
+                  const active = activeSection === item.section;
+                  return (
+                    <button
+                      key={item.section}
+                      onClick={() => { setActiveSection(item.section); onItemClick?.(); }}
+                      className={cn(
+                        'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all',
+                        active
+                          ? 'bg-accent/10 text-foreground border-l-2 border-primary font-medium'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <Button onClick={fetchAdminData} variant="outline">
-                Refresh
-              </Button>
             </div>
+          );
+        })}
+      </nav>
+      <div className="p-4 border-t border-border space-y-2">
+        <div className="flex items-center gap-2">
+          <ThemeSelector />
+          <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+        </div>
+        <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start text-muted-foreground">
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </Button>
+      </div>
+    </div>
+  );
 
-            <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>
-                  Manage client accounts and subscriptions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Plan Type</TableHead>
-                      <TableHead>Payment Status</TableHead>
-                      <TableHead>Subscription</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.email}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {user.plan_type || 'None'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={user.payment_status === 'active' ? 'default' : 'secondary'}
-                          >
-                            {user.payment_status || 'Inactive'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={user.subscription_status === 'active' ? 'default' : 'secondary'}
-                          >
-                            {user.subscription_status || 'Inactive'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
+  return (
+    <div className="min-h-screen bg-background flex">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 border-r border-border bg-card flex-col flex-shrink-0">
+        <SidebarNav />
+      </aside>
 
-          {/* Membership Management Tab */}
-          <TabsContent value="membership" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Membership Management</CardTitle>
-                <CardDescription>
-                  Assign, upgrade, or downgrade user membership tiers
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Current Plan</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Membership Type</TableHead>
-                      <TableHead>Assign Tier</TableHead>
-                      <TableHead>Toggle Status</TableHead>
-                      <TableHead>VIP Trial</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((u) => (
-                      <TableRow key={u.id}>
-                        <TableCell className="font-medium">{u.email}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{u.plan_type || 'None'}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>
-                            {u.payment_status || 'Inactive'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{u.subscription_status || 'standard'}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            defaultValue={u.plan_type || ''}
-                            onValueChange={async (value) => {
-                              const { error } = await supabase
-                                .from('profiles')
-                                .update({ plan_type: value, payment_status: 'active' })
-                                .eq('id', u.id);
-                              if (error) {
-                                toast({ title: 'Error', description: error.message, variant: 'destructive' });
-                              } else {
-                                toast({ title: 'Updated', description: `${u.email} → ${value}` });
-                                fetchAdminData();
-                              }
-                            }}
-                          >
-                            <SelectTrigger className="w-[120px]">
-                              <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="basic">Basic</SelectItem>
-                              <SelectItem value="pro">Pro</SelectItem>
-                              <SelectItem value="elite">Elite</SelectItem>
-                              <SelectItem value="vip">VIP</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Switch
-                            checked={u.payment_status === 'active'}
-                            onCheckedChange={async (checked) => {
-                              const { error } = await supabase
-                                .from('profiles')
-                                .update({ payment_status: checked ? 'active' : 'inactive' })
-                                .eq('id', u.id);
-                              if (error) {
-                                toast({ title: 'Error', description: error.message, variant: 'destructive' });
-                              } else {
-                                toast({ title: 'Updated', description: `${u.email} status → ${checked ? 'active' : 'inactive'}` });
-                                fetchAdminData();
-                              }
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={async () => {
-                              const expiresAt = new Date();
-                              expiresAt.setDate(expiresAt.getDate() + 14);
-                              const { error } = await supabase
-                                .from('profiles')
-                                .update({
-                                  membership_type: 'vip_trial',
-                                  payment_status: 'active',
-                                  plan_type: 'vip',
-                                  expires_at: expiresAt.toISOString(),
-                                })
-                                .eq('id', u.id);
-                              if (error) {
-                                toast({ title: 'Error', description: error.message, variant: 'destructive' });
-                              } else {
-                                toast({ title: 'VIP Trial Granted', description: `${u.email} — 14-day VIP trial activated` });
-                                fetchAdminData();
-                              }
-                            }}
-                          >
-                            Grant 14-Day VIP
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
+      {/* Mobile Sidebar */}
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+        <SheetContent side="left" className="w-64 p-0">
+          <SidebarNav onItemClick={() => setSidebarOpen(false)} />
+        </SheetContent>
+      </Sheet>
 
-          {/* Disputes Tab */}
-          <TabsContent value="disputes" className="space-y-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex-1">
-                <Label htmlFor="dispute-search">Search Disputes</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="dispute-search"
-                    placeholder="Search by creditor or user email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              <Button onClick={fetchAdminData} variant="outline">
-                Refresh
-              </Button>
-            </div>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top bar */}
+        <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm flex items-center px-4 gap-4 sticky top-0 z-30">
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSidebarOpen(true)}>
+            <Menu className="h-5 w-5" />
+          </Button>
+          <h1 className="font-poppins font-semibold text-foreground">
+            {NAV_ITEMS.find(i => i.section === activeSection)?.label || 'Dashboard'}
+          </h1>
+          <div className="ml-auto text-xs text-muted-foreground hidden sm:block">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
+        </header>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Dispute Tracking System</CardTitle>
-                <CardDescription>
-                  Monitor and manage all client disputes
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User Email</TableHead>
-                      <TableHead>Creditor</TableHead>
-                      <TableHead>Account</TableHead>
-                      <TableHead>Issue Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredDisputes.map((dispute) => (
-                      <TableRow key={dispute.id}>
-                        <TableCell className="font-medium">
-                          {dispute.user_email}
-                        </TableCell>
-                        <TableCell>{dispute.creditor_name}</TableCell>
-                        <TableCell>****{dispute.account_number.slice(-4)}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {dispute.issue_type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={dispute.status === 'Completed' ? 'default' : 'secondary'}
-                          >
-                            {dispute.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(dispute.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => updateDisputeStatus(dispute.id, 'Completed')}
-                            >
-                              Mark Complete
-                            </Button>
-                            {dispute.generated_letter && (
-                              <Button size="sm" variant="outline">
-                                <Download className="h-4 w-4" />
-                              </Button>
-                            )}
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
+          {/* Overview */}
+          {activeSection === 'overview' && (
+            <div className="space-y-6 animate-fade-in">
+              <BacklogOverview />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { label: 'Total Users', value: users.length, icon: Users, color: 'text-blue-500 bg-blue-500/10' },
+                  { label: 'Active Disputes', value: disputes.length, icon: FileText, color: 'text-indigo-500 bg-indigo-500/10' },
+                  { label: 'Completed Letters', value: disputes.filter(d => d.generated_letter).length, icon: Activity, color: 'text-green-500 bg-green-500/10' },
+                  { label: 'Notifications', value: notifications.length, icon: Mail, color: 'text-amber-500 bg-amber-500/10' },
+                ].map(stat => {
+                  const Icon = stat.icon;
+                  return (
+                    <Card key={stat.label} className="glass-card-hover">
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="section-label">{stat.label}</p>
+                            <p className="stat-number mt-1">{stat.value}</p>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                          <div className={cn('rounded-lg p-2.5', stat.color)}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                  <Button onClick={() => navigate('/dispute-center')} variant="outline" size="sm"><FileText className="h-4 w-4 mr-2" />Dispute Center</Button>
+                  <Button onClick={() => setEditModeEnabled(!editModeEnabled)} variant={editModeEnabled ? "destructive" : "outline"} size="sm">
+                    <Settings className="h-4 w-4 mr-2" />{editModeEnabled ? 'Disable' : 'Enable'} Edit Mode
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeSection === 'review-queue' && <div className="animate-fade-in"><AdminReviewQueue /></div>}
+          {activeSection === 'pipeline' && <div className="animate-fade-in"><CasePipelineDashboard /></div>}
+          {activeSection === 'ai-analysis' && <div className="animate-fade-in"><AIAnalysisViewer isAdmin /></div>}
+          {activeSection === 'ai-ops' && <div className="animate-fade-in"><AdminAIControlPanel /></div>}
+
+          {/* Users */}
+          {activeSection === 'users' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex items-center gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
+                </div>
+                <Button onClick={fetchAdminData} variant="outline">Refresh</Button>
+              </div>
+              <Card className="glass-card">
+                <CardHeader><CardTitle>User Management</CardTitle><CardDescription>Manage client accounts</CardDescription></CardHeader>
+                <CardContent>
+                  {/* Desktop table */}
+                  <div className="hidden md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow><TableHead>Email</TableHead><TableHead>Plan</TableHead><TableHead>Status</TableHead><TableHead>Joined</TableHead><TableHead>Actions</TableHead></TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUsers.map((u) => (
+                          <TableRow key={u.id}>
+                            <TableCell className="font-medium">{u.email}</TableCell>
+                            <TableCell><Badge variant="outline">{u.plan_type || 'None'}</Badge></TableCell>
+                            <TableCell><Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge></TableCell>
+                            <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
+                            <TableCell><Button size="sm" variant="outline"><Eye className="h-4 w-4" /></Button></TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {/* Mobile cards */}
+                  <div className="md:hidden space-y-3">
+                    {filteredUsers.map(u => (
+                      <Card key={u.id} className="glass-card-hover">
+                        <CardContent className="pt-4">
+                          <p className="font-medium text-sm">{u.email}</p>
+                          <div className="flex gap-2 mt-2">
+                            <Badge variant="outline">{u.plan_type || 'None'}</Badge>
+                            <Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{new Date(u.created_at).toLocaleDateString()}</p>
+                        </CardContent>
+                      </Card>
                     ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Documents Tab */}
-          <TabsContent value="documents" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Document Automation Center</CardTitle>
-                <CardDescription>
-                  Upload templates and manage document generation
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                  <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Upload PDF Templates</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Upload dispute letter templates for automatic generation
-                  </p>
-                  <Button>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose Files
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Template Library</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Standard Dispute Letter</span>
-                          <Badge>Active</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Debt Validation Letter</span>
-                          <Badge>Active</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Cease & Desist Letter</span>
-                          <Badge variant="secondary">Draft</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Quick Generate</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label>Select User</Label>
-                        <Input placeholder="user@example.com" />
-                      </div>
-                      <div>
-                        <Label>Template</Label>
-                        <Input placeholder="Standard Dispute Letter" />
-                      </div>
-                      <Button className="w-full">
-                        Generate Letter
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Credit Reports Tab */}
-          <TabsContent value="credit-reports" className="space-y-6">
-            <AdminCreditReportManager />
-          </TabsContent>
-
-          {/* Email Control Tab */}
-          <TabsContent value="email" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Admin Email Control Panel</CardTitle>
-                <CardDescription>
-                  Send notifications and messages to users
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={sendEmailNotification} className="space-y-4">
-                  <div>
-                    <Label htmlFor="recipient">Recipient Email</Label>
-                    <Input
-                      id="recipient"
-                      type="email"
-                      value={emailForm.recipient}
-                      onChange={(e) => setEmailForm(prev => ({ ...prev, recipient: e.target.value }))}
-                      placeholder="client@example.com"
-                      required
-                    />
                   </div>
-                  <div>
-                    <Label htmlFor="subject">Subject</Label>
-                    <Input
-                      id="subject"
-                      value={emailForm.subject}
-                      onChange={(e) => setEmailForm(prev => ({ ...prev, subject: e.target.value }))}
-                      placeholder="Important update about your account"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      value={emailForm.message}
-                      onChange={(e) => setEmailForm(prev => ({ ...prev, message: e.target.value }))}
-                      placeholder="Enter your message here..."
-                      rows={6}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full">
-                    <Mail className="h-4 w-4 mr-2" />
-                    Send Email
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-            {/* Recent Notifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Notifications</CardTitle>
-                <CardDescription>
-                  Latest email notifications sent
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Sent</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {notifications.slice(0, 10).map((notification) => (
-                      <TableRow key={notification.id}>
-                        <TableCell className="font-medium">
-                          {notification.notification_type}
-                        </TableCell>
-                        <TableCell>{notification.user_id}</TableCell>
-                        <TableCell>
-                          <Badge variant={notification.email_sent ? 'default' : 'destructive'}>
-                            {notification.email_sent ? 'Sent' : 'Failed'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(notification.created_at).toLocaleDateString()}
-                        </TableCell>
-                      </TableRow>
+          {/* Membership */}
+          {activeSection === 'membership' && (
+            <div className="space-y-6 animate-fade-in">
+              <Card className="glass-card">
+                <CardHeader><CardTitle>Membership Management</CardTitle><CardDescription>Assign, upgrade, or downgrade user tiers</CardDescription></CardHeader>
+                <CardContent>
+                  <div className="hidden md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow><TableHead>Email</TableHead><TableHead>Plan</TableHead><TableHead>Status</TableHead><TableHead>Assign</TableHead><TableHead>Toggle</TableHead><TableHead>VIP</TableHead></TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUsers.map((u) => (
+                          <TableRow key={u.id}>
+                            <TableCell className="font-medium">{u.email}</TableCell>
+                            <TableCell><Badge variant="outline">{u.plan_type || 'None'}</Badge></TableCell>
+                            <TableCell><Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge></TableCell>
+                            <TableCell>
+                              <Select defaultValue={u.plan_type || ''} onValueChange={async (value) => {
+                                const { error } = await supabase.from('profiles').update({ plan_type: value, payment_status: 'active' }).eq('id', u.id);
+                                if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                                else { toast({ title: 'Updated', description: `${u.email} → ${value}` }); fetchAdminData(); }
+                              }}>
+                                <SelectTrigger className="w-[100px]"><SelectValue placeholder="Select" /></SelectTrigger>
+                                <SelectContent><SelectItem value="basic">Basic</SelectItem><SelectItem value="pro">Pro</SelectItem><SelectItem value="elite">Elite</SelectItem><SelectItem value="vip">VIP</SelectItem></SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <Switch checked={u.payment_status === 'active'} onCheckedChange={async (checked) => {
+                                const { error } = await supabase.from('profiles').update({ payment_status: checked ? 'active' : 'inactive' }).eq('id', u.id);
+                                if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                                else { toast({ title: 'Updated', description: `${u.email} → ${checked ? 'active' : 'inactive'}` }); fetchAdminData(); }
+                              }} />
+                            </TableCell>
+                            <TableCell>
+                              <Button size="sm" variant="outline" onClick={async () => {
+                                const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + 14);
+                                const { error } = await supabase.from('profiles').update({ membership_type: 'vip_trial', payment_status: 'active', plan_type: 'vip', expires_at: expiresAt.toISOString() }).eq('id', u.id);
+                                if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                                else { toast({ title: 'VIP Trial Granted', description: `${u.email} — 14-day VIP trial` }); fetchAdminData(); }
+                              }}>Grant VIP</Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <div className="md:hidden space-y-3">
+                    {filteredUsers.map(u => (
+                      <Card key={u.id} className="glass-card-hover">
+                        <CardContent className="pt-4 space-y-2">
+                          <p className="font-medium text-sm">{u.email}</p>
+                          <div className="flex gap-2"><Badge variant="outline">{u.plan_type || 'None'}</Badge><Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge></div>
+                        </CardContent>
+                      </Card>
                     ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-          {/* System Tab */}
-          <TabsContent value="system" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>System Settings</CardTitle>
-                <CardDescription>
-                  Administrative controls and system configuration
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="edit-mode" className="text-base font-medium">
-                      Internal Edit Mode
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Show edit controls and component labels
-                    </p>
-                  </div>
-                  <Switch
-                    id="edit-mode"
-                    checked={editModeEnabled}
-                    onCheckedChange={setEditModeEnabled}
-                  />
+          {/* Disputes */}
+          {activeSection === 'disputes' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex items-center gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by creditor or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
                 </div>
+                <Button onClick={fetchAdminData} variant="outline">Refresh</Button>
+              </div>
+              <Card className="glass-card">
+                <CardHeader><CardTitle>Dispute Tracking</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="hidden md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow><TableHead>User</TableHead><TableHead>Creditor</TableHead><TableHead>Account</TableHead><TableHead>Type</TableHead><TableHead>Status</TableHead><TableHead>Date</TableHead><TableHead>Actions</TableHead></TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredDisputes.map((d) => (
+                          <TableRow key={d.id}>
+                            <TableCell className="font-medium">{d.user_email}</TableCell>
+                            <TableCell>{d.creditor_name}</TableCell>
+                            <TableCell>****{d.account_number?.slice(-4)}</TableCell>
+                            <TableCell><Badge variant="outline">{d.issue_type}</Badge></TableCell>
+                            <TableCell><Badge variant={d.status === 'Completed' ? 'default' : 'secondary'}>{d.status}</Badge></TableCell>
+                            <TableCell>{new Date(d.created_at).toLocaleDateString()}</TableCell>
+                            <TableCell><div className="flex gap-1"><Button size="sm" variant="outline">Complete</Button>{d.generated_letter && <Button size="sm" variant="outline"><Download className="h-4 w-4" /></Button>}</div></TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <div className="md:hidden space-y-3">
+                    {filteredDisputes.map(d => (
+                      <Card key={d.id} className="glass-card-hover">
+                        <CardContent className="pt-4">
+                          <p className="font-medium text-sm">{d.creditor_name}</p>
+                          <p className="text-xs text-muted-foreground">{d.user_email}</p>
+                          <div className="flex gap-2 mt-2"><Badge variant="outline">{d.issue_type}</Badge><Badge variant={d.status === 'Completed' ? 'default' : 'secondary'}>{d.status}</Badge></div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button 
-                    onClick={() => window.open('https://supabase.com/dashboard/project/vctxvlkzoyqrwnletgsp', '_blank')}
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Supabase Dashboard</span>
-                  </Button>
-                  
-                  <Button 
-                    onClick={() => window.open('https://dashboard.stripe.com', '_blank')}
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Stripe Dashboard</span>
-                  </Button>
-                  
-                  <Button 
-                    onClick={() => window.open('/admin-dashboard', '_blank')}
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Internal Tools</span>
-                  </Button>
-                  
-                  <Button 
-                    onClick={() => navigate('/dispute-center')}
-                    className="flex items-center space-x-2"
-                  >
-                    <FileText className="h-4 w-4" />
-                    <span>Dispute Center</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Documents */}
+          {activeSection === 'documents' && (
+            <div className="space-y-6 animate-fade-in">
+              <Card className="glass-card">
+                <CardHeader><CardTitle>Document Automation Center</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                    <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Upload PDF Templates</h3>
+                    <p className="text-muted-foreground mb-4">Upload dispute letter templates for automatic generation</p>
+                    <Button><Upload className="h-4 w-4 mr-2" />Choose Files</Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="glass-card"><CardHeader><CardTitle className="text-lg">Template Library</CardTitle></CardHeader><CardContent><div className="space-y-2"><div className="flex items-center justify-between p-2 border border-border rounded-lg"><span className="text-sm">Standard Dispute Letter</span><Badge>Active</Badge></div><div className="flex items-center justify-between p-2 border border-border rounded-lg"><span className="text-sm">Debt Validation Letter</span><Badge>Active</Badge></div><div className="flex items-center justify-between p-2 border border-border rounded-lg"><span className="text-sm">Cease & Desist Letter</span><Badge variant="secondary">Draft</Badge></div></div></CardContent></Card>
+                    <Card className="glass-card"><CardHeader><CardTitle className="text-lg">Quick Generate</CardTitle></CardHeader><CardContent className="space-y-4"><div><Label>Select User</Label><Input placeholder="user@example.com" /></div><div><Label>Template</Label><Input placeholder="Standard Dispute Letter" /></div><Button className="w-full">Generate Letter</Button></CardContent></Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-            {/* System Status */}
-            <Card>
-              <CardHeader>
-                <CardTitle>System Status</CardTitle>
-                <CardDescription>
-                  Current system health and statistics
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-green-600">99.9%</div>
-                    <div className="text-sm text-muted-foreground">Uptime</div>
+          {activeSection === 'credit-reports' && <div className="animate-fade-in"><AdminCreditReportManager /></div>}
+
+          {/* Email */}
+          {activeSection === 'email' && (
+            <div className="space-y-6 animate-fade-in">
+              <Card className="glass-card">
+                <CardHeader><CardTitle>Email Control Panel</CardTitle><CardDescription>Send notifications to users</CardDescription></CardHeader>
+                <CardContent>
+                  <form onSubmit={sendEmailNotification} className="space-y-4">
+                    <div><Label htmlFor="recipient">Recipient Email</Label><Input id="recipient" type="email" value={emailForm.recipient} onChange={(e) => setEmailForm(prev => ({ ...prev, recipient: e.target.value }))} placeholder="client@example.com" required /></div>
+                    <div><Label htmlFor="subject">Subject</Label><Input id="subject" value={emailForm.subject} onChange={(e) => setEmailForm(prev => ({ ...prev, subject: e.target.value }))} placeholder="Important update" required /></div>
+                    <div><Label htmlFor="message">Message</Label><Textarea id="message" value={emailForm.message} onChange={(e) => setEmailForm(prev => ({ ...prev, message: e.target.value }))} placeholder="Enter your message..." rows={6} required /></div>
+                    <Button type="submit" className="w-full"><Mail className="h-4 w-4 mr-2" />Send Email</Button>
+                  </form>
+                </CardContent>
+              </Card>
+              <Card className="glass-card">
+                <CardHeader><CardTitle>Recent Notifications</CardTitle></CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader><TableRow><TableHead>Type</TableHead><TableHead>User</TableHead><TableHead>Status</TableHead><TableHead>Sent</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                      {notifications.slice(0, 10).map((n) => (
+                        <TableRow key={n.id}>
+                          <TableCell className="font-medium">{n.notification_type}</TableCell>
+                          <TableCell className="truncate max-w-[100px]">{n.user_id}</TableCell>
+                          <TableCell><Badge variant={n.email_sent ? 'default' : 'destructive'}>{n.email_sent ? 'Sent' : 'Failed'}</Badge></TableCell>
+                          <TableCell>{new Date(n.created_at).toLocaleDateString()}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* System */}
+          {activeSection === 'system' && (
+            <div className="space-y-6 animate-fade-in">
+              <Card className="glass-card">
+                <CardHeader><CardTitle>System Settings</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div><Label className="text-base font-medium">Internal Edit Mode</Label><p className="text-sm text-muted-foreground">Show edit controls</p></div>
+                    <Switch checked={editModeEnabled} onCheckedChange={setEditModeEnabled} />
                   </div>
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-blue-600">{users.length}</div>
-                    <div className="text-sm text-muted-foreground">Active Users</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button onClick={() => window.open('https://supabase.com/dashboard/project/vctxvlkzoyqrwnletgsp', '_blank')} variant="outline"><ExternalLink className="h-4 w-4 mr-2" />Supabase Dashboard</Button>
+                    <Button onClick={() => window.open('https://dashboard.stripe.com', '_blank')} variant="outline"><ExternalLink className="h-4 w-4 mr-2" />Stripe Dashboard</Button>
+                    <Button onClick={() => navigate('/dispute-center')} variant="outline"><FileText className="h-4 w-4 mr-2" />Dispute Center</Button>
+                    <Button onClick={() => navigate('/admin/settings')} variant="outline"><Settings className="h-4 w-4 mr-2" />Admin Settings</Button>
                   </div>
-                  <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-purple-600">{notifications.length}</div>
-                    <div className="text-sm text-muted-foreground">Notifications</div>
+                </CardContent>
+              </Card>
+              <Card className="glass-card">
+                <CardHeader><CardTitle>System Status</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 border border-border rounded-lg"><div className="stat-number text-green-500">{users.length}</div><p className="section-label mt-1">Registered Users</p></div>
+                    <div className="text-center p-4 border border-border rounded-lg"><div className="stat-number text-primary">{disputes.length}</div><p className="section-label mt-1">Total Disputes</p></div>
+                    <div className="text-center p-4 border border-border rounded-lg"><div className="stat-number text-amber-500">{notifications.length}</div><p className="section-label mt-1">Notifications</p></div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock } from 'lucide-react';
+import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
 import { ClientDocumentManager } from '@/components/ClientDocumentManager';
@@ -33,9 +35,7 @@ interface ClientData {
   updated_at?: string;
 }
 
-interface ClientPortalProps {
-  clientName: string;
-}
+interface ClientPortalProps { clientName: string; }
 
 interface CreditReportUpload {
   id: string;
@@ -66,109 +66,89 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
   const [receipts, setReceipts] = useState([]);
   const [creditReports, setCreditReports] = useState<CreditReportUpload[]>([]);
   const [disputeLetters, setDisputeLetters] = useState<DisputeLetter[]>([]);
+  const [activeTab, setActiveTab] = useState('dashboard');
   const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
   
   useEffect(() => {
-    if (!agreementLoading && hasSignedAgreement === false) {
-      setShowAgreementModal(true);
-    }
+    if (!agreementLoading && hasSignedAgreement === false) setShowAgreementModal(true);
   }, [hasSignedAgreement, agreementLoading]);
 
   useEffect(() => {
-    if (user) {
-      fetchClientData();
-      fetchReceipts();
-      fetchCreditReports();
-      fetchDisputeLetters();
-    }
+    if (user) { fetchClientData(); fetchReceipts(); fetchCreditReports(); fetchDisputeLetters(); }
   }, [user]);
 
-  // Real-time subscriptions
   useEffect(() => {
     if (!user) return;
-
-    const reportChannel = supabase
-      .channel('client-credit-reports')
+    const reportChannel = supabase.channel('client-credit-reports')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'credit_report_uploads', filter: `user_id=eq.${user.id}` }, () => { fetchCreditReports(); })
       .subscribe();
-
-    const disputeChannel = supabase
-      .channel('client-disputes')
+    const disputeChannel = supabase.channel('client-disputes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_letters', filter: `user_id=eq.${user.id}` }, () => { fetchDisputeLetters(); })
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(reportChannel);
-      supabase.removeChannel(disputeChannel);
-    };
+    return () => { supabase.removeChannel(reportChannel); supabase.removeChannel(disputeChannel); };
   }, [user]);
 
   const fetchClientData = async () => {
     try {
       const { data, error } = await supabase.from('clients').select('*').eq('user_id', user?.id).single();
       if (!error) setClientData(data);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { console.error('Error:', error); }
+    finally { setLoading(false); }
   };
+  const fetchReceipts = async () => { const { data } = await supabase.from('payment_receipts').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); setReceipts(data || []); };
+  const fetchCreditReports = async () => { const { data } = await supabase.from('credit_report_uploads').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); setCreditReports((data || []) as CreditReportUpload[]); };
+  const fetchDisputeLetters = async () => { const { data } = await supabase.from('dispute_letters').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); setDisputeLetters((data || []) as DisputeLetter[]); };
 
-  const fetchReceipts = async () => {
-    const { data } = await supabase.from('payment_receipts').select('*').eq('user_id', user?.id).order('created_at', { ascending: false });
-    setReceipts(data || []);
-  };
-
-  const fetchCreditReports = async () => {
-    const { data } = await supabase.from('credit_report_uploads').select('*').eq('user_id', user?.id).order('created_at', { ascending: false });
-    setCreditReports((data || []) as CreditReportUpload[]);
-  };
-
-  const fetchDisputeLetters = async () => {
-    const { data } = await supabase.from('dispute_letters').select('*').eq('user_id', user?.id).order('created_at', { ascending: false });
-    setDisputeLetters((data || []) as DisputeLetter[]);
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast({ title: 'Signed out', description: 'You have been successfully signed out.' });
-  };
+  const handleSignOut = async () => { await signOut(); toast({ title: 'Signed out', description: 'You have been successfully signed out.' }); };
 
   if (loading || agreementLoading) {
-    return <div className="min-h-screen flex items-center justify-center"><div className="text-center">Loading...</div></div>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="space-y-4 w-full max-w-md px-4">
+          <Skeleton className="h-8 w-3/4 mx-auto" />
+          <Skeleton className="h-4 w-1/2 mx-auto" />
+          <div className="grid grid-cols-2 gap-4"><Skeleton className="h-24" /><Skeleton className="h-24" /><Skeleton className="h-24" /><Skeleton className="h-24" /></div>
+        </div>
+      </div>
+    );
   }
 
   if (!clientData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Client data not found</h2>
-          <p className="text-muted-foreground">Please contact support.</p>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md glass-card">
+          <CardHeader className="text-center"><Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" /><CardTitle>Client data not found</CardTitle><CardDescription>Please contact support.</CardDescription></CardHeader>
+        </Card>
       </div>
     );
   }
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
-      completed: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      analyzing: 'bg-blue-100 text-blue-800',
-      failed: 'bg-red-100 text-red-800',
+      completed: 'bg-green-500/10 text-green-500 border-green-500/20',
+      pending: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+      analyzing: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+      failed: 'bg-red-500/10 text-red-500 border-red-500/20',
     };
     return <Badge className={variants[status] || 'bg-muted text-muted-foreground'}>{status}</Badge>;
   };
 
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: User },
+    { id: 'documents', label: 'Documents', icon: Upload },
+    { id: 'credit-reports', label: 'Reports', icon: FileText },
+    { id: 'ai-analysis', label: 'AI Analysis', icon: Brain },
+    { id: 'dispute-letters', label: 'Disputes', icon: Shield },
+    { id: 'agreement', label: 'Agreement', icon: CreditCard },
+    { id: 'membership', label: 'Membership', icon: Clock },
+  ];
+
   return (
     <>
-      <ClientAgreementModal
-        isOpen={showAgreementModal}
-        onClose={() => setShowAgreementModal(false)}
-        onAgreementSigned={() => { refetchAgreementStatus(); setShowAgreementModal(false); }}
-      />
+      <ClientAgreementModal isOpen={showAgreementModal} onClose={() => setShowAgreementModal(false)} onAgreementSigned={() => { refetchAgreementStatus(); setShowAgreementModal(false); }} />
       
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-background">
-        <div className="container mx-auto p-6">
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto p-4 md:p-6">
           <DemoUserBanner userEmail={clientData.email} />
           
           <div className="flex justify-between items-center mb-6">
@@ -176,197 +156,187 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
               <BackButton />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Welcome, {clientData.full_name}!</h1>
-                <p className="text-primary font-medium">
-                  {clientData.membership_plan} Plan Member
+                <p className="text-primary font-medium text-sm">
+                  {clientData.membership_plan} Plan
                   {hasSignedAgreement && <span className="ml-2 text-green-500">✓ Agreement Signed</span>}
                 </p>
               </div>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+            <Button variant="outline" onClick={handleSignOut} size="sm"><LogOut className="w-4 h-4 mr-2" />Sign Out</Button>
           </div>
 
-          <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
-              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="documents">Documents</TabsTrigger>
-              <TabsTrigger value="credit-reports">Credit Reports</TabsTrigger>
-              <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
-              <TabsTrigger value="dispute-letters">Disputes</TabsTrigger>
-              <TabsTrigger value="agreement">Agreement</TabsTrigger>
-              <TabsTrigger value="membership">Membership</TabsTrigger>
-            </TabsList>
+          {/* Tab Navigation - responsive */}
+          <div className="mb-6">
+            {/* Desktop: horizontal scrollable */}
+            <div className="hidden md:flex items-center gap-1 overflow-x-auto pb-2 border-b border-border">
+              {tabs.map(tab => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg whitespace-nowrap transition-all ${
+                      activeTab === tab.id
+                        ? 'bg-primary/10 text-foreground font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Mobile: Select dropdown */}
+            <div className="md:hidden">
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {tabs.map(tab => (
+                    <SelectItem key={tab.id} value={tab.id}>{tab.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-            <TabsContent value="dashboard">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2"><User className="w-4 h-4" /> Profile</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm"><strong>Name:</strong> {clientData.full_name}</p>
-                    <p className="text-sm"><strong>Plan:</strong> {clientData.membership_plan}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2"><FileText className="w-4 h-4" /> Credit Reports</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{creditReports.length}</div>
-                    <p className="text-xs text-muted-foreground">Reports uploaded</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2"><Brain className="w-4 h-4" /> Disputes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{disputeLetters.length}</div>
-                    <p className="text-xs text-muted-foreground">Total dispute letters</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2"><Shield className="w-4 h-4" /> Flagged Items</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {creditReports.reduce((sum, r) => sum + (r.flagged_accounts_count || 0), 0)}
+          {/* Dashboard */}
+          {activeTab === 'dashboard' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+              {[
+                { label: 'Profile', icon: User, content: <><p className="text-sm"><strong>Name:</strong> {clientData.full_name}</p><p className="text-sm"><strong>Plan:</strong> {clientData.membership_plan}</p></> },
+                { label: 'Credit Reports', icon: FileText, content: <><div className="stat-number">{creditReports.length}</div><p className="text-xs text-muted-foreground">Reports uploaded</p></> },
+                { label: 'Disputes', icon: Brain, content: <><div className="stat-number">{disputeLetters.length}</div><p className="text-xs text-muted-foreground">Total dispute letters</p></> },
+                { label: 'Flagged Items', icon: Shield, content: <><div className="stat-number">{creditReports.reduce((sum, r) => sum + (r.flagged_accounts_count || 0), 0)}</div><p className="text-xs text-muted-foreground">AI-flagged accounts</p></> },
+              ].map(card => {
+                const Icon = card.icon;
+                return (
+                  <Card key={card.label} className="glass-card-hover">
+                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><Icon className="w-4 h-4 text-primary" />{card.label}</CardTitle></CardHeader>
+                    <CardContent>{card.content}</CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Documents */}
+          {activeTab === 'documents' && <div className="animate-fade-in"><ClientDocumentManager clientId={clientData.id} /></div>}
+
+          {/* Credit Reports */}
+          {activeTab === 'credit-reports' && (
+            <Card className="glass-card animate-fade-in">
+              <CardHeader><CardTitle>Credit Reports</CardTitle><CardDescription>Your uploaded credit reports and analysis results</CardDescription></CardHeader>
+              <CardContent>
+                {creditReports.length === 0 ? (
+                  <div className="text-center py-8"><Upload className="h-12 w-12 mx-auto mb-2 text-muted-foreground" /><p className="text-muted-foreground">No credit reports uploaded yet.</p></div>
+                ) : (
+                  <>
+                    {/* Desktop */}
+                    <div className="hidden md:block">
+                      <Table>
+                        <TableHeader><TableRow><TableHead>File</TableHead><TableHead>Status</TableHead><TableHead>Flagged</TableHead><TableHead>Summary</TableHead><TableHead>Date</TableHead></TableRow></TableHeader>
+                        <TableBody>
+                          {creditReports.map((r) => (
+                            <TableRow key={r.id}>
+                              <TableCell className="font-medium">{r.file_name}</TableCell>
+                              <TableCell>{getStatusBadge(r.analysis_status || 'pending')}</TableCell>
+                              <TableCell>{r.flagged_accounts_count || 0}</TableCell>
+                              <TableCell className="max-w-[200px] truncate">{r.ai_analysis_summary || '-'}</TableCell>
+                              <TableCell>{new Date(r.created_at).toLocaleDateString()}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
-                    <p className="text-xs text-muted-foreground">AI-flagged accounts</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="documents">
-              <ClientDocumentManager clientId={clientData.id} />
-            </TabsContent>
-
-            <TabsContent value="credit-reports">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Credit Reports</CardTitle>
-                  <CardDescription>Your uploaded credit reports and analysis results</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {creditReports.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Upload className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-muted-foreground">No credit reports uploaded yet.</p>
+                    {/* Mobile */}
+                    <div className="md:hidden space-y-3">
+                      {creditReports.map(r => (
+                        <Card key={r.id} className="glass-card-hover">
+                          <CardContent className="pt-4">
+                            <p className="font-medium text-sm">{r.file_name}</p>
+                            <div className="flex gap-2 mt-2">
+                              {getStatusBadge(r.analysis_status || 'pending')}
+                              <Badge variant="outline">{r.flagged_accounts_count || 0} flagged</Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">{new Date(r.created_at).toLocaleDateString()}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>File</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Flagged</TableHead>
-                          <TableHead>Summary</TableHead>
-                          <TableHead>Date</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {creditReports.map((report) => (
-                          <TableRow key={report.id}>
-                            <TableCell className="font-medium">{report.file_name}</TableCell>
-                            <TableCell>{getStatusBadge(report.analysis_status || 'pending')}</TableCell>
-                            <TableCell>{report.flagged_accounts_count || 0}</TableCell>
-                            <TableCell className="max-w-[200px] truncate">{report.ai_analysis_summary || '-'}</TableCell>
-                            <TableCell>{new Date(report.created_at).toLocaleDateString()}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-            <TabsContent value="ai-analysis">
-              <AIAnalysisViewer />
-            </TabsContent>
+          {/* AI Analysis */}
+          {activeTab === 'ai-analysis' && <div className="animate-fade-in"><AIAnalysisViewer /></div>}
 
-            <TabsContent value="dispute-letters">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Dispute Letters</CardTitle>
-                  <CardDescription>Generated dispute letters and their status</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {disputeLetters.length === 0 ? (
-                    <div className="text-center py-8">
-                      <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-muted-foreground">No dispute letters generated yet.</p>
-                    </div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Creditor</TableHead>
-                          <TableHead>Account</TableHead>
-                          <TableHead>Type</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Date</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {disputeLetters.map((letter) => (
-                          <TableRow key={letter.id}>
-                            <TableCell className="font-medium">{letter.creditor_name}</TableCell>
-                            <TableCell>{letter.account_number ? `****${letter.account_number.slice(-4)}` : 'N/A'}</TableCell>
-                            <TableCell><Badge variant="outline">{letter.letter_type || letter.issue_type || 'Standard'}</Badge></TableCell>
-                            <TableCell><Badge variant="secondary">{letter.case_status || 'intake_received'}</Badge></TableCell>
-                            <TableCell>{new Date(letter.created_at).toLocaleDateString()}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+          {/* Dispute Letters - using Accordion */}
+          {activeTab === 'dispute-letters' && (
+            <Card className="glass-card animate-fade-in">
+              <CardHeader><CardTitle>Dispute Letters</CardTitle><CardDescription>Generated dispute letters and their status</CardDescription></CardHeader>
+              <CardContent>
+                {disputeLetters.length === 0 ? (
+                  <div className="text-center py-8"><FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" /><p className="text-muted-foreground">No dispute letters generated yet.</p></div>
+                ) : (
+                  <Accordion type="single" collapsible className="space-y-2">
+                    {disputeLetters.map((letter) => (
+                      <AccordionItem key={letter.id} value={letter.id} className="border border-border rounded-lg px-4">
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex items-center gap-3 text-left">
+                            <div>
+                              <p className="font-medium text-sm">{letter.creditor_name}</p>
+                              <p className="text-xs text-muted-foreground">{letter.account_number ? `****${letter.account_number.slice(-4)}` : 'N/A'}</p>
+                            </div>
+                            <Badge variant="outline" className="ml-auto mr-2">{letter.letter_type || letter.issue_type || 'Standard'}</Badge>
+                            <Badge variant="secondary">{letter.case_status || 'intake_received'}</Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="bg-muted/50 rounded-lg p-4 mt-2 border border-border">
+                            <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed text-foreground">{letter.generated_letter}</pre>
+                            <div className="flex gap-2 mt-4">
+                              <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(letter.generated_letter); toast({ title: 'Copied!' }); }}>
+                                <Copy className="h-4 w-4 mr-2" />Copy
+                              </Button>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-            <TabsContent value="agreement">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Client Agreement</CardTitle>
-                  <CardDescription>View and sign your service agreement</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {hasSignedAgreement ? (
-                    <p className="text-green-500 font-medium">✓ Agreement signed</p>
-                  ) : (
-                    <>
-                      <p className="text-muted-foreground">Please review and sign your service agreement.</p>
-                      <Button className="mt-4" onClick={() => setShowAgreementModal(true)}>Review Agreement</Button>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+          {/* Agreement */}
+          {activeTab === 'agreement' && (
+            <Card className="glass-card animate-fade-in">
+              <CardHeader><CardTitle>Client Agreement</CardTitle><CardDescription>View and sign your service agreement</CardDescription></CardHeader>
+              <CardContent>
+                {hasSignedAgreement ? (
+                  <p className="text-green-500 font-medium">✓ Agreement signed</p>
+                ) : (
+                  <><p className="text-muted-foreground">Please review and sign your service agreement.</p><Button className="mt-4" onClick={() => setShowAgreementModal(true)}>Review Agreement</Button></>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-            <TabsContent value="membership">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Membership Plan</CardTitle>
-                  <CardDescription>Your current membership details</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <h3 className="font-medium">Current Plan: {clientData.membership_plan}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Contact admin to change your membership tier.
-                  </p>
-                  <div className="pt-4 border-t mt-4">
-                    <ReceiptGenerator receipts={receipts} />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          {/* Membership */}
+          {activeTab === 'membership' && (
+            <Card className="glass-card animate-fade-in">
+              <CardHeader><CardTitle>Membership Plan</CardTitle><CardDescription>Your current membership details</CardDescription></CardHeader>
+              <CardContent>
+                <h3 className="font-medium">Current Plan: {clientData.membership_plan}</h3>
+                <p className="text-sm text-muted-foreground mt-1">Contact admin to change your membership tier.</p>
+                <div className="pt-4 border-t border-border mt-4"><ReceiptGenerator receipts={receipts} /></div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </>

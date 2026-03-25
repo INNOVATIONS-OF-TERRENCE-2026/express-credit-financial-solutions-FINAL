@@ -2,168 +2,145 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Professional Credit Repair CRM Design System */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Luxury Fintech Color Palette */
-    --fintech-primary: 219 35% 17%;        /* #1A2238 - Primary dark blue */
-    --fintech-secondary: 218 27% 28%;      /* #34435D - Secondary blue-grey */
-    --fintech-accent: 194 100% 45%;        /* #00C3E8 - Bright cyan */
-    --fintech-light: 210 29% 97%;          /* #F5F7FA - Light text */
-    --fintech-dark: 218 24% 24%;           /* #2E3A4E - Dark text */
-    --fintech-support: 207 44% 93%;        /* #E8F1F8 - Light background */
-    
-    --background: 219 35% 17%;
-    --foreground: 210 29% 97%;
+    /* Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
 
-    --card: 218 27% 28%;
-    --card-foreground: 210 29% 97%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 218 27% 28%;
-    --popover-foreground: 210 29% 97%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Primary: Cyan Accent */
     --primary: 194 100% 45%;
-    --primary-foreground: 210 29% 97%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Blue-grey */
-    --secondary: 218 27% 28%;
-    --secondary-foreground: 210 29% 97%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    /* Accent: Bright Cyan */
     --accent: 194 100% 45%;
-    --accent-foreground: 219 35% 17%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Premium Gold Variants */
-    --gold: 45 100% 51%;
-    --gold-light: 45 100% 65%;
-    --gold-dark: 45 100% 35%;
-
-    /* Silver Variants */
-    --silver: 0 0% 75%;
-    --silver-light: 0 0% 85%;
-    --silver-dark: 0 0% 65%;
-
-    /* Ocean Blue Variants */
-    --ocean-blue: 214 95% 20%;
-    --ocean-blue-hover: 214 95% 25%;
-
-    --muted: 218 24% 24%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 29% 97%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 194 100% 45%;
-    --input: 218 27% 28%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
     --ring: 194 100% 45%;
 
     --radius: 0.5rem;
 
-  /* Midnight Blue SBA Theme Colors */
-  --sba-midnight: 231 45% 9%;
-  --sba-card: 231 40% 12%;
-  --sba-green: 142 76% 36%;
-  --sba-green-light: 142 76% 46%;
-  --sba-chrome: 0 0% 75%;
-  --sba-chrome-glow: 0 0% 85%;
-  
-  /* Midnight Theme Variables */
-  --midnight-bg: 231 45% 9%;
-  --midnight-card: 231 40% 12%;
-  --midnight-text: 0 0% 95%;
-  --midnight-muted: 0 0% 65%;
+    /* Fintech branding (used on landing page) */
+    --fintech-primary: 219 35% 17%;
+    --fintech-secondary: 218 27% 28%;
+    --fintech-accent: 194 100% 45%;
+    --fintech-light: 210 29% 97%;
+    --fintech-dark: 218 24% 24%;
+    --fintech-support: 210 29% 97%;
+
+    /* Premium Gold/Silver */
+    --gold: 45 100% 51%;
+    --gold-light: 45 100% 65%;
+    --gold-dark: 45 100% 35%;
+    --silver: 0 0% 75%;
+    --silver-light: 0 0% 85%;
+    --silver-dark: 0 0% 65%;
+    --ocean-blue: 214 95% 20%;
+    --ocean-blue-hover: 214 95% 25%;
+
+    /* SBA / Midnight theme vars */
+    --sba-midnight: 231 45% 9%;
+    --sba-card: 231 40% 12%;
+    --sba-green: 142 76% 36%;
+    --sba-green-light: 142 76% 46%;
+    --sba-chrome: 0 0% 75%;
+    --sba-chrome-glow: 0 0% 85%;
+    --midnight-bg: 231 45% 9%;
+    --midnight-card: 231 40% 12%;
+    --midnight-text: 0 0% 95%;
+    --midnight-muted: 0 0% 65%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-variant)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-variant)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-variant)));
-    --gradient-elegant: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-    --gradient-gold: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-light)));
-    --gradient-silver: linear-gradient(135deg, hsl(var(--silver)), hsl(var(--silver-light)));
-    --gradient-ocean: linear-gradient(135deg, hsl(var(--ocean-blue)), hsl(var(--ocean-blue-dark)));
-    --gradient-sba: linear-gradient(135deg, hsl(var(--sba-midnight)), hsl(var(--sba-midnight-dark)));
-    --gradient-sba-portal: linear-gradient(135deg, hsl(120, 50%, 45%), hsl(220, 70%, 50%));
-    --gradient-green-blue: linear-gradient(90deg, hsl(120, 50%, 45%) 0%, hsl(220, 70%, 50%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(0 0% 9%), hsl(0 0% 20%));
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 96%));
     --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(45 100% 35%));
     --gradient-silver: linear-gradient(135deg, hsl(0 0% 75%), hsl(0 0% 85%));
-    --gradient-elegant: linear-gradient(135deg, hsl(0 0% 9%), hsl(45 100% 51%));
+    --gradient-elegant: linear-gradient(135deg, hsl(219 35% 17%), hsl(218 27% 28%));
     --gradient-midnight: linear-gradient(135deg, hsl(231 45% 9%), hsl(231 40% 15%));
     --gradient-midnight-gold: linear-gradient(135deg, hsl(231 45% 9%), hsl(45 100% 51%));
     --gradient-chrome-gold-green: linear-gradient(135deg, hsl(45 100% 70%), hsl(120 60% 20%));
     --gradient-dark-blue-green: linear-gradient(135deg, hsl(220 60% 25%), hsl(120 50% 25%));
+    --gradient-sba-portal: linear-gradient(135deg, hsl(120, 50%, 45%), hsl(220, 70%, 50%));
+    --gradient-green-blue: linear-gradient(90deg, hsl(120, 50%, 45%) 0%, hsl(220, 70%, 50%) 100%);
 
     /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.3);
-    --shadow-gold: 0 8px 25px -8px hsl(45 100% 51% / 0.4);
-    --shadow-silver: 0 8px 25px -8px hsl(0 0% 75% / 0.3);
-    --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.1);
-    --shadow-neon-gold: 0 0 20px hsl(45 100% 51% / 0.6);
-    --shadow-neon-silver: 0 0 20px hsl(0 0% 75% / 0.4);
+    --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.1);
+    --shadow-gold: 0 8px 25px -8px hsl(45 100% 51% / 0.3);
+    --shadow-silver: 0 8px 25px -8px hsl(0 0% 75% / 0.2);
+    --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.06);
+    --shadow-neon-gold: 0 0 20px hsl(45 100% 51% / 0.4);
+    --shadow-neon-silver: 0 0 20px hsl(0 0% 75% / 0.3);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    /* Dark fintech theme */
-    --background: 219 35% 17%;
-    --foreground: 210 29% 97%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 218 27% 28%;
-    --card-foreground: 210 29% 97%;
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 218 27% 28%;
-    --popover-foreground: 210 29% 97%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
 
     --primary: 194 100% 45%;
-    --primary-foreground: 210 29% 97%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 218 27% 28%;
-    --secondary-foreground: 210 29% 97%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 218 24% 24%;
+    --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
 
     --accent: 194 100% 45%;
-    --accent-foreground: 219 35% 17%;
+    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 29% 97%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 194 100% 45%;
-    --input: 218 27% 28%;
+    --border: 217 33% 25%;
+    --input: 217 33% 17%;
     --ring: 194 100% 45%;
 
-    /* Dark theme gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(0 0% 9%), hsl(0 0% 15%));
+    --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%), hsl(217 33% 17%));
     --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(45 100% 35%));
-    --gradient-elegant: linear-gradient(135deg, hsl(0 0% 12%), hsl(45 100% 51%));
+    --gradient-elegant: linear-gradient(135deg, hsl(222 47% 11%), hsl(217 33% 17%));
 
-    --sidebar-background: 0 0% 9%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 45 100% 51%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 45 100% 51%;
+    --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.2);
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 194 100% 45%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 25%;
+    --sidebar-ring: 194 100% 45%;
   }
 }
 
@@ -171,168 +148,141 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
   }
-  
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
   }
 }
 
 @layer components {
-  /* Professional Button Variants */
-  .btn-gold {
-    @apply bg-gradient-to-r from-accent to-gold-dark text-accent-foreground hover:shadow-gold transition-all duration-300;
+  /* Glass card utility */
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border rounded-xl shadow-lg;
   }
-  
+  .glass-card-hover {
+    @apply glass-card hover:border-primary/30 hover:bg-card/90 transition-all duration-200;
+  }
+
+  /* Stat number */
+  .stat-number {
+    @apply text-3xl font-bold font-poppins tabular-nums;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply text-xs uppercase tracking-wider text-muted-foreground font-medium;
+  }
+
+  /* Button Variants */
+  .btn-gold {
+    @apply bg-gradient-to-r from-primary to-gold-dark text-primary-foreground hover:shadow-gold transition-all duration-300;
+  }
   .btn-elegant {
     @apply bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:shadow-elegant transition-all duration-300;
   }
-
   .btn-silver {
-    @apply bg-secondary text-secondary-foreground hover:bg-silver transition-all duration-300;
+    @apply bg-secondary text-secondary-foreground hover:bg-muted transition-all duration-300;
   }
 
   /* Card Variants */
   .card-elegant {
     @apply bg-card border shadow-card backdrop-blur-sm;
   }
-
   .card-premium {
-    @apply bg-gradient-to-br from-card to-muted border-accent/20 shadow-gold;
+    @apply bg-gradient-to-br from-card to-muted border-primary/20 shadow-gold;
   }
 
   /* Status Badges */
   .status-basic {
-    @apply bg-silver/20 text-silver-dark border border-silver/30;
+    @apply bg-muted text-muted-foreground border border-border;
   }
-
   .status-pro {
-    @apply bg-accent/20 text-accent-foreground border border-accent/30;
+    @apply bg-primary/20 text-primary border border-primary/30;
   }
-
   .status-elite {
-    @apply bg-gradient-to-r from-accent to-gold-dark text-accent-foreground border border-accent/30;
+    @apply bg-gradient-to-r from-primary/20 to-gold/20 text-foreground border border-primary/30;
   }
 
   /* Animations */
   .animate-fade-in {
     animation: fadeIn 0.5s ease-out;
   }
-
   .animate-slide-up {
     animation: slideUp 0.6s ease-out;
   }
-
   .hover-lift {
-    @apply transition-transform duration-300 hover:scale-105;
+    @apply transition-transform duration-300 hover:scale-[1.02];
   }
 
-  /* Midnight Blue Theme Classes */
+  /* Midnight Theme Classes (for SBA portal) */
   .midnight-theme {
     background: hsl(var(--midnight-bg));
     color: hsl(var(--midnight-text));
   }
-
   .midnight-card {
     background: hsl(var(--midnight-card));
     border: 1px solid hsl(var(--midnight-muted) / 0.2);
     color: hsl(var(--midnight-text));
   }
-
   .midnight-header {
     background: var(--gradient-midnight);
     color: hsl(var(--midnight-text));
-    text-shadow: var(--shadow-neon-gold);
   }
-
   .midnight-btn-gold {
-    background: linear-gradient(135deg, transparent, transparent);
+    background: transparent;
     border: 2px solid hsl(var(--gold));
     color: hsl(var(--gold));
     box-shadow: var(--shadow-neon-gold);
     transition: all 0.3s ease;
   }
-
   .midnight-btn-gold:hover {
     background: hsl(var(--gold));
     color: hsl(var(--midnight-bg));
-    box-shadow: var(--shadow-neon-gold), 0 0 30px hsl(var(--gold) / 0.8);
-    transform: translateY(-2px);
   }
-
   .midnight-btn-silver {
-    background: linear-gradient(135deg, transparent, transparent);
+    background: transparent;
     border: 2px solid hsl(var(--silver));
     color: hsl(var(--silver));
-    box-shadow: var(--shadow-neon-silver);
     transition: all 0.3s ease;
   }
-
   .midnight-btn-silver:hover {
     background: hsl(var(--silver));
     color: hsl(var(--midnight-bg));
-    box-shadow: var(--shadow-neon-silver), 0 0 30px hsl(var(--silver) / 0.6);
-    transform: translateY(-2px);
   }
-
   .midnight-glow-text {
     text-shadow: 0 0 10px hsl(var(--gold) / 0.5);
   }
-
   .midnight-section-title {
     background: var(--gradient-gold);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: var(--shadow-neon-gold);
   }
 
   /* Education category buttons */
   .edu-filter-button {
-    background: hsl(var(--midnight-bg));
-    color: hsl(var(--midnight-text));
-    border: 1px solid hsl(var(--midnight-muted) / 0.6);
-    border-radius: var(--radius);
-    padding: 0.5rem 1rem;
-    transition: box-shadow 0.2s ease, outline-color 0.2s ease;
+    @apply bg-card text-foreground border border-border rounded-lg px-4 py-2 transition-all;
   }
   .edu-filter-button:hover {
-    outline: 2px solid hsl(var(--gold) / 0.4);
-    outline-offset: 2px;
+    @apply ring-2 ring-primary/40 ring-offset-2 ring-offset-background;
   }
   .edu-filter-button:focus-visible {
-    outline: 2px solid hsl(var(--gold));
-    outline-offset: 2px;
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
   }
   .edu-filter-button-active {
-    outline: 2px solid hsl(var(--gold));
-    outline-offset: 2px;
-    box-shadow: var(--shadow-neon-gold);
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg;
   }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
