@@ -48,7 +48,7 @@ const plans: Array<{
   },
   {
     name: "Full ChexSystems Removal",
-    price: 350,
+    price: 349.99,
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
