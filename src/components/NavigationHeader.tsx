@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles, Menu } from 'lucide-react';
+import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles, Menu, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { cn } from '@/lib/utils';
