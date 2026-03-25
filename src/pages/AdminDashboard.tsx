@@ -27,6 +27,7 @@ import { CasePipelineDashboard } from '@/components/CasePipelineDashboard';
 import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
 import { AdminAIControlPanel } from '@/components/AdminAIControlPanel';
 import { ThemeSelector } from '@/components/ThemeSelector';
+import { AdminBacklogTools } from '@/components/AdminBacklogTools';
 import { cn } from '@/lib/utils';
 
 interface AdminUser {
