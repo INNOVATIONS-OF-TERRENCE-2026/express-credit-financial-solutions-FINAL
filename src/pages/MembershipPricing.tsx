@@ -32,7 +32,7 @@ const plans: Array<{
     icon: Crown,
     badge: "👑 Elite Service",
     color: "cyan",
-    stripeKey: "unlimited",
+    
     ctaText: "Start Full Credit Repair",
     features: [
       "Full credit file audit & analysis",
