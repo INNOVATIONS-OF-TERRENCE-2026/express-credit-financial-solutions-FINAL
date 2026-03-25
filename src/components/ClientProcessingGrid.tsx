@@ -14,41 +14,16 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   Brain, FileText, Loader2, RefreshCw, Eye, CheckCircle, XCircle,
   Upload, AlertTriangle, ArrowRight, StickyNote, Search, Users,
-  Zap, Clock, Filter
+  Zap, Clock, Send
 } from 'lucide-react';
 import {
-  autoCreateDisputesFromFlags,
-  transitionDisputeStatus,
-  type CaseStatus,
+  autoCreateDisputesFromFlags, transitionDisputeStatus,
 } from '@/services/disputeWorkflow';
+import {
+  fetchAllClientCases, getNextAction, getReadiness,
+  READINESS_CONFIG, type ClientCaseData, type ReadinessLevel,
+} from '@/components/AdminBacklogTools';
 
-interface ClientRow {
-  user_id: string;
-  email: string;
-  full_name: string;
-  active_services: string[];
-  created_at: string;
-  // readiness
-  has_agreement: boolean;
-  has_id: boolean;
-  has_address: boolean;
-  has_credit_report: boolean;
-  // counts
-  report_count: number;
-  unanalyzed_reports: number;
-  flagged_count: number;
-  pending_flags: number;
-  dispute_count: number;
-  review_count: number;
-  approved_count: number;
-  // derived
-  latest_status: string | null;
-  last_updated: string | null;
-  next_action: string;
-  readiness: 'incomplete' | 'partial' | 'ready_for_analysis' | 'ready_for_drafting';
-}
-
-type SortField = 'name' | 'created' | 'readiness' | 'flags' | 'disputes' | 'action';
 type FilterMode = 'all' | 'missing_docs' | 'ready_analyze' | 'ready_generate' | 'needs_review' | 'approved' | 'followup';
 
 const FILTER_OPTIONS: { key: FilterMode; label: string; icon: any }[] = [
@@ -61,110 +36,24 @@ const FILTER_OPTIONS: { key: FilterMode; label: string; icon: any }[] = [
   { key: 'followup', label: 'Follow-Up Due', icon: AlertTriangle },
 ];
 
-function getNextAction(c: ClientRow): string {
-  if (!c.has_agreement) return 'Needs client agreement';
-  if (!c.has_id) return 'Upload government ID';
-  if (!c.has_credit_report) return 'Upload credit report';
-  if (c.unanalyzed_reports > 0) return `Run AI analysis (${c.unanalyzed_reports} report${c.unanalyzed_reports > 1 ? 's' : ''})`;
-  if (c.pending_flags > 0) return `Generate drafts from ${c.pending_flags} flagged item${c.pending_flags > 1 ? 's' : ''}`;
-  if (c.review_count > 0) return 'Admin review required';
-  if (c.approved_count > 0) return 'Export approved letters';
-  if (c.latest_status === 'followup_due') return 'Follow-up action needed';
-  if (c.dispute_count > 0) return 'Monitor active disputes';
-  return 'No action needed';
-}
-
-function getReadiness(c: ClientRow): ClientRow['readiness'] {
-  if (!c.has_agreement || !c.has_id) return 'incomplete';
-  if (!c.has_credit_report) return 'partial';
-  if (c.pending_flags > 0) return 'ready_for_drafting';
-  if (c.has_credit_report) return 'ready_for_analysis';
-  return 'partial';
-}
-
-const READINESS_BADGE: Record<ClientRow['readiness'], { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  incomplete: { label: 'Incomplete', variant: 'destructive' },
-  partial: { label: 'Partial', variant: 'secondary' },
-  ready_for_analysis: { label: 'Ready for Analysis', variant: 'outline' },
-  ready_for_drafting: { label: 'Ready for Drafting', variant: 'default' },
-};
-
 export function ClientProcessingGrid() {
-  const [clients, setClients] = useState<ClientRow[]>([]);
+  const [clients, setClients] = useState<ClientCaseData[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<FilterMode>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState<SortField>('action');
-  const [sortAsc, setSortAsc] = useState(true);
   const [noteModal, setNoteModal] = useState<{ userId: string; name: string } | null>(null);
   const [noteText, setNoteText] = useState('');
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [detailModal, setDetailModal] = useState<ClientCaseData | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [profilesRes, clientsRes, reportsRes, flagsRes, disputesRes, agreementsRes, docsRes] = await Promise.all([
-        supabase.from('profiles').select('user_id, email, first_name, middle_name, last_name, active_services, created_at'),
-        supabase.from('clients').select('user_id, full_name'),
-        supabase.from('credit_report_uploads').select('user_id, id, analysis_status'),
-        supabase.from('flagged_disputes').select('user_id, id, dispute_letter_generated'),
-        supabase.from('dispute_letters').select('user_id, id, case_status, status_updated_at'),
-        supabase.from('client_agreements').select('user_id'),
-        supabase.from('client_documents').select('user_id, document_type'),
-      ]);
-
-      const profiles = profilesRes.data || [];
-      const clientMap = new Map((clientsRes.data || []).map(c => [c.user_id, c.full_name]));
-      const agreementSet = new Set((agreementsRes.data || []).map(a => a.user_id));
-
-      const rows: ClientRow[] = profiles.map(p => {
-        const uid = p.user_id;
-        const userReports = (reportsRes.data || []).filter(r => r.user_id === uid);
-        const userFlags = (flagsRes.data || []).filter(f => f.user_id === uid);
-        const userDisputes = (disputesRes.data || []).filter(d => d.user_id === uid);
-        const userDocs = (docsRes.data || []).filter(d => d.user_id === uid);
-
-        const pendingFlags = userFlags.filter(f => !f.dispute_letter_generated).length;
-        const reviewCount = userDisputes.filter(d => d.case_status === 'needs_admin_review').length;
-        const approvedCount = userDisputes.filter(d => d.case_status === 'approved').length;
-        const unanalyzed = userReports.filter(r => r.analysis_status === 'pending' || !r.analysis_status).length;
-
-        const fullName = [p.first_name, p.middle_name, p.last_name].filter(Boolean).join(' ') || clientMap.get(uid) || '';
-        const latestDispute = userDisputes.sort((a, b) => 
-          (b.status_updated_at || '').localeCompare(a.status_updated_at || '')
-        )[0];
-
-        const row: ClientRow = {
-          user_id: uid,
-          email: p.email,
-          full_name: fullName,
-          active_services: (p as any).active_services || [],
-          created_at: p.created_at,
-          has_agreement: agreementSet.has(uid),
-          has_id: userDocs.some(d => d.document_type === 'government_id'),
-          has_address: userDocs.some(d => d.document_type === 'proof_of_address' || d.document_type === 'address'),
-          has_credit_report: userReports.length > 0,
-          report_count: userReports.length,
-          unanalyzed_reports: unanalyzed,
-          flagged_count: userFlags.length,
-          pending_flags: pendingFlags,
-          dispute_count: userDisputes.length,
-          review_count: reviewCount,
-          approved_count: approvedCount,
-          latest_status: latestDispute?.case_status || null,
-          last_updated: latestDispute?.status_updated_at || null,
-          next_action: '',
-          readiness: 'incomplete',
-        };
-        row.next_action = getNextAction(row);
-        row.readiness = getReadiness(row);
-        return row;
-      });
-
+      const rows = await fetchAllClientCases();
       setClients(rows);
     } catch (err) {
       console.error(err);
@@ -176,146 +65,92 @@ export function ClientProcessingGrid() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const addProcessing = (id: string) => setProcessing(p => new Set(p).add(id));
-  const removeProcessing = (id: string) => setProcessing(p => { const n = new Set(p); n.delete(id); return n; });
+  const addProc = (id: string) => setProcessing(p => new Set(p).add(id));
+  const delProc = (id: string) => setProcessing(p => { const n = new Set(p); n.delete(id); return n; });
 
-  const handleRunAnalysis = async (userId: string) => {
-    addProcessing(userId);
+  const handleAnalyze = async (userId: string) => {
+    addProc(userId);
     try {
-      const { data: reports } = await supabase
-        .from('credit_report_uploads')
-        .select('id, file_name')
-        .eq('user_id', userId)
-        .in('analysis_status', ['pending']);
-
-      if (!reports?.length) {
-        toast({ title: 'No Reports', description: 'No pending reports to analyze' });
-        return;
-      }
-
-      for (const report of reports) {
+      const { data: reports } = await supabase.from('credit_report_uploads').select('id, file_name')
+        .eq('user_id', userId).in('analysis_status', ['pending']);
+      if (!reports?.length) { toast({ title: 'No pending reports' }); return; }
+      for (const r of reports) {
         await supabase.functions.invoke('analyze-credit-report', {
-          body: { reportId: report.id, fileName: report.file_name, creditReportPath: report.file_name },
+          body: { reportId: r.id, fileName: r.file_name, creditReportPath: r.file_name },
         });
       }
-      toast({ title: 'Analysis Complete', description: `Analyzed ${reports.length} report(s)` });
+      toast({ title: 'Analysis Complete', description: `${reports.length} report(s)` });
       fetchData();
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      removeProcessing(userId);
-    }
+    } catch (err: any) { toast({ title: 'Error', description: err.message, variant: 'destructive' }); }
+    finally { delProc(userId); }
   };
 
-  const handleGenerateDrafts = async (userId: string) => {
-    addProcessing(userId);
+  const handleDrafts = async (userId: string) => {
+    addProc(userId);
     try {
-      const { data: reports } = await supabase
-        .from('credit_report_uploads').select('id').eq('user_id', userId);
-
+      const { data: reports } = await supabase.from('credit_report_uploads').select('id').eq('user_id', userId);
       let total = 0;
-      for (const r of reports || []) {
-        const result = await autoCreateDisputesFromFlags(userId, r.id);
-        total += result.created;
-      }
-      toast({ title: 'Drafts Created', description: `Created ${total} dispute draft(s)` });
+      for (const r of reports || []) { total += (await autoCreateDisputesFromFlags(userId, r.id)).created; }
+      toast({ title: 'Drafts Created', description: `${total} draft(s)` });
       fetchData();
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      removeProcessing(userId);
-    }
+    } catch (err: any) { toast({ title: 'Error', description: err.message, variant: 'destructive' }); }
+    finally { delProc(userId); }
   };
 
-  const handleSendToReview = async (userId: string) => {
-    addProcessing(userId);
+  const handleReview = async (userId: string) => {
+    if (!user) return;
+    addProc(userId);
     try {
-      const { data: disputes } = await supabase
-        .from('dispute_letters').select('id, case_status')
-        .eq('user_id', userId)
-        .eq('case_status', 'draft_generated');
-
+      const { data: disputes } = await supabase.from('dispute_letters').select('id')
+        .eq('user_id', userId).eq('case_status', 'draft_generated');
       let moved = 0;
-      for (const d of disputes || []) {
-        await transitionDisputeStatus(d.id, 'needs_admin_review', user!.id);
-        moved++;
-      }
-      toast({ title: 'Sent to Review', description: `${moved} dispute(s) moved to review queue` });
+      for (const d of disputes || []) { await transitionDisputeStatus(d.id, 'needs_admin_review', user.id); moved++; }
+      toast({ title: 'Sent to Review', description: `${moved} dispute(s)` });
       fetchData();
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      removeProcessing(userId);
-    }
+    } catch (err: any) { toast({ title: 'Error', description: err.message, variant: 'destructive' }); }
+    finally { delProc(userId); }
   };
 
-  const handleAddNote = async () => {
+  const handleFollowup = async (userId: string) => {
+    if (!user) return;
+    addProc(userId);
+    try {
+      const { data: disputes } = await supabase.from('dispute_letters').select('id')
+        .eq('user_id', userId).eq('case_status', 'exported');
+      let moved = 0;
+      for (const d of disputes || []) { await transitionDisputeStatus(d.id, 'followup_due', user.id); moved++; }
+      toast({ title: 'Marked Follow-Up', description: `${moved} case(s)` });
+      fetchData();
+    } catch (err: any) { toast({ title: 'Error', description: err.message, variant: 'destructive' }); }
+    finally { delProc(userId); }
+  };
+
+  const handleNote = async () => {
     if (!noteModal || !noteText.trim()) return;
     try {
-      // Find client record
-      const { data: client } = await supabase
-        .from('clients').select('id').eq('user_id', noteModal.userId).single();
-
+      const { data: client } = await supabase.from('clients').select('id').eq('user_id', noteModal.userId).single();
       if (client) {
-        await supabase.from('admin_notes').insert({
-          client_id: client.id,
-          admin_user_id: user!.id,
-          note_text: noteText,
-        });
+        await supabase.from('admin_notes').insert({ client_id: client.id, admin_user_id: user!.id, note_text: noteText });
       }
       toast({ title: 'Note Added' });
-      setNoteModal(null);
-      setNoteText('');
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    }
+      setNoteModal(null); setNoteText('');
+    } catch (err: any) { toast({ title: 'Error', description: err.message, variant: 'destructive' }); }
   };
 
   // Bulk actions
-  const handleBulkAnalyze = async () => {
+  const bulkAction = async (fn: (uid: string) => Promise<void>) => {
     setBulkProcessing(true);
-    for (const uid of selected) {
-      await handleRunAnalysis(uid);
-    }
+    for (const uid of selected) { try { await fn(uid); } catch {} }
     setSelected(new Set());
     setBulkProcessing(false);
+    fetchData();
   };
 
-  const handleBulkGenerateDrafts = async () => {
-    setBulkProcessing(true);
-    for (const uid of selected) {
-      await handleGenerateDrafts(uid);
-    }
-    setSelected(new Set());
-    setBulkProcessing(false);
-  };
+  const toggleSelect = (uid: string) => setSelected(prev => {
+    const n = new Set(prev); n.has(uid) ? n.delete(uid) : n.add(uid); return n;
+  });
 
-  const handleBulkSendToReview = async () => {
-    setBulkProcessing(true);
-    for (const uid of selected) {
-      await handleSendToReview(uid);
-    }
-    setSelected(new Set());
-    setBulkProcessing(false);
-  };
-
-  const toggleSelect = (uid: string) => {
-    setSelected(prev => {
-      const next = new Set(prev);
-      next.has(uid) ? next.delete(uid) : next.add(uid);
-      return next;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    if (selected.size === filtered.length) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(filtered.map(c => c.user_id)));
-    }
-  };
-
-  // Filter + search + sort
+  // Filtering
   const filtered = clients
     .filter(c => {
       if (filter === 'missing_docs') return !c.has_id || !c.has_credit_report || !c.has_agreement;
@@ -323,89 +158,60 @@ export function ClientProcessingGrid() {
       if (filter === 'ready_generate') return c.pending_flags > 0;
       if (filter === 'needs_review') return c.review_count > 0;
       if (filter === 'approved') return c.approved_count > 0;
-      if (filter === 'followup') return c.latest_status === 'followup_due';
+      if (filter === 'followup') return c.followup_count > 0;
       return true;
     })
     .filter(c => {
       if (!searchTerm) return true;
-      const term = searchTerm.toLowerCase();
-      return c.full_name.toLowerCase().includes(term) || c.email.toLowerCase().includes(term);
+      const t = searchTerm.toLowerCase();
+      return c.full_name.toLowerCase().includes(t) || c.email.toLowerCase().includes(t);
     })
-    .sort((a, b) => {
-      let cmp = 0;
-      switch (sortField) {
-        case 'name': cmp = a.full_name.localeCompare(b.full_name); break;
-        case 'created': cmp = a.created_at.localeCompare(b.created_at); break;
-        case 'flags': cmp = a.pending_flags - b.pending_flags; break;
-        case 'disputes': cmp = a.dispute_count - b.dispute_count; break;
-        default: cmp = 0;
-      }
-      return sortAsc ? cmp : -cmp;
-    });
+    .sort((a, b) => getNextAction(b).priority - getNextAction(a).priority);
 
-  const counts = {
+  const counts: Record<FilterMode, number> = {
     all: clients.length,
     missing_docs: clients.filter(c => !c.has_id || !c.has_credit_report || !c.has_agreement).length,
     ready_analyze: clients.filter(c => c.unanalyzed_reports > 0).length,
     ready_generate: clients.filter(c => c.pending_flags > 0).length,
     needs_review: clients.filter(c => c.review_count > 0).length,
     approved: clients.filter(c => c.approved_count > 0).length,
-    followup: clients.filter(c => c.latest_status === 'followup_due').length,
+    followup: clients.filter(c => c.followup_count > 0).length,
   };
 
   if (loading) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-sm text-muted-foreground mt-2">Loading client processing grid...</p>
-        </CardContent>
-      </Card>
-    );
+    return <Card><CardContent className="p-8 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /><p className="text-sm text-muted-foreground mt-2">Loading...</p></CardContent></Card>;
   }
 
   return (
     <div className="space-y-4">
-      {/* Summary row */}
+      {/* Filter tabs */}
       <div className="grid grid-cols-3 md:grid-cols-7 gap-2">
         {FILTER_OPTIONS.map(f => {
           const Icon = f.icon;
-          const count = counts[f.key];
           const active = filter === f.key;
           return (
-            <Button
-              key={f.key}
-              variant={active ? 'default' : 'outline'}
-              size="sm"
-              className="flex flex-col h-auto py-2 gap-0.5"
-              onClick={() => setFilter(f.key)}
-            >
+            <Button key={f.key} variant={active ? 'default' : 'outline'} size="sm"
+              className="flex flex-col h-auto py-2 gap-0.5" onClick={() => setFilter(f.key)}>
               <Icon className="h-3.5 w-3.5" />
-              <span className="text-xs">{count}</span>
+              <span className="text-xs font-bold">{counts[f.key]}</span>
               <span className="text-[10px] leading-tight">{f.label}</span>
             </Button>
           );
         })}
       </div>
 
-      {/* Search + bulk bar */}
+      {/* Grid */}
       <Card>
         <CardHeader className="pb-2">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Client Processing Grid
-              <Badge variant="outline">{filtered.length} client{filtered.length !== 1 ? 's' : ''}</Badge>
+              <Users className="h-5 w-5" />Client Processing Grid
+              <Badge variant="outline">{filtered.length}</Badge>
             </CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search clients..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className="pl-8 w-48"
-                />
+                <Input placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8 w-44 h-9" />
               </div>
               <Button variant="ghost" size="sm" onClick={fetchData}><RefreshCw className="h-4 w-4" /></Button>
             </div>
@@ -413,14 +219,17 @@ export function ClientProcessingGrid() {
           {selected.size > 0 && (
             <div className="flex items-center gap-2 pt-2 flex-wrap">
               <Badge variant="secondary">{selected.size} selected</Badge>
-              <Button size="sm" variant="outline" onClick={handleBulkAnalyze} disabled={bulkProcessing}>
-                <Brain className="h-3 w-3 mr-1" />Run Analysis
+              <Button size="sm" variant="outline" onClick={() => bulkAction(handleAnalyze)} disabled={bulkProcessing}>
+                <Brain className="h-3 w-3 mr-1" />Analyze
               </Button>
-              <Button size="sm" variant="outline" onClick={handleBulkGenerateDrafts} disabled={bulkProcessing}>
-                <FileText className="h-3 w-3 mr-1" />Generate Drafts
+              <Button size="sm" variant="outline" onClick={() => bulkAction(handleDrafts)} disabled={bulkProcessing}>
+                <FileText className="h-3 w-3 mr-1" />Draft
               </Button>
-              <Button size="sm" variant="outline" onClick={handleBulkSendToReview} disabled={bulkProcessing}>
-                <ArrowRight className="h-3 w-3 mr-1" />Send to Review
+              <Button size="sm" variant="outline" onClick={() => bulkAction(handleReview)} disabled={bulkProcessing}>
+                <ArrowRight className="h-3 w-3 mr-1" />To Review
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => bulkAction(handleFollowup)} disabled={bulkProcessing}>
+                <Clock className="h-3 w-3 mr-1" />Follow-Up
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>Clear</Button>
               {bulkProcessing && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
@@ -428,15 +237,13 @@ export function ClientProcessingGrid() {
           )}
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[560px]">
+          <ScrollArea className="h-[540px]">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-8">
-                    <Checkbox
-                      checked={selected.size === filtered.length && filtered.length > 0}
-                      onCheckedChange={toggleSelectAll}
-                    />
+                    <Checkbox checked={selected.size === filtered.length && filtered.length > 0}
+                      onCheckedChange={() => selected.size === filtered.length ? setSelected(new Set()) : setSelected(new Set(filtered.map(c => c.user_id)))} />
                   </TableHead>
                   <TableHead>Client</TableHead>
                   <TableHead>Readiness</TableHead>
@@ -445,89 +252,71 @@ export function ClientProcessingGrid() {
                   <TableHead className="text-center">Disputes</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Next Action</TableHead>
-                  <TableHead>Quick Actions</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map(c => {
-                  const isProcessing = processing.has(c.user_id);
-                  const readBadge = READINESS_BADGE[c.readiness];
+                  const isProc = processing.has(c.user_id);
+                  const readiness = getReadiness(c);
+                  const rCfg = READINESS_CONFIG[readiness];
+                  const nextAct = getNextAction(c);
                   return (
                     <TableRow key={c.user_id} className={selected.has(c.user_id) ? 'bg-accent/5' : ''}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selected.has(c.user_id)}
-                          onCheckedChange={() => toggleSelect(c.user_id)}
-                        />
-                      </TableCell>
+                      <TableCell><Checkbox checked={selected.has(c.user_id)} onCheckedChange={() => toggleSelect(c.user_id)} /></TableCell>
                       <TableCell>
                         <div>
                           <p className="font-medium text-sm">{c.full_name || '—'}</p>
-                          <p className="text-xs text-muted-foreground truncate max-w-40">{c.email}</p>
+                          <p className="text-xs text-muted-foreground truncate max-w-36">{c.email}</p>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <Badge variant={readBadge.variant} className="text-[10px] w-fit">{readBadge.label}</Badge>
-                          <div className="flex gap-0.5">
-                            <span className={`text-[10px] ${c.has_agreement ? 'text-emerald-500' : 'text-destructive'}`}>
-                              {c.has_agreement ? '✓' : '✗'}Agr
-                            </span>
-                            <span className={`text-[10px] ${c.has_id ? 'text-emerald-500' : 'text-destructive'}`}>
-                              {c.has_id ? '✓' : '✗'}ID
-                            </span>
-                            <span className={`text-[10px] ${c.has_credit_report ? 'text-emerald-500' : 'text-destructive'}`}>
-                              {c.has_credit_report ? '✓' : '✗'}CR
-                            </span>
-                          </div>
+                        <Badge variant={rCfg.variant} className="text-[10px]">{rCfg.label}</Badge>
+                        <div className="flex gap-0.5 mt-0.5">
+                          <span className={`text-[9px] ${c.has_agreement ? 'text-emerald-600' : 'text-destructive'}`}>{c.has_agreement ? '✓' : '✗'}Agr</span>
+                          <span className={`text-[9px] ${c.has_id ? 'text-emerald-600' : 'text-destructive'}`}>{c.has_id ? '✓' : '✗'}ID</span>
+                          <span className={`text-[9px] ${c.has_address ? 'text-emerald-600' : 'text-destructive'}`}>{c.has_address ? '✓' : '✗'}Addr</span>
+                          <span className={`text-[9px] ${c.has_credit_report ? 'text-emerald-600' : 'text-destructive'}`}>{c.has_credit_report ? '✓' : '✗'}CR</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center text-sm">
                         {c.report_count}
-                        {c.unanalyzed_reports > 0 && (
-                          <Badge variant="secondary" className="text-[10px] ml-1">{c.unanalyzed_reports} new</Badge>
-                        )}
+                        {c.unanalyzed_reports > 0 && <Badge variant="secondary" className="text-[9px] ml-1">{c.unanalyzed_reports}new</Badge>}
                       </TableCell>
                       <TableCell className="text-center">
-                        {c.pending_flags > 0 ? (
-                          <Badge className="text-[10px]">{c.pending_flags}</Badge>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">{c.flagged_count || '—'}</span>
-                        )}
+                        {c.pending_flags > 0 ? <Badge className="text-[10px]">{c.pending_flags}</Badge> : <span className="text-xs text-muted-foreground">{c.flagged_count || '—'}</span>}
                       </TableCell>
-                      <TableCell className="text-center">{c.dispute_count || '—'}</TableCell>
+                      <TableCell className="text-center text-sm">{c.dispute_count || '—'}</TableCell>
                       <TableCell>
-                        {c.latest_status ? (
-                          <Badge variant="outline" className="text-[10px]">{c.latest_status.replace(/_/g, ' ')}</Badge>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
+                        {c.latest_status ? <Badge variant="outline" className="text-[10px]">{c.latest_status.replace(/_/g, ' ')}</Badge> : <span className="text-xs text-muted-foreground">—</span>}
                       </TableCell>
-                      <TableCell>
-                        <span className="text-xs text-muted-foreground">{c.next_action}</span>
-                      </TableCell>
+                      <TableCell><span className="text-xs text-muted-foreground leading-tight">{nextAct.action}</span></TableCell>
                       <TableCell>
                         <div className="flex gap-1 flex-wrap">
                           {c.unanalyzed_reports > 0 && (
-                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs"
-                              onClick={() => handleRunAnalysis(c.user_id)} disabled={isProcessing}>
-                              {isProcessing ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Brain className="h-3 w-3 mr-0.5" />Analyze</>}
+                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleAnalyze(c.user_id)} disabled={isProc}>
+                              {isProc ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Brain className="h-3 w-3 mr-0.5" />Analyze</>}
                             </Button>
                           )}
                           {c.pending_flags > 0 && (
-                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs"
-                              onClick={() => handleGenerateDrafts(c.user_id)} disabled={isProcessing}>
-                              {isProcessing ? <Loader2 className="h-3 w-3 animate-spin" /> : <><FileText className="h-3 w-3 mr-0.5" />Draft</>}
+                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleDrafts(c.user_id)} disabled={isProc}>
+                              {isProc ? <Loader2 className="h-3 w-3 animate-spin" /> : <><FileText className="h-3 w-3 mr-0.5" />Draft</>}
                             </Button>
                           )}
-                          {c.dispute_count > 0 && c.latest_status === 'draft_generated' && (
-                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs"
-                              onClick={() => handleSendToReview(c.user_id)} disabled={isProcessing}>
+                          {c.latest_status === 'draft_generated' && (
+                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleReview(c.user_id)} disabled={isProc}>
                               <ArrowRight className="h-3 w-3 mr-0.5" />Review
                             </Button>
                           )}
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
-                            onClick={() => setNoteModal({ userId: c.user_id, name: c.full_name || c.email })}>
+                          {c.approved_count > 0 && c.latest_status === 'exported' && (
+                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleFollowup(c.user_id)} disabled={isProc}>
+                              <Clock className="h-3 w-3 mr-0.5" />F/U
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" className="h-7 px-1.5" onClick={() => setDetailModal(c)}>
+                            <Eye className="h-3 w-3" />
+                          </Button>
+                          <Button size="sm" variant="ghost" className="h-7 px-1.5" onClick={() => setNoteModal({ userId: c.user_id, name: c.full_name || c.email })}>
                             <StickyNote className="h-3 w-3" />
                           </Button>
                         </div>
@@ -541,21 +330,50 @@ export function ClientProcessingGrid() {
         </CardContent>
       </Card>
 
-      {/* Add Note Modal */}
+      {/* Client Detail Modal */}
+      <Dialog open={!!detailModal} onOpenChange={() => setDetailModal(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Client Detail — {detailModal?.full_name || detailModal?.email}</DialogTitle></DialogHeader>
+          {detailModal && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div><span className="text-muted-foreground">Email:</span> {detailModal.email}</div>
+                <div><span className="text-muted-foreground">Reports:</span> {detailModal.report_count} ({detailModal.unanalyzed_reports} unanalyzed)</div>
+                <div><span className="text-muted-foreground">Flagged:</span> {detailModal.flagged_count} ({detailModal.pending_flags} pending)</div>
+                <div><span className="text-muted-foreground">Disputes:</span> {detailModal.dispute_count}</div>
+                <div><span className="text-muted-foreground">In Review:</span> {detailModal.review_count}</div>
+                <div><span className="text-muted-foreground">Approved:</span> {detailModal.approved_count}</div>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Document Readiness</p>
+                <div className="flex gap-2">
+                  <Badge variant={detailModal.has_agreement ? 'default' : 'destructive'}>{detailModal.has_agreement ? '✓' : '✗'} Agreement</Badge>
+                  <Badge variant={detailModal.has_id ? 'default' : 'destructive'}>{detailModal.has_id ? '✓' : '✗'} Gov ID</Badge>
+                  <Badge variant={detailModal.has_address ? 'default' : 'destructive'}>{detailModal.has_address ? '✓' : '✗'} Address</Badge>
+                  <Badge variant={detailModal.has_credit_report ? 'default' : 'destructive'}>{detailModal.has_credit_report ? '✓' : '✗'} Credit Report</Badge>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Recommended Next Action</p>
+                <p className="text-sm font-medium">{getNextAction(detailModal).action}</p>
+              </div>
+              {detailModal.latest_status && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Current Status</p>
+                  <Badge variant="outline">{detailModal.latest_status.replace(/_/g, ' ')}</Badge>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Note Modal */}
       <Dialog open={!!noteModal} onOpenChange={() => { setNoteModal(null); setNoteText(''); }}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Admin Note — {noteModal?.name}</DialogTitle>
-          </DialogHeader>
-          <Textarea
-            placeholder="Type admin note..."
-            value={noteText}
-            onChange={e => setNoteText(e.target.value)}
-            rows={4}
-          />
-          <Button onClick={handleAddNote} disabled={!noteText.trim()}>
-            Save Note
-          </Button>
+          <DialogHeader><DialogTitle>Admin Note — {noteModal?.name}</DialogTitle></DialogHeader>
+          <Textarea placeholder="Type note..." value={noteText} onChange={e => setNoteText(e.target.value)} rows={4} />
+          <Button onClick={handleNote} disabled={!noteText.trim()}>Save Note</Button>
         </DialogContent>
       </Dialog>
     </div>

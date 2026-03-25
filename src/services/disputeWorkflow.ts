@@ -27,6 +27,7 @@ export interface DisputeLetterRow {
   draft_version: number;
   created_at: string;
   user_email?: string;
+  client_name?: string;
 }
 
 export interface WorkflowLogEntry {
@@ -178,10 +179,11 @@ export async function getAdminReviewQueue(): Promise<DisputeLetterRow[]> {
     (data || []).map(async (d: any) => {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('email')
+        .select('email, first_name, last_name')
         .eq('user_id', d.user_id)
         .single();
-      return { ...d, user_email: profile?.email || 'Unknown' } as DisputeLetterRow;
+      const clientName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '';
+      return { ...d, user_email: profile?.email || 'Unknown', client_name: clientName } as DisputeLetterRow;
     })
   );
 
