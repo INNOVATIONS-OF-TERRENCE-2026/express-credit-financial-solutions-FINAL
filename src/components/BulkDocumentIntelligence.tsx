@@ -533,7 +533,7 @@ export function BulkDocumentIntelligence() {
 
         if (f.db_file_id) {
           await supabase
-            .from("documents")
+            .from("documents" as any)
             .update({
               status: "processed",
             })
