@@ -454,6 +454,15 @@ export default function AdminDashboard() {
             <ClipboardCheck className="h-4 w-4 mr-1.5" />
             Open Review Queue
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-purple-500/30 hover:bg-purple-500/10 text-purple-600 dark:text-purple-400"
+            onClick={() => setActiveSection('autonomous')}
+          >
+            <Bot className="h-4 w-4 mr-1.5" />
+            Autonomous Mode
+          </Button>
           {liveCounts.needsReview > 0 && (
             <Badge variant="destructive" className="shrink-0 ml-auto animate-pulse">
               <AlertTriangle className="h-3 w-3 mr-1" />
