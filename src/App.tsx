@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
+import { ThemeConfigProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./hooks/useAuth";
 import { MembershipProvider } from "./hooks/useMembership";
 import { RolesProvider } from "./hooks/useRoles";
@@ -52,141 +54,73 @@ const queryClient = new QueryClient();
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <SBAConfigProvider>
-        <AuthProvider>
-          <RolesProvider>
-            <MembershipProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-              <BrowserRouter>
-                <ScrollToTop />
-                <FloatingChat />
-              <Routes>
-                {/* SBA Routes */}
-                <Route path="/sba" element={<SBAHome />} />
-                <Route path="/sba-portal" element={<SBAHome />} />
-                <Route path="/sba/precheck" element={<SBAPreCheck />} />
-                <Route path="/sba-portal/precheck" element={<SBAPreCheck />} />
-                <Route path="/sba/consent" element={<SBAConsent />} />
-                <Route path="/sba-portal/consent" element={<SBAConsent />} />
-                <Route path="/sba/intake" element={<SBAIntake />} />
-                <Route path="/sba-portal/intake" element={<SBAIntake />} />
-                <Route path="/sba/documents" element={<SBADocuments />} />
-                <Route path="/sba-portal/documents" element={<SBADocuments />} />
-                <Route path="/sba/packet" element={<SBAPacket />} />
-                <Route path="/sba-portal/packet" element={<SBAPacket />} />
-                <Route path="/sba/dashboard" element={<SBADashboard />} />
-                <Route path="/sba-portal/dashboard" element={<SBADashboard />} />
-                <Route path="/sba/admin" element={<SBAAdmin />} />
-                <Route path="/sba-portal/admin" element={<SBAAdmin />} />
-                
-                {/* Existing Routes */}
-                <Route path="/" element={<Index />} />
-              <Route 
-                path="/dispute-center" 
-                element={
-                  <ProtectedRoute requiredFeature="dispute-generator" featureName="Dispute Center">
-                    <DisputeCenter />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/data-freeze" 
-                element={
-                  <ProtectedRoute requiredFeature="dispute-generator" featureName="Data Freeze Center">
-                    <DataFreezeCenter />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/onboarding" element={<ClientOnboarding />} />
-              <Route 
-                path="/documents" 
-                element={
-                  <ProtectedRoute requiredFeature="credit-upload" featureName="Document Upload">
-                    <DocumentUpload />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/membership" element={<MembershipPricing />} />
-              
-              <Route 
-                path="/education" 
-                element={
-                  <ProtectedRoute requiredFeature="education" featureName="Education Center">
-                    <Education />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/credit-tracking" 
-                element={
-                  <ProtectedRoute requiredFeature="dashboard" featureName="Credit Tracking">
-                    <CreditTracking />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/credit-building" 
-                element={
-                  <ProtectedRoute requiredFeature="credit-building" featureName="Credit Building Center">
-                    <CreditBuildingCenter />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="/goodwill-letters" element={<GoodwillLetters />} />
-              <Route path="/credit-monitoring" element={<CreditMonitoring />} />
-              <Route 
-                path="/upload-credit-report" 
-                element={
-                  <ProtectedRoute requiredFeature="credit-upload" featureName="Credit Report Upload">
-                    <CreditReportUploadPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/ai-assistant" 
-                element={
-                  <ProtectedRoute requiredFeature="dashboard" featureName="AI Credit Assistant">
-                    <AICreditAssistantPage />
-                  </ProtectedRoute>
-                } 
-               />
-               <Route 
-                 path="/document-center" 
-                 element={
-                   <ProtectedRoute requiredFeature="dashboard" featureName="Document Upload Center">
-                     <DocumentUploadCenter />
-                   </ProtectedRoute>
-                 } 
-               />
-               <Route 
-                 path="/score-tracker" 
-                 element={
-                   <ProtectedRoute requiredFeature="dashboard" featureName="Credit Score Tracker">
-                     <CreditScoreTracker />
-                   </ProtectedRoute>
-                 } 
-               />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/clients" element={<AdminClients />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/admin/tools" element={<AdminTools />} />
-              <Route path="/client-portals" element={<ClientPortalLinks />} />
-              <Route path="/client/:clientSlug" element={<ClientPortals />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </MembershipProvider>
-      </RolesProvider>
-    </AuthProvider>
-  </SBAConfigProvider>
-</QueryClientProvider>
-</ErrorBoundary>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+        <ThemeConfigProvider>
+          <SBAConfigProvider>
+            <AuthProvider>
+              <RolesProvider>
+                <MembershipProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter>
+                      <ScrollToTop />
+                      <FloatingChat />
+                      <Routes>
+                        {/* SBA Routes */}
+                        <Route path="/sba" element={<SBAHome />} />
+                        <Route path="/sba-portal" element={<SBAHome />} />
+                        <Route path="/sba/precheck" element={<SBAPreCheck />} />
+                        <Route path="/sba-portal/precheck" element={<SBAPreCheck />} />
+                        <Route path="/sba/consent" element={<SBAConsent />} />
+                        <Route path="/sba-portal/consent" element={<SBAConsent />} />
+                        <Route path="/sba/intake" element={<SBAIntake />} />
+                        <Route path="/sba-portal/intake" element={<SBAIntake />} />
+                        <Route path="/sba/documents" element={<SBADocuments />} />
+                        <Route path="/sba-portal/documents" element={<SBADocuments />} />
+                        <Route path="/sba/packet" element={<SBAPacket />} />
+                        <Route path="/sba-portal/packet" element={<SBAPacket />} />
+                        <Route path="/sba/dashboard" element={<SBADashboard />} />
+                        <Route path="/sba-portal/dashboard" element={<SBADashboard />} />
+                        <Route path="/sba/admin" element={<SBAAdmin />} />
+                        <Route path="/sba-portal/admin" element={<SBAAdmin />} />
+                        
+                        {/* Existing Routes */}
+                        <Route path="/" element={<Index />} />
+                        <Route path="/dispute-center" element={<ProtectedRoute requiredFeature="dispute-generator" featureName="Dispute Center"><DisputeCenter /></ProtectedRoute>} />
+                        <Route path="/data-freeze" element={<ProtectedRoute requiredFeature="dispute-generator" featureName="Data Freeze Center"><DataFreezeCenter /></ProtectedRoute>} />
+                        <Route path="/onboarding" element={<ClientOnboarding />} />
+                        <Route path="/documents" element={<ProtectedRoute requiredFeature="credit-upload" featureName="Document Upload"><DocumentUpload /></ProtectedRoute>} />
+                        <Route path="/membership" element={<MembershipPricing />} />
+                        <Route path="/education" element={<ProtectedRoute requiredFeature="education" featureName="Education Center"><Education /></ProtectedRoute>} />
+                        <Route path="/credit-tracking" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Tracking"><CreditTracking /></ProtectedRoute>} />
+                        <Route path="/credit-building" element={<ProtectedRoute requiredFeature="credit-building" featureName="Credit Building Center"><CreditBuildingCenter /></ProtectedRoute>} />
+                        <Route path="/goodwill-letters" element={<GoodwillLetters />} />
+                        <Route path="/credit-monitoring" element={<CreditMonitoring />} />
+                        <Route path="/upload-credit-report" element={<ProtectedRoute requiredFeature="credit-upload" featureName="Credit Report Upload"><CreditReportUploadPage /></ProtectedRoute>} />
+                        <Route path="/ai-assistant" element={<ProtectedRoute requiredFeature="dashboard" featureName="AI Credit Assistant"><AICreditAssistantPage /></ProtectedRoute>} />
+                        <Route path="/document-center" element={<ProtectedRoute requiredFeature="dashboard" featureName="Document Upload Center"><DocumentUploadCenter /></ProtectedRoute>} />
+                        <Route path="/score-tracker" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Score Tracker"><CreditScoreTracker /></ProtectedRoute>} />
+                        <Route path="/admin/login" element={<AdminLogin />} />
+                        <Route path="/admin" element={<AdminDashboard />} />
+                        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                        <Route path="/admin/clients" element={<AdminClients />} />
+                        <Route path="/admin/settings" element={<AdminSettings />} />
+                        <Route path="/admin/tools" element={<AdminTools />} />
+                        <Route path="/client-portals" element={<ClientPortalLinks />} />
+                        <Route path="/client/:clientSlug" element={<ClientPortals />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </BrowserRouter>
+                  </TooltipProvider>
+                </MembershipProvider>
+              </RolesProvider>
+            </AuthProvider>
+          </SBAConfigProvider>
+        </ThemeConfigProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

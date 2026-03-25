@@ -2,160 +2,142 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMembership } from '@/hooks/useMembership';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles } from 'lucide-react';
+import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { ThemeSelector } from '@/components/ThemeSelector';
+import { cn } from '@/lib/utils';
+
 export function NavigationHeader() {
-  const {
-    user,
-    signOut,
-    isAdmin
-  } = useAuth();
-  const {
-    planType,
-    paymentStatus,
-    hasAccess
-  } = useMembership();
+  const { user, signOut, isAdmin } = useAuth();
+  const { planType, paymentStatus, hasAccess } = useMembership();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showAdminShortcuts, setShowAdminShortcuts] = useState(false);
-  useEffect(() => {
-    const onKeydown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
-        setShowAdminShortcuts((v) => !v);
-      }
-    };
-    window.addEventListener('keydown', onKeydown);
-    return () => window.removeEventListener('keydown', onKeydown);
-  }, []);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
+
   const getPlanBadge = () => {
-    if (paymentStatus !== 'active') {
-      return;
-    }
+    if (paymentStatus !== 'active') return null;
     switch (planType) {
-      case 'basic':
-        return <Badge variant="default">Basic</Badge>;
-      case 'pro':
-        return <Badge variant="secondary">Pro</Badge>;
-      case 'elite':
-        return <Badge variant="outline">Elite</Badge>;
-      case 'vip':
-        return <Badge variant="destructive">VIP</Badge>;
-      default:
-        return <Badge variant="secondary">Free</Badge>;
+      case 'basic': return <Badge variant="default">Basic</Badge>;
+      case 'pro': return <Badge variant="secondary">Pro</Badge>;
+      case 'elite': return <Badge variant="outline">Elite</Badge>;
+      case 'vip': return <Badge className="bg-primary text-primary-foreground">VIP</Badge>;
+      default: return <Badge variant="secondary">Free</Badge>;
     }
   };
-  const navItems = [{
-    label: 'Dashboard',
-    path: '/',
-    icon: Home,
-    accessible: hasAccess('dashboard')
-  }, {
-    label: 'SBA Portal',
-    path: '/sba-portal',
-    icon: Shield,
-    accessible: true,
-    special: 'gradient'
-  }, {
-    label: 'Data Freeze',
-    path: '/data-freeze',
-    icon: Snowflake,
-    accessible: hasAccess('dispute-generator')
-  }, {
-    label: 'Dispute Center',
-    path: '/dispute-center',
-    icon: FileText,
-    accessible: hasAccess('dispute-generator')
-  }, {
-    label: 'Upload Documents',
-    path: '/documents',
-    icon: CreditCard,
-    accessible: hasAccess('credit-upload')
-  }, {
-    label: 'Upload Credit Report',
-    path: '/upload-credit-report',
-    icon: FileText,
-    accessible: hasAccess('credit-upload')
-  }, {
-    label: 'Education',
-    path: '/education',
-    icon: GraduationCap,
-    accessible: hasAccess('education')
-  }, {
-    label: 'Credit Building',
-    path: '/credit-building',
-    icon: TrendingUp,
-    accessible: hasAccess('credit-building')
-  }, {
-    label: 'Credit Monitoring',
-    path: '/credit-monitoring',
-    icon: TrendingUp,
-    accessible: hasAccess('dashboard')
-  }, {
-    label: 'AI Assistant',
-    path: '/ai-assistant',
-    icon: Sparkles,
-    accessible: hasAccess('dashboard')
-  }, {
-    label: 'Membership',
-    path: '/membership',
-    icon: Settings,
-    accessible: true
-  }];
+
+  const navItems = [
+    { label: 'Dashboard', path: '/', icon: Home, accessible: hasAccess('dashboard') },
+    { label: 'SBA Portal', path: '/sba-portal', icon: Shield, accessible: true },
+    { label: 'Data Freeze', path: '/data-freeze', icon: Snowflake, accessible: hasAccess('dispute-generator') },
+    { label: 'Dispute Center', path: '/dispute-center', icon: FileText, accessible: hasAccess('dispute-generator') },
+    { label: 'Documents', path: '/documents', icon: CreditCard, accessible: hasAccess('credit-upload') },
+    { label: 'Credit Report', path: '/upload-credit-report', icon: FileText, accessible: hasAccess('credit-upload') },
+    { label: 'Education', path: '/education', icon: GraduationCap, accessible: hasAccess('education') },
+    { label: 'Credit Building', path: '/credit-building', icon: TrendingUp, accessible: hasAccess('credit-building') },
+    { label: 'Credit Monitoring', path: '/credit-monitoring', icon: TrendingUp, accessible: hasAccess('dashboard') },
+    { label: 'AI Assistant', path: '/ai-assistant', icon: Sparkles, accessible: hasAccess('dashboard') },
+    { label: 'Membership', path: '/membership', icon: Settings, accessible: true },
+  ];
+
   if (!user) return null;
-  return <header className="sticky top-0 z-40 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-yellow-600 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-gradient-to-r supports-[backdrop-filter]:from-blue-900/95 supports-[backdrop-filter]:via-blue-800/95 supports-[backdrop-filter]:to-yellow-600/95">
-      <div className="container mx-auto px-4 py-3 bg-inherit">
+
+  const NavLink = ({ item, onClick }: { item: typeof navItems[0]; onClick?: () => void }) => {
+    const Icon = item.icon;
+    const isActive = location.pathname === item.path;
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => { navigate(item.path); onClick?.(); }}
+        disabled={!item.accessible}
+        className={cn(
+          'flex items-center gap-2 whitespace-nowrap text-muted-foreground hover:text-foreground hover:bg-accent/10 disabled:text-muted-foreground/40 rounded-lg px-3 py-2 transition-all',
+          isActive && 'text-foreground bg-accent/10'
+        )}
+      >
+        <Icon className="h-4 w-4" />
+        <span>{item.label}</span>
+      </Button>
+    );
+  };
+
+  return (
+    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
+      <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center space-x-4 lg:space-x-6 min-w-0">
-            <div className="flex items-center space-x-2 flex-shrink-0">
-              
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-1 overflow-x-auto">
-               {navItems.map(item => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-                return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className={`flex items-center space-x-2 whitespace-nowrap text-white hover:text-white hover:bg-white/20 disabled:text-white/50 rounded-xl px-5 py-2 ${item.special === 'gradient' ? 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600' : 'bg-black'}`} style={{textShadow: '0 0 8px rgba(147, 51, 234, 0.8)'}}>
-                     <Icon className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
-                     <span className="hidden lg:inline">{item.label}</span>
-                   </Button>;
-             })}
+          {/* Left: Mobile hamburger + Logo */}
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Mobile menu */}
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[280px] p-0">
+                <div className="p-4 border-b border-border">
+                  <h2 className="font-poppins font-bold text-foreground">Express Credit</h2>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                </div>
+                <div className="p-2 space-y-1">
+                  {navItems.map(item => (
+                    <NavLink key={item.path} item={item} onClick={() => setMobileOpen(false)} />
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <span className="font-poppins font-bold text-foreground text-lg hidden sm:inline">Express Credit</span>
+
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-1 overflow-x-auto">
+              {navItems.map(item => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                return (
+                  <Button
+                    key={item.path}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(item.path)}
+                    disabled={!item.accessible}
+                    className={cn(
+                      'text-sm text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-accent/10 transition-all whitespace-nowrap disabled:text-muted-foreground/40',
+                      isActive && 'text-foreground bg-accent/10'
+                    )}
+                  >
+                    <Icon className="h-4 w-4 mr-1.5" />
+                    <span className="hidden lg:inline">{item.label}</span>
+                  </Button>
+                );
+              })}
             </nav>
           </div>
 
-          <div className="flex items-center space-x-2 lg:space-x-3 flex-shrink-0">
+          {/* Right side */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             {getPlanBadge()}
-            <div className="hidden lg:block text-sm text-white truncate max-w-32" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
+            {isAdmin && (
+              <Shield className="h-4 w-4 text-primary" />
+            )}
+            <span className="hidden lg:block text-xs text-muted-foreground truncate max-w-32">
               {user.email}
-            </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut} className="flex-shrink-0 bg-[hsl(var(--ocean-blue))] hover:bg-[hsl(var(--ocean-blue-hover))] border-[hsl(var(--ocean-blue))] text-white hover:text-white" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
-              <LogOut className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
+            </span>
+            <ThemeSelector />
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
+              <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">Sign Out</span>
             </Button>
-            {isAdmin && showAdminShortcuts && <Button onClick={() => navigate('/admin/settings')} variant="default" size="sm" className="flex items-center bg-gradient-elegant flex-shrink-0 text-white" style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
-                <Shield className="h-4 w-4 mr-2" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
-                <span className="hidden lg:inline">Admin Tools</span>
-              </Button>}
-          </div>
-        </div>
-        
-        {/* Mobile Navigation */}
-        <div className="md:hidden mt-3 border-t border-white/20 pt-3">
-          <div className="flex items-center space-x-1 overflow-x-auto pb-2">
-            {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return <Button key={item.path} variant={isActive ? "default" : "ghost"} size="sm" onClick={() => navigate(item.path)} disabled={!item.accessible} className={`flex items-center space-x-2 whitespace-nowrap flex-shrink-0 text-white hover:text-white hover:bg-white/20 disabled:text-white/50 rounded-xl px-5 py-2 ${item.special === 'gradient' ? 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600' : 'bg-black'}`} style={{textShadow: '0 0 6px rgba(147, 51, 234, 0.7)'}}>
-                  <Icon className="h-4 w-4" style={{filter: 'drop-shadow(0 0 4px rgba(147, 51, 234, 0.6))'}} />
-                  <span className="text-xs">{item.label}</span>
-                </Button>;
-          })}
           </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 }
