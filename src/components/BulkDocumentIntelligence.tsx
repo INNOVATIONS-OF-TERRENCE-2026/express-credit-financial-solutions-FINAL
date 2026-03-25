@@ -533,9 +533,11 @@ export function BulkDocumentIntelligence() {
 
         if (f.db_file_id) {
           await supabase
-            .from("bulk_upload_files" as any)
-            .update({ match_status: "saved" })
-            .eq("id", f.dbFileId);
+            .from("documents")
+            .update({
+              status: "processed",
+            })
+            .eq("id", f.db_file_id);
         }
 
         saved += 1;
