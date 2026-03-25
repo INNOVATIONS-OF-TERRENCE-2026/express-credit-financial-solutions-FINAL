@@ -186,8 +186,17 @@ export default function MembershipPricing() {
                     {plan.name}
                   </CardTitle>
                   <CardDescription className="text-white">
-                    <span className="text-3xl font-bold">${plan.price}</span>
-                    <span className="text-sm text-slate-400"> — One-Time Investment</span>
+                    {plan.name === "Tradelines Add-Ons" ? (
+                      <>
+                        <span className="text-2xl font-bold">$499.99 – $1,499.99</span>
+                        <span className="text-sm text-slate-400 block mt-1">Based on credit age, limit & reporting cycle</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-3xl font-bold">${plan.price}</span>
+                        <span className="text-sm text-slate-400"> — One-Time Investment</span>
+                      </>
+                    )}
                   </CardDescription>
                 </CardHeader>
 

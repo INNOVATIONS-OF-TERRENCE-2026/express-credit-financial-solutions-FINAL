@@ -267,6 +267,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-fintech-primary">
       <SEOHead />
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeSelector />
+      </div>
       <EngineerCredit position="top" />
 
       {/* Hero Section with Video Background */}

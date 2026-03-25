@@ -100,9 +100,12 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-              SBA Compliant
-            </Badge>
+            <div className="flex items-center gap-2">
+              <ThemeSelector />
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                SBA Compliant
+              </Badge>
+            </div>
           </div>
         </div>
       </header>
