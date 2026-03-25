@@ -171,7 +171,8 @@ export function AdminReviewQueue() {
                     </TableHead>
                     <TableHead>Client</TableHead>
                     <TableHead>Creditor</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead>Dispute Type</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Preview</TableHead>
                     <TableHead>Notes</TableHead>
