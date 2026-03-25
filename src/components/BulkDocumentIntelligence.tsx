@@ -323,7 +323,7 @@ export function BulkDocumentIntelligence() {
           continue;
         }
 
-        const dbFileId = (fileRecord as any).id;
+        const db_file_id = (fileRecord as any).id;
 
         workingFiles = workingFiles.map((f) =>
           f.id === current.id
