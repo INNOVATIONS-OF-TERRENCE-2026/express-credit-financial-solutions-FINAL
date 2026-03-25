@@ -29,6 +29,7 @@ import { AdminAIControlPanel } from '@/components/AdminAIControlPanel';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { AdminBacklogTools } from '@/components/AdminBacklogTools';
 import { ClientProcessingGrid } from '@/components/ClientProcessingGrid';
+import { BulkDocumentIntelligence } from '@/components/BulkDocumentIntelligence';
 import { cn } from '@/lib/utils';
 
 interface AdminUser {
