@@ -23,6 +23,8 @@ import {
   fetchAllClientCases, getNextAction, getReadiness,
   READINESS_CONFIG, type ClientCaseData, type ReadinessLevel,
 } from '@/components/AdminBacklogTools';
+import { ClientDetailOperations } from '@/components/ClientDetailOperations';
+import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
 
 type FilterMode = 'all' | 'missing_docs' | 'ready_analyze' | 'ready_generate' | 'needs_review' | 'approved' | 'followup';
 
