@@ -8,7 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock, Copy } from 'lucide-react';
+import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock, Copy, Bell, Activity } from 'lucide-react';
+import { ClientActivityTimeline } from '@/components/ClientActivityTimeline';
+import { ScorePredictionCard } from '@/components/ScorePredictionCard';
+import { ClientNotificationsPanel, useUnreadNotificationCount } from '@/components/ClientNotificationsPanel';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
 import { ClientDocumentManager } from '@/components/ClientDocumentManager';
