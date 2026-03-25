@@ -78,6 +78,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'PRIORITY' },
   { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'PRIORITY' },
   { section: 'automation', label: 'Automation Center', icon: Zap, group: 'PRIORITY' },
+  { section: 'ai-execution', label: 'AI Execution', icon: Cpu, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
