@@ -16,6 +16,7 @@ import {
   type DisputeLetterRow,
 } from '@/services/disputeWorkflow';
 import { CheckCircle, XCircle, Clock, Eye, Loader2, RefreshCw } from 'lucide-react';
+import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
 
 export function AdminReviewQueue() {
   const [queue, setQueue] = useState<DisputeLetterRow[]>([]);
