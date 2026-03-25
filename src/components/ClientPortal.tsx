@@ -96,9 +96,12 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clients', filter: `user_id=eq.${user.id}` }, () => { fetchClientData(); })
       .subscribe();
     const disputeCasesChannel = supabase.channel('client-dispute-cases')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_cases', filter: `user_id=eq.${user.id}` }, () => { /* triggers re-render via other fetches */ })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_cases', filter: `user_id=eq.${user.id}` }, () => { })
       .subscribe();
-    return () => { supabase.removeChannel(reportChannel); supabase.removeChannel(disputeChannel); supabase.removeChannel(scoresChannel); supabase.removeChannel(clientChannel); supabase.removeChannel(disputeCasesChannel); };
+    const cipChannel = supabase.channel('client-cip-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_intelligence_packets' }, () => { fetchClientData(); })
+      .subscribe();
+    return () => { supabase.removeChannel(reportChannel); supabase.removeChannel(disputeChannel); supabase.removeChannel(scoresChannel); supabase.removeChannel(clientChannel); supabase.removeChannel(disputeCasesChannel); supabase.removeChannel(cipChannel); };
   }, [user]);
 
   const fetchClientData = async () => {
