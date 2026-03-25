@@ -362,6 +362,20 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
             </Card>
           )}
 
+          {/* Timeline */}
+          {activeTab === 'timeline' && (
+            <div className="animate-fade-in">
+              <ClientActivityTimeline userId={user?.id} clientId={clientData.id} />
+            </div>
+          )}
+
+          {/* Notifications */}
+          {activeTab === 'notifications' && (
+            <div className="animate-fade-in">
+              <ClientNotificationsPanel />
+            </div>
+          )}
+
           {/* Agreement */}
           {activeTab === 'agreement' && (
             <Card className="glass-card animate-fade-in">
