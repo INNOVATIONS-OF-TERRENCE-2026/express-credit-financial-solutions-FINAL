@@ -27,6 +27,7 @@ export interface DisputeLetterRow {
   draft_version: number;
   created_at: string;
   user_email?: string;
+  client_name?: string;
 }
 
 export interface WorkflowLogEntry {
