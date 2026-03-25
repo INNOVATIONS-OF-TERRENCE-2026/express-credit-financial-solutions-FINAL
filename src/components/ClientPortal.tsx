@@ -151,12 +151,16 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
     return <Badge className={variants[status] || 'bg-muted text-muted-foreground'}>{status}</Badge>;
   };
 
+  const unreadCount = useUnreadNotificationCount();
+
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: User },
     { id: 'documents', label: 'Documents', icon: Upload },
     { id: 'credit-reports', label: 'Reports', icon: FileText },
     { id: 'ai-analysis', label: 'AI Analysis', icon: Brain },
     { id: 'dispute-letters', label: 'Disputes', icon: Shield },
+    { id: 'timeline', label: 'Timeline', icon: Activity },
+    { id: 'notifications', label: `Messages${unreadCount > 0 ? ` (${unreadCount})` : ''}`, icon: Bell },
     { id: 'agreement', label: 'Agreement', icon: CreditCard },
     { id: 'membership', label: 'Membership', icon: Clock },
   ];
