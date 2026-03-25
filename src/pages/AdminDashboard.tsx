@@ -295,12 +295,52 @@ export default function AdminDashboard() {
               <Card className="glass-card">
                 <CardHeader>
                   <CardTitle className="text-lg">Quick Actions</CardTitle>
+                  <CardDescription>Jump to any workflow section</CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                  <Button onClick={() => navigate('/dispute-center')} variant="outline" size="sm"><FileText className="h-4 w-4 mr-2" />Dispute Center</Button>
-                  <Button onClick={() => setEditModeEnabled(!editModeEnabled)} variant={editModeEnabled ? "destructive" : "outline"} size="sm">
-                    <Settings className="h-4 w-4 mr-2" />{editModeEnabled ? 'Disable' : 'Enable'} Edit Mode
-                  </Button>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {[
+                      { section: 'review-queue' as Section, label: 'Review Queue', icon: ClipboardCheck, desc: 'Approve or reject disputes', color: 'text-orange-500 bg-orange-500/10' },
+                      { section: 'pipeline' as Section, label: 'Case Pipeline', icon: GitBranch, desc: 'Track all case stages', color: 'text-purple-500 bg-purple-500/10' },
+                      { section: 'ai-analysis' as Section, label: 'AI Analysis', icon: Brain, desc: 'View AI credit insights', color: 'text-cyan-500 bg-cyan-500/10' },
+                      { section: 'ai-ops' as Section, label: 'AI Ops Panel', icon: Cpu, desc: 'Run AI operations', color: 'text-rose-500 bg-rose-500/10' },
+                      { section: 'disputes' as Section, label: 'All Disputes', icon: FileText, desc: 'Manage dispute letters', color: 'text-indigo-500 bg-indigo-500/10' },
+                      { section: 'credit-reports' as Section, label: 'Credit Reports', icon: FileSearch, desc: 'Manage uploaded reports', color: 'text-emerald-500 bg-emerald-500/10' },
+                      { section: 'users' as Section, label: 'Client Manager', icon: Users, desc: 'View & manage clients', color: 'text-blue-500 bg-blue-500/10' },
+                      { section: 'membership' as Section, label: 'Memberships', icon: Crown, desc: 'Assign plans & VIP', color: 'text-amber-500 bg-amber-500/10' },
+                    ].map(item => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.section}
+                          onClick={() => setActiveSection(item.section)}
+                          className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card hover:bg-accent/10 hover:border-primary/30 transition-all text-left"
+                        >
+                          <div className={cn('rounded-lg p-2', item.color)}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{item.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border">
+                    <Button onClick={() => navigate('/dispute-center')} variant="outline" size="sm">
+                      <ExternalLink className="h-4 w-4 mr-2" />Dispute Center
+                    </Button>
+                    <Button onClick={() => navigate('/admin/clients')} variant="outline" size="sm">
+                      <Users className="h-4 w-4 mr-2" />Client Portals
+                    </Button>
+                    <Button onClick={() => navigate('/admin/tools')} variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />Admin Tools
+                    </Button>
+                    <Button onClick={() => setEditModeEnabled(!editModeEnabled)} variant={editModeEnabled ? "destructive" : "outline"} size="sm">
+                      <Settings className="h-4 w-4 mr-2" />{editModeEnabled ? 'Disable' : 'Enable'} Edit Mode
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
