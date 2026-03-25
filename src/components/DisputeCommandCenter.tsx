@@ -84,6 +84,14 @@ export function DisputeCommandCenter() {
       await supabase.from('ai_dispute_letters' as any).update({ status: 'sent' } as any).eq('dispute_case_id', caseId);
     }
     toast({ title: 'Status Updated', description: `Case marked as ${status}` });
+    // Fire automation event
+    const eventMap: Record<string, string> = { sent: 'dispute_marked_sent', completed: 'dispute_approved', generated: 'dispute_letter_generated' };
+    if (eventMap[status]) {
+      const c = cases.find(x => x.id === caseId);
+      supabase.functions.invoke('process-automation-event', {
+        body: { event_type: eventMap[status], client_id: c?.client_id, payload: { case_id: caseId, status }, source: 'dispute_command' },
+      }).catch(() => {});
+    }
     fetchData();
   };
 

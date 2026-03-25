@@ -178,6 +178,13 @@ export function AdminFileUploader({ clientId, onUploadComplete }: AdminFileUploa
       setCategory('');
       setUploadProgress(0);
       
+      // Fire automation event
+      try {
+        await supabase.functions.invoke('process-automation-event', {
+          body: { event_type: 'document_uploaded', client_id: clientId, payload: { category, file_name: selectedFile!.name }, source: 'admin_upload' },
+        });
+      } catch (autoErr) { console.log('Automation event skipped:', autoErr); }
+
       // Call completion callback
       onUploadComplete?.(fileUrl, category);
 

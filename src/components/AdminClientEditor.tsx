@@ -76,6 +76,17 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
       if (scoreErr) throw scoreErr;
 
       toast({ title: 'Client Updated', description: 'All changes saved successfully.' });
+      // Fire automation events
+      try {
+        await supabase.functions.invoke('process-automation-event', {
+          body: { event_type: 'client_profile_updated', client_id: client.id, user_id: client.user_id, payload: { updated_by: 'admin' }, source: 'admin_editor' },
+        });
+        if (scores.experian_score || scores.equifax_score || scores.transunion_score) {
+          await supabase.functions.invoke('process-automation-event', {
+            body: { event_type: 'score_updated', client_id: client.id, user_id: client.user_id, payload: scores, source: 'admin_editor' },
+          });
+        }
+      } catch (autoErr) { console.log('Automation event skipped:', autoErr); }
       onSaved?.();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });

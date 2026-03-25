@@ -20,6 +20,7 @@ import {
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
   Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot, Gavel, Pencil
 } from 'lucide-react';
+import { AutomationControlCenter } from '@/components/AutomationControlCenter';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
 import { AdminReviewQueue } from '@/components/AdminReviewQueue';
@@ -65,7 +66,7 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'automation' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   // ⚡ PRIORITY TOOLS — top of sidebar for instant access
@@ -75,6 +76,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'documents', label: 'Documents', icon: Upload, group: 'PRIORITY' },
   { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'PRIORITY' },
   { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'PRIORITY' },
+  { section: 'automation', label: 'Automation Center', icon: Zap, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
@@ -85,6 +87,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'ai-analysis', label: 'AI Analysis', icon: Brain, group: 'WORKFLOW' },
   { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'WORKFLOW' },
   { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'WORKFLOW' },
+  { section: 'automation', label: 'Automation Center', icon: Zap, group: 'WORKFLOW' },
   { section: 'ai-ops', label: 'AI Ops', icon: Cpu, group: 'OPERATIONS' },
   { section: 'users', label: 'Clients', icon: Users, group: 'MANAGEMENT' },
   { section: 'membership', label: 'Membership', icon: Crown, group: 'MANAGEMENT' },
@@ -173,6 +176,17 @@ const COMMAND_CARDS = [
     subLinks: [
       { label: 'Dispute Command', section: 'dispute-command' as Section },
       { label: 'Disputes', section: 'disputes' as Section },
+    ],
+  },
+  {
+    title: 'Automation Control Center',
+    desc: 'Events, Notifications, Predictions, Templates',
+    icon: Zap,
+    accent: 'text-green-500 bg-green-500/10 border-green-500/20',
+    mainSection: 'automation' as Section,
+    subLinks: [
+      { label: 'Automation Center', section: 'automation' as Section },
+      { label: 'Email', section: 'email' as Section },
     ],
   },
 ];
@@ -487,6 +501,15 @@ export default function AdminDashboard() {
           >
             <Gavel className="h-4 w-4 mr-1.5" />
             Generate Disputes
+           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-green-500/30 hover:bg-green-500/10 text-green-600 dark:text-green-400"
+            onClick={() => setActiveSection('automation')}
+          >
+            <Zap className="h-4 w-4 mr-1.5" />
+            Automation Center
           </Button>
           {liveCounts.needsReview > 0 && (
             <Badge variant="destructive" className="shrink-0 ml-auto animate-pulse">
@@ -610,6 +633,7 @@ export default function AdminDashboard() {
           {activeSection === 'bulk-docs' && <div className="animate-fade-in"><BulkDocumentIntelligence /></div>}
           {activeSection === 'autonomous' && <div className="animate-fade-in"><AutonomousControlPanel /></div>}
           {activeSection === 'dispute-command' && <div className="animate-fade-in"><DisputeCommandCenter /></div>}
+          {activeSection === 'automation' && <div className="animate-fade-in"><AutomationControlCenter /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (

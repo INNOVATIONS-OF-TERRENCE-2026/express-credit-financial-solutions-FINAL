@@ -8,7 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock, Copy } from 'lucide-react';
+import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock, Copy, Bell, Activity } from 'lucide-react';
+import { ClientActivityTimeline } from '@/components/ClientActivityTimeline';
+import { ScorePredictionCard } from '@/components/ScorePredictionCard';
+import { ClientNotificationsPanel, useUnreadNotificationCount } from '@/components/ClientNotificationsPanel';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
 import { ClientDocumentManager } from '@/components/ClientDocumentManager';
@@ -148,12 +151,16 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
     return <Badge className={variants[status] || 'bg-muted text-muted-foreground'}>{status}</Badge>;
   };
 
+  const unreadCount = useUnreadNotificationCount();
+
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: User },
     { id: 'documents', label: 'Documents', icon: Upload },
     { id: 'credit-reports', label: 'Reports', icon: FileText },
     { id: 'ai-analysis', label: 'AI Analysis', icon: Brain },
     { id: 'dispute-letters', label: 'Disputes', icon: Shield },
+    { id: 'timeline', label: 'Timeline', icon: Activity },
+    { id: 'notifications', label: `Messages${unreadCount > 0 ? ` (${unreadCount})` : ''}`, icon: Bell },
     { id: 'agreement', label: 'Agreement', icon: CreditCard },
     { id: 'membership', label: 'Membership', icon: Clock },
   ];
@@ -257,6 +264,9 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Score Predictions */}
+              <ScorePredictionCard clientId={clientData.id} userId={user?.id} />
             </div>
           )}
 
@@ -350,6 +360,20 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                 )}
               </CardContent>
             </Card>
+          )}
+
+          {/* Timeline */}
+          {activeTab === 'timeline' && (
+            <div className="animate-fade-in">
+              <ClientActivityTimeline userId={user?.id} clientId={clientData.id} />
+            </div>
+          )}
+
+          {/* Notifications */}
+          {activeTab === 'notifications' && (
+            <div className="animate-fade-in">
+              <ClientNotificationsPanel />
+            </div>
           )}
 
           {/* Agreement */}
