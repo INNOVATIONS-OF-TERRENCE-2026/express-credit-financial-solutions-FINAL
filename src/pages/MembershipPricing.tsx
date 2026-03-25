@@ -20,7 +20,7 @@ const plans: Array<{
   icon: any;
   badge: string;
   color: string;
-  stripeKey?: StripeLinkKey;
+  
   features: string[];
   ctaText: string;
 }> = [
