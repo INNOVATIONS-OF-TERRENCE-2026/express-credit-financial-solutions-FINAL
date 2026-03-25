@@ -71,6 +71,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'PRIORITY' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'PRIORITY' },
   { section: 'documents', label: 'Documents', icon: Upload, group: 'PRIORITY' },
+  { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
