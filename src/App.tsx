@@ -66,6 +66,7 @@ const App = () => (
                     <Sonner />
                     <BrowserRouter>
                       <ScrollToTop />
+                      <GlobalSearchCommand />
                       <FloatingChat />
                       <Routes>
                         {/* SBA Routes */}

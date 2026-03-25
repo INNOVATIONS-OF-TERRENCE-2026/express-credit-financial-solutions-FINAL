@@ -90,7 +90,26 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [editModeEnabled, setEditModeEnabled] = useState(false);
-  const [activeSection, setActiveSection] = useState<Section>('overview');
+  const [activeSection, setActiveSectionState] = useState<Section>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return (params.get('section') as Section) || 'overview';
+  });
+
+  const setActiveSection = (s: Section) => {
+    setActiveSectionState(s);
+    const url = new URL(window.location.href);
+    url.searchParams.set('section', s);
+    window.history.replaceState({}, '', url.toString());
+  };
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const section = (e as CustomEvent).detail as Section;
+      if (section) setActiveSection(section);
+    };
+    window.addEventListener('admin-set-section', handler);
+    return () => window.removeEventListener('admin-set-section', handler);
+  }, []);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const [emailForm, setEmailForm] = useState({ recipient: '', subject: '', message: '' });
