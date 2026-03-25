@@ -448,6 +448,122 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Membership Management Tab */}
+          <TabsContent value="membership" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Membership Management</CardTitle>
+                <CardDescription>
+                  Assign, upgrade, or downgrade user membership tiers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Current Plan</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Membership Type</TableHead>
+                      <TableHead>Assign Tier</TableHead>
+                      <TableHead>Toggle Status</TableHead>
+                      <TableHead>VIP Trial</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((u) => (
+                      <TableRow key={u.id}>
+                        <TableCell className="font-medium">{u.email}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{u.plan_type || 'None'}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>
+                            {u.payment_status || 'Inactive'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{u.subscription_status || 'standard'}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            defaultValue={u.plan_type || ''}
+                            onValueChange={async (value) => {
+                              const { error } = await supabase
+                                .from('profiles')
+                                .update({ plan_type: value, payment_status: 'active' })
+                                .eq('id', u.id);
+                              if (error) {
+                                toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                              } else {
+                                toast({ title: 'Updated', description: `${u.email} → ${value}` });
+                                fetchAdminData();
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-[120px]">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="basic">Basic</SelectItem>
+                              <SelectItem value="pro">Pro</SelectItem>
+                              <SelectItem value="elite">Elite</SelectItem>
+                              <SelectItem value="vip">VIP</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={u.payment_status === 'active'}
+                            onCheckedChange={async (checked) => {
+                              const { error } = await supabase
+                                .from('profiles')
+                                .update({ payment_status: checked ? 'active' : 'inactive' })
+                                .eq('id', u.id);
+                              if (error) {
+                                toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                              } else {
+                                toast({ title: 'Updated', description: `${u.email} status → ${checked ? 'active' : 'inactive'}` });
+                                fetchAdminData();
+                              }
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={async () => {
+                              const expiresAt = new Date();
+                              expiresAt.setDate(expiresAt.getDate() + 14);
+                              const { error } = await supabase
+                                .from('profiles')
+                                .update({
+                                  membership_type: 'vip_trial',
+                                  payment_status: 'active',
+                                  plan_type: 'vip',
+                                  expires_at: expiresAt.toISOString(),
+                                })
+                                .eq('id', u.id);
+                              if (error) {
+                                toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                              } else {
+                                toast({ title: 'VIP Trial Granted', description: `${u.email} — 14-day VIP trial activated` });
+                                fetchAdminData();
+                              }
+                            }}
+                          >
+                            Grant 14-Day VIP
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Disputes Tab */}
           <TabsContent value="disputes" className="space-y-6">
             <div className="flex items-center space-x-4">
