@@ -26,7 +26,7 @@ const plans: Array<{
 }> = [
   {
     name: "Full Blown Credit Repair",
-    price: 600,
+    price: 1499.99,
     frequency: "one-time",
     isOneTime: true,
     icon: Crown,
@@ -48,7 +48,7 @@ const plans: Array<{
   },
   {
     name: "Full ChexSystems Removal",
-    price: 350,
+    price: 349.99,
     frequency: "one-time",
     isOneTime: true,
     icon: Zap,
@@ -68,7 +68,7 @@ const plans: Array<{
   },
   {
     name: "Tradelines Add-Ons",
-    price: 500,
+    price: 499.99,
     frequency: "one-time",
     isOneTime: true,
     icon: Star,
@@ -77,8 +77,10 @@ const plans: Array<{
     
     ctaText: "Add Tradelines",
     features: [
+      "Pricing: $499.99 – $1,499.99 based on tradeline profile",
       "Personalized credit profile evaluation",
-      "Tradeline compatibility analysis",
+      "Tradeline compatibility analysis based on credit age & limit",
+      "Pricing varies by credit age, credit limit & reporting cycle",
       "Education-based tradeline recommendations",
       "Strategic integration guidance",
       "Monitoring alignment with existing accounts",
@@ -184,8 +186,17 @@ export default function MembershipPricing() {
                     {plan.name}
                   </CardTitle>
                   <CardDescription className="text-white">
-                    <span className="text-3xl font-bold">${plan.price}</span>
-                    <span className="text-sm text-slate-400"> — One-Time Investment</span>
+                    {plan.name === "Tradelines Add-Ons" ? (
+                      <>
+                        <span className="text-2xl font-bold">$499.99 – $1,499.99</span>
+                        <span className="text-sm text-slate-400 block mt-1">Based on credit age, limit & reporting cycle</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-3xl font-bold">${plan.price}</span>
+                        <span className="text-sm text-slate-400"> — One-Time Investment</span>
+                      </>
+                    )}
                   </CardDescription>
                 </CardHeader>
 

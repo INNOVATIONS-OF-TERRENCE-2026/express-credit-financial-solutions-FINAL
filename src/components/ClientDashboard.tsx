@@ -38,10 +38,10 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
 
   const getMembershipFeatures = (tier: string) => {
     switch (tier) {
-      case 'setup': return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis', 'Dispute strategy development'];
+      case 'setup': return ['One-time setup fee - $349.99', 'Account initialization', 'Initial credit analysis', 'Dispute strategy development'];
       case 'monthly': return ['Monthly service subscription - $99/month', 'Ongoing dispute management', 'Credit report analysis', 'Progress tracking', 'Expert consultation'];
       case 'monitoring': return ['Credit monitoring via Smart‑Credit - $29/month', 'Real-time credit alerts', 'Score tracking', 'Identity monitoring', 'Monthly reports'];
-      default: return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis'];
+      default: return ['One-time setup fee - $349.99', 'Account initialization', 'Initial credit analysis'];
     }
   };
 

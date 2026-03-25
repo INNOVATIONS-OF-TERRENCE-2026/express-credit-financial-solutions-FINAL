@@ -21,6 +21,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { TrustSignals } from '@/components/TrustSignals';
 import { FAQSection } from '@/components/FAQSection';
 import { EngineerCredit } from '@/components/EngineerCredit';
+import { ThemeSelector } from '@/components/ThemeSelector';
 
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -266,6 +267,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-fintech-primary">
       <SEOHead />
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeSelector />
+      </div>
       <EngineerCredit position="top" />
 
       {/* Hero Section with Video Background */}
@@ -359,9 +363,9 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
             {[
-              { title: 'Full Blown Credit Repair', price: '$600', badge: '👑 Elite Service', color: 'cyan', features: ['Full credit file audit & analysis', 'Targeted dispute preparation across all three bureaus', 'Inaccurate, unverifiable & outdated data challenges', 'Professional correspondence handled on your behalf', 'Consumer database review', 'Progress tracking inside client portal', 'FCRA-compliant processes'], plan: 'full-repair' },
-              { title: 'Full ChexSystems Removal', price: '$350', badge: '🏦 Banking Access', color: 'emerald', features: ['ChexSystems consumer file review', 'Identification of inaccurate or unverifiable reporting', 'Professional dispute submission & follow-up', 'Support for banking access restoration', 'Secondary consumer reporting agency review', 'Secure documentation review', 'Client portal access with status tracking'], plan: 'chexsystems' },
-              { title: 'Tradelines Add-Ons', price: '$500', badge: '⭐ Credit Enhancement', color: 'violet', features: ['Personalized credit profile evaluation', 'Tradeline compatibility analysis', 'Education-based tradeline recommendations', 'Strategic integration guidance', 'Monitoring alignment with existing accounts', 'Risk-aware placement strategy', 'Client consultation before implementation'], plan: 'tradelines' },
+              { title: 'Full Blown Credit Repair', price: '$1,499.99', badge: '👑 Elite Service', color: 'cyan', features: ['Full credit file audit & analysis', 'Targeted dispute preparation across all three bureaus', 'Inaccurate, unverifiable & outdated data challenges', 'Professional correspondence handled on your behalf', 'Consumer database review', 'Progress tracking inside client portal', 'FCRA-compliant processes'], plan: 'full-repair' },
+              { title: 'Full ChexSystems Removal', price: '$349.99', badge: '🏦 Banking Access', color: 'emerald', features: ['ChexSystems consumer file review', 'Identification of inaccurate or unverifiable reporting', 'Professional dispute submission & follow-up', 'Support for banking access restoration', 'Secondary consumer reporting agency review', 'Secure documentation review', 'Client portal access with status tracking'], plan: 'chexsystems' },
+              { title: 'Tradelines Add-Ons', price: '$499.99 – $1,499.99', badge: '⭐ Credit Enhancement', color: 'violet', features: ['Pricing varies by credit age, credit limit & reporting cycle', 'Personalized credit profile evaluation', 'Tradeline compatibility analysis', 'Education-based tradeline recommendations', 'Strategic integration guidance', 'Risk-aware placement strategy', 'Client consultation before implementation'], plan: 'tradelines' },
             ].map(plan => (
               <Card key={plan.plan} className="relative bg-card border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -369,8 +373,10 @@ const Index = () => {
                 </div>
                 <CardHeader className="text-center pt-10">
                   <CardTitle className="font-poppins text-xl font-bold text-foreground">{plan.title}</CardTitle>
-                  <div className="text-4xl font-bold text-primary mt-2">{plan.price}</div>
-                  <div className="text-sm text-muted-foreground font-semibold">One-Time Investment</div>
+                  <div className={`${plan.plan === 'tradelines' ? 'text-2xl' : 'text-4xl'} font-bold text-primary mt-2`}>{plan.price}</div>
+                  <div className="text-sm text-muted-foreground font-semibold">
+                    {plan.plan === 'tradelines' ? 'Based on credit age, limit & reporting cycle' : 'One-Time Investment'}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2 px-4">
                   <ul className="text-xs text-foreground/90 space-y-2">
