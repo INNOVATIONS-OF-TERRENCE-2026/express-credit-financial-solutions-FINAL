@@ -9,6 +9,8 @@ import {
   type CaseStatus,
 } from '@/services/disputeWorkflow';
 import { Inbox, AlertTriangle, CheckCircle, Clock, FileSearch, Send } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 const STATUS_ICONS: Partial<Record<CaseStatus, any>> = {
   intake_received: Inbox,
@@ -32,10 +34,13 @@ export function BacklogOverview() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {Array.from({ length: 10 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-4 h-20" />
+          <Card key={i} className="glass-card">
+            <CardContent className="p-4">
+              <Skeleton className="h-4 w-3/4 mb-2" />
+              <Skeleton className="h-8 w-1/2" />
+            </CardContent>
           </Card>
         ))}
       </div>
@@ -50,7 +55,7 @@ export function BacklogOverview() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Pipeline Overview</h3>
+        <h3 className="text-lg font-semibold text-foreground">Pipeline Overview</h3>
         <Badge variant="outline">{total} total disputes</Badge>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -58,15 +63,17 @@ export function BacklogOverview() {
           const Icon = STATUS_ICONS[status] || Inbox;
           const count = counts[status] || 0;
           return (
-            <Card key={status} className={count > 0 ? 'border-primary/30' : ''}>
+            <Card key={status} className={cn('glass-card-hover', count > 0 && 'border-primary/20')}>
               <CardContent className="p-3">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs font-medium truncate">
+                  <div className="rounded-md p-1 bg-primary/10">
+                    <Icon className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <span className="text-xs font-medium truncate text-foreground">
                     {CASE_STATUS_LABELS[status]}
                   </span>
                 </div>
-                <div className="text-2xl font-bold">{count}</div>
+                <div className="stat-number text-2xl">{count}</div>
               </CardContent>
             </Card>
           );

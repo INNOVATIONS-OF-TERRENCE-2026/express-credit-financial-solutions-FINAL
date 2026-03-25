@@ -26,58 +26,42 @@ interface ClientDashboardProps {
 
 export function ClientDashboard({ clientData, onUploadDocument, onLogout }: ClientDashboardProps) {
   const { user } = useAuth();
-  
+
   const getMembershipBadge = (tier: string) => {
     switch (tier) {
-      case 'setup':
-        return <Badge className="status-basic">Setup Fee</Badge>;
-      case 'monthly':
-        return <Badge className="status-pro">Monthly Service</Badge>;
-      case 'monitoring':
-        return <Badge className="status-elite">Credit Monitoring</Badge>;
-      default:
-        return <Badge className="status-basic">Setup Fee</Badge>;
+      case 'setup': return <Badge className="bg-muted text-muted-foreground">Setup Fee</Badge>;
+      case 'monthly': return <Badge className="bg-primary/10 text-primary border border-primary/20">Monthly Service</Badge>;
+      case 'monitoring': return <Badge className="bg-primary/10 text-primary border border-primary/20">Credit Monitoring</Badge>;
+      default: return <Badge className="bg-muted text-muted-foreground">Setup Fee</Badge>;
     }
   };
 
   const getMembershipFeatures = (tier: string) => {
     switch (tier) {
-      case 'setup':
-        return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis', 'Dispute strategy development'];
-      case 'monthly':
-        return ['Monthly service subscription - $99/month', 'Ongoing dispute management', 'Credit report analysis', 'Progress tracking', 'Expert consultation'];
-      case 'monitoring':
-        return ['Credit monitoring via Smart‑Credit - $29/month', 'Real-time credit alerts', 'Score tracking', 'Identity monitoring', 'Monthly reports'];
-      default:
-        return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis', 'Dispute strategy development'];
+      case 'setup': return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis', 'Dispute strategy development'];
+      case 'monthly': return ['Monthly service subscription - $99/month', 'Ongoing dispute management', 'Credit report analysis', 'Progress tracking', 'Expert consultation'];
+      case 'monitoring': return ['Credit monitoring via Smart‑Credit - $29/month', 'Real-time credit alerts', 'Score tracking', 'Identity monitoring', 'Monthly reports'];
+      default: return ['One-time setup fee - $350', 'Account initialization', 'Initial credit analysis'];
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-gradient-elegant border-b border-border">
+      <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <img 
-                src="/lovable-uploads/ba89249e-b0af-422c-81e0-5f107a0f0425.png" 
-                alt="Express Credit & Financial Solutions" 
-                className="h-12 w-auto"
-              />
               <div>
-                <h1 className="text-2xl font-bold text-primary-foreground">Express Credit & Financial Solutions</h1>
-                <p className="text-primary-foreground/80">Client Portal</p>
+                <h1 className="text-2xl font-bold text-foreground">Express Credit & Financial Solutions</h1>
+                <p className="text-muted-foreground">Client Portal</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-right text-primary-foreground">
-                <p className="font-medium">Welcome, {clientData.name}</p>
-                <p className="text-sm opacity-80">{clientData.email}</p>
+              <div className="text-right">
+                <p className="font-medium text-foreground">Welcome, {clientData.name}</p>
+                <p className="text-sm text-muted-foreground">{clientData.email}</p>
               </div>
-              <Button onClick={onLogout} variant="silver">
-                Logout
-              </Button>
+              <Button onClick={onLogout} variant="outline">Logout</Button>
             </div>
           </div>
         </div>
@@ -85,156 +69,89 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Membership Status */}
-          <Card className="card-premium hover-lift">
+          <Card className="glass-card-hover">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center">
-                  <Star className="h-5 w-5 text-accent mr-2" />
-                  Membership Status
-                </CardTitle>
+                <CardTitle className="flex items-center"><Star className="h-5 w-5 text-primary mr-2" />Membership</CardTitle>
                 {getMembershipBadge(clientData.membershipTier)}
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <h4 className="font-semibold">Plan Features:</h4>
+                <h4 className="font-semibold text-foreground">Plan Features:</h4>
                 <ul className="space-y-2">
                   {getMembershipFeatures(clientData.membershipTier).map((feature, index) => (
-                    <li key={index} className="flex items-center text-sm">
-                      <div className="w-2 h-2 bg-accent rounded-full mr-2" />
-                      {feature}
-                    </li>
+                    <li key={index} className="flex items-center text-sm text-foreground"><div className="w-2 h-2 bg-primary rounded-full mr-2" />{feature}</li>
                   ))}
                 </ul>
               </div>
             </CardContent>
           </Card>
 
-          {/* Credit Score */}
-          <Card className="card-elegant hover-lift">
+          <Card className="glass-card-hover">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <TrendingUp className="h-5 w-5 text-accent mr-2" />
-                  Credit Score
-                </div>
-                <Link to="/credit-tracking">
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <BarChart3 className="h-4 w-4" />
-                    Track
-                  </Button>
-                </Link>
+                <div className="flex items-center"><TrendingUp className="h-5 w-5 text-primary mr-2" />Credit Score</div>
+                <Link to="/credit-tracking"><Button variant="outline" size="sm"><BarChart3 className="h-4 w-4 mr-1" />Track</Button></Link>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center">
-                <div className="text-4xl font-bold text-accent mb-2">
-                  {clientData.creditScore}
-                </div>
+                <div className="stat-number text-primary mb-2">{clientData.creditScore}</div>
                 <div className="flex items-center justify-center mb-3">
                   {clientData.creditScoreChange > 0 ? (
-                    <span className="text-green-600 text-sm flex items-center">
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                      +{clientData.creditScoreChange} this month
-                    </span>
+                    <span className="text-green-500 text-sm flex items-center"><TrendingUp className="h-4 w-4 mr-1" />+{clientData.creditScoreChange} this month</span>
                   ) : (
-                    <span className="text-muted-foreground text-sm">
-                      No change this month
-                    </span>
+                    <span className="text-muted-foreground text-sm">No change this month</span>
                   )}
                 </div>
-                <Link to="/credit-tracking">
-                  <Button variant="ghost" size="sm" className="w-full text-xs">
-                    View Detailed History →
-                  </Button>
-                </Link>
+                <Link to="/credit-tracking"><Button variant="ghost" size="sm" className="w-full text-xs">View Detailed History →</Button></Link>
               </div>
             </CardContent>
           </Card>
 
-          {/* Dispute Progress */}
-          <Card className="card-elegant hover-lift">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="h-5 w-5 text-accent mr-2" />
-                Dispute Progress
-              </CardTitle>
-            </CardHeader>
+          <Card className="glass-card-hover">
+            <CardHeader><CardTitle className="flex items-center"><FileText className="h-5 w-5 text-primary mr-2" />Dispute Progress</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span>Completed</span>
-                  <span>{clientData.completedDisputes} / {clientData.totalDisputes}</span>
-                </div>
+                <div className="flex justify-between text-sm text-foreground"><span>Completed</span><span>{clientData.completedDisputes} / {clientData.totalDisputes}</span></div>
                 <Progress value={clientData.disputeProgress} className="h-2" />
-                <div className="text-sm text-muted-foreground">
-                  {clientData.disputeProgress}% Complete
-                </div>
+                <div className="text-sm text-muted-foreground">{clientData.disputeProgress}% Complete</div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Secure Verification Upload Module */}
-          {user && (
-            <div className="lg:col-span-3">
-              <SecureVerificationUpload userId={user.id} />
-            </div>
-          )}
+          {user && <div className="lg:col-span-3"><SecureVerificationUpload userId={user.id} /></div>}
 
-          {/* Document Upload */}
-          <Card className="card-elegant hover-lift lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Document Management</CardTitle>
-              <CardDescription>
-                Upload documents for your credit repair process
-              </CardDescription>
-            </CardHeader>
+          <Card className="glass-card-hover lg:col-span-2">
+            <CardHeader><CardTitle>Document Management</CardTitle><CardDescription>Upload documents for your credit repair process</CardDescription></CardHeader>
             <CardContent>
               <div className="text-center py-8">
                 <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  Upload credit reports, bank statements, or other relevant documents
-                </p>
-                <Button onClick={onUploadDocument} variant="gold" size="lg">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Documents
-                </Button>
+                <p className="text-muted-foreground mb-4">Upload credit reports, bank statements, or other relevant documents</p>
+                <Button onClick={onUploadDocument} size="lg"><Upload className="h-4 w-4 mr-2" />Upload Documents</Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
-          <Card className="card-elegant">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
+          <Card className="glass-card">
+            <CardHeader><CardTitle className="text-foreground">Recent Activity</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-accent rounded-full mt-2" />
-                  <div className="text-sm">
-                    <p className="font-medium">Dispute Filed</p>
-                    <p className="text-muted-foreground">Equifax account removed</p>
-                    <p className="text-xs text-muted-foreground">2 days ago</p>
+                {[
+                  { color: 'bg-primary', title: 'Dispute Filed', desc: 'Equifax account removed', time: '2 days ago' },
+                  { color: 'bg-green-500', title: 'Score Improvement', desc: '+15 point increase', time: '1 week ago' },
+                  { color: 'bg-blue-500', title: 'Document Uploaded', desc: 'Credit report processed', time: '2 weeks ago' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start space-x-3">
+                    <div className={`w-2 h-2 ${item.color} rounded-full mt-2`} />
+                    <div className="text-sm">
+                      <p className="font-medium text-foreground">{item.title}</p>
+                      <p className="text-muted-foreground">{item.desc}</p>
+                      <p className="text-xs text-muted-foreground">{item.time}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2" />
-                  <div className="text-sm">
-                    <p className="font-medium">Score Improvement</p>
-                    <p className="text-muted-foreground">+15 point increase</p>
-                    <p className="text-xs text-muted-foreground">1 week ago</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
-                  <div className="text-sm">
-                    <p className="font-medium">Document Uploaded</p>
-                    <p className="text-muted-foreground">Credit report processed</p>
-                    <p className="text-xs text-muted-foreground">2 weeks ago</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>
