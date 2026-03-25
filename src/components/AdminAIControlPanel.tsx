@@ -53,6 +53,18 @@ export function AdminAIControlPanel() {
     setDisputes(disputesRes.data || []);
   };
 
+  if (!isAuthorized) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Shield className="h-12 w-12 text-destructive mx-auto mb-2" />
+          <p className="font-semibold">Access Restricted</p>
+          <p className="text-sm text-muted-foreground">This panel is only available to the primary admin.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const handleAnalyzeReport = async () => {
     if (!selectedReport) return;
     setProcessing(true);
