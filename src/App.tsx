@@ -29,7 +29,7 @@ import { DataFreezeCenter } from "./pages/DataFreezeCenter";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
 import { DocumentUpload } from "./pages/DocumentUpload";
 import MembershipPricing from "./pages/MembershipPricing";
-import MembershipSuccess from "./pages/MembershipSuccess";
+
 import Education from "./pages/Education";
 import CreditTracking from "./pages/CreditTracking";
 import CreditBuildingCenter from "./pages/CreditBuildingCenter";
