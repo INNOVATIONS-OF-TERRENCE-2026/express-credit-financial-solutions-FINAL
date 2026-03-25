@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Crown, FileText, Upload, Mail, Settings, Users, Activity, ExternalLink,
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
-  Brain, Cpu, FileSearch, Menu, LogOut, Zap
+  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
@@ -65,6 +65,12 @@ interface NotificationLog {
 type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
+  // ⚡ PRIORITY TOOLS — top of sidebar for instant access
+  { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'PRIORITY' },
+  { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'PRIORITY' },
+  { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'PRIORITY' },
+  { section: 'documents', label: 'Documents', icon: Upload, group: 'PRIORITY' },
+
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
   { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'WORKFLOW' },
@@ -80,6 +86,66 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'credit-reports', label: 'Credit Reports', icon: FileSearch, group: 'MANAGEMENT' },
   { section: 'email', label: 'Email', icon: Mail, group: 'OPERATIONS' },
   { section: 'system', label: 'System', icon: Settings, group: 'OPERATIONS' },
+];
+
+// Command Center card definitions
+const COMMAND_CARDS = [
+  {
+    title: 'Backlog Processing Center',
+    desc: 'Client Processing Grid, Review Queue, Pipeline',
+    icon: Zap,
+    accent: 'text-red-500 bg-red-500/10 border-red-500/20',
+    mainSection: 'backlog' as Section,
+    subLinks: [
+      { label: 'Processing Grid', section: 'processing' as Section },
+      { label: 'Review Queue', section: 'review-queue' as Section },
+      { label: 'Pipeline', section: 'pipeline' as Section },
+    ],
+  },
+  {
+    title: 'AI Ops Center',
+    desc: 'AI Analysis, AI Control Panel',
+    icon: Brain,
+    accent: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20',
+    mainSection: 'ai-analysis' as Section,
+    subLinks: [
+      { label: 'AI Analysis', section: 'ai-analysis' as Section },
+      { label: 'AI Ops', section: 'ai-ops' as Section },
+    ],
+  },
+  {
+    title: 'Document Intelligence',
+    desc: 'Document Management, Bulk Upload System',
+    icon: FileSearch,
+    accent: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+    mainSection: 'documents' as Section,
+    subLinks: [
+      { label: 'Documents', section: 'documents' as Section },
+      { label: 'Bulk Doc Intel', section: 'bulk-docs' as Section },
+    ],
+  },
+  {
+    title: 'Client Management',
+    desc: 'Client List, Profiles, Membership',
+    icon: Users,
+    accent: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+    mainSection: 'users' as Section,
+    subLinks: [
+      { label: 'Clients', section: 'users' as Section },
+      { label: 'Membership', section: 'membership' as Section },
+    ],
+  },
+  {
+    title: 'System Control',
+    desc: 'Admin Settings, Admin Tools, Email',
+    icon: Settings,
+    accent: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    mainSection: 'system' as Section,
+    subLinks: [
+      { label: 'System', section: 'system' as Section },
+      { label: 'Email', section: 'email' as Section },
+    ],
+  },
 ];
 
 export default function AdminDashboard() {
@@ -98,6 +164,7 @@ export default function AdminDashboard() {
     const params = new URLSearchParams(window.location.search);
     return (params.get('section') as Section) || 'overview';
   });
+  const [liveCounts, setLiveCounts] = useState({ total: 0, inProgress: 0, needsReview: 0, completed: 0 });
 
   const setActiveSection = (s: Section) => {
     setActiveSectionState(s);
@@ -142,11 +209,45 @@ export default function AdminDashboard() {
 
       const { data: notificationsData } = await supabase.from('notification_logs').select('*').order('created_at', { ascending: false }).limit(50);
       setNotifications(notificationsData || []);
+
+      // Fetch live processing counts
+      fetchLiveCounts(usersData || [], disputesWithEmails);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast({ title: "Error", description: "Failed to load admin data", variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchLiveCounts = async (usersArr: AdminUser[], disputesArr: DisputeRecord[]) => {
+    try {
+      const { count: flaggedCount } = await supabase
+        .from('flagged_disputes')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      const { count: reviewCount } = await supabase
+        .from('dispute_letters')
+        .select('*', { count: 'exact', head: true })
+        .eq('case_status', 'needs_admin_review');
+
+      const completedLetters = disputesArr.filter(d => d.generated_letter).length;
+
+      setLiveCounts({
+        total: usersArr.length,
+        inProgress: disputesArr.length - completedLetters,
+        needsReview: (flaggedCount || 0) + (reviewCount || 0),
+        completed: completedLetters,
+      });
+    } catch {
+      // fallback
+      setLiveCounts({
+        total: usersArr.length,
+        inProgress: disputesArr.filter(d => !d.generated_letter).length,
+        needsReview: 0,
+        completed: disputesArr.filter(d => d.generated_letter).length,
+      });
     }
   };
 
@@ -201,62 +302,76 @@ export default function AdminDashboard() {
     );
   }
 
-  const groups = ['OVERVIEW', 'WORKFLOW', 'MANAGEMENT', 'OPERATIONS'];
+  const sidebarGroups = ['PRIORITY', 'OVERVIEW', 'WORKFLOW', 'MANAGEMENT', 'OPERATIONS'];
 
-  const SidebarNav = ({ onItemClick }: { onItemClick?: () => void }) => (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-3">
-          <Crown className="h-6 w-6 text-primary" />
-          <div>
-            <h2 className="font-poppins font-bold text-foreground text-sm">Admin Panel</h2>
-            <p className="text-xs text-muted-foreground">Express Credit CRM</p>
+  // Deduplicate sidebar items per group (PRIORITY duplicates from WORKFLOW intentionally)
+  const renderedSections = new Set<string>();
+
+  const SidebarNav = ({ onItemClick }: { onItemClick?: () => void }) => {
+    const rendered = new Set<string>();
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <Crown className="h-6 w-6 text-primary" />
+            <div>
+              <h2 className="font-poppins font-bold text-foreground text-sm">Admin Panel</h2>
+              <p className="text-xs text-muted-foreground">Express Credit CRM</p>
+            </div>
           </div>
         </div>
-      </div>
-      <nav className="flex-1 p-2 space-y-4 overflow-y-auto">
-        {groups.map(group => {
-          const items = NAV_ITEMS.filter(i => i.group === group);
-          return (
-            <div key={group}>
-              <p className="section-label px-3 mb-1">{group}</p>
-              <div className="space-y-0.5">
-                {items.map(item => {
-                  const Icon = item.icon;
-                  const active = activeSection === item.section;
-                  return (
-                    <button
-                      key={item.section}
-                      onClick={() => { setActiveSection(item.section); onItemClick?.(); }}
-                      className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all',
-                        active
-                          ? 'bg-accent/10 text-foreground border-l-2 border-primary font-medium'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
-                      )}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
+        <nav className="flex-1 p-2 space-y-4 overflow-y-auto">
+          {sidebarGroups.map(group => {
+            const items = NAV_ITEMS.filter(i => i.group === group);
+            if (items.length === 0) return null;
+            return (
+              <div key={group}>
+                <p className="section-label px-3 mb-1">
+                  {group === 'PRIORITY' ? '⚡ PRIORITY TOOLS' : group}
+                </p>
+                {group === 'PRIORITY' && (
+                  <div className="mx-3 mb-2 h-px bg-primary/30" />
+                )}
+                <div className="space-y-0.5">
+                  {items.map((item, idx) => {
+                    const key = `${group}-${item.section}-${idx}`;
+                    const Icon = item.icon;
+                    const active = activeSection === item.section;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => { setActiveSection(item.section); onItemClick?.(); }}
+                        className={cn(
+                          'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all',
+                          active
+                            ? 'bg-accent/10 text-foreground border-l-2 border-primary font-medium'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/5',
+                          group === 'PRIORITY' && !active && 'font-medium text-foreground/80'
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </nav>
-      <div className="p-4 border-t border-border space-y-2">
-        <div className="flex items-center gap-2">
-          <ThemeSelector />
-          <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+            );
+          })}
+        </nav>
+        <div className="p-4 border-t border-border space-y-2">
+          <div className="flex items-center gap-2">
+            <ThemeSelector />
+            <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start text-muted-foreground">
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
-        <Button variant="ghost" size="sm" onClick={signOut} className="w-full justify-start text-muted-foreground">
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -287,124 +402,154 @@ export default function AdminDashboard() {
           </div>
         </header>
 
+        {/* ═══ PINNED ACTION BAR — always visible ═══ */}
+        <div className="sticky top-14 z-20 bg-card border-b border-border px-4 py-2 flex items-center gap-2 overflow-x-auto">
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-primary/30 hover:bg-primary/10"
+            onClick={() => setActiveSection('bulk-docs')}
+          >
+            <Upload className="h-4 w-4 mr-1.5" />
+            Upload Documents
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-red-500/30 hover:bg-red-500/10 text-red-600 dark:text-red-400"
+            onClick={() => setActiveSection('backlog')}
+          >
+            <Zap className="h-4 w-4 mr-1.5" />
+            Process Backlog
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-cyan-500/30 hover:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+            onClick={() => setActiveSection('ai-analysis')}
+          >
+            <Brain className="h-4 w-4 mr-1.5" />
+            Run AI Analysis
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-orange-500/30 hover:bg-orange-500/10 text-orange-600 dark:text-orange-400"
+            onClick={() => setActiveSection('review-queue')}
+          >
+            <ClipboardCheck className="h-4 w-4 mr-1.5" />
+            Open Review Queue
+          </Button>
+          {liveCounts.needsReview > 0 && (
+            <Badge variant="destructive" className="shrink-0 ml-auto animate-pulse">
+              <AlertTriangle className="h-3 w-3 mr-1" />
+              {liveCounts.needsReview} Waiting Action
+            </Badge>
+          )}
+        </div>
+
         <main className="flex-1 p-4 md:p-6 overflow-auto">
-          {/* Overview */}
+          {/* ═══ OVERVIEW — COMMAND CENTER ═══ */}
           {activeSection === 'overview' && (
             <div className="space-y-6 animate-fade-in">
-              {/* Workflow Command Center */}
-              <Card className="glass-card border-primary/20">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-primary" />
-                    Workflow Command Center
-                  </CardTitle>
-                  <CardDescription>Live workflow status — click to open</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {[
-                      { section: 'review-queue' as Section, label: 'Review Queue', icon: ClipboardCheck, color: 'text-orange-500 bg-orange-500/10', desc: 'Pending reviews' },
-                      { section: 'pipeline' as Section, label: 'Case Pipeline', icon: GitBranch, color: 'text-purple-500 bg-purple-500/10', desc: 'Active cases' },
-                      { section: 'ai-analysis' as Section, label: 'AI Analysis', icon: Brain, color: 'text-cyan-500 bg-cyan-500/10', desc: 'Credit insights' },
-                      { section: 'ai-ops' as Section, label: 'AI Ops', icon: Cpu, color: 'text-rose-500 bg-rose-500/10', desc: 'Run operations' },
-                    ].map(item => {
-                      const Icon = item.icon;
-                      return (
-                        <button
-                          key={item.section}
-                          onClick={() => setActiveSection(item.section)}
-                          className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-accent/10 hover:border-primary/30 transition-all text-left"
-                        >
-                          <div className={cn('rounded-lg p-2', item.color)}><Icon className="h-5 w-5" /></div>
-                          <div>
-                            <p className="font-medium text-sm text-foreground">{item.label}</p>
-                            <p className="text-xs text-muted-foreground">{item.desc}</p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
 
-              <BacklogOverview />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  { label: 'Total Users', value: users.length, icon: Users, color: 'text-blue-500 bg-blue-500/10' },
-                  { label: 'Active Disputes', value: disputes.length, icon: FileText, color: 'text-indigo-500 bg-indigo-500/10' },
-                  { label: 'Completed Letters', value: disputes.filter(d => d.generated_letter).length, icon: Activity, color: 'text-green-500 bg-green-500/10' },
-                  { label: 'Notifications', value: notifications.length, icon: Mail, color: 'text-amber-500 bg-amber-500/10' },
-                ].map(stat => {
-                  const Icon = stat.icon;
-                  return (
-                    <Card key={stat.label} className="glass-card-hover">
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="section-label">{stat.label}</p>
-                            <p className="stat-number mt-1">{stat.value}</p>
+              {/* Block A: Live Processing Overview */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-foreground">Live Processing Overview</h2>
+                  {liveCounts.needsReview > 0 && (
+                    <Badge variant="destructive" className="text-xs">
+                      🔥 {liveCounts.needsReview} Clients Waiting Action
+                    </Badge>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[
+                    { label: 'Total Clients', value: liveCounts.total, icon: Users, color: 'text-blue-500 bg-blue-500/10' },
+                    { label: 'In Progress', value: liveCounts.inProgress, icon: Activity, color: 'text-amber-500 bg-amber-500/10' },
+                    { label: 'Needs Review', value: liveCounts.needsReview, icon: AlertTriangle, color: 'text-red-500 bg-red-500/10', highlight: liveCounts.needsReview > 0 },
+                    { label: 'Completed', value: liveCounts.completed, icon: ClipboardCheck, color: 'text-green-500 bg-green-500/10' },
+                  ].map(stat => {
+                    const Icon = stat.icon;
+                    return (
+                      <Card key={stat.label} className={cn('glass-card-hover', stat.highlight && 'border-red-500/30 bg-red-500/5')}>
+                        <CardContent className="pt-5 pb-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="section-label text-xs">{stat.label}</p>
+                              <p className="stat-number mt-1 text-2xl">{stat.value}</p>
+                            </div>
+                            <div className={cn('rounded-lg p-2.5', stat.color)}>
+                              <Icon className="h-5 w-5" />
+                            </div>
                           </div>
-                          <div className={cn('rounded-lg p-2.5', stat.color)}>
-                            <Icon className="h-5 w-5" />
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Block B: Admin Command Center Cards */}
+              <div className="space-y-3">
+                <h2 className="text-lg font-semibold text-foreground">Admin Command Center</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {COMMAND_CARDS.map(card => {
+                    const Icon = card.icon;
+                    return (
+                      <button
+                        key={card.title}
+                        onClick={() => setActiveSection(card.mainSection)}
+                        className={cn(
+                          'group text-left rounded-xl border bg-card p-5 transition-all hover:shadow-md hover:border-primary/30',
+                          card.accent.split(' ').pop() // border color
+                        )}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className={cn('rounded-xl p-3 shrink-0', card.accent)}>
+                            <Icon className="h-6 w-6" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm">
+                              {card.title}
+                            </h3>
+                            <p className="text-xs text-muted-foreground mt-1">{card.desc}</p>
+                            <div className="flex flex-wrap gap-1.5 mt-3">
+                              {card.subLinks.map(sub => (
+                                <span
+                                  key={sub.label}
+                                  onClick={(e) => { e.stopPropagation(); setActiveSection(sub.section); }}
+                                  className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                >
+                                  {sub.label}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="text-lg">Quick Actions</CardTitle>
-                  <CardDescription>Jump to any workflow section</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {[
-                      { section: 'backlog' as Section, label: 'Backlog Tools', icon: Zap, desc: 'Process client files fast', color: 'text-red-500 bg-red-500/10' },
-                      { section: 'ai-ops' as Section, label: 'AI Ops Panel', icon: Cpu, desc: 'Run AI operations', color: 'text-rose-500 bg-rose-500/10' },
-                      { section: 'review-queue' as Section, label: 'Review Queue', icon: ClipboardCheck, desc: 'Approve or reject disputes', color: 'text-orange-500 bg-orange-500/10' },
-                      { section: 'pipeline' as Section, label: 'Case Pipeline', icon: GitBranch, desc: 'Track all case stages', color: 'text-purple-500 bg-purple-500/10' },
-                      { section: 'ai-analysis' as Section, label: 'AI Analysis', icon: Brain, desc: 'View AI credit insights', color: 'text-cyan-500 bg-cyan-500/10' },
-                      { section: 'disputes' as Section, label: 'All Disputes', icon: FileText, desc: 'Manage dispute letters', color: 'text-indigo-500 bg-indigo-500/10' },
-                      { section: 'credit-reports' as Section, label: 'Credit Reports', icon: FileSearch, desc: 'Manage uploaded reports', color: 'text-emerald-500 bg-emerald-500/10' },
-                      { section: 'users' as Section, label: 'Client Manager', icon: Users, desc: 'View & manage clients', color: 'text-blue-500 bg-blue-500/10' },
-                      { section: 'membership' as Section, label: 'Memberships', icon: Crown, desc: 'Assign plans & VIP', color: 'text-amber-500 bg-amber-500/10' },
-                    ].map(item => {
-                      const Icon = item.icon;
-                      return (
-                        <button
-                          key={item.section}
-                          onClick={() => setActiveSection(item.section)}
-                          className="group flex flex-col items-start gap-2 p-4 rounded-xl border border-border bg-card hover:bg-accent/10 hover:border-primary/30 transition-all text-left"
-                        >
-                          <div className={cn('rounded-lg p-2', item.color)}>
-                            <Icon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">{item.label}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border">
-                    <Button onClick={() => navigate('/dispute-center')} variant="outline" size="sm">
-                      <ExternalLink className="h-4 w-4 mr-2" />Dispute Center
-                    </Button>
-                    <Button onClick={() => navigate('/admin/clients')} variant="outline" size="sm">
-                      <Users className="h-4 w-4 mr-2" />Client Portals
-                    </Button>
-                    <Button onClick={() => navigate('/admin/tools')} variant="outline" size="sm">
-                      <Settings className="h-4 w-4 mr-2" />Admin Tools
-                    </Button>
-                    <Button onClick={() => setEditModeEnabled(!editModeEnabled)} variant={editModeEnabled ? "destructive" : "outline"} size="sm">
-                      <Settings className="h-4 w-4 mr-2" />{editModeEnabled ? 'Disable' : 'Enable'} Edit Mode
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+
+              {/* Block C: Existing BacklogOverview + quick external links */}
+              <BacklogOverview />
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Button onClick={() => navigate('/dispute-center')} variant="outline" size="sm">
+                  <ExternalLink className="h-4 w-4 mr-2" />Dispute Center
+                </Button>
+                <Button onClick={() => navigate('/admin/clients')} variant="outline" size="sm">
+                  <Users className="h-4 w-4 mr-2" />Client Portals
+                </Button>
+                <Button onClick={() => navigate('/admin/tools')} variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />Admin Tools
+                </Button>
+                <Button onClick={() => setEditModeEnabled(!editModeEnabled)} variant={editModeEnabled ? "destructive" : "outline"} size="sm">
+                  <Settings className="h-4 w-4 mr-2" />{editModeEnabled ? 'Disable' : 'Enable'} Edit Mode
+                </Button>
+              </div>
             </div>
           )}
 
