@@ -164,6 +164,17 @@ const COMMAND_CARDS = [
       { label: 'AI Analysis', section: 'ai-analysis' as Section },
     ],
   },
+  {
+    title: 'Dispute Command Center',
+    desc: 'AI Dispute Generation, Letter Management, Status Tracking',
+    icon: Gavel,
+    accent: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    mainSection: 'dispute-command' as Section,
+    subLinks: [
+      { label: 'Dispute Command', section: 'dispute-command' as Section },
+      { label: 'Disputes', section: 'disputes' as Section },
+    ],
+  },
 ];
 
 export default function AdminDashboard() {
