@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useTheme } from 'next-themes';
 
 export interface ColorTheme {
   name: string;
   color: string;
-  hsl: string;
+  hsl: string; // "H S% L%"
 }
 
 export const COLOR_THEMES: ColorTheme[] = [
@@ -42,6 +41,12 @@ export const COLOR_THEMES: ColorTheme[] = [
   { name: 'Champagne', color: '#F5E6CC', hsl: '35 72% 88%' },
 ];
 
+function parseHSL(hsl: string): { h: number; s: number; l: number } {
+  const parts = hsl.match(/[\d.]+/g);
+  if (!parts || parts.length < 3) return { h: 189, s: 94, l: 43 };
+  return { h: parseFloat(parts[0]), s: parseFloat(parts[1]), l: parseFloat(parts[2]) };
+}
+
 interface ThemeConfigContextType {
   colorTheme: string;
   setColorTheme: (name: string) => void;
@@ -68,22 +73,163 @@ export function ThemeConfigProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const theme = COLOR_THEMES.find(t => t.name === colorTheme);
+    const root = document.documentElement;
+
     if (theme) {
-      document.documentElement.setAttribute('data-color-theme', colorTheme);
-      // Apply theme accent color to CSS custom properties
-      const root = document.documentElement;
+      const { h, s, l } = parseHSL(theme.hsl);
+      const isDark = root.classList.contains('dark');
+
+      // Primary / accent / ring
       root.style.setProperty('--primary', theme.hsl);
       root.style.setProperty('--accent', theme.hsl);
       root.style.setProperty('--ring', theme.hsl);
+
+      // Primary foreground – light text for dark accents, dark text for light accents
+      const needsDarkFg = l > 65 || (s < 30 && l > 50);
+      root.style.setProperty('--primary-foreground', needsDarkFg ? '222 47% 11%' : '0 0% 100%');
+      root.style.setProperty('--accent-foreground', needsDarkFg ? '222 47% 11%' : '0 0% 100%');
+
+      // Border – tinted with the accent color
+      if (isDark) {
+        root.style.setProperty('--border', `${h} ${Math.min(s, 30)}% 25%`);
+        root.style.setProperty('--input', `${h} ${Math.min(s, 20)}% 20%`);
+        // Card – slight tint
+        root.style.setProperty('--card', `${h} ${Math.min(s, 25)}% 14%`);
+        root.style.setProperty('--card-foreground', '210 40% 98%');
+        // Secondary – deeper tint
+        root.style.setProperty('--secondary', `${h} ${Math.min(s, 20)}% 18%`);
+        root.style.setProperty('--secondary-foreground', '210 40% 98%');
+        // Muted
+        root.style.setProperty('--muted', `${h} ${Math.min(s, 15)}% 18%`);
+        root.style.setProperty('--muted-foreground', `${h} ${Math.min(s, 15)}% 60%`);
+        // Background – very subtle tint
+        root.style.setProperty('--background', `${h} ${Math.min(s, 20)}% 10%`);
+        root.style.setProperty('--foreground', '210 40% 98%');
+        // Popover
+        root.style.setProperty('--popover', `${h} ${Math.min(s, 25)}% 13%`);
+        root.style.setProperty('--popover-foreground', '210 40% 98%');
+        // Sidebar
+        root.style.setProperty('--sidebar-background', `${h} ${Math.min(s, 20)}% 9%`);
+        root.style.setProperty('--sidebar-foreground', '210 40% 98%');
+        root.style.setProperty('--sidebar-primary', theme.hsl);
+        root.style.setProperty('--sidebar-primary-foreground', needsDarkFg ? '222 47% 11%' : '0 0% 100%');
+        root.style.setProperty('--sidebar-accent', `${h} ${Math.min(s, 20)}% 18%`);
+        root.style.setProperty('--sidebar-accent-foreground', '210 40% 98%');
+        root.style.setProperty('--sidebar-border', `${h} ${Math.min(s, 25)}% 22%`);
+        root.style.setProperty('--sidebar-ring', theme.hsl);
+        // Fintech vars
+        root.style.setProperty('--fintech-accent', theme.hsl);
+      } else {
+        // Light mode
+        root.style.setProperty('--border', `${h} ${Math.min(s, 30)}% 88%`);
+        root.style.setProperty('--input', `${h} ${Math.min(s, 25)}% 90%`);
+        root.style.setProperty('--card', `${h} ${Math.min(s, 15)}% 99%`);
+        root.style.setProperty('--card-foreground', '222 47% 11%');
+        root.style.setProperty('--secondary', `${h} ${Math.min(s, 30)}% 95%`);
+        root.style.setProperty('--secondary-foreground', '222 47% 11%');
+        root.style.setProperty('--muted', `${h} ${Math.min(s, 20)}% 96%`);
+        root.style.setProperty('--muted-foreground', `${h} ${Math.min(s, 15)}% 40%`);
+        root.style.setProperty('--background', `${h} ${Math.min(s, 15)}% 100%`);
+        root.style.setProperty('--foreground', '222 47% 11%');
+        root.style.setProperty('--popover', `${h} ${Math.min(s, 15)}% 99%`);
+        root.style.setProperty('--popover-foreground', '222 47% 11%');
+        // Sidebar
+        root.style.setProperty('--sidebar-background', `${h} ${Math.min(s, 20)}% 97%`);
+        root.style.setProperty('--sidebar-foreground', '222 47% 11%');
+        root.style.setProperty('--sidebar-primary', theme.hsl);
+        root.style.setProperty('--sidebar-primary-foreground', needsDarkFg ? '222 47% 11%' : '0 0% 100%');
+        root.style.setProperty('--sidebar-accent', `${h} ${Math.min(s, 25)}% 93%`);
+        root.style.setProperty('--sidebar-accent-foreground', '222 47% 11%');
+        root.style.setProperty('--sidebar-border', `${h} ${Math.min(s, 25)}% 90%`);
+        root.style.setProperty('--sidebar-ring', theme.hsl);
+        root.style.setProperty('--fintech-accent', theme.hsl);
+      }
     } else {
-      // Default cyan
-      document.documentElement.removeAttribute('data-color-theme');
-      const root = document.documentElement;
-      root.style.removeProperty('--primary');
-      root.style.removeProperty('--accent');
-      root.style.removeProperty('--ring');
+      // Reset all overrides
+      const props = [
+        '--primary', '--accent', '--ring', '--primary-foreground', '--accent-foreground',
+        '--border', '--input', '--card', '--card-foreground', '--secondary', '--secondary-foreground',
+        '--muted', '--muted-foreground', '--background', '--foreground', '--popover', '--popover-foreground',
+        '--sidebar-background', '--sidebar-foreground', '--sidebar-primary', '--sidebar-primary-foreground',
+        '--sidebar-accent', '--sidebar-accent-foreground', '--sidebar-border', '--sidebar-ring',
+        '--fintech-accent',
+      ];
+      props.forEach(p => root.style.removeProperty(p));
     }
   }, [colorTheme]);
+
+  // Re-apply when dark/light mode changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'class') {
+          // Re-trigger theme application by toggling state
+          setColorThemeState(prev => {
+            // Force re-run of the theme effect
+            const theme = COLOR_THEMES.find(t => t.name === prev);
+            if (theme) {
+              const root = document.documentElement;
+              const { h, s, l } = parseHSL(theme.hsl);
+              const isDark = root.classList.contains('dark');
+              const needsDarkFg = l > 65 || (s < 30 && l > 50);
+
+              root.style.setProperty('--primary', theme.hsl);
+              root.style.setProperty('--accent', theme.hsl);
+              root.style.setProperty('--ring', theme.hsl);
+              root.style.setProperty('--primary-foreground', needsDarkFg ? '222 47% 11%' : '0 0% 100%');
+              root.style.setProperty('--accent-foreground', needsDarkFg ? '222 47% 11%' : '0 0% 100%');
+
+              if (isDark) {
+                root.style.setProperty('--border', `${h} ${Math.min(s, 30)}% 25%`);
+                root.style.setProperty('--input', `${h} ${Math.min(s, 20)}% 20%`);
+                root.style.setProperty('--card', `${h} ${Math.min(s, 25)}% 14%`);
+                root.style.setProperty('--card-foreground', '210 40% 98%');
+                root.style.setProperty('--secondary', `${h} ${Math.min(s, 20)}% 18%`);
+                root.style.setProperty('--secondary-foreground', '210 40% 98%');
+                root.style.setProperty('--muted', `${h} ${Math.min(s, 15)}% 18%`);
+                root.style.setProperty('--muted-foreground', `${h} ${Math.min(s, 15)}% 60%`);
+                root.style.setProperty('--background', `${h} ${Math.min(s, 20)}% 10%`);
+                root.style.setProperty('--foreground', '210 40% 98%');
+                root.style.setProperty('--popover', `${h} ${Math.min(s, 25)}% 13%`);
+                root.style.setProperty('--popover-foreground', '210 40% 98%');
+                root.style.setProperty('--sidebar-background', `${h} ${Math.min(s, 20)}% 9%`);
+                root.style.setProperty('--sidebar-foreground', '210 40% 98%');
+                root.style.setProperty('--sidebar-primary', theme.hsl);
+                root.style.setProperty('--sidebar-accent', `${h} ${Math.min(s, 20)}% 18%`);
+                root.style.setProperty('--sidebar-accent-foreground', '210 40% 98%');
+                root.style.setProperty('--sidebar-border', `${h} ${Math.min(s, 25)}% 22%`);
+              } else {
+                root.style.setProperty('--border', `${h} ${Math.min(s, 30)}% 88%`);
+                root.style.setProperty('--input', `${h} ${Math.min(s, 25)}% 90%`);
+                root.style.setProperty('--card', `${h} ${Math.min(s, 15)}% 99%`);
+                root.style.setProperty('--card-foreground', '222 47% 11%');
+                root.style.setProperty('--secondary', `${h} ${Math.min(s, 30)}% 95%`);
+                root.style.setProperty('--secondary-foreground', '222 47% 11%');
+                root.style.setProperty('--muted', `${h} ${Math.min(s, 20)}% 96%`);
+                root.style.setProperty('--muted-foreground', `${h} ${Math.min(s, 15)}% 40%`);
+                root.style.setProperty('--background', `${h} ${Math.min(s, 15)}% 100%`);
+                root.style.setProperty('--foreground', '222 47% 11%');
+                root.style.setProperty('--popover', `${h} ${Math.min(s, 15)}% 99%`);
+                root.style.setProperty('--popover-foreground', '222 47% 11%');
+                root.style.setProperty('--sidebar-background', `${h} ${Math.min(s, 20)}% 97%`);
+                root.style.setProperty('--sidebar-foreground', '222 47% 11%');
+                root.style.setProperty('--sidebar-primary', theme.hsl);
+                root.style.setProperty('--sidebar-accent', `${h} ${Math.min(s, 25)}% 93%`);
+                root.style.setProperty('--sidebar-accent-foreground', '222 47% 11%');
+                root.style.setProperty('--sidebar-border', `${h} ${Math.min(s, 25)}% 90%`);
+              }
+              root.style.setProperty('--sidebar-ring', theme.hsl);
+              root.style.setProperty('--fintech-accent', theme.hsl);
+            }
+            return prev;
+          });
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <ThemeConfigContext.Provider value={{ colorTheme, setColorTheme, themes: COLOR_THEMES }}>
