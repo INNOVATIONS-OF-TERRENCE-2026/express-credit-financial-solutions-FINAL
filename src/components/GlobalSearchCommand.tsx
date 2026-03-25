@@ -104,6 +104,7 @@ export function GlobalSearchCommand() {
     { label: 'Credit Reports', keywords: 'credit reports uploads analysis', icon: FileSearch, category: 'Admin Sections', action: () => goAdmin('credit-reports'), adminOnly: true },
     { label: 'Email Notifications', keywords: 'email send notification log', icon: Mail, category: 'Admin Sections', action: () => goAdmin('email'), adminOnly: true },
     { label: 'System Settings', keywords: 'system settings configuration admin', icon: Settings, category: 'Admin Sections', action: () => goAdmin('system'), adminOnly: true },
+    { label: 'Bulk Document Intelligence', keywords: 'bulk upload documents ai classify match batch intelligence', icon: Upload, category: 'Admin Sections', action: () => goAdmin('bulk-docs'), adminOnly: true },
   ];
 
   const allEntries = [
