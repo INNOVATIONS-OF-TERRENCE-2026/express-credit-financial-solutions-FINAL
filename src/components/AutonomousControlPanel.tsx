@@ -19,6 +19,7 @@ interface AutonomousSettings {
   autonomous_enabled: boolean;
   auto_attach_threshold: number;
   review_threshold: number;
+  auto_generate_disputes: boolean;
 }
 
 interface AIResult {
@@ -106,11 +107,12 @@ export function AutonomousControlPanel() {
       .update({
         auto_attach_threshold: settings.auto_attach_threshold,
         review_threshold: settings.review_threshold,
+        auto_generate_disputes: settings.auto_generate_disputes,
         updated_at: new Date().toISOString(),
       } as any)
       .eq('id', settings.id);
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    else toast({ title: 'Thresholds Saved' });
+    else toast({ title: 'Settings Saved' });
   };
 
   const approveResult = async (result: AIResult) => {
@@ -208,6 +210,16 @@ export function AutonomousControlPanel() {
                 value={[settings?.review_threshold || 60]}
                 onValueChange={([v]) => settings && setSettings({ ...settings, review_threshold: v })}
                 min={20} max={80} step={5}
+              />
+            </div>
+            <div className="flex items-center justify-between pt-2">
+              <div>
+                <Label className="text-sm font-medium">Auto-Generate Disputes</Label>
+                <p className="text-xs text-muted-foreground">Automatically generate dispute letters when credit reports are analyzed</p>
+              </div>
+              <Switch
+                checked={settings?.auto_generate_disputes || false}
+                onCheckedChange={(checked) => settings && setSettings({ ...settings, auto_generate_disputes: checked })}
               />
             </div>
             <Button onClick={saveThresholds} size="sm">Save Thresholds</Button>

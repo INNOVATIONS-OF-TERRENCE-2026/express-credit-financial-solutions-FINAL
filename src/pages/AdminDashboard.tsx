@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Crown, FileText, Upload, Mail, Settings, Users, Activity, ExternalLink,
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
-  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot
+  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot, Gavel, Pencil
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
@@ -32,6 +32,8 @@ import { ClientProcessingGrid } from '@/components/ClientProcessingGrid';
 import { BulkDocumentIntelligence } from '@/components/BulkDocumentIntelligence';
 import { cn } from '@/lib/utils';
 import { AutonomousControlPanel } from '@/components/AutonomousControlPanel';
+import { DisputeCommandCenter } from '@/components/DisputeCommandCenter';
+import { AdminClientEditor } from '@/components/AdminClientEditor';
 
 interface AdminUser {
   id: string;
@@ -63,7 +65,7 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   // ⚡ PRIORITY TOOLS — top of sidebar for instant access
@@ -72,6 +74,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'PRIORITY' },
   { section: 'documents', label: 'Documents', icon: Upload, group: 'PRIORITY' },
   { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'PRIORITY' },
+  { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
@@ -81,6 +84,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'WORKFLOW' },
   { section: 'ai-analysis', label: 'AI Analysis', icon: Brain, group: 'WORKFLOW' },
   { section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'WORKFLOW' },
+  { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'WORKFLOW' },
   { section: 'ai-ops', label: 'AI Ops', icon: Cpu, group: 'OPERATIONS' },
   { section: 'users', label: 'Clients', icon: Users, group: 'MANAGEMENT' },
   { section: 'membership', label: 'Membership', icon: Crown, group: 'MANAGEMENT' },
@@ -160,6 +164,17 @@ const COMMAND_CARDS = [
       { label: 'AI Analysis', section: 'ai-analysis' as Section },
     ],
   },
+  {
+    title: 'Dispute Command Center',
+    desc: 'AI Dispute Generation, Letter Management, Status Tracking',
+    icon: Gavel,
+    accent: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    mainSection: 'dispute-command' as Section,
+    subLinks: [
+      { label: 'Dispute Command', section: 'dispute-command' as Section },
+      { label: 'Disputes', section: 'disputes' as Section },
+    ],
+  },
 ];
 
 export default function AdminDashboard() {
@@ -179,6 +194,7 @@ export default function AdminDashboard() {
     return (params.get('section') as Section) || 'overview';
   });
   const [liveCounts, setLiveCounts] = useState({ total: 0, inProgress: 0, needsReview: 0, completed: 0 });
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
 
   const setActiveSection = (s: Section) => {
     setActiveSectionState(s);
@@ -462,6 +478,15 @@ export default function AdminDashboard() {
           >
             <Bot className="h-4 w-4 mr-1.5" />
             Autonomous Mode
+           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-amber-500/30 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            onClick={() => setActiveSection('dispute-command')}
+          >
+            <Gavel className="h-4 w-4 mr-1.5" />
+            Generate Disputes
           </Button>
           {liveCounts.needsReview > 0 && (
             <Badge variant="destructive" className="shrink-0 ml-auto animate-pulse">
@@ -584,6 +609,7 @@ export default function AdminDashboard() {
           {activeSection === 'processing' && <div className="animate-fade-in"><ClientProcessingGrid /></div>}
           {activeSection === 'bulk-docs' && <div className="animate-fade-in"><BulkDocumentIntelligence /></div>}
           {activeSection === 'autonomous' && <div className="animate-fade-in"><AutonomousControlPanel /></div>}
+          {activeSection === 'dispute-command' && <div className="animate-fade-in"><DisputeCommandCenter /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
@@ -611,7 +637,7 @@ export default function AdminDashboard() {
                             <TableCell><Badge variant="outline">{u.plan_type || 'None'}</Badge></TableCell>
                             <TableCell><Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge></TableCell>
                             <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
-                            <TableCell><Button size="sm" variant="outline"><Eye className="h-4 w-4" /></Button></TableCell>
+                            <TableCell><div className="flex gap-1"><Button size="sm" variant="outline"><Eye className="h-4 w-4" /></Button><Button size="sm" variant="outline" onClick={() => setEditingClientId(u.id)}><Pencil className="h-4 w-4" /></Button></div></TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -838,6 +864,14 @@ export default function AdminDashboard() {
           )}
         </main>
       </div>
+
+      {/* Client Editor Dialog */}
+      <AdminClientEditor
+        clientId={editingClientId}
+        open={!!editingClientId}
+        onOpenChange={(open) => { if (!open) setEditingClientId(null); }}
+        onSaved={fetchAdminData}
+      />
     </div>
   );
 }

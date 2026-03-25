@@ -166,6 +166,60 @@ export type Database = {
           },
         ]
       }
+      ai_dispute_letters: {
+        Row: {
+          bureau: string | null
+          client_id: string | null
+          confidence_score: number | null
+          dispute_case_id: string | null
+          generated_at: string
+          id: string
+          letter_content: string
+          letter_type: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          bureau?: string | null
+          client_id?: string | null
+          confidence_score?: number | null
+          dispute_case_id?: string | null
+          generated_at?: string
+          id?: string
+          letter_content: string
+          letter_type?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          bureau?: string | null
+          client_id?: string | null
+          confidence_score?: number | null
+          dispute_case_id?: string | null
+          generated_at?: string
+          id?: string
+          letter_content?: string
+          letter_type?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_dispute_letters_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_dispute_letters_dispute_case_id_fkey"
+            columns: ["dispute_case_id"]
+            isOneToOne: false
+            referencedRelation: "dispute_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_letter_previews: {
         Row: {
           client_id: string | null
@@ -346,6 +400,7 @@ export type Database = {
       autonomous_settings: {
         Row: {
           auto_attach_threshold: number | null
+          auto_generate_disputes: boolean | null
           autonomous_enabled: boolean | null
           id: string
           review_threshold: number | null
@@ -354,6 +409,7 @@ export type Database = {
         }
         Insert: {
           auto_attach_threshold?: number | null
+          auto_generate_disputes?: boolean | null
           autonomous_enabled?: boolean | null
           id?: string
           review_threshold?: number | null
@@ -362,6 +418,7 @@ export type Database = {
         }
         Update: {
           auto_attach_threshold?: number | null
+          auto_generate_disputes?: boolean | null
           autonomous_enabled?: boolean | null
           id?: string
           review_threshold?: number | null
@@ -629,6 +686,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      client_credit_scores: {
+        Row: {
+          client_id: string
+          equifax_score: number | null
+          experian_score: number | null
+          id: string
+          source: string
+          transunion_score: number | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string | null
+        }
+        Insert: {
+          client_id: string
+          equifax_score?: number | null
+          experian_score?: number | null
+          id?: string
+          source?: string
+          transunion_score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string
+          equifax_score?: number | null
+          experian_score?: number | null
+          id?: string
+          source?: string
+          transunion_score?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_credit_scores_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       client_documents: {
         Row: {
@@ -1229,6 +1330,59 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      dispute_cases: {
+        Row: {
+          account_name: string | null
+          account_number_last4: string | null
+          bureau: string | null
+          client_id: string | null
+          created_at: string
+          dispute_reason: string | null
+          flagged_dispute_id: string | null
+          id: string
+          source: string
+          status: string
+          user_id: string | null
+          violation_type: string | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number_last4?: string | null
+          bureau?: string | null
+          client_id?: string | null
+          created_at?: string
+          dispute_reason?: string | null
+          flagged_dispute_id?: string | null
+          id?: string
+          source?: string
+          status?: string
+          user_id?: string | null
+          violation_type?: string | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number_last4?: string | null
+          bureau?: string | null
+          client_id?: string | null
+          created_at?: string
+          dispute_reason?: string | null
+          flagged_dispute_id?: string | null
+          id?: string
+          source?: string
+          status?: string
+          user_id?: string | null
+          violation_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_cases_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dispute_docs: {
         Row: {
