@@ -20,6 +20,7 @@ import {
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
   Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot, Gavel, Pencil
 } from 'lucide-react';
+import { AutomationControlCenter } from '@/components/AutomationControlCenter';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
 import { AdminReviewQueue } from '@/components/AdminReviewQueue';
