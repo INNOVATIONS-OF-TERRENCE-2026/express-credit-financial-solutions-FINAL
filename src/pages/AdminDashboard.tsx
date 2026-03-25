@@ -501,6 +501,15 @@ export default function AdminDashboard() {
           >
             <Gavel className="h-4 w-4 mr-1.5" />
             Generate Disputes
+           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 border-green-500/30 hover:bg-green-500/10 text-green-600 dark:text-green-400"
+            onClick={() => setActiveSection('automation')}
+          >
+            <Zap className="h-4 w-4 mr-1.5" />
+            Automation Center
           </Button>
           {liveCounts.needsReview > 0 && (
             <Badge variant="destructive" className="shrink-0 ml-auto animate-pulse">

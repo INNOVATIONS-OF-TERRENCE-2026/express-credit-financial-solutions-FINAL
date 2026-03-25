@@ -30,6 +30,11 @@ export function useRealtimeRefresh(
       .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_cases' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ai_dispute_letters' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'client_credit_scores' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'automation_events' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_activity_timeline' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_notifications' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'score_predictions' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'score_history' }, debouncedRefresh)
       .subscribe();
 
     return () => {
