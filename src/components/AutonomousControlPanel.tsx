@@ -107,11 +107,12 @@ export function AutonomousControlPanel() {
       .update({
         auto_attach_threshold: settings.auto_attach_threshold,
         review_threshold: settings.review_threshold,
+        auto_generate_disputes: settings.auto_generate_disputes,
         updated_at: new Date().toISOString(),
       } as any)
       .eq('id', settings.id);
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    else toast({ title: 'Thresholds Saved' });
+    else toast({ title: 'Settings Saved' });
   };
 
   const approveResult = async (result: AIResult) => {
