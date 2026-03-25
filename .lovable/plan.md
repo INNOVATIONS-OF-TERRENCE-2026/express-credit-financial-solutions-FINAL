@@ -1,82 +1,110 @@
 
 
-# Admin Command Center UI Restructure
+# Autonomous Processing System — Hybrid Mode Addition
 
-## What changes
-Restructure the AdminDashboard overview section into a high-visibility command center with a pinned action bar, large system cards, and a live processing overview panel. Add priority tools group to sidebar.
+## Overview
+Add an AI-powered autonomous document processing pipeline that runs alongside the existing manual workflow. New documents trigger background AI classification, client matching, and dispute queue preparation — all controllable via an admin toggle.
 
-## Changes to `src/pages/AdminDashboard.tsx`
+## 1. Database Tables (Migration)
 
-### 1. Pinned Action Bar (top of main content, always visible)
-Add a sticky action bar below the existing header (`h-14` top bar) that renders on ALL sections (not just overview). Contains 4 primary action buttons:
-- **Upload Documents** → `setActiveSection('bulk-docs')`
-- **Process Backlog** → `setActiveSection('backlog')`
-- **Run AI Analysis** → `setActiveSection('ai-analysis')`
-- **Open Review Queue** → `setActiveSection('review-queue')`
+**`autonomous_jobs`** — Tracks each background processing job:
+- `id` uuid PK, `client_id` uuid nullable, `document_upload_id` uuid nullable
+- `status` text (pending/processing/completed/failed), `job_type` text (document_parse/client_match/dispute_prep)
+- `confidence_score` numeric, `result_data` jsonb, `error_message` text
+- `created_at`, `completed_at` timestamps
+- RLS: admin-only via `has_role()`
 
-Styled as a flex row with prominent buttons, bg-card border-b, sticky below header.
+**`document_ai_results`** — Stores AI extraction output per document:
+- `id` uuid PK, `document_id` uuid (references source upload id)
+- `extracted_name`, `extracted_address`, `extracted_ssn_last4`, `extracted_dob` text fields
+- `detected_doc_type` text, `confidence_score` numeric
+- `matched_client_id` uuid nullable, `match_reason` text
+- `is_verified` boolean default false, `verified_by` uuid, `verified_at` timestamp
+- `created_at` timestamp
+- RLS: admin-only
 
-### 2. Restructure Overview Section
-Replace the current overview with three blocks in order:
+**`autonomous_settings`** — Single-row config table for the toggle:
+- `id` uuid PK, `autonomous_enabled` boolean default false
+- `auto_attach_threshold` integer default 85, `review_threshold` integer default 60
+- `updated_by` uuid, `updated_at` timestamp
+- RLS: admin-only
+- Seed with one default row
 
-**Block A: Live Processing Overview** (new)
-- Fetch live counts from Supabase: total profiles, disputes in review status, disputes with letters (approved), flagged disputes pending
-- Display 4 stat cards: Total Clients, In Progress, Needs Review, Completed
-- Add a red badge: "X Clients Waiting Action"
+## 2. Edge Function: `process-document-autonomous`
 
-**Block B: Admin Command Center Cards** (replaces current Workflow Command Center + Quick Actions)
-5 large interactive cards in a responsive grid (1 col mobile, 2-3 col desktop):
+Secure edge function that:
+1. Accepts `document_id`, `file_url`, `file_name`, `file_type`
+2. Checks `autonomous_settings.autonomous_enabled` — exits if OFF
+3. Creates an `autonomous_jobs` row (status: processing)
+4. Sends file content to OpenAI (gpt-4o-mini) for classification + extraction (name, address, SSN last4, DOB, doc type)
+5. Queries `clients` table for multi-signal matching (reuses fuzzy logic from existing `bulk-document-intelligence-processor`)
+6. Inserts into `document_ai_results`
+7. Applies threshold logic:
+   - Score >= `auto_attach_threshold`: auto-assigns to client, updates `credit_report_uploads` or `identity_docs`, sets job completed
+   - Score >= `review_threshold`: creates `document_match_reviews` entry, sets job to "review"
+   - Below threshold: sets job to "needs_manual"
+8. Updates `autonomous_jobs` with final status
+9. Auth: requires admin JWT or service-role key
 
-1. **Backlog Processing Center** (Zap icon, red accent)
-   - Description: "Client Processing Grid, Review Queue, Pipeline"
-   - onClick → `setActiveSection('backlog')`
-   - Sub-links: Processing Grid, Review Queue, Pipeline as small buttons
+## 3. Frontend Trigger Integration
 
-2. **AI Ops Center** (Brain icon, cyan accent)
-   - Description: "AI Analysis, AI Control Panel"
-   - onClick → `setActiveSection('ai-analysis')`
-   - Sub-links: AI Analysis, AI Ops
+In `AdminFileUploader.tsx` and `BulkDocumentIntelligence.tsx`, after successful upload to storage:
+- Check if autonomous mode is enabled (query `autonomous_settings`)
+- If enabled, invoke `process-document-autonomous` edge function with the uploaded file metadata
+- This is additive — existing upload flow remains unchanged
 
-3. **Document Intelligence** (FileSearch icon, emerald accent)
-   - Description: "Document Management, Bulk Upload System"
-   - onClick → `setActiveSection('documents')`
-   - Sub-links: Documents, Bulk Doc Intel
+## 4. Admin UI: Autonomous Control Panel Component
 
-4. **Client Management** (Users icon, blue accent)
-   - Description: "Client List, Profiles, Membership"
-   - onClick → `setActiveSection('users')`
-   - Sub-links: Clients, Membership
+New component: `src/components/AutonomousControlPanel.tsx`
 
-5. **System Control** (Settings icon, amber accent)
-   - Description: "Admin Settings, Admin Tools"
-   - onClick → `navigate('/admin/settings')`
-   - Sub-links: Settings, Tools
+**Top section — Control Toggle:**
+- Switch component bound to `autonomous_settings.autonomous_enabled`
+- Threshold sliders for auto-attach (default 85%) and review (default 60%)
+- Save button updates the settings row
 
-Each card is ~150px tall with icon, title, description, and 2-3 small sub-link buttons at bottom.
+**Middle section — Live Stats (4 cards):**
+- Documents processed today (count from `autonomous_jobs` where created_at = today)
+- Auto-matched clients (completed jobs with confidence >= threshold)
+- Pending review items (jobs with status = review)
+- Failed jobs (status = failed)
+- Uses `useRealtimeRefresh` hook on `autonomous_jobs` table
 
-**Block C: Keep existing BacklogOverview + stat cards** (below, unchanged)
+**Bottom section — Recent AI Decisions Table:**
+- Columns: Document, Detected Type, Extracted Name, Matched Client, Confidence, Status, Actions
+- Filter tabs: All / Auto-Matched / Needs Review / Failed
+- Actions per row: Approve, Reject, Reassign (opens client selector)
+- Approve: sets `is_verified = true` in `document_ai_results`, attaches doc to client
+- Reject: marks job as rejected, unlinks document
+- Reassign: admin picks correct client, updates `matched_client_id`, marks verified
 
-### 3. Sidebar Priority Tools Group
-Add a new group **"PRIORITY"** at the top of the `NAV_ITEMS` array (before OVERVIEW):
-- Review Queue (ClipboardCheck)
-- Processing Grid (Activity)
-- Pipeline (GitBranch)
-- Documents (Upload)
+## 5. Dashboard Integration
 
-These duplicate entries from WORKFLOW but appear at the top for instant access. The sidebar rendering groups them under "⚡ PRIORITY TOOLS" label.
+In `AdminDashboard.tsx`:
+- Add `'autonomous'` to the `Section` type
+- Add nav item: `{ section: 'autonomous', label: 'Autonomous Mode', icon: Bot, group: 'WORKFLOW' }`
+- Add to PRIORITY group in sidebar
+- Add COMMAND_CARDS entry with Bot icon and purple accent
+- Render `<AutonomousControlPanel />` when `activeSection === 'autonomous'`
+- Add "Autonomous Mode" button to the pinned action bar
 
-### 4. Remove redundancy
-- Remove the old "Quick Actions" card (the 8-button grid) since the command center cards replace it
-- Keep the Workflow Command Center 4-button row but move it inside Block A as secondary nav
+## 6. Real-time Updates
 
-## Files to edit
-- `src/pages/AdminDashboard.tsx` — all changes in this single file
+Add `autonomous_jobs` and `document_ai_results` to the `useRealtimeRefresh` hook subscriptions so the control panel and dashboard counts update live.
 
-## Technical notes
-- No new components needed
-- No database changes
-- No new dependencies
-- Sticky action bar uses `sticky top-14 z-20` (below the existing `sticky top-0 z-30` header)
-- Live counts use existing `users`, `disputes`, `notifications` state already fetched in `fetchAdminData`
-- Sidebar priority group just adds entries to `NAV_ITEMS` with a new group name
+## Files to Create
+- `supabase/migrations/[timestamp]_autonomous_system.sql` — tables + RLS + seed
+- `supabase/functions/process-document-autonomous/index.ts` — AI engine
+- `src/components/AutonomousControlPanel.tsx` — admin UI
+
+## Files to Edit
+- `src/pages/AdminDashboard.tsx` — add section, nav, command card, render
+- `src/hooks/useRealtimeRefresh.tsx` — add new table subscriptions
+- `src/components/AdminFileUploader.tsx` — optional AI trigger after upload
+- `src/integrations/supabase/types.ts` — will auto-update after migration
+
+## Safety
+- Manual workflows untouched — autonomous is purely additive
+- Admin toggle controls whether AI runs
+- All AI decisions flow through review queue before final attachment (except high-confidence auto-attach, which is configurable)
+- Admin always has approve/reject/reassign control
 
