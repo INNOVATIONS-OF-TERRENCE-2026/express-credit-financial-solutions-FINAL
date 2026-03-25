@@ -194,6 +194,7 @@ export default function AdminDashboard() {
     return (params.get('section') as Section) || 'overview';
   });
   const [liveCounts, setLiveCounts] = useState({ total: 0, inProgress: 0, needsReview: 0, completed: 0 });
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
 
   const setActiveSection = (s: Section) => {
     setActiveSectionState(s);
