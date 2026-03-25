@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles, Menu } from 'lucide-react';
+import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles, Menu, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { cn } from '@/lib/utils';
@@ -123,6 +123,16 @@ export function NavigationHeader() {
 
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.dispatchEvent(new Event('open-command-palette'))}
+              className="text-muted-foreground hover:text-foreground gap-1.5"
+            >
+              <Search className="h-4 w-4" />
+              <span className="hidden sm:inline text-xs">Search</span>
+              <kbd className="hidden md:inline-flex h-5 items-center rounded border border-border bg-muted px-1.5 text-[10px] text-muted-foreground">⌘K</kbd>
+            </Button>
             {getPlanBadge()}
             {isAdmin && (
               <Shield className="h-4 w-4 text-primary" />
