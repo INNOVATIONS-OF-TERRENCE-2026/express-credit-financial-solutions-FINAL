@@ -19,6 +19,7 @@ interface AutonomousSettings {
   autonomous_enabled: boolean;
   auto_attach_threshold: number;
   review_threshold: number;
+  auto_generate_disputes: boolean;
 }
 
 interface AIResult {
