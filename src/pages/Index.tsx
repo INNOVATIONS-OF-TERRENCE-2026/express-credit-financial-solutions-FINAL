@@ -21,6 +21,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { TrustSignals } from '@/components/TrustSignals';
 import { FAQSection } from '@/components/FAQSection';
 import { EngineerCredit } from '@/components/EngineerCredit';
+import { ThemeSelector } from '@/components/ThemeSelector';
 
 const Index = () => {
   const [isLogin, setIsLogin] = useState(true);
