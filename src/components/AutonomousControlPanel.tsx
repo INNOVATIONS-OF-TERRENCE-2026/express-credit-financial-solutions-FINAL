@@ -65,8 +65,8 @@ export function AutonomousControlPanel() {
       if (settingsRes.data) setSettings(settingsRes.data as unknown as AutonomousSettings);
       const jobsData = ((jobsRes.data || []) as unknown) as Job[];
       setJobs(jobsData);
-      setAiResults((resultsRes.data || []) as AIResult[]);
-      setClients((clientsRes.data || []) as any[]);
+      setAiResults(((resultsRes.data || []) as unknown) as AIResult[]);
+      setClients((clientsRes.data || []) as { id: string; full_name: string }[]);
 
       // Calculate today's stats
       const today = new Date().toISOString().split('T')[0];
