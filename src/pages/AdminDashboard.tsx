@@ -266,6 +266,42 @@ export default function AdminDashboard() {
           {/* Overview */}
           {activeSection === 'overview' && (
             <div className="space-y-6 animate-fade-in">
+              {/* Workflow Command Center */}
+              <Card className="glass-card border-primary/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-primary" />
+                    Workflow Command Center
+                  </CardTitle>
+                  <CardDescription>Live workflow status — click to open</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      { section: 'review-queue' as Section, label: 'Review Queue', icon: ClipboardCheck, color: 'text-orange-500 bg-orange-500/10', desc: 'Pending reviews' },
+                      { section: 'pipeline' as Section, label: 'Case Pipeline', icon: GitBranch, color: 'text-purple-500 bg-purple-500/10', desc: 'Active cases' },
+                      { section: 'ai-analysis' as Section, label: 'AI Analysis', icon: Brain, color: 'text-cyan-500 bg-cyan-500/10', desc: 'Credit insights' },
+                      { section: 'ai-ops' as Section, label: 'AI Ops', icon: Cpu, color: 'text-rose-500 bg-rose-500/10', desc: 'Run operations' },
+                    ].map(item => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.section}
+                          onClick={() => setActiveSection(item.section)}
+                          className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-accent/10 hover:border-primary/30 transition-all text-left"
+                        >
+                          <div className={cn('rounded-lg p-2', item.color)}><Icon className="h-5 w-5" /></div>
+                          <div>
+                            <p className="font-medium text-sm text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground">{item.desc}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
               <BacklogOverview />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[

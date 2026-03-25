@@ -209,8 +209,10 @@ export function AdminClientOverview() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          const clientSlug = client.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                          window.open(`/client/${clientSlug}`, '_blank');
+                          const userId = client.user_id;
+                          if (userId) {
+                            window.open(`/client/${userId}`, '_blank');
+                          }
                         }}
                       >
                         View Portal

@@ -134,8 +134,14 @@ Date: ${new Date().toLocaleDateString()}
     URL.revokeObjectURL(url);
   };
 
+  const handleClose = () => {
+    setFullName('');
+    setSignature('');
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
       <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -227,7 +233,7 @@ Date: ${new Date().toLocaleDateString()}
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
-              <Button variant="outline" type="button" onClick={onClose}>
+              <Button variant="outline" type="button" onClick={handleClose}>
                 Cancel
               </Button>
               <Button 

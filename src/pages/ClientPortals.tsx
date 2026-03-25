@@ -4,20 +4,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { ClientLogin } from '@/components/ClientLogin';
 import { ClientPortal } from '@/components/ClientPortal';
 import { supabase } from '@/integrations/supabase/client';
-
-const CLIENT_NAMES = {
-  melvin: 'Melvin Earl Milliner Jr.',
-  phoebe: 'Phoebe Thomas',
-  jadlyn: 'Jadlyn Nicole Starkey'
-} as const;
+import { useRoles } from '@/hooks/useRoles';
 
 export default function ClientPortals() {
-  const { clientSlug } = useParams<{ clientSlug: keyof typeof CLIENT_NAMES }>();
+  const { clientSlug } = useParams<{ clientSlug: string }>();
   const { user } = useAuth();
+  const { isAdmin } = useRoles();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [clientName, setClientName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const clientName = clientSlug ? CLIENT_NAMES[clientSlug] : null;
 
   useEffect(() => {
     checkAuthentication();
@@ -31,14 +26,41 @@ export default function ClientPortals() {
     }
 
     try {
-      // Check if the authenticated user matches this client
-      const { data: clientData } = await supabase
-        .from('clients')
-        .select('full_name, user_id')
-        .eq('user_id', user.id)
-        .single();
+      // Admin can access any portal
+      if (isAdmin()) {
+        // Look up the client by user_id (slug is now user_id)
+        const { data: clientData } = await supabase
+          .from('clients')
+          .select('full_name')
+          .eq('user_id', clientSlug)
+          .single();
 
-      if (clientData?.full_name === CLIENT_NAMES[clientSlug]) {
+        if (clientData) {
+          setClientName(clientData.full_name);
+          setIsAuthenticated(true);
+        } else {
+          // Fallback: check profiles for email
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('user_id', clientSlug)
+            .single();
+          setClientName(profile?.email || 'Client');
+          setIsAuthenticated(true);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Regular user: only their own portal
+      if (clientSlug === user.id) {
+        const { data: clientData } = await supabase
+          .from('clients')
+          .select('full_name')
+          .eq('user_id', user.id)
+          .single();
+
+        setClientName(clientData?.full_name || user.email || 'Client');
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -51,7 +73,7 @@ export default function ClientPortals() {
     }
   };
 
-  if (!clientSlug || !clientName) {
+  if (!clientSlug) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -72,12 +94,12 @@ export default function ClientPortals() {
 
   if (!isAuthenticated) {
     return (
-      <ClientLogin 
-        clientName={clientName} 
-        onSuccess={() => setIsAuthenticated(true)} 
+      <ClientLogin
+        clientName={clientName || 'Client'}
+        onSuccess={() => setIsAuthenticated(true)}
       />
     );
   }
 
-  return <ClientPortal clientName={clientName} />;
+  return <ClientPortal clientName={clientName || 'Client'} />;
 }
