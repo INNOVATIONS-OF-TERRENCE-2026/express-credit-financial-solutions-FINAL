@@ -624,6 +624,7 @@ export default function AdminDashboard() {
           {activeSection === 'bulk-docs' && <div className="animate-fade-in"><BulkDocumentIntelligence /></div>}
           {activeSection === 'autonomous' && <div className="animate-fade-in"><AutonomousControlPanel /></div>}
           {activeSection === 'dispute-command' && <div className="animate-fade-in"><DisputeCommandCenter /></div>}
+          {activeSection === 'automation' && <div className="animate-fade-in"><AutomationControlCenter /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
