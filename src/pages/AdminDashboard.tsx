@@ -178,6 +178,17 @@ const COMMAND_CARDS = [
       { label: 'Disputes', section: 'disputes' as Section },
     ],
   },
+  {
+    title: 'Automation Control Center',
+    desc: 'Events, Notifications, Predictions, Templates',
+    icon: Zap,
+    accent: 'text-green-500 bg-green-500/10 border-green-500/20',
+    mainSection: 'automation' as Section,
+    subLinks: [
+      { label: 'Automation Center', section: 'automation' as Section },
+      { label: 'Email', section: 'email' as Section },
+    ],
+  },
 ];
 
 export default function AdminDashboard() {
