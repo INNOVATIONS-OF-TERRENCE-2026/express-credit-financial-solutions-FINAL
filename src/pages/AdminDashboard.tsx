@@ -658,6 +658,7 @@ export default function AdminDashboard() {
           {activeSection === 'autonomous' && <div className="animate-fade-in"><AutonomousControlPanel /></div>}
           {activeSection === 'dispute-command' && <div className="animate-fade-in"><DisputeCommandCenter /></div>}
           {activeSection === 'automation' && <div className="animate-fade-in"><AutomationControlCenter /></div>}
+          {activeSection === 'ai-execution' && <div className="animate-fade-in"><CIPExecutionCenter /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
