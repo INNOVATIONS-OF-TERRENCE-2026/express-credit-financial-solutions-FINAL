@@ -1,150 +1,131 @@
 
 
-# Plan: Build Complete Credit CRM Platform — Express Credit Financials
+# Plan: Theme System + Complete Dashboard Redesign
 
 ## Summary
-The current codebase has basic scaffolding (auth, routes, simple admin dashboard, basic edge functions) but is missing major pieces from the specification: the case workflow system, dispute workflow service, AI analysis components, real-time subscriptions, admin AI control panel, and several admin/client components. This plan covers everything needed, excluding Stripe (per user instruction).
+Build a comprehensive theme system (light/dark mode + 32 color themes) and redesign all dashboards with a premium fintech aesthetic. This is broken into 3 major workstreams that touch ~20 files.
 
-## Phase 1: Database Migrations (4 migrations)
+## Workstream 1: Theme Infrastructure
 
-### Migration 1: `fix_critical_rls_policies`
-- Tighten RLS on `dispute_letters`: add proper admin SELECT/UPDATE via `has_role('admin')`
-- Fix `profiles` and any overly permissive policies
-- Ensure `audit_logs` has proper service_role write + admin read
+### New file: `src/contexts/ThemeContext.tsx`
+- ThemeProvider wrapping the app with `next-themes` (already installed) for light/dark mode
+- Custom color theme system using CSS custom properties — 32 named themes stored in a `THEMES` constant array
+- Each theme defines: `--theme-accent`, `--theme-accent-foreground`, `--theme-surface`, `--theme-surface-hover` as HSL values
+- Theme selection persisted via localStorage
+- Exports: `useThemeConfig()` hook returning `{ mode, setMode, colorTheme, setColorTheme, themes }`
 
-### Migration 2: `add_case_workflow_system`
-- Create `case_status` enum: `intake_received`, `documents_missing`, `extracted`, `validation_failed`, `validation_passed`, `draft_generated`, `needs_admin_review`, `approved`, `exported`, `followup_due`
-- ALTER `dispute_letters` ADD: `case_status` (default `intake_received`), `status_updated_at`, `assigned_admin` (uuid), `admin_review_notes`, `auto_send` (boolean)
-- CREATE TABLE `case_workflow_log`: id, dispute_letter_id, from_status, to_status, changed_by, metadata (jsonb), created_at
-- RLS: user sees own via join, admin sees all, service_role manages all
-- CREATE FUNCTION `validate_case_transition(from, to)` — whitelist 13 legal transitions
-- CREATE TRIGGER `trg_case_status_change` — validates transition + logs
+### New file: `src/components/ThemeSelector.tsx`
+- Accessible from NavigationHeader (gear icon) and all pages via a Sheet/Drawer
+- Top section: Light / Dark / System toggle (3 buttons)
+- Bottom section: 32 color theme swatches in a 4x8 grid, each a colored circle with checkmark on active
+- Responsive: full-width drawer on mobile
 
-### Migration 3: `add_ai_workflow_columns`
-- `flagged_disputes` ADD: `extraction_version` (int default 1), `validated_data` (jsonb), `violation_type`, `recommended_dispute_type`
-- `dispute_letters` ADD: `draft_version` (int), `previous_drafts` (jsonb default '[]'), `letter_type`
-- Create indexes on `flagged_disputes` for admin review + user status
+### 32 Color Themes (name + accent color):
+Ocean Blue (#3B82F6), Emerald (#10B981), Sunset Orange (#F97316), Ruby Red (#EF4444), Violet (#8B5CF6), Fuchsia (#D946EF), Rose (#F43F5E), Amber (#F59E0B), Teal (#14B8A6), Indigo (#6366F1), Lime (#84CC16), Cyan (#06B6D4), Sky (#0EA5E9), Pink (#EC4899), Slate (#64748B), Gold (#EAB308), Coral (#FF6B6B), Mint (#00D4AA), Lavender (#A78BFA), Peach (#FDBA74), Electric (#7C3AED), Neon Green (#22C55E), Arctic (#38BDF8), Crimson (#DC2626), Bronze (#CD7F32), Sapphire (#2563EB), Magenta (#E11D48), Honey (#FCD34D), Forest (#166534), Plum (#7E22CE), Steel (#475569), Champagne (#F5E6CC)
 
-### Migration 4: `create_ai_analysis_results`
-- CREATE TABLE `ai_analysis_results`: id (uuid PK), user_id, credit_report_id, analysis_type, flagged_count, fcra_violation_count, overall_utilization (numeric), summary (jsonb), raw_result (jsonb), model_used, created_at
-- RLS: users read own, service_role insert
+### Modify: `src/index.css`
+- Add proper `:root` (light mode) CSS variables alongside existing `.dark` variables
+- Light mode: white/gray backgrounds, dark text, proper contrast
+- Dark mode: keep existing dark fintech palette (slate-900/950 backgrounds, light text)
+- Add `[data-theme="X"]` selectors for each of 32 color themes that override `--primary`, `--accent`, `--ring`, `--border` to the theme accent color
+- Add utility classes: `.glass-card`, `.glass-card-hover`, `.stat-number`, `.section-label`
 
-## Phase 2: Dispute Workflow Service
+### Modify: `src/App.tsx`
+- Wrap with `ThemeProvider` from next-themes (defaultTheme="dark", attribute="class")
+- Wrap with custom `ThemeConfigProvider` from ThemeContext
 
-### New file: `src/services/disputeWorkflow.ts`
-- Types: `CaseStatus` (10 values), `DisputeLetterRow`, `WorkflowLogEntry`, `BacklogCounts`, `AutoDisputeResult`
-- Constants: `CASE_STATUS_LABELS`, `CASE_STATUS_VARIANTS`
-- Functions:
-  - `transitionDisputeStatus(id, newStatus, userId, metadata)`
-  - `adminApproveDispute(id, adminId, notes)`
-  - `adminRejectDispute(id, adminId, notes)`
-  - `getAdminReviewQueue()` — fetches `needs_admin_review` disputes
-  - `getAllDisputesWithEmails()` — joins with profiles
-  - `getWorkflowLog(disputeId)` — fetches log entries
-  - `getBacklogCounts()` — counts per status
-  - `triggerExtraction(reportId)` — invokes `analyze-credit-report`
-  - `triggerLetterGeneration(disputeId, letterType)` — invokes `generate-dispute-letter-secure`
-  - `triggerLetterPreview(disputeId)` — invokes `preview-dispute-letter`
-  - `autoCreateDisputesFromFlags(userId, reportId)` — creates dispute_letters from flagged items
+### Modify: `src/main.tsx`
+- No changes needed (providers added in App.tsx)
 
-## Phase 3: New Admin Components
+## Workstream 2: NavigationHeader Redesign
 
-### `src/components/AdminAIControlPanel.tsx`
-- Double-gated: `useRoles().isAdmin()` + email check
-- 3 tabs: Credit Analysis, Violation Detection, Letter Generation (6 letter types)
-- Fetches credit_report_uploads + profiles + dispute_letters
-- Invokes `analyze-credit-report`, `analyze-credit-violations`, `generate-dispute-letter-secure`
+### Modify: `src/components/NavigationHeader.tsx`
+- Remove ALL inline `style` attributes (text-shadow, drop-shadow)
+- Background: `bg-background/95 backdrop-blur-xl border-b border-border` (adapts to light/dark)
+- Nav links: `text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-accent/10`
+- Active link: `text-foreground bg-accent/10`
+- Mobile: Replace horizontal scroll with Sheet (hamburger menu icon) sliding from left
+- Add ThemeSelector trigger button (Palette icon) next to sign out
+- Remove purple neon glow, blue-yellow gradient, bg-black buttons
+- All colors use semantic tokens (foreground, muted-foreground, accent, etc.) — works in both light and dark
 
-### `src/components/AdminReviewQueue.tsx`
-- Shows `needs_admin_review` disputes using `getAdminReviewQueue()`
-- Approve/reject actions with notes textarea
+## Workstream 3: Dashboard Redesigns
 
-### `src/components/CasePipelineDashboard.tsx`
-- Kanban-style view of all 10 case statuses
-- Cards showing dispute info, counts per column
+### Modify: `src/pages/Index.tsx` (Authenticated Dashboard)
+- **Remove**: DocumentArchive, ChatHistoryPanel, CreditScanSummary, large SBA banner card
+- **Add Hero Stats Row**: 4 cards (Credit Score, Active Disputes, Documents, Membership) using glass-card styling with semantic colors
+- **Add Quick Actions Strip**: Horizontal scrollable row of compact pills (icon + label), `overflow-x-auto`
+- **Add 2-column layout**: Left (Recent Activity from real data — audit_logs/dispute_letters, Dispute Pipeline mini bar), Right (AI Assistant compact, Membership card)
+- Landing page (unauthenticated): Keep video hero — update form cards to use `bg-card border-border` instead of hardcoded fintech colors, so they adapt to theme
+- All hardcoded `text-primary-foreground`, `bg-white/10` replaced with semantic tokens
 
-### `src/components/BacklogOverview.tsx`
-- Summary cards with counts per status, trends
-- Uses `getBacklogCounts()`
+### Modify: `src/pages/AdminDashboard.tsx`
+- Replace 12-tab `TabsList` with sidebar layout:
+  - New `AdminSidebar` component using Sheet on mobile, fixed sidebar on desktop
+  - Sidebar: `w-64 bg-card border-r border-border`, nav items grouped into sections
+  - Active item: `bg-accent/10 text-foreground border-l-2 border-primary`
+  - Content area: `flex-1 p-6`
+- Overview: Keep BacklogOverview + 4 KPI cards but use `glass-card` styling
+- All tabs become sidebar nav items — same content, better layout
+- Remove hardcoded `text-green-600`, `text-blue-600`, `text-purple-600` from System tab — use semantic colors
+- Loading state: Replace spinner with Skeleton components
+- Use `useState` for activeSection instead of Tabs component
 
-### `src/components/AIAnalysisViewer.tsx`
-- Shows flagged items with FCRA violation badges, confidence scores
-- "Create Dispute" button per item with recommended letter type
-- Real-time subscription on `flagged_disputes`
-- Works in both admin and client contexts
+### Modify: `src/components/BacklogOverview.tsx`
+- Restyle cards: `glass-card` with colored icon backgrounds (`bg-primary/10 text-primary` rounded-lg)
+- Add `stat-number` class to count display
+- Animate-fade-in on mount
 
-## Phase 4: Update AdminDashboard
+### Modify: `src/components/CasePipelineDashboard.tsx`
+- Restyle status buttons as connected pipeline segments with accent colors
+- Filter cards below styled with `glass-card`
+- Mobile: vertical stack instead of horizontal overflow
 
-### Modify `src/pages/AdminDashboard.tsx`
-- Add tabs: "Review Queue", "Pipeline", "AI Analysis", "AI Ops"
-- Import and wire new components: `BacklogOverview`, `AdminReviewQueue`, `CasePipelineDashboard`, `AIAnalysisViewer`, `AdminAIControlPanel`
-- Add real-time subscriptions on `dispute_letters` + `profiles`
+### Modify: `src/components/ClientPortal.tsx`
+- Replace `grid-cols-7` TabsList with responsive approach: horizontal scrollable on desktop, Select dropdown on mobile
+- Replace raw `<details>` with Accordion component for dispute letters
+- All `bg-slate-800`, `text-yellow-400` replaced with semantic tokens
+- Add glass-card styling to stat cards
 
-## Phase 5: Update ClientPortal with Real-Time
+### Modify: `src/components/ClientDashboard.tsx`
+- Replace `card-premium`, `card-elegant`, `status-basic` classes with semantic token equivalents
+- Keep SecureVerificationUpload integration
+- Ensure all text readable in both light and dark
 
-### Modify `src/components/ClientPortal.tsx`
-- Add tabs: Credit Reports, AI Analysis, Dispute Letters
-- Wire to `credit_report_uploads`, `dispute_letters`, `flagged_disputes`
-- Add real-time subscriptions on these tables filtered by user_id
-- Integrate `AIAnalysisViewer` in client mode
+### Modify: `src/components/FloatingChat.tsx`
+- Chat bubble: `bg-card/95 backdrop-blur-xl border-border rounded-2xl`
+- Messages: user = `bg-primary/10 border-primary/20`, assistant = `bg-muted`
+- Open button: `bg-primary text-primary-foreground rounded-full w-14 h-14`
+- Remove any hardcoded dark colors
 
-## Phase 6: Fix Edge Function Security
+### Modify: `src/components/DisputeTimelineTracker.tsx`
+- Replace `bg-blue-100 text-blue-800` with `bg-primary/10 text-primary`
+- Keep animate-pulse on urgent deadlines
 
-### Fix `analyze-credit-violations/index.ts`
-- Add JWT authentication
-- Add input validation
+## Key Design Principles
 
-### Fix `generate-dispute-preview/index.ts`
-- Add JWT authentication
-- Add Zod-style input validation with length limits
-- Sanitize prompt inputs
-
-### Fix `preview-dispute-letter/index.ts`
-- Add input validation (length limits on all fields)
-
-### Fix `analyze-credit-report/index.ts`
-- Fix the `insertPromises.map()` bug where insert errors aren't caught per-row
-- Add file ownership validation (path must start with `userId/`)
-
-## Phase 7: Update Edge Functions
-
-### Update `generate-dispute-letter-secure/index.ts`
-- Support 6 letter types: `605B_time_barred`, `611_verification`, `623_furnisher_dispute`, `validation_letter`, `standard_dispute`, `goodwill_letter`
-- Each with specific FCRA/FDCPA citation instructions
-
-## Phase 8: Remaining Components & Wiring
-
-### `src/components/BulkDisputeWizard.tsx` — enhance
-- Multi-step wizard calling `generate-dispute-letter-secure` and `preview-dispute-letter`
-
-### `src/components/DisputeTimelineTracker.tsx` — wire to `case_workflow_log`
-- Show chronological entries from the workflow log table
-
-### Move `FloatingChat` inside `BrowserRouter` in App.tsx
-
-### Add real-time subscriptions pattern throughout:
-- AdminDashboard: `dispute_letters` + `profiles`
-- ClientPortal: `credit_report_uploads` + `dispute_letters` + `flagged_disputes`
-- AIAnalysisViewer: `flagged_disputes`
+- **Every color reference uses CSS custom properties** (via Tailwind semantic tokens like `bg-card`, `text-foreground`, `border-border`, `bg-primary`, etc.)
+- **Light mode**: Clean white/gray surfaces, dark text, colored accents
+- **Dark mode**: Slate-900/950 surfaces, white/gray text, colored accents
+- **Color themes**: Override `--primary` and `--accent` to the chosen theme color — everything else adapts automatically
+- **No inline styles** — all styling via Tailwind classes
+- **Mobile-first**: All tab navs become dropdowns or sheets below md breakpoint
 
 ## Technical Details
-
-- ~15 files created, ~10 files modified
-- 4 database migrations
-- 4 edge functions patched for security
-- 1 new service file (`disputeWorkflow.ts`)
-- 5 new components (AdminAIControlPanel, AdminReviewQueue, CasePipelineDashboard, BacklogOverview, AIAnalysisViewer)
-- No Stripe changes (per user instruction)
-- No new npm dependencies needed
-- All components use shadcn/ui
-- All real-time subscriptions follow the `supabase.channel().on('postgres_changes').subscribe()` pattern with cleanup
+- ~20 files modified/created
+- 2 new files: ThemeContext.tsx, ThemeSelector.tsx
+- No new npm dependencies (next-themes already installed)
+- No changes to auth, data fetching, edge functions, or Supabase queries
+- All existing functionality preserved — only JSX structure and Tailwind classes change
+- Theme persists across sessions via localStorage
 
 ## Implementation Order
-1. Migrations (must be first — schema changes)
-2. disputeWorkflow service (shared logic)
-3. New components (depend on service + schema)
-4. AdminDashboard update (imports new components)
-5. ClientPortal update (real-time + new tabs)
-6. Edge function security fixes
-7. App.tsx fix (FloatingChat inside BrowserRouter)
+1. ThemeContext + ThemeSelector + CSS variables (foundation)
+2. App.tsx provider wrapping
+3. NavigationHeader redesign (visible on every page)
+4. Index.tsx authenticated dashboard redesign
+5. AdminDashboard sidebar layout conversion
+6. ClientPortal + ClientDashboard + BacklogOverview + CasePipelineDashboard restyling
+7. FloatingChat + DisputeTimelineTracker restyling
+8. Index.tsx landing page (unauthenticated) semantic token update
 
