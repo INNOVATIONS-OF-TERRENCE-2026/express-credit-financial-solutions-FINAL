@@ -304,7 +304,7 @@ export function ClientOnboarding() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
                 className="absolute top-4 right-4 z-10 w-10 h-10 p-0 rounded-full bg-transparent border-2 border-gold text-gold hover:bg-gold hover:text-midnight-bg shadow-neon-gold hover:shadow-neon-gold transition-all duration-300 hover:scale-110"
                 aria-label="Exit Sign Agreement Page"
               >
