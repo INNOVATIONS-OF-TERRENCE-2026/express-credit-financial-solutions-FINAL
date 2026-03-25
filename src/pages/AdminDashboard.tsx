@@ -29,6 +29,11 @@ import {
   Eye
 } from 'lucide-react';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
+import { BacklogOverview } from '@/components/BacklogOverview';
+import { AdminReviewQueue } from '@/components/AdminReviewQueue';
+import { CasePipelineDashboard } from '@/components/CasePipelineDashboard';
+import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
+import { AdminAIControlPanel } from '@/components/AdminAIControlPanel';
 
 interface AdminUser {
   id: string;
@@ -272,19 +277,24 @@ export default function AdminDashboard() {
 
       <div className="container mx-auto p-6">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="review-queue">Review Queue</TabsTrigger>
+            <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+            <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
+            <TabsTrigger value="ai-ops">AI Ops</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="membership">Membership</TabsTrigger>
             <TabsTrigger value="disputes">Disputes</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="credit-reports">Credit Reports</TabsTrigger>
-            <TabsTrigger value="email">Email Control</TabsTrigger>
+            <TabsTrigger value="email">Email</TabsTrigger>
             <TabsTrigger value="system">System</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            <BacklogOverview />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -367,6 +377,26 @@ export default function AdminDashboard() {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Review Queue Tab */}
+          <TabsContent value="review-queue" className="space-y-6">
+            <AdminReviewQueue />
+          </TabsContent>
+
+          {/* Pipeline Tab */}
+          <TabsContent value="pipeline" className="space-y-6">
+            <CasePipelineDashboard />
+          </TabsContent>
+
+          {/* AI Analysis Tab */}
+          <TabsContent value="ai-analysis" className="space-y-6">
+            <AIAnalysisViewer isAdmin />
+          </TabsContent>
+
+          {/* AI Ops Tab */}
+          <TabsContent value="ai-ops" className="space-y-6">
+            <AdminAIControlPanel />
           </TabsContent>
 
           {/* Users Tab */}

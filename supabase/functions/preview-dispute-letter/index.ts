@@ -43,6 +43,19 @@ serve(async (req) => {
     if (!user) throw new Error("User not authenticated");
 
     const { creditorName, accountNumber, issueType, additionalNotes } = await req.json();
+
+    // Input validation
+    if (!creditorName || typeof creditorName !== 'string' || creditorName.length > 200) {
+      throw new Error('Invalid creditorName (max 200 chars)');
+    }
+    if (accountNumber && (typeof accountNumber !== 'string' || accountNumber.length > 50)) {
+      throw new Error('Invalid accountNumber (max 50 chars)');
+    }
+    if (issueType && (typeof issueType !== 'string' || issueType.length > 200)) {
+      throw new Error('Invalid issueType (max 200 chars)');
+    }
+    const notes = (additionalNotes && typeof additionalNotes === 'string') ? additionalNotes.substring(0, 2000) : '';
+
     logStep("Request data received", { creditorName, accountNumber, issueType });
 
     // Create AI prompt for dispute letter preview

@@ -1,10 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -37,6 +37,11 @@ serve(async (req) => {
     const { creditReportPath, fileName, reportId } = await req.json();
     console.log('Analyzing credit report:', fileName, 'for user:', user.id);
 
+    // Validate file ownership - path must start with userId
+    if (creditReportPath && !creditReportPath.startsWith(`${user.id}/`)) {
+      throw new Error('Unauthorized file access');
+    }
+
     // Download the PDF from Supabase Storage
     const { data: fileData, error: downloadError } = await supabase.storage
       .from('credit-reports')
@@ -51,49 +56,34 @@ serve(async (req) => {
     const arrayBuffer = await fileData.arrayBuffer();
     const base64Data = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-    // Analyze the credit report with OpenAI
     const analysisPrompt = `
-You are a credit repair expert analyzing a credit report PDF. Identify accounts that should be disputed based on the following criteria:
+You are a credit repair expert analyzing a credit report PDF. Identify accounts that should be disputed based on:
 
-1. COLLECTIONS ACCOUNTS: Any accounts in collections status
-2. CHARGE-OFFS: Any accounts marked as charged off
-3. LATE PAYMENTS: Accounts with 30, 60, 90+ day late payments in the last 2 years
-4. DUPLICATE ACCOUNTS: The same debt reported by multiple creditors or collection agencies
-5. INACCURATE INFORMATION: Accounts with wrong balances, dates, or personal information
-6. EXPIRED DEBTS: Accounts past the statute of limitations (7+ years old)
+1. COLLECTIONS ACCOUNTS
+2. CHARGE-OFFS
+3. LATE PAYMENTS (30, 60, 90+ days in last 2 years)
+4. DUPLICATE ACCOUNTS
+5. INACCURATE INFORMATION
+6. EXPIRED DEBTS (7+ years old)
+7. FCRA VIOLATIONS: Section 605(b) time-barred items, Section 611 verification failures, Section 623 furnisher inaccuracies, re-aging, mixed files
 
 For each flagged account, provide:
-- Creditor name
-- Account number (if visible)
-- Account type (credit card, loan, etc.)
-- Current balance
-- Account status
-- Reason for flagging
-- Confidence level (0.0-1.0)
+- creditorName, accountNumber, accountType, balance, status
+- flagReason, confidence (0.0-1.0)
+- violationType (one of: 605b, 611, 623, re_aging, mixed_file, or null)
+- recommendedDisputeType (one of: 605B_time_barred, 611_verification, 623_furnisher_dispute, validation_letter, standard_dispute, goodwill_letter)
+- additionalDetails: { originalCreditor, collectionAgency, reportedBalance, dateOpened, lastActivity }
 
-Return the results as a JSON array with this structure:
+Also provide:
+- overallUtilization (credit utilization percentage)
+- fcraViolationCount (total FCRA violations found)
+
+Return as JSON:
 {
-  "flaggedAccounts": [
-    {
-      "creditorName": "Example Bank",
-      "accountNumber": "****1234",
-      "accountType": "Credit Card",
-      "balance": 2500.00,
-      "status": "Collection",
-      "flagReason": "Account in collections - verify debt validity and collection procedures",
-      "confidence": 0.95,
-      "additionalDetails": {
-        "originalCreditor": "Example Bank",
-        "collectionAgency": "ABC Collections",
-        "reportedBalance": 2500.00,
-        "dateOpened": "2020-01-15",
-        "lastActivity": "2023-06-10"
-      }
-    }
-  ]
-}
-
-Analyze the attached credit report PDF and identify all disputable items.`;
+  "flaggedAccounts": [...],
+  "overallUtilization": number,
+  "fcraViolationCount": number
+}`;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -104,23 +94,12 @@ Analyze the attached credit report PDF and identify all disputable items.`;
       body: JSON.stringify({
         model: 'gpt-4.1-2025-04-14',
         messages: [
-          {
-            role: 'system',
-            content: 'You are a credit repair expert that analyzes credit reports to identify disputable items. Always respond with valid JSON only.'
-          },
+          { role: 'system', content: 'You are a credit repair expert that analyzes credit reports to identify disputable items and FCRA violations. Always respond with valid JSON only.' },
           {
             role: 'user',
             content: [
-              {
-                type: 'text',
-                text: analysisPrompt
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:application/pdf;base64,${base64Data}`
-                }
-              }
+              { type: 'text', text: analysisPrompt },
+              { type: 'image_url', image_url: { url: `data:application/pdf;base64,${base64Data}` } }
             ]
           }
         ],
@@ -137,15 +116,11 @@ Analyze the attached credit report PDF and identify all disputable items.`;
 
     const openaiResult = await openaiResponse.json();
     const analysisContent = openaiResult.choices[0].message.content;
-    
-    console.log('OpenAI analysis result:', analysisContent);
 
     let analysisData;
     try {
       analysisData = JSON.parse(analysisContent);
-    } catch (parseError) {
-      console.error('Failed to parse OpenAI response as JSON:', parseError);
-      // Try to extract JSON from the response if it's wrapped in markdown
+    } catch {
       const jsonMatch = analysisContent.match(/```json\n([\s\S]*?)\n```/);
       if (jsonMatch) {
         analysisData = JSON.parse(jsonMatch[1]);
@@ -154,9 +129,11 @@ Analyze the attached credit report PDF and identify all disputable items.`;
       }
     }
 
-    // Store flagged disputes in the database
+    // Store flagged disputes - fixed: proper per-row error handling
     const flaggedAccounts = analysisData.flaggedAccounts || [];
-    const insertPromises = flaggedAccounts.map(async (account: any) => {
+    const insertErrors: string[] = [];
+
+    for (const account of flaggedAccounts) {
       const { error: insertError } = await supabase
         .from('flagged_disputes')
         .insert({
@@ -166,27 +143,27 @@ Analyze the attached credit report PDF and identify all disputable items.`;
           account_number: account.accountNumber,
           account_type: account.accountType,
           balance: account.balance,
-          status: account.status,
+          status: account.status || 'flagged',
           flag_reason: account.flagReason,
           flag_confidence: account.confidence,
+          violation_type: account.violationType || null,
+          recommended_dispute_type: account.recommendedDisputeType || 'standard_dispute',
           additional_details: account.additionalDetails || {}
         });
 
       if (insertError) {
         console.error('Error inserting flagged dispute:', insertError);
-        throw insertError;
+        insertErrors.push(`${account.creditorName}: ${insertError.message}`);
       }
-    });
+    }
 
-    await Promise.all(insertPromises);
-
-    // Update the credit report upload record with analysis results
+    // Update credit report upload record
     const { error: updateError } = await supabase
       .from('credit_report_uploads')
       .update({
         analysis_status: 'completed',
         flagged_accounts_count: flaggedAccounts.length,
-        ai_analysis_summary: `Found ${flaggedAccounts.length} potential dispute opportunities`
+        ai_analysis_summary: `Found ${flaggedAccounts.length} potential dispute opportunities (${analysisData.fcraViolationCount || 0} FCRA violations)`
       })
       .eq('id', reportId);
 
@@ -194,16 +171,26 @@ Analyze the attached credit report PDF and identify all disputable items.`;
       console.error('Error updating upload record:', updateError);
     }
 
-    // Log the analysis completion
+    // Insert AI analysis results
+    await supabase.from('ai_analysis_results').insert({
+      user_id: user.id,
+      credit_report_id: reportId,
+      analysis_type: 'full',
+      flagged_count: flaggedAccounts.length,
+      fcra_violation_count: analysisData.fcraViolationCount || 0,
+      overall_utilization: analysisData.overallUtilization || null,
+      summary: { flaggedAccounts: flaggedAccounts.length, fcraViolations: analysisData.fcraViolationCount || 0 },
+      raw_result: analysisData,
+      model_used: 'gpt-4.1-2025-04-14',
+    });
+
+    // Log audit
     await supabase.from('audit_logs').insert({
       user_id: user.id,
       action: 'CREDIT_REPORT_ANALYZED',
       table_name: 'documents',
       record_id: reportId,
-      details: {
-        fileName: fileName,
-        flaggedAccountsCount: flaggedAccounts.length
-      },
+      details: { fileName, flaggedAccountsCount: flaggedAccounts.length, insertErrors: insertErrors.length },
       security_level: 'info'
     });
 
@@ -221,14 +208,8 @@ Analyze the attached credit report PDF and identify all disputable items.`;
   } catch (error) {
     console.error('Error in analyze-credit-report function:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        success: false
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      JSON.stringify({ error: 'Failed to analyze credit report', success: false }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

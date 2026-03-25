@@ -116,6 +116,56 @@ export type Database = {
           },
         ]
       }
+      ai_analysis_results: {
+        Row: {
+          analysis_type: string
+          created_at: string
+          credit_report_id: string | null
+          fcra_violation_count: number | null
+          flagged_count: number | null
+          id: string
+          model_used: string | null
+          overall_utilization: number | null
+          raw_result: Json | null
+          summary: Json | null
+          user_id: string
+        }
+        Insert: {
+          analysis_type?: string
+          created_at?: string
+          credit_report_id?: string | null
+          fcra_violation_count?: number | null
+          flagged_count?: number | null
+          id?: string
+          model_used?: string | null
+          overall_utilization?: number | null
+          raw_result?: Json | null
+          summary?: Json | null
+          user_id: string
+        }
+        Update: {
+          analysis_type?: string
+          created_at?: string
+          credit_report_id?: string | null
+          fcra_violation_count?: number | null
+          flagged_count?: number | null
+          id?: string
+          model_used?: string | null
+          overall_utilization?: number | null
+          raw_result?: Json | null
+          summary?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_analysis_results_credit_report_id_fkey"
+            columns: ["credit_report_id"]
+            isOneToOne: false
+            referencedRelation: "credit_report_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_letter_previews: {
         Row: {
           client_id: string | null
@@ -269,6 +319,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      case_workflow_log: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          dispute_letter_id: string | null
+          from_status: string | null
+          id: string
+          metadata: Json | null
+          to_status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          dispute_letter_id?: string | null
+          from_status?: string | null
+          id?: string
+          metadata?: Json | null
+          to_status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          dispute_letter_id?: string | null
+          from_status?: string | null
+          id?: string
+          metadata?: Json | null
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_workflow_log_dispute_letter_id_fkey"
+            columns: ["dispute_letter_id"]
+            isOneToOne: false
+            referencedRelation: "dispute_letters"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cashapp_orders: {
         Row: {
@@ -1010,21 +1098,29 @@ export type Database = {
           account_name: string | null
           account_number: string | null
           additional_notes: string | null
+          admin_review_notes: string | null
+          assigned_admin: string | null
           authorized_user: string | null
+          auto_send: boolean | null
           bureau: string | null
+          case_status: string | null
           client_id: string | null
           client_name: string | null
           created_at: string | null
           creditor_name: string | null
           date_created: string | null
           dispute_reason: string
+          draft_version: number | null
           full_name: string | null
           generated_letter: string
           id: string
           issue_type: string | null
           letter_body: string | null
           letter_title: string
+          letter_type: string | null
+          previous_drafts: Json | null
           signature_url: string | null
+          status_updated_at: string | null
           uploaded_file_url: string | null
           user_id: string | null
           violation_notes: string | null
@@ -1033,21 +1129,29 @@ export type Database = {
           account_name?: string | null
           account_number?: string | null
           additional_notes?: string | null
+          admin_review_notes?: string | null
+          assigned_admin?: string | null
           authorized_user?: string | null
+          auto_send?: boolean | null
           bureau?: string | null
+          case_status?: string | null
           client_id?: string | null
           client_name?: string | null
           created_at?: string | null
           creditor_name?: string | null
           date_created?: string | null
           dispute_reason: string
+          draft_version?: number | null
           full_name?: string | null
           generated_letter: string
           id?: string
           issue_type?: string | null
           letter_body?: string | null
           letter_title: string
+          letter_type?: string | null
+          previous_drafts?: Json | null
           signature_url?: string | null
+          status_updated_at?: string | null
           uploaded_file_url?: string | null
           user_id?: string | null
           violation_notes?: string | null
@@ -1056,21 +1160,29 @@ export type Database = {
           account_name?: string | null
           account_number?: string | null
           additional_notes?: string | null
+          admin_review_notes?: string | null
+          assigned_admin?: string | null
           authorized_user?: string | null
+          auto_send?: boolean | null
           bureau?: string | null
+          case_status?: string | null
           client_id?: string | null
           client_name?: string | null
           created_at?: string | null
           creditor_name?: string | null
           date_created?: string | null
           dispute_reason?: string
+          draft_version?: number | null
           full_name?: string | null
           generated_letter?: string
           id?: string
           issue_type?: string | null
           letter_body?: string | null
           letter_title?: string
+          letter_type?: string | null
+          previous_drafts?: Json | null
           signature_url?: string | null
+          status_updated_at?: string | null
           uploaded_file_url?: string | null
           user_id?: string | null
           violation_notes?: string | null
@@ -1372,14 +1484,18 @@ export type Database = {
           credit_report_id: string | null
           creditor_name: string
           dispute_letter_generated: boolean | null
+          extraction_version: number | null
           flag_confidence: number | null
           flag_reason: string
           id: string
+          recommended_dispute_type: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
           updated_at: string
           user_id: string
+          validated_data: Json | null
+          violation_type: string | null
         }
         Insert: {
           account_number?: string | null
@@ -1393,14 +1509,18 @@ export type Database = {
           credit_report_id?: string | null
           creditor_name: string
           dispute_letter_generated?: boolean | null
+          extraction_version?: number | null
           flag_confidence?: number | null
           flag_reason: string
           id?: string
+          recommended_dispute_type?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status: string
           updated_at?: string
           user_id: string
+          validated_data?: Json | null
+          violation_type?: string | null
         }
         Update: {
           account_number?: string | null
@@ -1414,14 +1534,18 @@ export type Database = {
           credit_report_id?: string | null
           creditor_name?: string
           dispute_letter_generated?: boolean | null
+          extraction_version?: number | null
           flag_confidence?: number | null
           flag_reason?: string
           id?: string
+          recommended_dispute_type?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
           updated_at?: string
           user_id?: string
+          validated_data?: Json | null
+          violation_type?: string | null
         }
         Relationships: []
       }
@@ -2119,9 +2243,24 @@ export type Database = {
         }
         Returns: undefined
       }
+      validate_case_transition: {
+        Args: { from_status: string; to_status: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      case_status:
+        | "intake_received"
+        | "documents_missing"
+        | "extracted"
+        | "validation_failed"
+        | "validation_passed"
+        | "draft_generated"
+        | "needs_admin_review"
+        | "approved"
+        | "exported"
+        | "followup_due"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2250,6 +2389,18 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      case_status: [
+        "intake_received",
+        "documents_missing",
+        "extracted",
+        "validation_failed",
+        "validation_passed",
+        "draft_generated",
+        "needs_admin_review",
+        "approved",
+        "exported",
+        "followup_due",
+      ],
     },
   },
 } as const
