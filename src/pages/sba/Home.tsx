@@ -14,6 +14,7 @@ import {
   Home as HomeIcon,
   ArrowLeft
 } from 'lucide-react';
+import { ThemeSelector } from '@/components/ThemeSelector';
 
 const PROGRAMS = [
   {
