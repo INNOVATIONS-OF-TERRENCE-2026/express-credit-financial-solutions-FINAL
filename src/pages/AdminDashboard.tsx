@@ -277,14 +277,18 @@ export default function AdminDashboard() {
 
       <div className="container mx-auto p-6">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-6 lg:grid-cols-12">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="review-queue">Review Queue</TabsTrigger>
+            <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+            <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
+            <TabsTrigger value="ai-ops">AI Ops</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="membership">Membership</TabsTrigger>
             <TabsTrigger value="disputes">Disputes</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="credit-reports">Credit Reports</TabsTrigger>
-            <TabsTrigger value="email">Email Control</TabsTrigger>
+            <TabsTrigger value="email">Email</TabsTrigger>
             <TabsTrigger value="system">System</TabsTrigger>
           </TabsList>
 
