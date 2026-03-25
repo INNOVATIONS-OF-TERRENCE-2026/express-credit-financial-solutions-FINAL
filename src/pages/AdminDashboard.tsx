@@ -338,10 +338,11 @@ export default function AdminDashboard() {
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {[
+                      { section: 'backlog' as Section, label: 'Backlog Tools', icon: Zap, desc: 'Process client files fast', color: 'text-red-500 bg-red-500/10' },
+                      { section: 'ai-ops' as Section, label: 'AI Ops Panel', icon: Cpu, desc: 'Run AI operations', color: 'text-rose-500 bg-rose-500/10' },
                       { section: 'review-queue' as Section, label: 'Review Queue', icon: ClipboardCheck, desc: 'Approve or reject disputes', color: 'text-orange-500 bg-orange-500/10' },
                       { section: 'pipeline' as Section, label: 'Case Pipeline', icon: GitBranch, desc: 'Track all case stages', color: 'text-purple-500 bg-purple-500/10' },
                       { section: 'ai-analysis' as Section, label: 'AI Analysis', icon: Brain, desc: 'View AI credit insights', color: 'text-cyan-500 bg-cyan-500/10' },
-                      { section: 'ai-ops' as Section, label: 'AI Ops Panel', icon: Cpu, desc: 'Run AI operations', color: 'text-rose-500 bg-rose-500/10' },
                       { section: 'disputes' as Section, label: 'All Disputes', icon: FileText, desc: 'Manage dispute letters', color: 'text-indigo-500 bg-indigo-500/10' },
                       { section: 'credit-reports' as Section, label: 'Credit Reports', icon: FileSearch, desc: 'Manage uploaded reports', color: 'text-emerald-500 bg-emerald-500/10' },
                       { section: 'users' as Section, label: 'Client Manager', icon: Users, desc: 'View & manage clients', color: 'text-blue-500 bg-blue-500/10' },
