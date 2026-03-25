@@ -46,8 +46,6 @@ import AdminClients from "./pages/AdminClients";
 import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
 import CreditScoreTracker from "./pages/CreditScoreTracker";
-import CashAppCheckout from "./pages/CashAppCheckout";
-import AdminCashApp from "./pages/AdminCashApp";
 
 const queryClient = new QueryClient();
 
