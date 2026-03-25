@@ -379,6 +379,26 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
 
+          {/* Review Queue Tab */}
+          <TabsContent value="review-queue" className="space-y-6">
+            <AdminReviewQueue />
+          </TabsContent>
+
+          {/* Pipeline Tab */}
+          <TabsContent value="pipeline" className="space-y-6">
+            <CasePipelineDashboard />
+          </TabsContent>
+
+          {/* AI Analysis Tab */}
+          <TabsContent value="ai-analysis" className="space-y-6">
+            <AIAnalysisViewer isAdmin />
+          </TabsContent>
+
+          {/* AI Ops Tab */}
+          <TabsContent value="ai-ops" className="space-y-6">
+            <AdminAIControlPanel />
+          </TabsContent>
+
           {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
             <div className="flex items-center space-x-4">

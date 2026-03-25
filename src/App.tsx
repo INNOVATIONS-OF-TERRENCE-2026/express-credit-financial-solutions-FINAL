@@ -59,9 +59,9 @@ const App = () => (
               <TooltipProvider>
                 <Toaster />
                 <Sonner />
-                <FloatingChat />
               <BrowserRouter>
                 <ScrollToTop />
+                <FloatingChat />
               <Routes>
                 {/* SBA Routes */}
                 <Route path="/sba" element={<SBAHome />} />
