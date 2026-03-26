@@ -823,24 +823,11 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Documents */}
+          {/* Documents — real document management */}
           {activeSection === 'documents' && (
             <div className="space-y-6 animate-fade-in">
-              <Card className="glass-card">
-                <CardHeader><CardTitle>Document Automation Center</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Upload PDF Templates</h3>
-                    <p className="text-muted-foreground mb-4">Upload dispute letter templates for automatic generation</p>
-                    <Button><Upload className="h-4 w-4 mr-2" />Choose Files</Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="glass-card"><CardHeader><CardTitle className="text-lg">Template Library</CardTitle></CardHeader><CardContent><div className="space-y-2"><div className="flex items-center justify-between p-2 border border-border rounded-lg"><span className="text-sm">Standard Dispute Letter</span><Badge>Active</Badge></div><div className="flex items-center justify-between p-2 border border-border rounded-lg"><span className="text-sm">Debt Validation Letter</span><Badge>Active</Badge></div><div className="flex items-center justify-between p-2 border border-border rounded-lg"><span className="text-sm">Cease & Desist Letter</span><Badge variant="secondary">Draft</Badge></div></div></CardContent></Card>
-                    <Card className="glass-card"><CardHeader><CardTitle className="text-lg">Quick Generate</CardTitle></CardHeader><CardContent className="space-y-4"><div><Label>Select User</Label><Input placeholder="user@example.com" /></div><div><Label>Template</Label><Input placeholder="Standard Dispute Letter" /></div><Button className="w-full">Generate Letter</Button></CardContent></Card>
-                  </div>
-                </CardContent>
-              </Card>
+              <BulkDocumentIntelligence />
+              <AdminDocumentList />
             </div>
           )}
 
