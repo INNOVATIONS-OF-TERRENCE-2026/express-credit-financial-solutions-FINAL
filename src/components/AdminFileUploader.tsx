@@ -61,7 +61,8 @@ export function AdminFileUploader({ clientId, onUploadComplete }: AdminFileUploa
     const fileExt = selectedFile.name.split('.').pop();
     const sanitizedName = sanitizeFileName(selectedFile.name);
     const fileName = `${Date.now()}-${sanitizedName}`;
-    const filePath = `admin-docs/${clientId}/${fileName}`;
+    const categoryFolder = category.replace(/[^a-zA-Z0-9]/g, '_');
+    const filePath = `${clientId}/${categoryFolder}/${fileName}`;
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
