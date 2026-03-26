@@ -1,0 +1,1 @@
+ALTER TABLE public.bulk_upload_files ALTER COLUMN batch_id DROP NOT NULL;

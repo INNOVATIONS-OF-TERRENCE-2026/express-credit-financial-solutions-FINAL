@@ -642,7 +642,7 @@ export type Database = {
       bulk_upload_files: {
         Row: {
           ai_reason: string | null
-          batch_id: string
+          batch_id: string | null
           confidence_score: number | null
           created_at: string
           detected_document_type: string | null
@@ -656,7 +656,7 @@ export type Database = {
         }
         Insert: {
           ai_reason?: string | null
-          batch_id: string
+          batch_id?: string | null
           confidence_score?: number | null
           created_at?: string
           detected_document_type?: string | null
@@ -670,7 +670,7 @@ export type Database = {
         }
         Update: {
           ai_reason?: string | null
-          batch_id?: string
+          batch_id?: string | null
           confidence_score?: number | null
           created_at?: string
           detected_document_type?: string | null
