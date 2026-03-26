@@ -36,6 +36,7 @@ import { AutonomousControlPanel } from '@/components/AutonomousControlPanel';
 import { DisputeCommandCenter } from '@/components/DisputeCommandCenter';
 import { AdminClientEditor } from '@/components/AdminClientEditor';
 import { CIPExecutionCenter } from '@/components/CIPExecutionCenter';
+import { AdminDocumentList } from '@/components/AdminDocumentList';
 
 interface AdminUser {
   id: string;
