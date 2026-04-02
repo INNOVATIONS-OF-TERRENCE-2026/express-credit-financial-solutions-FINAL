@@ -76,6 +76,8 @@ type Section = 'overview' | 'war-board' | 'client-profile' | 'unlinked-accounts'
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   // ⚡ PRIORITY TOOLS — top of sidebar for instant access
+  { section: 'war-board', label: '⚔️ War Board', icon: Users, group: 'PRIORITY' },
+  { section: 'credit-upload', label: 'Upload Report', icon: Upload, group: 'PRIORITY' },
   { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'PRIORITY' },
   { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'PRIORITY' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'PRIORITY' },
