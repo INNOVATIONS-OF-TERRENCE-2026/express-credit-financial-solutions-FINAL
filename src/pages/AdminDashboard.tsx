@@ -100,6 +100,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'ai-execution', label: 'AI Execution Center', icon: Cpu, group: 'WORKFLOW' },
   { section: 'ai-ops', label: 'AI Ops', icon: Cpu, group: 'OPERATIONS' },
   { section: 'users', label: 'Clients', icon: Users, group: 'MANAGEMENT' },
+  { section: 'unlinked-accounts', label: 'Unlinked Accounts', icon: AlertTriangle, group: 'MANAGEMENT' },
   { section: 'membership', label: 'Membership', icon: Crown, group: 'MANAGEMENT' },
   { section: 'disputes', label: 'Disputes', icon: FileText, group: 'MANAGEMENT' },
   { section: 'documents', label: 'Documents', icon: Upload, group: 'MANAGEMENT' },
