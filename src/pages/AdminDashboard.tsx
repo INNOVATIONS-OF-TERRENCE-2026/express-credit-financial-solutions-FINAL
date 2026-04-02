@@ -112,6 +112,18 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
 // Command Center card definitions
 const COMMAND_CARDS = [
   {
+    title: '⚔️ War Board Command Center',
+    desc: 'Full client pipeline, statuses, action tracking',
+    icon: Users,
+    accent: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    mainSection: 'war-board' as Section,
+    subLinks: [
+      { label: 'War Board', section: 'war-board' as Section },
+      { label: 'Upload Report', section: 'credit-upload' as Section },
+      { label: 'Unlinked Accounts', section: 'unlinked-accounts' as Section },
+    ],
+  },
+  {
     title: 'Backlog Processing Center',
     desc: 'Client Processing Grid, Review Queue, Pipeline',
     icon: Zap,
