@@ -37,6 +37,10 @@ import { DisputeCommandCenter } from '@/components/DisputeCommandCenter';
 import { AdminClientEditor } from '@/components/AdminClientEditor';
 import { CIPExecutionCenter } from '@/components/CIPExecutionCenter';
 import { AdminDocumentList } from '@/components/AdminDocumentList';
+import { AdminWarBoard } from '@/components/AdminWarBoard';
+import { ClientProfileDetail } from '@/components/ClientProfileDetail';
+import { UnlinkedAuthAccounts } from '@/components/UnlinkedAuthAccounts';
+import { AdminCreditReportUploader } from '@/components/AdminCreditReportUploader';
 
 interface AdminUser {
   id: string;
@@ -68,10 +72,12 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'automation' | 'ai-execution' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+type Section = 'overview' | 'war-board' | 'client-profile' | 'unlinked-accounts' | 'credit-upload' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'automation' | 'ai-execution' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   // ⚡ PRIORITY TOOLS — top of sidebar for instant access
+  { section: 'war-board', label: '⚔️ War Board', icon: Users, group: 'PRIORITY' },
+  { section: 'credit-upload', label: 'Upload Report', icon: Upload, group: 'PRIORITY' },
   { section: 'review-queue', label: 'Review Queue', icon: ClipboardCheck, group: 'PRIORITY' },
   { section: 'processing', label: 'Processing Grid', icon: Activity, group: 'PRIORITY' },
   { section: 'pipeline', label: 'Pipeline', icon: GitBranch, group: 'PRIORITY' },
@@ -94,6 +100,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'ai-execution', label: 'AI Execution Center', icon: Cpu, group: 'WORKFLOW' },
   { section: 'ai-ops', label: 'AI Ops', icon: Cpu, group: 'OPERATIONS' },
   { section: 'users', label: 'Clients', icon: Users, group: 'MANAGEMENT' },
+  { section: 'unlinked-accounts', label: 'Unlinked Accounts', icon: AlertTriangle, group: 'MANAGEMENT' },
   { section: 'membership', label: 'Membership', icon: Crown, group: 'MANAGEMENT' },
   { section: 'disputes', label: 'Disputes', icon: FileText, group: 'MANAGEMENT' },
   { section: 'documents', label: 'Documents', icon: Upload, group: 'MANAGEMENT' },
@@ -104,6 +111,18 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
 
 // Command Center card definitions
 const COMMAND_CARDS = [
+  {
+    title: '⚔️ War Board Command Center',
+    desc: 'Full client pipeline, statuses, action tracking',
+    icon: Users,
+    accent: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    mainSection: 'war-board' as Section,
+    subLinks: [
+      { label: 'War Board', section: 'war-board' as Section },
+      { label: 'Upload Report', section: 'credit-upload' as Section },
+      { label: 'Unlinked Accounts', section: 'unlinked-accounts' as Section },
+    ],
+  },
   {
     title: 'Backlog Processing Center',
     desc: 'Client Processing Grid, Review Queue, Pipeline',
@@ -225,6 +244,7 @@ export default function AdminDashboard() {
   });
   const [liveCounts, setLiveCounts] = useState({ total: 0, inProgress: 0, needsReview: 0, completed: 0 });
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
+  const [viewingClientId, setViewingClientId] = useState<string | null>(null);
 
   const setActiveSection = (s: Section) => {
     setActiveSectionState(s);
@@ -467,6 +487,15 @@ export default function AdminDashboard() {
           <Button
             size="sm"
             variant="outline"
+            className="shrink-0 border-amber-500/30 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold"
+            onClick={() => setActiveSection('war-board')}
+          >
+            <Users className="h-4 w-4 mr-1.5" />
+            War Board
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
             className="shrink-0 border-primary/30 hover:bg-primary/10"
             onClick={() => setActiveSection('bulk-docs')}
           >
@@ -660,6 +689,26 @@ export default function AdminDashboard() {
           {activeSection === 'dispute-command' && <div className="animate-fade-in"><DisputeCommandCenter /></div>}
           {activeSection === 'automation' && <div className="animate-fade-in"><AutomationControlCenter /></div>}
           {activeSection === 'ai-execution' && <div className="animate-fade-in"><CIPExecutionCenter /></div>}
+
+          {/* War Board */}
+          {activeSection === 'war-board' && (
+            <div className="animate-fade-in">
+              <AdminWarBoard onOpenClient={(id) => { setViewingClientId(id); setActiveSectionState('client-profile'); }} />
+            </div>
+          )}
+
+          {/* Client Profile Detail */}
+          {activeSection === 'client-profile' && viewingClientId && (
+            <div className="animate-fade-in">
+              <ClientProfileDetail clientId={viewingClientId} onBack={() => { setViewingClientId(null); setActiveSection('war-board'); }} />
+            </div>
+          )}
+
+          {/* Unlinked Auth Accounts */}
+          {activeSection === 'unlinked-accounts' && <div className="animate-fade-in"><UnlinkedAuthAccounts /></div>}
+
+          {/* Credit Report Upload */}
+          {activeSection === 'credit-upload' && <div className="animate-fade-in"><AdminCreditReportUploader /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (

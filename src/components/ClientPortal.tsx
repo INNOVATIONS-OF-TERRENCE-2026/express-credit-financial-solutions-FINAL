@@ -181,10 +181,13 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
               <BackButton />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Welcome, {clientData.full_name}!</h1>
-                <p className="text-primary font-medium text-sm">
-                  {clientData.membership_plan} Plan
-                  {hasSignedAgreement && <span className="ml-2 text-green-500">✓ Agreement Signed</span>}
-                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary font-medium text-sm">{clientData.membership_plan} Plan</span>
+                  {clientData.membership_plan === 'active' && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/20 text-green-500 border border-green-500/30">ACTIVE</span>
+                  )}
+                  {hasSignedAgreement && <span className="text-green-500 text-sm">✓ Agreement Signed</span>}
+                </div>
               </div>
             </div>
             <Button variant="outline" onClick={handleSignOut} size="sm"><LogOut className="w-4 h-4 mr-2" />Sign Out</Button>

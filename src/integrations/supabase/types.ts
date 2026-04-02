@@ -806,6 +806,65 @@ export type Database = {
         }
         Relationships: []
       }
+      client_action_tracker: {
+        Row: {
+          client_id: string
+          completed: boolean | null
+          credit_report_uploaded: boolean | null
+          has_605b: boolean | null
+          has_ftc: boolean | null
+          id: string
+          identity_docs_received: boolean | null
+          innovis_frozen: boolean | null
+          lexisnexis_frozen: boolean | null
+          pushed_to_experian: boolean | null
+          report_parsed: boolean | null
+          scores_updated: boolean | null
+          updated_at: string | null
+          work_number_frozen: boolean | null
+        }
+        Insert: {
+          client_id: string
+          completed?: boolean | null
+          credit_report_uploaded?: boolean | null
+          has_605b?: boolean | null
+          has_ftc?: boolean | null
+          id?: string
+          identity_docs_received?: boolean | null
+          innovis_frozen?: boolean | null
+          lexisnexis_frozen?: boolean | null
+          pushed_to_experian?: boolean | null
+          report_parsed?: boolean | null
+          scores_updated?: boolean | null
+          updated_at?: string | null
+          work_number_frozen?: boolean | null
+        }
+        Update: {
+          client_id?: string
+          completed?: boolean | null
+          credit_report_uploaded?: boolean | null
+          has_605b?: boolean | null
+          has_ftc?: boolean | null
+          id?: string
+          identity_docs_received?: boolean | null
+          innovis_frozen?: boolean | null
+          lexisnexis_frozen?: boolean | null
+          pushed_to_experian?: boolean | null
+          report_parsed?: boolean | null
+          scores_updated?: boolean | null
+          updated_at?: string | null
+          work_number_frozen?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_action_tracker_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_activity_timeline: {
         Row: {
           activity_type: string
@@ -1064,6 +1123,41 @@ export type Database = {
           },
         ]
       }
+      client_notes: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          note_body: string
+          note_type: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note_body: string
+          note_type?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note_body?: string
+          note_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_notifications: {
         Row: {
           channel: string
@@ -1188,6 +1282,41 @@ export type Database = {
         }
         Relationships: []
       }
+      client_timeline: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          event_label: string
+          event_meta: Json | null
+          event_type: string
+          id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          event_label: string
+          event_meta?: Json | null
+          event_type: string
+          id?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          event_label?: string
+          event_meta?: Json | null
+          event_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_timeline_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_timers: {
         Row: {
           created_at: string | null
@@ -1285,11 +1414,16 @@ export type Database = {
           full_name: string
           id: string
           membership_plan: string | null
+          next_action: string | null
+          notes_summary: string | null
           phone: string
+          priority_level: string | null
           progress_status: number | null
+          round_number: number | null
           ssn_last4: string
           updated_at: string
           user_id: string | null
+          workflow_status: string | null
         }
         Insert: {
           address: string
@@ -1301,11 +1435,16 @@ export type Database = {
           full_name: string
           id?: string
           membership_plan?: string | null
+          next_action?: string | null
+          notes_summary?: string | null
           phone: string
+          priority_level?: string | null
           progress_status?: number | null
+          round_number?: number | null
           ssn_last4: string
           updated_at?: string
           user_id?: string | null
+          workflow_status?: string | null
         }
         Update: {
           address?: string
@@ -1317,11 +1456,16 @@ export type Database = {
           full_name?: string
           id?: string
           membership_plan?: string | null
+          next_action?: string | null
+          notes_summary?: string | null
           phone?: string
+          priority_level?: string | null
           progress_status?: number | null
+          round_number?: number | null
           ssn_last4?: string
           updated_at?: string
           user_id?: string | null
+          workflow_status?: string | null
         }
         Relationships: []
       }
