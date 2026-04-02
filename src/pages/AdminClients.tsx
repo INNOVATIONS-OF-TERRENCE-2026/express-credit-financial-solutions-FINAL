@@ -24,8 +24,10 @@ import {
   MessageSquare,
   ExternalLink,
   Activity,
-  CreditCard
+  CreditCard,
+  Pencil
 } from 'lucide-react';
+import { AdminClientEditor } from '@/components/AdminClientEditor';
 
 interface Client {
   id: string;
@@ -59,6 +61,7 @@ export default function AdminClients() {
   const [creditReports, setCreditReports] = useState<{ id: string; file_path: string; uploaded_at: string }[]>([]);
   const [uploadingReports, setUploadingReports] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
   
   // New client form
   const [newClient, setNewClient] = useState({
@@ -198,8 +201,8 @@ export default function AdminClients() {
   };
 
   const openClientPortal = (client: Client) => {
-    const clientSlug = client.full_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-    window.open(`/client/${clientSlug}`, '_blank');
+    // Open admin preview route — no re-auth required
+    window.open(`/admin/client-preview/${client.id}`, '_blank');
   };
 
   const openUploadModal = async (clientId: string) => {
@@ -472,6 +475,7 @@ export default function AdminClients() {
                     key={client.id} 
                     client={client}
                     onViewPortal={() => openClientPortal(client)}
+                    onEdit={() => setEditingClientId(client.id)}
                     onUploadDocs={() => openUploadModal(client.id)}
                     onStartDispute={() => startDispute(client.id)}
                     getStats={() => getClientStats(client.id)}
@@ -481,6 +485,14 @@ export default function AdminClients() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Client Editor Modal */}
+        <AdminClientEditor
+          clientId={editingClientId}
+          open={!!editingClientId}
+          onOpenChange={(open) => { if (!open) setEditingClientId(null); }}
+          onSaved={() => { setEditingClientId(null); fetchClients(); }}
+        />
 
         {/* Upload Documents Modal */}
         <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
@@ -539,12 +551,14 @@ export default function AdminClients() {
 function ClientRow({ 
   client, 
   onViewPortal, 
+  onEdit,
   onUploadDocs, 
   onStartDispute, 
   getStats 
 }: {
   client: Client;
   onViewPortal: () => void;
+  onEdit: () => void;
   onUploadDocs: () => void;
   onStartDispute: () => void;
   getStats: () => Promise<ClientStats>;
@@ -582,9 +596,13 @@ function ClientRow({
       </TableCell>
       <TableCell>
         <div className="flex items-center space-x-2">
+          <Button size="sm" variant="outline" onClick={onEdit}>
+            <Pencil className="h-4 w-4" />
+            <span className="hidden sm:inline ml-1">Edit</span>
+          </Button>
           <Button size="sm" variant="outline" onClick={onViewPortal}>
             <Eye className="h-4 w-4" />
-            <span className="hidden sm:inline ml-1">View Profile</span>
+            <span className="hidden sm:inline ml-1">View Portal</span>
           </Button>
           <Button size="sm" variant="outline" onClick={onUploadDocs}>
             <Upload className="h-4 w-4" />

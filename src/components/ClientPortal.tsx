@@ -38,7 +38,13 @@ interface ClientData {
   updated_at?: string;
 }
 
-interface ClientPortalProps { clientName: string; }
+interface ClientPortalProps { 
+  clientName: string;
+  /** When set (admin viewing a client), fetch data by clients.id instead of user_id */
+  resolvedClientId?: string | null;
+  /** When true, disables client-only auth assumptions (agreement modals, sign-out, realtime subs) */
+  isAdminPreview?: boolean;
+}
 
 interface CreditReportUpload {
   id: string;
@@ -60,7 +66,7 @@ interface DisputeLetter {
   created_at: string;
 }
 
-export function ClientPortal({ clientName }: ClientPortalProps) {
+export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = false }: ClientPortalProps) {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [clientData, setClientData] = useState<ClientData | null>(null);
@@ -74,55 +80,110 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
   const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
   
   useEffect(() => {
-    if (!agreementLoading && hasSignedAgreement === false) setShowAgreementModal(true);
-  }, [hasSignedAgreement, agreementLoading]);
+    if (!isAdminPreview && !agreementLoading && hasSignedAgreement === false) setShowAgreementModal(true);
+  }, [hasSignedAgreement, agreementLoading, isAdminPreview]);
 
   useEffect(() => {
     if (user) { fetchClientData(); fetchReceipts(); fetchCreditReports(); fetchDisputeLetters(); fetchCreditScores(); }
-  }, [user]);
+  }, [user, resolvedClientId]);
 
   useEffect(() => {
     if (!user) return;
+    // Determine whose data to subscribe to for realtime updates
+    const targetUserId = resolvedClientId ? null : user.id; // Only subscribe via user_id filter for own portal
+    if (!targetUserId) return; // Admin viewing — skip realtime subscriptions (data is fetched on load)
+
     const reportChannel = supabase.channel('client-credit-reports')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'credit_report_uploads', filter: `user_id=eq.${user.id}` }, () => { fetchCreditReports(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'credit_report_uploads', filter: `user_id=eq.${targetUserId}` }, () => { fetchCreditReports(); })
       .subscribe();
     const disputeChannel = supabase.channel('client-disputes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_letters', filter: `user_id=eq.${user.id}` }, () => { fetchDisputeLetters(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_letters', filter: `user_id=eq.${targetUserId}` }, () => { fetchDisputeLetters(); })
       .subscribe();
     const scoresChannel = supabase.channel('client-credit-scores')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_credit_scores', filter: `user_id=eq.${user.id}` }, () => { fetchCreditScores(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_credit_scores', filter: `user_id=eq.${targetUserId}` }, () => { fetchCreditScores(); })
       .subscribe();
     const clientChannel = supabase.channel('client-data-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients', filter: `user_id=eq.${user.id}` }, () => { fetchClientData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients', filter: `user_id=eq.${targetUserId}` }, () => { fetchClientData(); })
       .subscribe();
     const disputeCasesChannel = supabase.channel('client-dispute-cases')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_cases', filter: `user_id=eq.${user.id}` }, () => { })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_cases', filter: `user_id=eq.${targetUserId}` }, () => { })
       .subscribe();
     const cipChannel = supabase.channel('client-cip-updates')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'client_intelligence_packets' }, () => { fetchClientData(); })
       .subscribe();
     return () => { supabase.removeChannel(reportChannel); supabase.removeChannel(disputeChannel); supabase.removeChannel(scoresChannel); supabase.removeChannel(clientChannel); supabase.removeChannel(disputeCasesChannel); supabase.removeChannel(cipChannel); };
-  }, [user]);
+  }, [user, resolvedClientId]);
 
   const fetchClientData = async () => {
     try {
-      const { data, error } = await supabase.from('clients').select('*').eq('user_id', user?.id).single();
+      let data, error;
+      if (resolvedClientId) {
+        // Admin viewing a specific client — query by clients.id
+        ({ data, error } = await supabase.from('clients').select('*').eq('id', resolvedClientId).single());
+      } else {
+        // Regular user viewing own portal — query by user_id
+        ({ data, error } = await supabase.from('clients').select('*').eq('user_id', user?.id).single());
+      }
       if (!error) setClientData(data);
     } catch (error) { console.error('Error:', error); }
     finally { setLoading(false); }
   };
-  const fetchReceipts = async () => { const { data } = await supabase.from('payment_receipts').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); setReceipts(data || []); };
-  const fetchCreditReports = async () => { const { data } = await supabase.from('credit_report_uploads').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); setCreditReports((data || []) as CreditReportUpload[]); };
-  const fetchDisputeLetters = async () => { const { data } = await supabase.from('dispute_letters').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); setDisputeLetters((data || []) as DisputeLetter[]); };
+  const fetchReceipts = async () => { 
+    const userId = resolvedClientId ? (clientData?.user_id || '') : user?.id;
+    if (!userId) return;
+    const { data } = await supabase.from('payment_receipts').select('*').eq('user_id', userId).order('created_at', { ascending: false }); 
+    setReceipts(data || []); 
+  };
+  const fetchCreditReports = async () => { 
+    if (resolvedClientId) {
+      // For admin: try client_id first, fallback to user_id
+      const { data } = await supabase.from('credit_report_uploads').select('*').eq('client_id', resolvedClientId).order('created_at', { ascending: false });
+      if (data && data.length > 0) { setCreditReports(data as CreditReportUpload[]); return; }
+      // Fallback: query by user_id if client has one
+      if (clientData?.user_id) {
+        const { data: byUser } = await supabase.from('credit_report_uploads').select('*').eq('user_id', clientData.user_id).order('created_at', { ascending: false });
+        setCreditReports((byUser || []) as CreditReportUpload[]);
+      } else {
+        setCreditReports([]);
+      }
+    } else {
+      const { data } = await supabase.from('credit_report_uploads').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); 
+      setCreditReports((data || []) as CreditReportUpload[]); 
+    }
+  };
+  const fetchDisputeLetters = async () => { 
+    if (resolvedClientId) {
+      const { data } = await supabase.from('dispute_letters').select('*').eq('client_id', resolvedClientId).order('created_at', { ascending: false });
+      if (data && data.length > 0) { setDisputeLetters(data as DisputeLetter[]); return; }
+      if (clientData?.user_id) {
+        const { data: byUser } = await supabase.from('dispute_letters').select('*').eq('user_id', clientData.user_id).order('created_at', { ascending: false });
+        setDisputeLetters((byUser || []) as DisputeLetter[]);
+      } else {
+        setDisputeLetters([]);
+      }
+    } else {
+      const { data } = await supabase.from('dispute_letters').select('*').eq('user_id', user?.id).order('created_at', { ascending: false }); 
+      setDisputeLetters((data || []) as DisputeLetter[]); 
+    }
+  };
   const fetchCreditScores = async () => {
-    if (!user) return;
-    const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', user.id).single();
-    if (data) setCreditScores(data as any);
+    if (resolvedClientId) {
+      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('client_id', resolvedClientId).single();
+      if (data) { setCreditScores(data as any); return; }
+      if (clientData?.user_id) {
+        const { data: byUser } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', clientData.user_id).single();
+        if (byUser) setCreditScores(byUser as any);
+      }
+    } else {
+      if (!user) return;
+      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', user.id).single();
+      if (data) setCreditScores(data as any);
+    }
   };
 
   const handleSignOut = async () => { await signOut(); toast({ title: 'Signed out', description: 'You have been successfully signed out.' }); };
 
-  if (loading || agreementLoading) {
+  if (loading || (!isAdminPreview && agreementLoading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="space-y-4 w-full max-w-md px-4">
@@ -154,7 +215,8 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
     return <Badge className={variants[status] || 'bg-muted text-muted-foreground'}>{status}</Badge>;
   };
 
-  const unreadCount = useUnreadNotificationCount();
+  const clientUserId = isAdminPreview ? (clientData?.user_id || null) : user?.id || null;
+  const unreadCount = useUnreadNotificationCount(clientUserId);
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: User },
@@ -170,11 +232,11 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
 
   return (
     <>
-      <ClientAgreementModal isOpen={showAgreementModal} onClose={() => setShowAgreementModal(false)} onAgreementSigned={() => { refetchAgreementStatus(); setShowAgreementModal(false); }} />
+      {!isAdminPreview && <ClientAgreementModal isOpen={showAgreementModal} onClose={() => setShowAgreementModal(false)} onAgreementSigned={() => { refetchAgreementStatus(); setShowAgreementModal(false); }} />}
       
       <div className="min-h-screen bg-background">
         <div className="container mx-auto p-4 md:p-6">
-          <DemoUserBanner userEmail={clientData.email} />
+          {!isAdminPreview && <DemoUserBanner userEmail={clientData.email} />}
           
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
@@ -186,11 +248,11 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
                   {clientData.membership_plan === 'active' && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/20 text-green-500 border border-green-500/30">ACTIVE</span>
                   )}
-                  {hasSignedAgreement && <span className="text-green-500 text-sm">✓ Agreement Signed</span>}
+                  {!isAdminPreview && hasSignedAgreement && <span className="text-green-500 text-sm">✓ Agreement Signed</span>}
                 </div>
               </div>
             </div>
-            <Button variant="outline" onClick={handleSignOut} size="sm"><LogOut className="w-4 h-4 mr-2" />Sign Out</Button>
+            {!isAdminPreview && <Button variant="outline" onClick={handleSignOut} size="sm"><LogOut className="w-4 h-4 mr-2" />Sign Out</Button>}
           </div>
 
           {/* Tab Navigation - responsive */}
@@ -272,7 +334,7 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
               )}
 
               {/* Score Predictions */}
-              <ScorePredictionCard clientId={clientData.id} userId={user?.id} />
+              <ScorePredictionCard clientId={clientData.id} userId={isAdminPreview ? undefined : user?.id} />
             </div>
           )}
 
@@ -327,7 +389,7 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
           )}
 
           {/* AI Analysis */}
-          {activeTab === 'ai-analysis' && <div className="animate-fade-in"><AIAnalysisViewer /></div>}
+          {activeTab === 'ai-analysis' && <div className="animate-fade-in"><AIAnalysisViewer isAdmin={isAdminPreview} /></div>}
 
           {/* Dispute Letters - using Accordion */}
           {activeTab === 'dispute-letters' && (
@@ -371,14 +433,14 @@ export function ClientPortal({ clientName }: ClientPortalProps) {
           {/* Timeline */}
           {activeTab === 'timeline' && (
             <div className="animate-fade-in">
-              <ClientActivityTimeline userId={user?.id} clientId={clientData.id} />
+              <ClientActivityTimeline userId={isAdminPreview ? undefined : user?.id} clientId={clientData.id} />
             </div>
           )}
 
           {/* Notifications */}
           {activeTab === 'notifications' && (
             <div className="animate-fade-in">
-              <ClientNotificationsPanel />
+              <ClientNotificationsPanel overrideUserId={isAdminPreview ? clientUserId : undefined} />
             </div>
           )}
 

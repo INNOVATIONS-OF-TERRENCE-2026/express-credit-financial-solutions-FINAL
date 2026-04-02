@@ -209,13 +209,19 @@ export function AdminClientOverview() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          const userId = client.user_id;
-                          if (userId) {
-                            window.open(`/client/${userId}`, '_blank');
-                          }
+                          window.open(`/admin/client-preview/${client.id}`, '_blank');
                         }}
                       >
                         View Portal
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          window.open(`/admin/clients/${client.id}`, '_blank');
+                        }}
+                      >
+                        Edit
                       </Button>
                       <Button 
                         variant="secondary" 
@@ -224,7 +230,6 @@ export function AdminClientOverview() {
                           // Navigate to upload tab and pre-select this client
                           const uploadTab = document.querySelector('[value="upload"]') as HTMLElement;
                           uploadTab?.click();
-                          // Could dispatch event to pre-select client
                         }}
                       >
                         Upload Docs

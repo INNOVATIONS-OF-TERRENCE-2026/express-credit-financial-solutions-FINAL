@@ -193,7 +193,8 @@ export default function ClientPortalLinks() {
   };
 
   const copyPortalLink = (client: MergedClient) => {
-    const url = `${window.location.origin}/client/${client.user_id}`;
+    const id = client.client_id || client.user_id;
+    const url = `${window.location.origin}/client/${id}`;
     navigator.clipboard.writeText(url);
     toast({ title: 'Link Copied', description: `Portal link for ${client.full_name || client.email} copied` });
   };
@@ -370,7 +371,7 @@ export default function ClientPortalLinks() {
                                   <TableCell className="text-sm">{new Date(client.created_at).toLocaleDateString()}</TableCell>
                                   <TableCell>
                                     <div className="flex gap-1">
-                                      <Button size="sm" variant="outline" onClick={() => window.open(`/client/${client.user_id}`, '_blank')}>
+                                      <Button size="sm" variant="outline" onClick={() => window.open(`/admin/client-preview/${client.client_id || client.user_id}`, '_blank')}>
                                         <ExternalLink className="h-3 w-3 mr-1" />Portal
                                       </Button>
                                       <Button size="sm" variant="ghost" onClick={() => copyPortalLink(client)}>
@@ -416,7 +417,7 @@ export default function ClientPortalLinks() {
                                   })}
                                 </div>
                                 <div className="flex gap-2">
-                                  <Button size="sm" variant="outline" className="flex-1" onClick={() => window.open(`/client/${client.user_id}`, '_blank')}>
+                                  <Button size="sm" variant="outline" className="flex-1" onClick={() => window.open(`/admin/client-preview/${client.client_id || client.user_id}`, '_blank')}>
                                     <ExternalLink className="h-3 w-3 mr-1" />Portal
                                   </Button>
                                   <Button size="sm" variant="ghost" onClick={() => copyPortalLink(client)}>

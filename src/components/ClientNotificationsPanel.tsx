@@ -6,20 +6,26 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCircle, Clock } from 'lucide-react';
 
-export function ClientNotificationsPanel() {
+interface ClientNotificationsPanelProps {
+  overrideUserId?: string | null;
+}
+
+export function ClientNotificationsPanel({ overrideUserId }: ClientNotificationsPanelProps = {}) {
   const { user } = useAuth();
+  const effectiveUserId = overrideUserId || user?.id || null;
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) { fetchNotifications(); subscribeToNotifications(); }
-  }, [user]);
+    if (effectiveUserId) { fetchNotifications(); subscribeToNotifications(); }
+  }, [effectiveUserId]);
 
   const fetchNotifications = async () => {
+    if (!effectiveUserId) return;
     const { data } = await supabase
       .from('client_notifications' as any)
       .select('*')
-      .eq('user_id', user!.id)
+      .eq('user_id', effectiveUserId)
       .eq('channel', 'in_app')
       .order('created_at', { ascending: false })
       .limit(50);
@@ -28,8 +34,9 @@ export function ClientNotificationsPanel() {
   };
 
   const subscribeToNotifications = () => {
-    const channel = supabase.channel('client-notifs-' + user!.id)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'client_notifications', filter: `user_id=eq.${user!.id}` }, () => fetchNotifications())
+    if (!effectiveUserId) return;
+    const channel = supabase.channel('client-notifs-' + effectiveUserId)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'client_notifications', filter: `user_id=eq.${effectiveUserId}` }, () => fetchNotifications())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   };
@@ -97,27 +104,28 @@ export function ClientNotificationsPanel() {
   );
 }
 
-export function useUnreadNotificationCount() {
+export function useUnreadNotificationCount(overrideUserId?: string | null) {
   const { user } = useAuth();
+  const effectiveId = overrideUserId || user?.id || null;
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!user) return;
+    if (!effectiveId) return;
     const fetch = async () => {
       const { count: c } = await supabase
         .from('client_notifications' as any)
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveId)
         .eq('channel', 'in_app')
         .eq('is_read', false);
       setCount(c || 0);
     };
     fetch();
-    const channel = supabase.channel('notif-count-' + user.id)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_notifications', filter: `user_id=eq.${user.id}` }, () => fetch())
+    const channel = supabase.channel('notif-count-' + effectiveId)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_notifications', filter: `user_id=eq.${effectiveId}` }, () => fetch())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [effectiveId]);
 
   return count;
 }

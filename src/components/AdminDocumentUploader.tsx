@@ -301,7 +301,7 @@ export function AdminDocumentUploader() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(`/client/${selectedClientData.full_name.toLowerCase().replace(/\s+/g, '-')}`, '_blank')}
+                        onClick={() => window.open(`/admin/client-preview/${selectedClientData.id}`, '_blank')}
                       >
                         View Portal
                       </Button>

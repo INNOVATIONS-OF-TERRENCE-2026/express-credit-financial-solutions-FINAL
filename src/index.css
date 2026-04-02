@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -37,7 +37,7 @@
 
     --radius: 0.5rem;
 
-    /* Fintech branding (used on landing page) */
+    /* Fintech branding */
     --fintech-primary: 219 35% 17%;
     --fintech-secondary: 218 27% 28%;
     --fintech-accent: 194 100% 45%;
@@ -45,23 +45,25 @@
     --fintech-dark: 218 24% 24%;
     --fintech-support: 210 29% 97%;
 
-    /* Premium Gold/Silver */
+    /* Premium */
     --gold: 45 100% 51%;
     --gold-light: 45 100% 65%;
     --gold-dark: 45 100% 35%;
     --silver: 0 0% 75%;
     --silver-light: 0 0% 85%;
     --silver-dark: 0 0% 65%;
+
     --ocean-blue: 214 95% 20%;
     --ocean-blue-hover: 214 95% 25%;
 
-    /* SBA / Midnight theme vars */
+    /* SBA / Midnight */
     --sba-midnight: 231 45% 9%;
     --sba-card: 231 40% 12%;
     --sba-green: 142 76% 36%;
     --sba-green-light: 142 76% 46%;
     --sba-chrome: 0 0% 75%;
     --sba-chrome-glow: 0 0% 85%;
+
     --midnight-bg: 231 45% 9%;
     --midnight-card: 231 40% 12%;
     --midnight-text: 0 0% 95%;
@@ -73,216 +75,64 @@
     --gradient-silver: linear-gradient(135deg, hsl(0 0% 75%), hsl(0 0% 85%));
     --gradient-elegant: linear-gradient(135deg, hsl(219 35% 17%), hsl(218 27% 28%));
     --gradient-midnight: linear-gradient(135deg, hsl(231 45% 9%), hsl(231 40% 15%));
-    --gradient-midnight-gold: linear-gradient(135deg, hsl(231 45% 9%), hsl(45 100% 51%));
-    --gradient-chrome-gold-green: linear-gradient(135deg, hsl(45 100% 70%), hsl(120 60% 20%));
-    --gradient-dark-blue-green: linear-gradient(135deg, hsl(220 60% 25%), hsl(120 50% 25%));
-    --gradient-sba-portal: linear-gradient(135deg, hsl(120, 50%, 45%), hsl(220, 70%, 50%));
-    --gradient-green-blue: linear-gradient(90deg, hsl(120, 50%, 45%) 0%, hsl(220, 70%, 50%) 100%);
 
     /* Shadows */
     --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.1);
     --shadow-gold: 0 8px 25px -8px hsl(45 100% 51% / 0.3);
     --shadow-silver: 0 8px 25px -8px hsl(0 0% 75% / 0.2);
     --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.06);
-    --shadow-neon-gold: 0 0 20px hsl(45 100% 51% / 0.4);
-    --shadow-neon-silver: 0 0 20px hsl(0 0% 75% / 0.3);
 
+    /* Sidebar */
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-foreground: 240 5% 26%;
+    --sidebar-primary: 240 6% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
-
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 194 100% 45%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 194 100% 45%;
-    --accent-foreground: 222 47% 11%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217 33% 25%;
-    --input: 217 33% 17%;
-    --ring: 194 100% 45%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%), hsl(217 33% 17%));
-    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(45 100% 35%));
-    --gradient-elegant: linear-gradient(135deg, hsl(222 47% 11%), hsl(217 33% 17%));
-
-    --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.4);
-    --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.2);
-
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 194 100% 45%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 25%;
-    --sidebar-ring: 194 100% 45%;
   }
 }
 
+/* Base Styles */
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
   }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
   }
 }
 
+/* Components */
 @layer components {
-  /* Glass card utility */
   .glass-card {
     @apply bg-card/80 backdrop-blur-xl border border-border rounded-xl shadow-lg;
   }
-  .glass-card-hover {
-    @apply glass-card hover:border-primary/30 hover:bg-card/90 transition-all duration-200;
-  }
 
-  /* Stat number */
-  .stat-number {
-    @apply text-3xl font-bold font-poppins tabular-nums;
-  }
-
-  /* Section label */
-  .section-label {
-    @apply text-xs uppercase tracking-wider text-muted-foreground font-medium;
-  }
-
-  /* Button Variants */
   .btn-gold {
-    @apply bg-gradient-to-r from-primary to-gold-dark text-primary-foreground hover:shadow-gold transition-all duration-300;
-  }
-  .btn-elegant {
-    @apply bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:shadow-elegant transition-all duration-300;
-  }
-  .btn-silver {
-    @apply bg-secondary text-secondary-foreground hover:bg-muted transition-all duration-300;
+    @apply bg-gradient-to-r from-primary to-gold-dark text-primary-foreground;
   }
 
-  /* Card Variants */
   .card-elegant {
-    @apply bg-card border shadow-card backdrop-blur-sm;
-  }
-  .card-premium {
-    @apply bg-gradient-to-br from-card to-muted border-primary/20 shadow-gold;
+    @apply bg-card border shadow-card;
   }
 
-  /* Status Badges */
-  .status-basic {
-    @apply bg-muted text-muted-foreground border border-border;
-  }
-  .status-pro {
-    @apply bg-primary/20 text-primary border border-primary/30;
-  }
-  .status-elite {
-    @apply bg-gradient-to-r from-primary/20 to-gold/20 text-foreground border border-primary/30;
-  }
-
-  /* Animations */
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
-  }
-  .animate-slide-up {
-    animation: slideUp 0.6s ease-out;
-  }
-  .hover-lift {
-    @apply transition-transform duration-300 hover:scale-[1.02];
-  }
-
-  /* Midnight Theme Classes (for SBA portal) */
   .midnight-theme {
     background: hsl(var(--midnight-bg));
     color: hsl(var(--midnight-text));
   }
-  .midnight-card {
-    background: hsl(var(--midnight-card));
-    border: 1px solid hsl(var(--midnight-muted) / 0.2);
-    color: hsl(var(--midnight-text));
-  }
-  .midnight-header {
-    background: var(--gradient-midnight);
-    color: hsl(var(--midnight-text));
-  }
-  .midnight-btn-gold {
-    background: transparent;
-    border: 2px solid hsl(var(--gold));
-    color: hsl(var(--gold));
-    box-shadow: var(--shadow-neon-gold);
-    transition: all 0.3s ease;
-  }
-  .midnight-btn-gold:hover {
-    background: hsl(var(--gold));
-    color: hsl(var(--midnight-bg));
-  }
-  .midnight-btn-silver {
-    background: transparent;
-    border: 2px solid hsl(var(--silver));
-    color: hsl(var(--silver));
-    transition: all 0.3s ease;
-  }
-  .midnight-btn-silver:hover {
-    background: hsl(var(--silver));
-    color: hsl(var(--midnight-bg));
-  }
-  .midnight-glow-text {
-    text-shadow: 0 0 10px hsl(var(--gold) / 0.5);
-  }
-  .midnight-section-title {
-    background: var(--gradient-gold);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  /* Education category buttons */
-  .edu-filter-button {
-    @apply bg-card text-foreground border border-border rounded-lg px-4 py-2 transition-all;
-  }
-  .edu-filter-button:hover {
-    @apply ring-2 ring-primary/40 ring-offset-2 ring-offset-background;
-  }
-  .edu-filter-button:focus-visible {
-    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
-  }
-  .edu-filter-button-active {
-    @apply ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg;
-  }
 }
 
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }

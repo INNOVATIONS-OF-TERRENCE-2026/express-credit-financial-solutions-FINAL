@@ -32,6 +32,7 @@ import { AdminBacklogTools } from '@/components/AdminBacklogTools';
 import { ClientProcessingGrid } from '@/components/ClientProcessingGrid';
 import { BulkDocumentIntelligence } from '@/components/BulkDocumentIntelligence';
 import { cn } from '@/lib/utils';
+import { resolveClient } from '@/lib/resolveClient';
 import { AutonomousControlPanel } from '@/components/AutonomousControlPanel';
 import { DisputeCommandCenter } from '@/components/DisputeCommandCenter';
 import { AdminClientEditor } from '@/components/AdminClientEditor';
@@ -44,6 +45,7 @@ import { AdminCreditReportUploader } from '@/components/AdminCreditReportUploade
 
 interface AdminUser {
   id: string;
+  user_id: string;
   email: string;
   created_at: string;
   plan_type?: string;
@@ -736,7 +738,7 @@ export default function AdminDashboard() {
                             <TableCell><Badge variant="outline">{u.plan_type || 'None'}</Badge></TableCell>
                             <TableCell><Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge></TableCell>
                             <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
-                            <TableCell><div className="flex gap-1"><Button size="sm" variant="outline"><Eye className="h-4 w-4" /></Button><Button size="sm" variant="outline" onClick={() => setEditingClientId(u.id)}><Pencil className="h-4 w-4" /></Button></div></TableCell>
+                            <TableCell><div className="flex gap-1"><Button size="sm" variant="outline" onClick={async () => { const resolved = await resolveClient(u.user_id); if (resolved) { window.open(`/admin/client-preview/${resolved.clientId}`, '_blank'); } else { toast({ title: 'No linked client record', description: 'This user has no client profile yet.', variant: 'destructive' }); } }} title="View Portal"><Eye className="h-4 w-4" /></Button><Button size="sm" variant="outline" onClick={async () => { const resolved = await resolveClient(u.user_id); if (resolved) { navigate(`/admin/clients/${resolved.clientId}`); } else { toast({ title: 'No linked client record', description: 'This user has no client profile yet.', variant: 'destructive' }); } }} title="Edit Client"><Pencil className="h-4 w-4" /></Button></div></TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -781,7 +783,7 @@ export default function AdminDashboard() {
                             <TableCell><Badge variant={u.payment_status === 'active' ? 'default' : 'secondary'}>{u.payment_status || 'Inactive'}</Badge></TableCell>
                             <TableCell>
                               <Select defaultValue={u.plan_type || ''} onValueChange={async (value) => {
-                                const { error } = await supabase.from('profiles').update({ plan_type: value, payment_status: 'active' }).eq('id', u.id);
+                                const { error } = await supabase.from('profiles').update({ plan_type: value, payment_status: 'active' }).eq('user_id', u.user_id);
                                 if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
                                 else { toast({ title: 'Updated', description: `${u.email} → ${value}` }); fetchAdminData(); }
                               }}>
@@ -791,7 +793,7 @@ export default function AdminDashboard() {
                             </TableCell>
                             <TableCell>
                               <Switch checked={u.payment_status === 'active'} onCheckedChange={async (checked) => {
-                                const { error } = await supabase.from('profiles').update({ payment_status: checked ? 'active' : 'inactive' }).eq('id', u.id);
+                                const { error } = await supabase.from('profiles').update({ payment_status: checked ? 'active' : 'inactive' }).eq('user_id', u.user_id);
                                 if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
                                 else { toast({ title: 'Updated', description: `${u.email} → ${checked ? 'active' : 'inactive'}` }); fetchAdminData(); }
                               }} />
@@ -799,7 +801,7 @@ export default function AdminDashboard() {
                             <TableCell>
                               <Button size="sm" variant="outline" onClick={async () => {
                                 const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + 14);
-                                const { error } = await supabase.from('profiles').update({ membership_type: 'vip_trial', payment_status: 'active', plan_type: 'vip', expires_at: expiresAt.toISOString() }).eq('id', u.id);
+                                const { error } = await supabase.from('profiles').update({ membership_type: 'vip_trial', payment_status: 'active', plan_type: 'vip', expires_at: expiresAt.toISOString() }).eq('user_id', u.user_id);
                                 if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
                                 else { toast({ title: 'VIP Trial Granted', description: `${u.email} — 14-day VIP trial` }); fetchAdminData(); }
                               }}>Grant VIP</Button>

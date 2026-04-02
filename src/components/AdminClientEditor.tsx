@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { resolveClient as resolveClientId } from '@/lib/resolveClient';
 import { Save, Zap, CreditCard } from 'lucide-react';
 
 interface ClientData {
@@ -48,9 +49,11 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
 
   const fetchClient = async () => {
     if (!clientId) return;
+    const resolved = await resolveClientId(clientId);
+    const actualId = resolved?.clientId || clientId;
     const [{ data: c }, { data: s }] = await Promise.all([
-      supabase.from('clients').select('*').eq('id', clientId).single(),
-      supabase.from('client_credit_scores' as any).select('*').eq('client_id', clientId).single(),
+      supabase.from('clients').select('*').eq('id', actualId).single(),
+      supabase.from('client_credit_scores' as any).select('*').eq('client_id', actualId).single(),
     ]);
     if (c) setClient(c as ClientData);
     if (s) {

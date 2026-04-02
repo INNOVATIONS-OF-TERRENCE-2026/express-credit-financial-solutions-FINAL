@@ -329,8 +329,7 @@ export function AdminCRMFixedPanel() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => {
-                                  const clientSlug = client.full_name.toLowerCase().replace(/\s+/g, '-');
-                                  window.open(`/client/${clientSlug}`, '_blank');
+                                  window.open(`/admin/client-preview/${client.id}`, '_blank');
                                 }}
                               >
                                 <Eye className="h-4 w-4 mr-1" />

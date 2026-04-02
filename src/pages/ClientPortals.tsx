@@ -5,6 +5,9 @@ import { ClientLogin } from '@/components/ClientLogin';
 import { ClientPortal } from '@/components/ClientPortal';
 import { supabase } from '@/integrations/supabase/client';
 import { useRoles } from '@/hooks/useRoles';
+import { resolveClient } from '@/lib/resolveClient';
+
+const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 
 export default function ClientPortals() {
   const { clientSlug } = useParams<{ clientSlug: string }>();
@@ -12,6 +15,7 @@ export default function ClientPortals() {
   const { isAdmin } = useRoles();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [clientName, setClientName] = useState<string | null>(null);
+  const [resolvedClientId, setResolvedClientId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,41 +30,42 @@ export default function ClientPortals() {
     }
 
     try {
+      const resolved = await resolveClient(clientSlug);
+
       // Admin can access any portal
       if (isAdmin()) {
-        // Look up the client by user_id (slug is now user_id)
-        const { data: clientData } = await supabase
-          .from('clients')
-          .select('full_name')
-          .eq('user_id', clientSlug)
-          .single();
-
-        if (clientData) {
-          setClientName(clientData.full_name);
+        if (resolved) {
+          setClientName(resolved.fullName);
+          setResolvedClientId(resolved.clientId);
           setIsAuthenticated(true);
         } else {
-          // Fallback: check profiles for email
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('email')
-            .eq('user_id', clientSlug)
-            .single();
-          setClientName(profile?.email || 'Client');
+          // Fallback: check profiles table for email display
+          if (isUUID(clientSlug)) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('email')
+              .eq('user_id', clientSlug)
+              .single();
+            setClientName(profile?.email || 'Client');
+          } else {
+            setClientName('Client');
+          }
+          setResolvedClientId(null);
           setIsAuthenticated(true);
         }
         setLoading(false);
         return;
       }
 
-      // Regular user: only their own portal
-      if (clientSlug === user.id) {
-        const { data: clientData } = await supabase
-          .from('clients')
-          .select('full_name')
-          .eq('user_id', user.id)
-          .single();
-
-        setClientName(clientData?.full_name || user.email || 'Client');
+      // Regular user: can access their own portal
+      if (resolved && (resolved.userId === user.id || clientSlug === user.id)) {
+        setClientName(resolved.fullName || user.email || 'Client');
+        setResolvedClientId(resolved.clientId);
+        setIsAuthenticated(true);
+      } else if (clientSlug === user.id) {
+        // User has auth account but no client record yet
+        setClientName(user.email || 'Client');
+        setResolvedClientId(null);
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -96,10 +101,10 @@ export default function ClientPortals() {
     return (
       <ClientLogin
         clientName={clientName || 'Client'}
-        onSuccess={() => setIsAuthenticated(true)}
+        onSuccess={() => checkAuthentication()}
       />
     );
   }
 
-  return <ClientPortal clientName={clientName || 'Client'} />;
+  return <ClientPortal clientName={clientName || 'Client'} resolvedClientId={resolvedClientId} />;
 }
