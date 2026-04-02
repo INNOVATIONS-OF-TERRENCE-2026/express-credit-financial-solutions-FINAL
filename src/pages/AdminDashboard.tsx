@@ -681,6 +681,26 @@ export default function AdminDashboard() {
           {activeSection === 'automation' && <div className="animate-fade-in"><AutomationControlCenter /></div>}
           {activeSection === 'ai-execution' && <div className="animate-fade-in"><CIPExecutionCenter /></div>}
 
+          {/* War Board */}
+          {activeSection === 'war-board' && (
+            <div className="animate-fade-in">
+              <AdminWarBoard onOpenClient={(id) => { setViewingClientId(id); setActiveSectionState('client-profile'); }} />
+            </div>
+          )}
+
+          {/* Client Profile Detail */}
+          {activeSection === 'client-profile' && viewingClientId && (
+            <div className="animate-fade-in">
+              <ClientProfileDetail clientId={viewingClientId} onBack={() => { setViewingClientId(null); setActiveSection('war-board'); }} />
+            </div>
+          )}
+
+          {/* Unlinked Auth Accounts */}
+          {activeSection === 'unlinked-accounts' && <div className="animate-fade-in"><UnlinkedAuthAccounts /></div>}
+
+          {/* Credit Report Upload */}
+          {activeSection === 'credit-upload' && <div className="animate-fade-in"><AdminCreditReportUploader /></div>}
+
           {/* Users */}
           {activeSection === 'users' && (
             <div className="space-y-6 animate-fade-in">
