@@ -37,6 +37,10 @@ import { DisputeCommandCenter } from '@/components/DisputeCommandCenter';
 import { AdminClientEditor } from '@/components/AdminClientEditor';
 import { CIPExecutionCenter } from '@/components/CIPExecutionCenter';
 import { AdminDocumentList } from '@/components/AdminDocumentList';
+import { AdminWarBoard } from '@/components/AdminWarBoard';
+import { ClientProfileDetail } from '@/components/ClientProfileDetail';
+import { UnlinkedAuthAccounts } from '@/components/UnlinkedAuthAccounts';
+import { AdminCreditReportUploader } from '@/components/AdminCreditReportUploader';
 
 interface AdminUser {
   id: string;
