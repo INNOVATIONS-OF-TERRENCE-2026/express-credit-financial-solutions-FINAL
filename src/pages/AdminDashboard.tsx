@@ -487,6 +487,15 @@ export default function AdminDashboard() {
           <Button
             size="sm"
             variant="outline"
+            className="shrink-0 border-amber-500/30 hover:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold"
+            onClick={() => setActiveSection('war-board')}
+          >
+            <Users className="h-4 w-4 mr-1.5" />
+            War Board
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
             className="shrink-0 border-primary/30 hover:bg-primary/10"
             onClick={() => setActiveSection('bulk-docs')}
           >
