@@ -92,6 +92,9 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'PRIORITY' },
   { section: 'automation', label: 'Automation Center', icon: Zap, group: 'PRIORITY' },
   { section: 'ai-execution', label: 'AI Execution', icon: Cpu, group: 'PRIORITY' },
+  { section: 'tasks', label: 'Tasks / Checklist', icon: ListChecks, group: 'PRIORITY' },
+  { section: 'daily-ops', label: 'Daily Ops', icon: Calendar, group: 'PRIORITY' },
+  { section: 'reminders', label: 'Reminders', icon: Bell, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
