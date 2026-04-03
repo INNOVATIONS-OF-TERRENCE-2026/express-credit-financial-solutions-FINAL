@@ -56,7 +56,7 @@ CREDIT REPORT DATA: ${JSON.stringify(reportData).substring(0, 8000)}`;
     const output = await callOpenAI(system, user);
     return { agent_name: "audit_agent", output, confidence: output.confidence || 75, status: "completed" };
   } catch (e) {
-    return { agent_name: "audit_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "audit_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
@@ -79,7 +79,7 @@ AUDIT FINDINGS: ${JSON.stringify(auditOutput).substring(0, 6000)}`;
     const output = await callOpenAI(system, user);
     return { agent_name: "identity_605b_agent", output, confidence: output.confidence || 60, status: "completed" };
   } catch (e) {
-    return { agent_name: "identity_605b_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "identity_605b_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
@@ -99,7 +99,7 @@ async function runDeletionCascadeAgent(auditOutput: any): Promise<AgentResult> {
     const output = await callOpenAI(system, user);
     return { agent_name: "deletion_cascade_agent", output, confidence: output.confidence || 65, status: "completed" };
   } catch (e) {
-    return { agent_name: "deletion_cascade_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "deletion_cascade_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
@@ -120,7 +120,7 @@ DOCUMENTS ON FILE: ${JSON.stringify(docs.map((d: any) => ({ type: d.document_typ
     const output = await callOpenAI(system, user);
     return { agent_name: "experian_upload_agent", output, confidence: output.confidence || 70, status: "completed" };
   } catch (e) {
-    return { agent_name: "experian_upload_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "experian_upload_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
@@ -142,7 +142,7 @@ AUDIT SUMMARY: ${JSON.stringify(auditOutput).substring(0, 4000)}`;
     const output = await callOpenAI(system, user);
     return { agent_name: "qualification_agent", output, confidence: output.confidence || 70, status: "completed" };
   } catch (e) {
-    return { agent_name: "qualification_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "qualification_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
@@ -401,6 +401,6 @@ Deno.serve(async (req) => {
 
   } catch (err) {
     console.error("Orchestration error:", err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: (err as Error).message }), { status: 500, headers: corsHeaders });
   }
 });
