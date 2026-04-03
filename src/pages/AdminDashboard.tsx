@@ -43,6 +43,9 @@ import { AdminWarBoard } from '@/components/AdminWarBoard';
 import { ClientProfileDetail } from '@/components/ClientProfileDetail';
 import { UnlinkedAuthAccounts } from '@/components/UnlinkedAuthAccounts';
 import { AdminCreditReportUploader } from '@/components/AdminCreditReportUploader';
+import { AdminTaskEngine } from '@/components/AdminTaskEngine';
+import { AdminDailyOps } from '@/components/AdminDailyOps';
+import { AdminReminders } from '@/components/AdminReminders';
 
 interface AdminUser {
   id: string;
