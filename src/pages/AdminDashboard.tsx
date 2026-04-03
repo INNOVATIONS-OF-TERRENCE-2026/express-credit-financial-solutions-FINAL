@@ -18,7 +18,8 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Crown, FileText, Upload, Mail, Settings, Users, Activity, ExternalLink,
   Shield, Search, Download, Eye, LayoutDashboard, ClipboardCheck, GitBranch,
-  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot, Gavel, Pencil
+  Brain, Cpu, FileSearch, Menu, LogOut, Zap, AlertTriangle, Bot, Gavel, Pencil,
+  ListChecks, Calendar, Bell
 } from 'lucide-react';
 import { AutomationControlCenter } from '@/components/AutomationControlCenter';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
@@ -42,6 +43,9 @@ import { AdminWarBoard } from '@/components/AdminWarBoard';
 import { ClientProfileDetail } from '@/components/ClientProfileDetail';
 import { UnlinkedAuthAccounts } from '@/components/UnlinkedAuthAccounts';
 import { AdminCreditReportUploader } from '@/components/AdminCreditReportUploader';
+import { AdminTaskEngine } from '@/components/AdminTaskEngine';
+import { AdminDailyOps } from '@/components/AdminDailyOps';
+import { AdminReminders } from '@/components/AdminReminders';
 
 interface AdminUser {
   id: string;
@@ -74,7 +78,7 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'war-board' | 'client-profile' | 'unlinked-accounts' | 'credit-upload' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'automation' | 'ai-execution' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system';
+type Section = 'overview' | 'war-board' | 'client-profile' | 'unlinked-accounts' | 'credit-upload' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'automation' | 'ai-execution' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system' | 'tasks' | 'daily-ops' | 'reminders';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   // ⚡ PRIORITY TOOLS — top of sidebar for instant access
@@ -88,6 +92,9 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'dispute-command', label: 'Dispute Command', icon: Gavel, group: 'PRIORITY' },
   { section: 'automation', label: 'Automation Center', icon: Zap, group: 'PRIORITY' },
   { section: 'ai-execution', label: 'AI Execution', icon: Cpu, group: 'PRIORITY' },
+  { section: 'tasks', label: 'Tasks / Checklist', icon: ListChecks, group: 'PRIORITY' },
+  { section: 'daily-ops', label: 'Daily Ops', icon: Calendar, group: 'PRIORITY' },
+  { section: 'reminders', label: 'Reminders', icon: Bell, group: 'PRIORITY' },
 
   { section: 'overview', label: 'Dashboard', icon: LayoutDashboard, group: 'OVERVIEW' },
   { section: 'backlog', label: 'Backlog Tools', icon: Zap, group: 'WORKFLOW' },
@@ -711,6 +718,15 @@ export default function AdminDashboard() {
 
           {/* Credit Report Upload */}
           {activeSection === 'credit-upload' && <div className="animate-fade-in"><AdminCreditReportUploader /></div>}
+
+          {/* Tasks / Checklist Engine */}
+          {activeSection === 'tasks' && <div className="animate-fade-in"><AdminTaskEngine /></div>}
+
+          {/* Daily Operations */}
+          {activeSection === 'daily-ops' && <div className="animate-fade-in"><AdminDailyOps /></div>}
+
+          {/* Reminders */}
+          {activeSection === 'reminders' && <div className="animate-fade-in"><AdminReminders /></div>}
 
           {/* Users */}
           {activeSection === 'users' && (
