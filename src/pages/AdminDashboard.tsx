@@ -719,6 +719,15 @@ export default function AdminDashboard() {
           {/* Credit Report Upload */}
           {activeSection === 'credit-upload' && <div className="animate-fade-in"><AdminCreditReportUploader /></div>}
 
+          {/* Tasks / Checklist Engine */}
+          {activeSection === 'tasks' && <div className="animate-fade-in"><AdminTaskEngine /></div>}
+
+          {/* Daily Operations */}
+          {activeSection === 'daily-ops' && <div className="animate-fade-in"><AdminDailyOps /></div>}
+
+          {/* Reminders */}
+          {activeSection === 'reminders' && <div className="animate-fade-in"><AdminReminders /></div>}
+
           {/* Users */}
           {activeSection === 'users' && (
             <div className="space-y-6 animate-fade-in">
