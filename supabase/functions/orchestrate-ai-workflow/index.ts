@@ -120,7 +120,7 @@ DOCUMENTS ON FILE: ${JSON.stringify(docs.map((d: any) => ({ type: d.document_typ
     const output = await callOpenAI(system, user);
     return { agent_name: "experian_upload_agent", output, confidence: output.confidence || 70, status: "completed" };
   } catch (e) {
-    return { agent_name: "experian_upload_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "experian_upload_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
