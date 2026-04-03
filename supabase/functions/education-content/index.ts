@@ -145,7 +145,7 @@ serve(async (req) => {
       - Preventing future violations through documentation`
     };
 
-    const specificPrompt = contentPrompts[topic] || `Create educational content about ${topic} focusing on consumer rights, common violations, and protection strategies.`;
+    const specificPrompt = contentPrompts[topic as keyof typeof contentPrompts] || `Create educational content about ${topic} focusing on consumer rights, common violations, and protection strategies.`;
 
     const messages = [
       { role: "system", content: systemPrompt },

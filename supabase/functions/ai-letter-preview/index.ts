@@ -189,7 +189,7 @@ Keep it under 50 words and avoid legal jargon.`;
     );
 
   } catch (error) {
-    logStep('Error occurred', { error: error.message });
+    logStep('Error occurred', { error: (error as Error).message });
     
     // Return fallback message if OpenAI fails
     const fallbackMessage = "Preview unavailable. Please contact support.";
@@ -198,7 +198,7 @@ Keep it under 50 words and avoid legal jargon.`;
       JSON.stringify({
         success: false,
         preview: fallbackMessage,
-        error: error.message
+        error: (error as Error).message
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

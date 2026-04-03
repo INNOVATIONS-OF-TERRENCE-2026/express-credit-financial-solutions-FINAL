@@ -197,7 +197,7 @@ REQUIREMENTS:
       await supabase.rpc('log_security_event', {
         p_action: 'DISPUTE_LETTER_GENERATION_ERROR',
         p_table_name: 'dispute_letters',
-        p_details: { error: error.message },
+        p_details: { error: (error as Error).message },
         p_security_level: 'error',
         p_risk_score: 5
       });

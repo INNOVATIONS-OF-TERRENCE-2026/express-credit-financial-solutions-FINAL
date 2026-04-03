@@ -401,6 +401,6 @@ Deno.serve(async (req) => {
 
   } catch (err) {
     console.error("Orchestration error:", err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: (err as Error).message }), { status: 500, headers: corsHeaders });
   }
 });

@@ -184,7 +184,7 @@ Generate a complete, ready-to-send dispute letter addressed to ${bureau}. Includ
 
   } catch (error) {
     console.error('Error in generate-dispute-ai:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

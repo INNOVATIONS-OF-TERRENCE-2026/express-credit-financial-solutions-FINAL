@@ -147,9 +147,9 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    logStep("Error in expire-vip-trials", { error: error.message });
+    logStep("Error in expire-vip-trials", { error: (error as Error).message });
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: (error as Error).message,
       success: false
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
