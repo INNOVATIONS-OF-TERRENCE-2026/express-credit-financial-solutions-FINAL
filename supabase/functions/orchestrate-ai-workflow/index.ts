@@ -79,7 +79,7 @@ AUDIT FINDINGS: ${JSON.stringify(auditOutput).substring(0, 6000)}`;
     const output = await callOpenAI(system, user);
     return { agent_name: "identity_605b_agent", output, confidence: output.confidence || 60, status: "completed" };
   } catch (e) {
-    return { agent_name: "identity_605b_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "identity_605b_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
