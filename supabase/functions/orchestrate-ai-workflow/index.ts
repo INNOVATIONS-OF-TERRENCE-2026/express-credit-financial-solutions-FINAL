@@ -56,7 +56,7 @@ CREDIT REPORT DATA: ${JSON.stringify(reportData).substring(0, 8000)}`;
     const output = await callOpenAI(system, user);
     return { agent_name: "audit_agent", output, confidence: output.confidence || 75, status: "completed" };
   } catch (e) {
-    return { agent_name: "audit_agent", output: { error: e.message }, confidence: 0, status: "failed" };
+    return { agent_name: "audit_agent", output: { error: (e as Error).message }, confidence: 0, status: "failed" };
   }
 }
 
