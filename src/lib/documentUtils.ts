@@ -132,3 +132,72 @@ export function getSupportedAcceptTypes(): Record<string, string[]> {
 export function getSupportedExtensions(): string {
   return Object.values(SUPPORTED_TYPES).flat().join(",");
 }
+
+/**
+ * Force-download any document as a PDF.
+ * - PDFs: streamed directly.
+ * - Images (jpg/png/webp): silently converted to single-page PDF via jsPDF.
+ * - Other types: falls back to original blob download.
+ */
+export async function downloadAsPdf(
+  bucket: string,
+  path: string,
+  filename?: string
+): Promise<void> {
+  const url = await getSignedDownloadUrl(bucket, path);
+  if (!url) throw new Error("Could not generate download URL");
+
+  const baseName = (filename || path.split("/").pop() || "document").replace(/\.[^.]+$/, "");
+  const pdfName = `${baseName}.pdf`;
+
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Download failed");
+  const blob = await response.blob();
+  const mime = blob.type || "";
+
+  // Already PDF — direct download
+  if (mime === "application/pdf" || path.toLowerCase().endsWith(".pdf")) {
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = pdfName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
+    return;
+  }
+
+  // Image → PDF conversion
+  if (mime.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(path)) {
+    const { jsPDF } = await import("jspdf");
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = dataUrl;
+    });
+    const orientation = img.width > img.height ? "landscape" : "portrait";
+    const pdf = new jsPDF({ orientation, unit: "px", format: [img.width, img.height] });
+    const fmt = mime === "image/png" ? "PNG" : mime === "image/webp" ? "WEBP" : "JPEG";
+    pdf.addImage(dataUrl, fmt, 0, 0, img.width, img.height);
+    pdf.save(pdfName);
+    return;
+  }
+
+  // Fallback — original
+  const blobUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = blobUrl;
+  link.download = filename || path.split("/").pop() || "download";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(blobUrl);
+}

@@ -52,12 +52,18 @@ export function AdminCreditReportUploader() {
     setUploadResult(null);
 
     try {
-      // 1. Upload to storage
+      // Validate
+      const { validateUploadFile } = await import('@/lib/documentUtils');
+      const v = validateUploadFile(file);
+      if (!v.valid) throw new Error(v.error);
+
+      // 1. Upload to storage — admin path matches admin-only RLS policy
       const timestamp = Date.now();
-      const storagePath = `${selectedClientId}/${timestamp}-${file.name}`;
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const storagePath = `admin/${selectedClientId}/${timestamp}-${safeName}`;
       const { error: storageError } = await supabase.storage
         .from('credit-reports')
-        .upload(storagePath, file);
+        .upload(storagePath, file, { contentType: file.type || 'application/pdf', upsert: false });
 
       if (storageError) throw new Error(`Storage upload failed: ${storageError.message}`);
 
