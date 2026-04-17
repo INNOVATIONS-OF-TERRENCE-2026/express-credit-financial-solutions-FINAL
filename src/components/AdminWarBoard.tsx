@@ -43,6 +43,7 @@ interface AdminWarBoardProps {
 
 export function AdminWarBoard({ onOpenClient }: AdminWarBoardProps) {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [clients, setClients] = useState<ClientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
