@@ -487,9 +487,12 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                         <AccordionContent>
                           <div className="bg-muted/50 rounded-lg p-4 mt-2 border border-border">
                             <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed text-foreground">{letter.generated_letter}</pre>
-                            <div className="flex gap-2 mt-4">
-                              <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(letter.generated_letter); toast({ title: 'Copied!' }); }}>
+                            <div className="flex flex-wrap gap-2 mt-4">
+                              <Button size="sm" variant="outline" className="h-10" onClick={() => { navigator.clipboard.writeText(letter.generated_letter); toast({ title: 'Copied!' }); }}>
                                 <Copy className="h-4 w-4 mr-2" />Copy
+                              </Button>
+                              <Button size="sm" variant="default" className="h-10" onClick={() => handleDownloadLetter(letter)}>
+                                <Download className="h-4 w-4 mr-2" />Download PDF
                               </Button>
                             </div>
                           </div>
