@@ -50,6 +50,7 @@ interface ClientPortalProps {
 interface CreditReportUpload {
   id: string;
   file_name: string;
+  file_path?: string;
   analysis_status: string;
   flagged_accounts_count: number;
   ai_analysis_summary: string | null;
