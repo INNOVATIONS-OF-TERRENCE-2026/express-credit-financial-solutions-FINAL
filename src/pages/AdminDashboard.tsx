@@ -972,6 +972,15 @@ export default function AdminDashboard() {
             </div>
           )}
         </main>
+
+        {/* Mobile bottom nav — phones only */}
+        <AdminMobileNav
+          active={activeSection}
+          onSelect={(s) => setActiveSection(s as Section)}
+          onMore={() => setSidebarOpen(true)}
+        />
+        {/* Spacer so content isn't hidden under bottom nav on mobile */}
+        <div className="h-20 md:hidden" aria-hidden />
       </div>
 
       {/* Client Editor Dialog */}
