@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock, Copy, Bell, Activity } from 'lucide-react';
+import { LogOut, Upload, FileText, CreditCard, Shield, User, Brain, Clock, Copy, Bell, Activity, Download, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { ClientActivityTimeline } from '@/components/ClientActivityTimeline';
 import { ScorePredictionCard } from '@/components/ScorePredictionCard';
 import { ClientNotificationsPanel, useUnreadNotificationCount } from '@/components/ClientNotificationsPanel';
@@ -20,6 +20,7 @@ import { useClientAgreement } from '@/hooks/useClientAgreement';
 import { DemoUserBanner } from '@/components/DemoUserBanner';
 import { ReceiptGenerator } from '@/components/ReceiptGenerator';
 import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
+import { downloadAsPdf } from '@/lib/documentUtils';
 
 interface ClientData {
   id: string;
@@ -49,6 +50,7 @@ interface ClientPortalProps {
 interface CreditReportUpload {
   id: string;
   file_name: string;
+  file_path?: string;
   analysis_status: string;
   flagged_accounts_count: number;
   ai_analysis_summary: string | null;
@@ -77,7 +79,41 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
   const [disputeLetters, setDisputeLetters] = useState<DisputeLetter[]>([]);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [creditScores, setCreditScores] = useState<{ experian_score: number | null; equifax_score: number | null; transunion_score: number | null } | null>(null);
+  const [previousScores, setPreviousScores] = useState<{ experian_score: number | null; equifax_score: number | null; transunion_score: number | null } | null>(null);
   const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
+
+  const handleDownloadReport = async (report: CreditReportUpload) => {
+    if (!report.file_path) {
+      toast({ title: 'No file', description: 'This report has no attached file.', variant: 'destructive' });
+      return;
+    }
+    try {
+      await downloadAsPdf('credit-reports', report.file_path, report.file_name);
+      toast({ title: 'Downloaded', description: 'Report saved as PDF.' });
+    } catch (err: any) {
+      toast({ title: 'Download failed', description: err?.message || 'Try again', variant: 'destructive' });
+    }
+  };
+
+  const handleDownloadLetter = (letter: DisputeLetter) => {
+    import('jspdf').then(({ jsPDF }) => {
+      const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
+      const margin = 54;
+      const maxW = pdf.internal.pageSize.getWidth() - margin * 2;
+      pdf.setFont('Times', 'Normal');
+      pdf.setFontSize(11);
+      const lines = pdf.splitTextToSize(letter.generated_letter || '', maxW);
+      let y = margin;
+      const lineH = 14;
+      const pageH = pdf.internal.pageSize.getHeight();
+      lines.forEach((ln: string) => {
+        if (y > pageH - margin) { pdf.addPage(); y = margin; }
+        pdf.text(ln, margin, y);
+        y += lineH;
+      });
+      pdf.save(`Dispute-${letter.creditor_name || 'Letter'}.pdf`);
+    });
+  };
   
   useEffect(() => {
     if (!isAdminPreview && !agreementLoading && hasSignedAgreement === false) setShowAgreementModal(true);
@@ -167,17 +203,29 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
     }
   };
   const fetchCreditScores = async () => {
-    if (resolvedClientId) {
-      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('client_id', resolvedClientId).single();
-      if (data) { setCreditScores(data as any); return; }
-      if (clientData?.user_id) {
-        const { data: byUser } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', clientData.user_id).single();
-        if (byUser) setCreditScores(byUser as any);
-      }
-    } else {
-      if (!user) return;
-      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', user.id).single();
-      if (data) setCreditScores(data as any);
+    const targetUserId = resolvedClientId ? clientData?.user_id : user?.id;
+    const targetClientId = resolvedClientId || clientData?.id;
+
+    let current: any = null;
+    if (targetClientId) {
+      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('client_id', targetClientId).maybeSingle();
+      current = data;
+    }
+    if (!current && targetUserId) {
+      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', targetUserId).maybeSingle();
+      current = data;
+    }
+    if (current) setCreditScores(current);
+
+    // Previous snapshot (history) for delta
+    if (targetClientId) {
+      const { data: hist } = await supabase
+        .from('credit_scores' as any)
+        .select('*')
+        .eq('client_id', targetClientId)
+        .order('created_at', { ascending: false })
+        .limit(2);
+      if (hist && hist.length > 1) setPreviousScores(hist[1] as any);
     }
   };
 
@@ -310,24 +358,40 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                 })}
               </div>
 
-              {/* Credit Scores - Live Sync */}
+              {/* Bureau Scores — Premium Cards w/ Deltas */}
               {creditScores && (creditScores.experian_score || creditScores.equifax_score || creditScores.transunion_score) && (
-                <Card className="glass-card">
-                  <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><CreditCard className="w-4 h-4 text-primary" />Credit Scores</CardTitle></CardHeader>
+                <Card className="glass-card border-primary/20">
+                  <CardHeader className="pb-2 flex-row items-center justify-between">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2"><CreditCard className="w-4 h-4 text-primary" />FICO 8 Bureau Scores</CardTitle>
+                    {previousScores && <Badge variant="outline" className="text-[10px]">Live · vs last report</Badge>}
+                  </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div className="p-3 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground">Experian</p>
-                        <p className="text-2xl font-bold text-foreground">{creditScores.experian_score ?? '—'}</p>
-                      </div>
-                      <div className="p-3 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground">Equifax</p>
-                        <p className="text-2xl font-bold text-foreground">{creditScores.equifax_score ?? '—'}</p>
-                      </div>
-                      <div className="p-3 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground">TransUnion</p>
-                        <p className="text-2xl font-bold text-foreground">{creditScores.transunion_score ?? '—'}</p>
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {([
+                        { key: 'experian', label: 'EXPERIAN', score: creditScores.experian_score, prev: previousScores?.experian_score ?? null },
+                        { key: 'equifax', label: 'EQUIFAX', score: creditScores.equifax_score, prev: previousScores?.equifax_score ?? null },
+                        { key: 'transunion', label: 'TRANSUNION', score: creditScores.transunion_score, prev: previousScores?.transunion_score ?? null },
+                      ] as const).map(({ key, label, score, prev }) => {
+                        const delta = score != null && prev != null ? score - prev : null;
+                        const trendColor = delta == null ? 'text-muted-foreground' : delta > 0 ? 'text-green-500' : delta < 0 ? 'text-destructive' : 'text-muted-foreground';
+                        const TrendIcon = delta == null ? Minus : delta > 0 ? TrendingUp : delta < 0 ? TrendingDown : Minus;
+                        const tier = score == null ? 'No data' : score >= 740 ? 'Very Good' : score >= 670 ? 'Good' : score >= 580 ? 'Fair' : 'Rebuilding';
+                        return (
+                          <div key={key} className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 min-h-[140px] flex flex-col">
+                            <div className="flex items-center justify-between">
+                              <p className="text-[11px] font-bold tracking-widest text-muted-foreground">{label}</p>
+                              {delta != null && delta !== 0 && (
+                                <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${trendColor}`}>
+                                  <TrendIcon className="h-3 w-3" />
+                                  {delta > 0 ? '+' : ''}{delta}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-5xl font-bold text-foreground mt-2 tabular-nums">{score ?? '—'}</p>
+                            <p className="text-xs text-muted-foreground mt-auto">{tier}</p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -353,7 +417,7 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                     {/* Desktop */}
                     <div className="hidden md:block">
                       <Table>
-                        <TableHeader><TableRow><TableHead>File</TableHead><TableHead>Status</TableHead><TableHead>Flagged</TableHead><TableHead>Summary</TableHead><TableHead>Date</TableHead></TableRow></TableHeader>
+                        <TableHeader><TableRow><TableHead>File</TableHead><TableHead>Status</TableHead><TableHead>Flagged</TableHead><TableHead>Summary</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
                         <TableBody>
                           {creditReports.map((r) => (
                             <TableRow key={r.id}>
@@ -362,6 +426,11 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                               <TableCell>{r.flagged_accounts_count || 0}</TableCell>
                               <TableCell className="max-w-[200px] truncate">{r.ai_analysis_summary || '-'}</TableCell>
                               <TableCell>{new Date(r.created_at).toLocaleDateString()}</TableCell>
+                              <TableCell className="text-right">
+                                <Button size="sm" variant="ghost" className="h-9" onClick={() => handleDownloadReport(r)}>
+                                  <Download className="h-4 w-4 mr-1" /> PDF
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -373,11 +442,14 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                         <Card key={r.id} className="glass-card-hover">
                           <CardContent className="pt-4">
                             <p className="font-medium text-sm">{r.file_name}</p>
-                            <div className="flex gap-2 mt-2">
+                            <div className="flex gap-2 mt-2 flex-wrap">
                               {getStatusBadge(r.analysis_status || 'pending')}
                               <Badge variant="outline">{r.flagged_accounts_count || 0} flagged</Badge>
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">{new Date(r.created_at).toLocaleDateString()}</p>
+                            <Button size="sm" variant="outline" className="mt-3 w-full h-11" onClick={() => handleDownloadReport(r)}>
+                              <Download className="h-4 w-4 mr-2" /> Download PDF
+                            </Button>
                           </CardContent>
                         </Card>
                       ))}
@@ -415,9 +487,12 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                         <AccordionContent>
                           <div className="bg-muted/50 rounded-lg p-4 mt-2 border border-border">
                             <pre className="text-sm whitespace-pre-wrap font-mono leading-relaxed text-foreground">{letter.generated_letter}</pre>
-                            <div className="flex gap-2 mt-4">
-                              <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(letter.generated_letter); toast({ title: 'Copied!' }); }}>
+                            <div className="flex flex-wrap gap-2 mt-4">
+                              <Button size="sm" variant="outline" className="h-10" onClick={() => { navigator.clipboard.writeText(letter.generated_letter); toast({ title: 'Copied!' }); }}>
                                 <Copy className="h-4 w-4 mr-2" />Copy
+                              </Button>
+                              <Button size="sm" variant="default" className="h-10" onClick={() => handleDownloadLetter(letter)}>
+                                <Download className="h-4 w-4 mr-2" />Download PDF
                               </Button>
                             </div>
                           </div>
