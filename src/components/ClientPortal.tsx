@@ -358,24 +358,40 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                 })}
               </div>
 
-              {/* Credit Scores - Live Sync */}
+              {/* Bureau Scores — Premium Cards w/ Deltas */}
               {creditScores && (creditScores.experian_score || creditScores.equifax_score || creditScores.transunion_score) && (
-                <Card className="glass-card">
-                  <CardHeader className="pb-2"><CardTitle className="text-sm font-medium flex items-center gap-2"><CreditCard className="w-4 h-4 text-primary" />Credit Scores</CardTitle></CardHeader>
+                <Card className="glass-card border-primary/20">
+                  <CardHeader className="pb-2 flex-row items-center justify-between">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2"><CreditCard className="w-4 h-4 text-primary" />FICO 8 Bureau Scores</CardTitle>
+                    {previousScores && <Badge variant="outline" className="text-[10px]">Live · vs last report</Badge>}
+                  </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div className="p-3 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground">Experian</p>
-                        <p className="text-2xl font-bold text-foreground">{creditScores.experian_score ?? '—'}</p>
-                      </div>
-                      <div className="p-3 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground">Equifax</p>
-                        <p className="text-2xl font-bold text-foreground">{creditScores.equifax_score ?? '—'}</p>
-                      </div>
-                      <div className="p-3 rounded-lg border border-border">
-                        <p className="text-xs text-muted-foreground">TransUnion</p>
-                        <p className="text-2xl font-bold text-foreground">{creditScores.transunion_score ?? '—'}</p>
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {([
+                        { key: 'experian', label: 'EXPERIAN', score: creditScores.experian_score, prev: previousScores?.experian_score ?? null },
+                        { key: 'equifax', label: 'EQUIFAX', score: creditScores.equifax_score, prev: previousScores?.equifax_score ?? null },
+                        { key: 'transunion', label: 'TRANSUNION', score: creditScores.transunion_score, prev: previousScores?.transunion_score ?? null },
+                      ] as const).map(({ key, label, score, prev }) => {
+                        const delta = score != null && prev != null ? score - prev : null;
+                        const trendColor = delta == null ? 'text-muted-foreground' : delta > 0 ? 'text-green-500' : delta < 0 ? 'text-destructive' : 'text-muted-foreground';
+                        const TrendIcon = delta == null ? Minus : delta > 0 ? TrendingUp : delta < 0 ? TrendingDown : Minus;
+                        const tier = score == null ? 'No data' : score >= 740 ? 'Very Good' : score >= 670 ? 'Good' : score >= 580 ? 'Fair' : 'Rebuilding';
+                        return (
+                          <div key={key} className="rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-4 min-h-[140px] flex flex-col">
+                            <div className="flex items-center justify-between">
+                              <p className="text-[11px] font-bold tracking-widest text-muted-foreground">{label}</p>
+                              {delta != null && delta !== 0 && (
+                                <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${trendColor}`}>
+                                  <TrendIcon className="h-3 w-3" />
+                                  {delta > 0 ? '+' : ''}{delta}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-5xl font-bold text-foreground mt-2 tabular-nums">{score ?? '—'}</p>
+                            <p className="text-xs text-muted-foreground mt-auto">{tier}</p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
