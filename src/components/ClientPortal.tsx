@@ -79,7 +79,41 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
   const [disputeLetters, setDisputeLetters] = useState<DisputeLetter[]>([]);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [creditScores, setCreditScores] = useState<{ experian_score: number | null; equifax_score: number | null; transunion_score: number | null } | null>(null);
+  const [previousScores, setPreviousScores] = useState<{ experian_score: number | null; equifax_score: number | null; transunion_score: number | null } | null>(null);
   const { hasSignedAgreement, loading: agreementLoading, refetchAgreementStatus } = useClientAgreement();
+
+  const handleDownloadReport = async (report: CreditReportUpload) => {
+    if (!report.file_path) {
+      toast({ title: 'No file', description: 'This report has no attached file.', variant: 'destructive' });
+      return;
+    }
+    try {
+      await downloadAsPdf('credit-reports', report.file_path, report.file_name);
+      toast({ title: 'Downloaded', description: 'Report saved as PDF.' });
+    } catch (err: any) {
+      toast({ title: 'Download failed', description: err?.message || 'Try again', variant: 'destructive' });
+    }
+  };
+
+  const handleDownloadLetter = (letter: DisputeLetter) => {
+    import('jspdf').then(({ jsPDF }) => {
+      const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
+      const margin = 54;
+      const maxW = pdf.internal.pageSize.getWidth() - margin * 2;
+      pdf.setFont('Times', 'Normal');
+      pdf.setFontSize(11);
+      const lines = pdf.splitTextToSize(letter.generated_letter || '', maxW);
+      let y = margin;
+      const lineH = 14;
+      const pageH = pdf.internal.pageSize.getHeight();
+      lines.forEach((ln: string) => {
+        if (y > pageH - margin) { pdf.addPage(); y = margin; }
+        pdf.text(ln, margin, y);
+        y += lineH;
+      });
+      pdf.save(`Dispute-${letter.creditor_name || 'Letter'}.pdf`);
+    });
+  };
   
   useEffect(() => {
     if (!isAdminPreview && !agreementLoading && hasSignedAgreement === false) setShowAgreementModal(true);
