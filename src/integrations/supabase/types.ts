@@ -87,6 +87,59 @@ export type Database = {
           },
         ]
       }
+      admin_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string | null
+          metadata: Json | null
+          notification_type: string
+          read_at: string | null
+          related_client_id: string | null
+          related_user_id: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          metadata?: Json | null
+          notification_type: string
+          read_at?: string | null
+          related_client_id?: string | null
+          related_user_id?: string | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          metadata?: Json | null
+          notification_type?: string
+          read_at?: string | null
+          related_client_id?: string | null
+          related_user_id?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notifications_related_client_id_fkey"
+            columns: ["related_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_reminders: {
         Row: {
           client_id: string | null
