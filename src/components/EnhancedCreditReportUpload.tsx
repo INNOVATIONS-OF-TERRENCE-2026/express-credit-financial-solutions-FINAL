@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, FileText, Trash2, Eye, Download, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { downloadAsPdf } from '@/lib/documentUtils';
 
 interface CreditReportUpload {
   id: string;
@@ -241,23 +242,12 @@ export function EnhancedCreditReportUpload() {
 
   const handleDownload = async (filePath: string, fileName: string) => {
     try {
-      const { data } = await supabase.storage
-        .from('credit-reports')
-        .createSignedUrl(filePath, 300); // 5 minutes
-
-      if (data?.signedUrl) {
-        const link = document.createElement('a');
-        link.href = data.signedUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      await downloadAsPdf('credit-reports', filePath, fileName);
     } catch (error) {
       console.error('Error downloading file:', error);
       toast({
         title: "Error",
-        description: "Failed to download file",
+        description: error instanceof Error ? error.message : "Failed to download file",
         variant: "destructive",
       });
     }

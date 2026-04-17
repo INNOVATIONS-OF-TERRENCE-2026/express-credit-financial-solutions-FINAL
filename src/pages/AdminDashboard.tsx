@@ -46,6 +46,8 @@ import { AdminCreditReportUploader } from '@/components/AdminCreditReportUploade
 import { AdminTaskEngine } from '@/components/AdminTaskEngine';
 import { AdminDailyOps } from '@/components/AdminDailyOps';
 import { AdminReminders } from '@/components/AdminReminders';
+import { NotificationCenter } from '@/components/NotificationCenter';
+import { AdminMobileNav } from '@/components/AdminMobileNav';
 
 interface AdminUser {
   id: string;
@@ -483,11 +485,14 @@ export default function AdminDashboard() {
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="font-poppins font-semibold text-foreground">
+          <h1 className="font-poppins font-semibold text-foreground text-sm md:text-base truncate">
             {NAV_ITEMS.find(i => i.section === activeSection)?.label || 'Dashboard'}
           </h1>
-          <div className="ml-auto text-xs text-muted-foreground hidden sm:block">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          <div className="ml-auto flex items-center gap-2">
+            <div className="text-xs text-muted-foreground hidden lg:block">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+            <NotificationCenter />
           </div>
         </header>
 

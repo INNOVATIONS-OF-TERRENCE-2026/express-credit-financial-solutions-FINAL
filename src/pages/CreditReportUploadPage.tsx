@@ -170,23 +170,15 @@ export function CreditReportUploadPage() {
 
     const sanitizedFileName = sanitizeFileName(file.name);
     const fileName = `${Date.now()}_${sanitizedFileName}`;
-
-    // Find client id for current user
-    const { data: client } = await supabase
-      .from('clients')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    const clientId = client?.id || user.id;
-
-    const filePath = `${clientId}/${fileName}`;
+    // Path MUST start with auth.uid() to satisfy storage RLS
+    const filePath = `${user.id}/${fileName}`;
     setUploadProgress(10);
 
     const { error } = await supabase.storage
       .from('credit-reports')
-      .upload(filePath, file, { upsert: false });
+      .upload(filePath, file, { contentType: file.type || 'application/pdf', upsert: false });
 
-    if (error) throw error;
+    if (error) throw new Error(error.message);
 
     setUploadProgress(100);
     return filePath;
