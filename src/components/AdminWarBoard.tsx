@@ -186,35 +186,75 @@ export function AdminWarBoard({ onOpenClient }: AdminWarBoardProps) {
 
       {/* Pipeline Columns */}
       {statusFilter === 'all' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-          {WORKFLOW_STATUSES.map(status => {
-            const statusClients = filteredClients.filter(c => c.workflow_status === status.key);
-            const Icon = status.icon;
-            return (
-              <div key={status.key} className={`rounded-xl border ${status.bg} p-4`}>
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon className={`h-4 w-4 ${status.color}`} />
-                  <h3 className="font-semibold text-sm text-foreground">{status.label}</h3>
-                  <Badge variant="secondary" className="ml-auto text-xs">{statusClients.length}</Badge>
+        isMobile ? (
+          <Accordion type="multiple" defaultValue={WORKFLOW_STATUSES.slice(0, 2).map(s => s.key)} className="space-y-2">
+            {WORKFLOW_STATUSES.map(status => {
+              const statusClients = filteredClients.filter(c => c.workflow_status === status.key);
+              const Icon = status.icon;
+              return (
+                <AccordionItem
+                  key={status.key}
+                  value={status.key}
+                  className={`rounded-xl border ${status.bg} px-3`}
+                >
+                  <AccordionTrigger className="py-3 hover:no-underline">
+                    <div className="flex items-center gap-2 flex-1">
+                      <Icon className={`h-4 w-4 ${status.color}`} />
+                      <span className="font-semibold text-sm text-foreground text-left">{status.label}</span>
+                      <Badge variant="secondary" className="ml-auto text-xs">{statusClients.length}</Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2 pb-2">
+                      {statusClients.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-4">No clients</p>
+                      ) : (
+                        statusClients.map(client => (
+                          <ClientCard
+                            key={client.id}
+                            client={client}
+                            onStatusChange={updateClientStatus}
+                            onOpen={() => onOpenClient?.(client.id)}
+                          />
+                        ))
+                      )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+            {WORKFLOW_STATUSES.map(status => {
+              const statusClients = filteredClients.filter(c => c.workflow_status === status.key);
+              const Icon = status.icon;
+              return (
+                <div key={status.key} className={`rounded-xl border ${status.bg} p-4`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon className={`h-4 w-4 ${status.color}`} />
+                    <h3 className="font-semibold text-sm text-foreground">{status.label}</h3>
+                    <Badge variant="secondary" className="ml-auto text-xs">{statusClients.length}</Badge>
+                  </div>
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                    {statusClients.length === 0 ? (
+                      <p className="text-xs text-muted-foreground text-center py-4">No clients</p>
+                    ) : (
+                      statusClients.map(client => (
+                        <ClientCard
+                          key={client.id}
+                          client={client}
+                          onStatusChange={updateClientStatus}
+                          onOpen={() => onOpenClient?.(client.id)}
+                        />
+                      ))
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                  {statusClients.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-4">No clients</p>
-                  ) : (
-                    statusClients.map(client => (
-                      <ClientCard
-                        key={client.id}
-                        client={client}
-                        onStatusChange={updateClientStatus}
-                        onOpen={() => onOpenClient?.(client.id)}
-                      />
-                    ))
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredClients.map(client => (
