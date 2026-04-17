@@ -203,17 +203,29 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
     }
   };
   const fetchCreditScores = async () => {
-    if (resolvedClientId) {
-      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('client_id', resolvedClientId).single();
-      if (data) { setCreditScores(data as any); return; }
-      if (clientData?.user_id) {
-        const { data: byUser } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', clientData.user_id).single();
-        if (byUser) setCreditScores(byUser as any);
-      }
-    } else {
-      if (!user) return;
-      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', user.id).single();
-      if (data) setCreditScores(data as any);
+    const targetUserId = resolvedClientId ? clientData?.user_id : user?.id;
+    const targetClientId = resolvedClientId || clientData?.id;
+
+    let current: any = null;
+    if (targetClientId) {
+      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('client_id', targetClientId).maybeSingle();
+      current = data;
+    }
+    if (!current && targetUserId) {
+      const { data } = await supabase.from('client_credit_scores' as any).select('*').eq('user_id', targetUserId).maybeSingle();
+      current = data;
+    }
+    if (current) setCreditScores(current);
+
+    // Previous snapshot (history) for delta
+    if (targetClientId) {
+      const { data: hist } = await supabase
+        .from('credit_scores' as any)
+        .select('*')
+        .eq('client_id', targetClientId)
+        .order('created_at', { ascending: false })
+        .limit(2);
+      if (hist && hist.length > 1) setPreviousScores(hist[1] as any);
     }
   };
 
