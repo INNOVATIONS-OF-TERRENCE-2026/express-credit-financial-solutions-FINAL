@@ -417,7 +417,7 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                     {/* Desktop */}
                     <div className="hidden md:block">
                       <Table>
-                        <TableHeader><TableRow><TableHead>File</TableHead><TableHead>Status</TableHead><TableHead>Flagged</TableHead><TableHead>Summary</TableHead><TableHead>Date</TableHead></TableRow></TableHeader>
+                        <TableHeader><TableRow><TableHead>File</TableHead><TableHead>Status</TableHead><TableHead>Flagged</TableHead><TableHead>Summary</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
                         <TableBody>
                           {creditReports.map((r) => (
                             <TableRow key={r.id}>
@@ -426,6 +426,11 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                               <TableCell>{r.flagged_accounts_count || 0}</TableCell>
                               <TableCell className="max-w-[200px] truncate">{r.ai_analysis_summary || '-'}</TableCell>
                               <TableCell>{new Date(r.created_at).toLocaleDateString()}</TableCell>
+                              <TableCell className="text-right">
+                                <Button size="sm" variant="ghost" className="h-9" onClick={() => handleDownloadReport(r)}>
+                                  <Download className="h-4 w-4 mr-1" /> PDF
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -437,11 +442,14 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
                         <Card key={r.id} className="glass-card-hover">
                           <CardContent className="pt-4">
                             <p className="font-medium text-sm">{r.file_name}</p>
-                            <div className="flex gap-2 mt-2">
+                            <div className="flex gap-2 mt-2 flex-wrap">
                               {getStatusBadge(r.analysis_status || 'pending')}
                               <Badge variant="outline">{r.flagged_accounts_count || 0} flagged</Badge>
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">{new Date(r.created_at).toLocaleDateString()}</p>
+                            <Button size="sm" variant="outline" className="mt-3 w-full h-11" onClick={() => handleDownloadReport(r)}>
+                              <Download className="h-4 w-4 mr-2" /> Download PDF
+                            </Button>
                           </CardContent>
                         </Card>
                       ))}
