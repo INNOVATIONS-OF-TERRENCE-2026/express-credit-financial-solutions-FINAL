@@ -1077,32 +1077,38 @@ export type Database = {
       client_agreements: {
         Row: {
           agreement_version: string | null
+          client_id: string | null
           created_at: string
           full_name: string
           id: string
           ip_address: string | null
           signature_data: string
           signed_at: string
+          signed_pdf_path: string | null
           user_id: string
         }
         Insert: {
           agreement_version?: string | null
+          client_id?: string | null
           created_at?: string
           full_name: string
           id?: string
           ip_address?: string | null
           signature_data: string
           signed_at?: string
+          signed_pdf_path?: string | null
           user_id: string
         }
         Update: {
           agreement_version?: string | null
+          client_id?: string | null
           created_at?: string
           full_name?: string
           id?: string
           ip_address?: string | null
           signature_data?: string
           signed_at?: string
+          signed_pdf_path?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1868,6 +1874,7 @@ export type Database = {
           fico_score: number | null
           file_name: string | null
           id: string
+          is_current: boolean
           negative_items: string[] | null
           notes: string | null
           storage_path: string | null
@@ -1875,6 +1882,7 @@ export type Database = {
           uploaded_by: string | null
           uploaded_file_url: string | null
           user_id: string
+          version: number
         }
         Insert: {
           bureau?: string | null
@@ -1883,6 +1891,7 @@ export type Database = {
           fico_score?: number | null
           file_name?: string | null
           id?: string
+          is_current?: boolean
           negative_items?: string[] | null
           notes?: string | null
           storage_path?: string | null
@@ -1890,6 +1899,7 @@ export type Database = {
           uploaded_by?: string | null
           uploaded_file_url?: string | null
           user_id: string
+          version?: number
         }
         Update: {
           bureau?: string | null
@@ -1898,6 +1908,7 @@ export type Database = {
           fico_score?: number | null
           file_name?: string | null
           id?: string
+          is_current?: boolean
           negative_items?: string[] | null
           notes?: string | null
           storage_path?: string | null
@@ -1905,6 +1916,7 @@ export type Database = {
           uploaded_by?: string | null
           uploaded_file_url?: string | null
           user_id?: string
+          version?: number
         }
         Relationships: [
           {
