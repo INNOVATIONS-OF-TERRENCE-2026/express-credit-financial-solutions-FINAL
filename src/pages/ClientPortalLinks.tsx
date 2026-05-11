@@ -194,9 +194,10 @@ export default function ClientPortalLinks() {
 
   const copyPortalLink = (client: MergedClient) => {
     const id = client.client_id || client.user_id;
-    const url = `${window.location.origin}/client/${id}`;
+    // Use admin-safe preview link (admins never need client re-auth)
+    const url = `${window.location.origin}/admin/client-preview/${id}`;
     navigator.clipboard.writeText(url);
-    toast({ title: 'Link Copied', description: `Portal link for ${client.full_name || client.email} copied` });
+    toast({ title: 'Admin Preview Link Copied', description: `Preview link for ${client.full_name || client.email} copied` });
   };
 
   if (rolesLoading || loading) {
