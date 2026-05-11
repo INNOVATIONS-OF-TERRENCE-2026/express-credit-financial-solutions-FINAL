@@ -48,6 +48,7 @@ import { AdminDailyOps } from '@/components/AdminDailyOps';
 import { AdminReminders } from '@/components/AdminReminders';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { AdminMobileNav } from '@/components/AdminMobileNav';
+import { AdminAuditLogPanel } from '@/components/AdminAuditLogPanel';
 
 interface AdminUser {
   id: string;
@@ -80,7 +81,7 @@ interface NotificationLog {
   details: any;
 }
 
-type Section = 'overview' | 'war-board' | 'client-profile' | 'unlinked-accounts' | 'credit-upload' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'automation' | 'ai-execution' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system' | 'tasks' | 'daily-ops' | 'reminders';
+type Section = 'overview' | 'war-board' | 'client-profile' | 'unlinked-accounts' | 'credit-upload' | 'review-queue' | 'pipeline' | 'ai-analysis' | 'ai-ops' | 'backlog' | 'processing' | 'bulk-docs' | 'autonomous' | 'dispute-command' | 'automation' | 'ai-execution' | 'users' | 'membership' | 'disputes' | 'documents' | 'credit-reports' | 'email' | 'system' | 'tasks' | 'daily-ops' | 'reminders' | 'audit-log';
 
 const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[] = [
   // ⚡ PRIORITY TOOLS — top of sidebar for instant access
@@ -118,6 +119,7 @@ const NAV_ITEMS: { section: Section; label: string; icon: any; group: string }[]
   { section: 'credit-reports', label: 'Credit Reports', icon: FileSearch, group: 'MANAGEMENT' },
   { section: 'email', label: 'Email', icon: Mail, group: 'OPERATIONS' },
   { section: 'system', label: 'System', icon: Settings, group: 'OPERATIONS' },
+  { section: 'audit-log', label: 'Audit Log', icon: Shield, group: 'OPERATIONS' },
 ];
 
 // Command Center card definitions
