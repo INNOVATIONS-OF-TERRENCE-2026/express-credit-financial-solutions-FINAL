@@ -247,7 +247,15 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="w-full max-w-md glass-card">
-          <CardHeader className="text-center"><Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" /><CardTitle>Client data not found</CardTitle><CardDescription>Please contact support.</CardDescription></CardHeader>
+          <CardHeader className="text-center">
+            <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <CardTitle>Client data not found</CardTitle>
+            <CardDescription>
+              {isAdminPreview
+                ? 'This client has no record in the clients table yet. Open the client editor to create one, or verify the link.'
+                : 'Please contact support.'}
+            </CardDescription>
+          </CardHeader>
         </Card>
       </div>
     );

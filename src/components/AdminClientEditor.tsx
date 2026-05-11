@@ -42,25 +42,39 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
   const [scores, setScores] = useState<CreditScores>({ experian_score: null, equifax_score: null, transunion_score: null });
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     if (clientId && open) fetchClient();
+    if (!open) { setClient(null); setNotFound(false); }
   }, [clientId, open]);
 
   const fetchClient = async () => {
     if (!clientId) return;
-    const resolved = await resolveClientId(clientId);
-    const actualId = resolved?.clientId || clientId;
-    const [{ data: c }, { data: s }] = await Promise.all([
-      supabase.from('clients').select('*').eq('id', actualId).single(),
-      supabase.from('client_credit_scores' as any).select('*').eq('client_id', actualId).single(),
-    ]);
-    if (c) setClient(c as ClientData);
-    if (s) {
-      const scoreData = s as any;
-      setScores({ experian_score: scoreData.experian_score, equifax_score: scoreData.equifax_score, transunion_score: scoreData.transunion_score });
-    } else {
-      setScores({ experian_score: null, equifax_score: null, transunion_score: null });
+    setLoading(true);
+    setNotFound(false);
+    try {
+      const resolved = await resolveClientId(clientId);
+      const actualId = resolved?.clientId || clientId;
+      const [{ data: c, error: cErr }, { data: s }] = await Promise.all([
+        supabase.from('clients').select('*').eq('id', actualId).maybeSingle(),
+        supabase.from('client_credit_scores' as any).select('*').eq('client_id', actualId).maybeSingle(),
+      ]);
+      if (cErr) throw cErr;
+      if (!c) { setClient(null); setNotFound(true); return; }
+      setClient(c as ClientData);
+      if (s) {
+        const scoreData = s as any;
+        setScores({ experian_score: scoreData.experian_score, equifax_score: scoreData.equifax_score, transunion_score: scoreData.transunion_score });
+      } else {
+        setScores({ experian_score: null, equifax_score: null, transunion_score: null });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error loading client', description: err?.message || 'Could not load client data', variant: 'destructive' });
+      setNotFound(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,15 +133,30 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
     setClient({ ...client, [field]: value });
   };
 
-  if (!client) return null;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">Edit Client: {client.full_name}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {client ? `Edit Client: ${client.full_name}` : loading ? 'Loading client…' : 'Edit Client'}
+          </DialogTitle>
         </DialogHeader>
 
+        {loading && (
+          <div className="py-12 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">Loading client data…</p>
+          </div>
+        )}
+
+        {!loading && notFound && (
+          <div className="py-8 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">Client record not found.</p>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+          </div>
+        )}
+
+        {!loading && !notFound && client && (
         <div className="space-y-6">
           {/* Personal Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -184,6 +213,7 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
             </Button>
           </div>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );
