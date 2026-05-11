@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { ClientLogin } from '@/components/ClientLogin';
 import { ClientPortal } from '@/components/ClientPortal';
@@ -17,6 +17,7 @@ export default function ClientPortals() {
   const [clientName, setClientName] = useState<string | null>(null);
   const [resolvedClientId, setResolvedClientId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adminRedirectTo, setAdminRedirectTo] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuthentication();
@@ -35,9 +36,8 @@ export default function ClientPortals() {
       // Admin can access any portal
       if (isAdmin()) {
         if (resolved) {
-          setClientName(resolved.fullName);
-          setResolvedClientId(resolved.clientId);
-          setIsAuthenticated(true);
+          // Admins should never view the public client portal — redirect to admin preview
+          setAdminRedirectTo(`/admin/client-preview/${resolved.clientId}`);
         } else {
           // Fallback: check profiles table for email display
           if (isUUID(clientSlug)) {
@@ -50,8 +50,8 @@ export default function ClientPortals() {
           } else {
             setClientName('Client');
           }
-          setResolvedClientId(null);
-          setIsAuthenticated(true);
+          // No client record exists — send admin back to client list
+          setAdminRedirectTo('/admin/clients');
         }
         setLoading(false);
         return;
@@ -95,6 +95,10 @@ export default function ClientPortals() {
         <div className="text-center">Loading...</div>
       </div>
     );
+  }
+
+  if (adminRedirectTo) {
+    return <Navigate to={adminRedirectTo} replace />;
   }
 
   if (!isAuthenticated) {
