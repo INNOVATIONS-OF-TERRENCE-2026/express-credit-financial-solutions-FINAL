@@ -78,7 +78,16 @@ export function DisputeCommandCenter() {
   };
 
   const updateCaseStatus = async (caseId: string, status: string) => {
+    const prev = cases.find(x => x.id === caseId);
     await supabase.from('dispute_cases' as any).update({ status } as any).eq('id', caseId);
+    await supabase.rpc('log_security_event', {
+      p_action: 'DISPUTE_STATUS_CHANGED',
+      p_table_name: 'dispute_cases',
+      p_record_id: caseId,
+      p_details: { case_id: caseId, client_id: prev?.client_id, change: { from: prev?.status || null, to: status } },
+      p_security_level: 'info',
+      p_risk_score: 2,
+    } as any);
     // Also update letter status if approving
     if (status === 'sent') {
       await supabase.from('ai_dispute_letters' as any).update({ status: 'sent' } as any).eq('dispute_case_id', caseId);
@@ -98,6 +107,14 @@ export function DisputeCommandCenter() {
   const approveLetter = async (caseId: string) => {
     await supabase.from('ai_dispute_letters' as any).update({ status: 'approved' } as any).eq('dispute_case_id', caseId);
     await supabase.from('dispute_cases' as any).update({ status: 'generated' } as any).eq('id', caseId);
+    await supabase.rpc('log_security_event', {
+      p_action: 'DISPUTE_LETTER_APPROVED',
+      p_table_name: 'dispute_cases',
+      p_record_id: caseId,
+      p_details: { case_id: caseId },
+      p_security_level: 'info',
+      p_risk_score: 2,
+    } as any);
     toast({ title: 'Letter Approved' });
     fetchData();
   };

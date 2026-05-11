@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   FileText, Upload, Brain, Shield, TrendingUp, User, Bell, Clock, Activity 
 } from 'lucide-react';
@@ -18,6 +19,16 @@ const ICONS: Record<string, any> = {
   system: Activity,
 };
 
+type FilterKey = 'all' | 'documents' | 'ai' | 'disputes' | 'notes';
+
+const FILTERS: { key: FilterKey; label: string; match: (t: string) => boolean }[] = [
+  { key: 'all', label: 'All', match: () => true },
+  { key: 'documents', label: 'Documents', match: t => /document|credit_report|upload|file/i.test(t) },
+  { key: 'ai', label: 'AI & Agent', match: t => /ai|analysis|agent|assistant|response/i.test(t) },
+  { key: 'disputes', label: 'Disputes', match: t => /dispute|letter|bureau/i.test(t) },
+  { key: 'notes', label: 'Notes', match: t => /note|admin|message|comment/i.test(t) },
+];
+
 interface Props {
   userId?: string;
   clientId?: string;
@@ -28,6 +39,7 @@ interface Props {
 export function ClientActivityTimeline({ userId, clientId, showAdminOnly = false, limit = 30 }: Props) {
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterKey>('all');
 
   useEffect(() => {
     fetchTimeline();
@@ -56,6 +68,9 @@ export function ClientActivityTimeline({ userId, clientId, showAdminOnly = false
 
   if (loading) return <div className="flex items-center justify-center p-8"><Activity className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
 
+  const activeFilter = FILTERS.find(f => f.key === filter) || FILTERS[0];
+  const visible = entries.filter(e => activeFilter.match(String(e.activity_type || '')));
+
   if (entries.length === 0) {
     return (
       <Card>
@@ -69,12 +84,35 @@ export function ClientActivityTimeline({ userId, clientId, showAdminOnly = false
 
   return (
     <Card>
-      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4" />Activity Timeline</CardTitle></CardHeader>
+      <CardHeader className="space-y-3">
+        <CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4" />Activity Timeline</CardTitle>
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map(f => {
+            const count = f.key === 'all' ? entries.length : entries.filter(e => f.match(String(e.activity_type || ''))).length;
+            const active = filter === f.key;
+            return (
+              <Button
+                key={f.key}
+                size="sm"
+                variant={active ? 'default' : 'outline'}
+                onClick={() => setFilter(f.key)}
+                className="h-9 px-3 text-xs"
+              >
+                {f.label}
+                <span className={`ml-2 rounded-full px-1.5 text-[10px] ${active ? 'bg-background/20' : 'bg-muted'}`}>{count}</span>
+              </Button>
+            );
+          })}
+        </div>
+      </CardHeader>
       <CardContent>
+        {visible.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">No entries match this filter.</p>
+        ) : (
         <div className="relative">
           <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
           <div className="space-y-4">
-            {entries.map(entry => {
+            {visible.map(entry => {
               const Icon = ICONS[entry.activity_type] || Activity;
               return (
                 <div key={entry.id} className="relative flex items-start gap-3 pl-8">
@@ -94,6 +132,7 @@ export function ClientActivityTimeline({ userId, clientId, showAdminOnly = false
             })}
           </div>
         </div>
+        )}
       </CardContent>
     </Card>
   );

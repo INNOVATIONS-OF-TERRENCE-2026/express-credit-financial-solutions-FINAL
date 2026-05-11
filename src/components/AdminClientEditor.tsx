@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { resolveClient as resolveClientId } from '@/lib/resolveClient';
-import { Save, Zap, CreditCard } from 'lucide-react';
+import { Save, Zap, CreditCard, FileSignature, Download } from 'lucide-react';
+import { CreditReportVersionHistory } from './CreditReportVersionHistory';
 
 interface ClientData {
   id: string;
@@ -39,15 +40,17 @@ interface AdminClientEditorProps {
 export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: AdminClientEditorProps) {
   const { toast } = useToast();
   const [client, setClient] = useState<ClientData | null>(null);
+  const [originalClient, setOriginalClient] = useState<ClientData | null>(null);
   const [scores, setScores] = useState<CreditScores>({ experian_score: null, equifax_score: null, transunion_score: null });
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [agreements, setAgreements] = useState<any[]>([]);
 
   useEffect(() => {
     if (clientId && open) fetchClient();
-    if (!open) { setClient(null); setNotFound(false); }
+    if (!open) { setClient(null); setOriginalClient(null); setNotFound(false); setAgreements([]); }
   }, [clientId, open]);
 
   const fetchClient = async () => {
@@ -57,13 +60,16 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
     try {
       const resolved = await resolveClientId(clientId);
       const actualId = resolved?.clientId || clientId;
-      const [{ data: c, error: cErr }, { data: s }] = await Promise.all([
+      const [{ data: c, error: cErr }, { data: s }, { data: ags }] = await Promise.all([
         supabase.from('clients').select('*').eq('id', actualId).maybeSingle(),
         supabase.from('client_credit_scores' as any).select('*').eq('client_id', actualId).maybeSingle(),
+        supabase.from('client_agreements').select('id,full_name,signed_at,agreement_version,signed_pdf_path,created_at').eq('client_id', actualId).order('created_at', { ascending: false }),
       ]);
       if (cErr) throw cErr;
       if (!c) { setClient(null); setNotFound(true); return; }
       setClient(c as ClientData);
+      setOriginalClient(c as ClientData);
+      setAgreements((ags as any) || []);
       if (s) {
         const scoreData = s as any;
         setScores({ experian_score: scoreData.experian_score, equifax_score: scoreData.equifax_score, transunion_score: scoreData.transunion_score });
@@ -82,6 +88,15 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
     if (!client) return;
     setSaving(true);
     try {
+      // Compute diff vs originals for audit log
+      const tracked: (keyof ClientData)[] = ['full_name','email','phone','address','dob','ssn_last4','membership_plan'];
+      const diff: Record<string, { from: any; to: any }> = {};
+      tracked.forEach(k => {
+        const before = (originalClient as any)?.[k] ?? null;
+        const after = (client as any)?.[k] ?? null;
+        if (before !== after) diff[k] = { from: before, to: after };
+      });
+
       const { error: clientErr } = await supabase.from('clients')
         .update({ full_name: client.full_name, email: client.email, phone: client.phone, address: client.address, dob: client.dob, ssn_last4: client.ssn_last4, membership_plan: client.membership_plan, updated_at: new Date().toISOString() })
         .eq('id', client.id);
@@ -92,7 +107,31 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
         .upsert({ client_id: client.id, user_id: client.user_id, ...scores, source: 'manual', updated_at: new Date().toISOString() } as any, { onConflict: 'client_id' });
       if (scoreErr) throw scoreErr;
 
+      // Audit log — separate entries for membership and field edits
+      if (diff.membership_plan) {
+        await supabase.rpc('log_security_event', {
+          p_action: 'CLIENT_MEMBERSHIP_CHANGED',
+          p_table_name: 'clients',
+          p_record_id: client.id,
+          p_details: { client_id: client.id, change: diff.membership_plan },
+          p_security_level: 'info',
+          p_risk_score: 2,
+        });
+      }
+      const fieldDiff = Object.fromEntries(Object.entries(diff).filter(([k]) => k !== 'membership_plan'));
+      if (Object.keys(fieldDiff).length > 0) {
+        await supabase.rpc('log_security_event', {
+          p_action: 'CLIENT_FIELDS_UPDATED',
+          p_table_name: 'clients',
+          p_record_id: client.id,
+          p_details: { client_id: client.id, changes: fieldDiff },
+          p_security_level: 'info',
+          p_risk_score: 2,
+        });
+      }
+
       toast({ title: 'Client Updated', description: 'All changes saved successfully.' });
+      setOriginalClient({ ...client });
       // Fire automation events
       try {
         await supabase.functions.invoke('process-automation-event', {
@@ -128,6 +167,16 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
     }
   };
 
+  const downloadAgreement = async (path: string) => {
+    try {
+      const { data, error } = await supabase.storage.from('client-agreements').createSignedUrl(path, 300);
+      if (error || !data?.signedUrl) throw error || new Error('No signed URL');
+      window.open(data.signedUrl, '_blank');
+    } catch (err: any) {
+      toast({ title: 'Download failed', description: err.message, variant: 'destructive' });
+    }
+  };
+
   const updateField = (field: keyof ClientData, value: string) => {
     if (!client) return;
     setClient({ ...client, [field]: value });
@@ -135,7 +184,7 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {client ? `Edit Client: ${client.full_name}` : loading ? 'Loading client…' : 'Edit Client'}
@@ -212,6 +261,39 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
               <Zap className="h-4 w-4 mr-2" />{generating ? 'Generating...' : 'Generate Disputes'}
             </Button>
           </div>
+
+          {/* Signed Agreements */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2"><FileSignature className="h-4 w-4 text-primary" /> Signed Agreements <Badge variant="outline">{agreements.length}</Badge></CardTitle>
+            </CardHeader>
+            <CardContent>
+              {agreements.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No signed agreements on file for this client yet.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {agreements.map(a => (
+                    <li key={a.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card/50 p-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{a.full_name}</p>
+                        <p className="text-xs text-muted-foreground">{a.agreement_version || 'v1.0'} · {new Date(a.signed_at || a.created_at).toLocaleString()}</p>
+                      </div>
+                      {a.signed_pdf_path ? (
+                        <Button size="sm" variant="outline" className="h-9" onClick={() => downloadAgreement(a.signed_pdf_path)}>
+                          <Download className="h-4 w-4 mr-1" /> PDF
+                        </Button>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px]">Legacy</Badge>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Credit Report Versions */}
+          <CreditReportVersionHistory clientId={client.id} />
         </div>
         )}
       </DialogContent>

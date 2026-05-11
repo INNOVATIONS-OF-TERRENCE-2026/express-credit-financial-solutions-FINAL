@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Download } from 'lucide-react';
+import { FileText, Download, PenTool, Eraser } from 'lucide-react';
+import jsPDF from 'jspdf';
 
 interface ClientAgreementModalProps {
   isOpen: boolean;
@@ -18,64 +19,187 @@ interface ClientAgreementModalProps {
 
 export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: ClientAgreementModalProps) {
   const [fullName, setFullName] = useState('');
-  const [signature, setSignature] = useState('');
+  const [typedSignature, setTypedSignature] = useState('');
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawingRef = useRef(false);
+
+  const startDraw = (clientX: number, clientY: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#111827';
+    ctx.beginPath();
+    ctx.moveTo(clientX - rect.left, clientY - rect.top);
+    drawingRef.current = true;
+  };
+  const moveDraw = (clientX: number, clientY: number) => {
+    if (!drawingRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.lineTo(clientX - rect.left, clientY - rect.top);
+    ctx.stroke();
+  };
+  const endDraw = () => {
+    if (!drawingRef.current) return;
+    drawingRef.current = false;
+    const canvas = canvasRef.current;
+    if (canvas) setSignatureDataUrl(canvas.toDataURL('image/png'));
+  };
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setSignatureDataUrl('');
+  };
+
+  const buildPdfBlob = (clientName: string, signaturePng: string): Blob => {
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    const margin = 48;
+    let y = margin;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(16);
+    doc.text('EXPRESS CREDIT & FINANCIAL SOLUTIONS', margin, y); y += 22;
+    doc.setFontSize(13); doc.text('Client Service Agreement', margin, y); y += 26;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+    const body = [
+      'This Service Agreement ("Agreement") is entered into between Express Credit & Financial Solutions ("Company") and the undersigned client ("Client").',
+      '',
+      '1. SERVICES PROVIDED — Credit report analysis, dispute letter preparation and submission, credit monitoring and tracking, financial education and guidance.',
+      '',
+      '2. CLIENT RESPONSIBILITIES — Provide accurate information, respond promptly to Company requests, follow recommendations, pay all fees per the selected plan.',
+      '',
+      '3. FEES AND PAYMENT — Fees apply per the selected membership plan (Basic / Pro / Elite / VIP) as disclosed at enrollment.',
+      '',
+      '4. TERM AND TERMINATION — This agreement remains in effect until terminated by either party with 30 days written notice.',
+      '',
+      '5. DISCLAIMERS — Company makes no guarantee of specific credit score improvements. Results may vary based on individual circumstances.',
+      '',
+      '6. PRIVACY AND CONFIDENTIALITY — Company maintains strict confidentiality of all client information in accordance with applicable laws (FCRA, FDCPA, CROA).',
+      '',
+      'By signing below, Client acknowledges reading, understanding, and agreeing to all terms and conditions of this Agreement.',
+    ];
+    body.forEach(line => {
+      const wrapped = doc.splitTextToSize(line, 515);
+      doc.text(wrapped, margin, y); y += wrapped.length * 13 + 4;
+      if (y > 720) { doc.addPage(); y = margin; }
+    });
+    y += 14;
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Client: ${clientName}`, margin, y); y += 16;
+    doc.text(`Date: ${new Date().toLocaleString()}`, margin, y); y += 16;
+    doc.text('Signature:', margin, y); y += 6;
+    try { doc.addImage(signaturePng, 'PNG', margin, y, 220, 70); } catch { /* ignore */ }
+    y += 84;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+    doc.text('Agreement v1.0  ·  Electronically signed and binding under ESIGN Act / UETA', margin, y);
+    return doc.output('blob');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!fullName.trim() || !signature.trim()) {
-      toast({
-        title: 'Missing Information',
-        description: 'Please provide both your full name and electronic signature.',
-        variant: 'destructive',
-      });
+
+    if (!fullName.trim()) {
+      toast({ title: 'Missing Information', description: 'Please type your full legal name.', variant: 'destructive' });
       return;
     }
-
+    if (!signatureDataUrl && !typedSignature.trim()) {
+      toast({ title: 'Signature required', description: 'Draw your signature or type it below.', variant: 'destructive' });
+      return;
+    }
     if (!user) {
-      toast({
-        title: 'Authentication Error',
-        description: 'You must be logged in to sign the agreement.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Authentication Error', description: 'You must be logged in to sign the agreement.', variant: 'destructive' });
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      // Save the signed agreement to the database
-      const { error } = await supabase
+      // Build PNG of signature (use canvas if drawn, otherwise render typed name)
+      let signaturePng = signatureDataUrl;
+      if (!signaturePng) {
+        const tmp = document.createElement('canvas');
+        tmp.width = 500; tmp.height = 150;
+        const ctx = tmp.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 500, 150);
+          ctx.fillStyle = '#111827';
+          ctx.font = 'italic 48px "Brush Script MT", cursive, sans-serif';
+          ctx.fillText(typedSignature.trim(), 20, 90);
+          signaturePng = tmp.toDataURL('image/png');
+        }
+      }
+
+      // Resolve client_id
+      const { data: clientRow } = await supabase
+        .from('clients').select('id').eq('user_id', user.id).maybeSingle();
+      const clientId: string | null = (clientRow as any)?.id || null;
+
+      // Build and upload signed PDF
+      const pdfBlob = buildPdfBlob(fullName.trim(), signaturePng);
+      const ts = Date.now();
+      const pdfPath = `${user.id}/${ts}-service-agreement.pdf`;
+      const { error: uploadErr } = await supabase.storage
+        .from('client-agreements')
+        .upload(pdfPath, pdfBlob, { contentType: 'application/pdf', upsert: false });
+      if (uploadErr) throw uploadErr;
+
+      // Insert agreement record
+      const { data: inserted, error: insertErr } = await supabase
         .from('client_agreements')
         .insert({
           user_id: user.id,
+          client_id: clientId,
           full_name: fullName.trim(),
-          signature_data: signature.trim(),
+          signature_data: signaturePng,
+          signed_pdf_path: pdfPath,
           ip_address: window.location.hostname,
-          agreement_version: 'v1.0'
-        });
+          agreement_version: 'v1.0',
+        } as any)
+        .select('id')
+        .single();
+      if (insertErr) throw insertErr;
 
-      if (error) {
-        throw error;
-      }
+      // Audit + activity timeline
+      await Promise.all([
+        supabase.rpc('log_security_event', {
+          p_action: 'CLIENT_AGREEMENT_SIGNED',
+          p_table_name: 'client_agreements',
+          p_record_id: (inserted as any)?.id || null,
+          p_details: { client_id: clientId, agreement_version: 'v1.0', signed_pdf_path: pdfPath },
+          p_security_level: 'info',
+          p_risk_score: 1,
+        }),
+        clientId
+          ? supabase.from('client_activity_timeline').insert({
+              client_id: clientId,
+              user_id: user.id,
+              activity_type: 'agreement',
+              title: 'Service agreement signed',
+              description: 'Client signed and submitted the service agreement.',
+              visible_to_client: true,
+              visible_to_admin: true,
+              created_by_source: 'client_portal',
+            } as any)
+          : Promise.resolve(),
+      ]);
 
-      toast({
-        title: 'Agreement Signed',
-        description: 'Your service agreement has been successfully signed.',
-      });
-
+      toast({ title: 'Agreement Signed', description: 'Your signed agreement has been saved.' });
       onAgreementSigned();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing agreement:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to sign agreement. Please try again.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error?.message || 'Failed to sign agreement. Please try again.', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +260,9 @@ Date: ${new Date().toLocaleDateString()}
 
   const handleClose = () => {
     setFullName('');
-    setSignature('');
+    setTypedSignature('');
+    setSignatureDataUrl('');
+    clearCanvas();
     onClose();
   };
 
@@ -209,36 +335,48 @@ Date: ${new Date().toLocaleDateString()}
 
           {/* Signature Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Legal Name *</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter your full legal name"
-                  required
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Legal Name *</Label>
+              <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full legal name" required />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><PenTool className="h-4 w-4" /> Draw your signature *</Label>
+              <div className="border rounded-lg p-3 bg-muted/30">
+                <canvas
+                  ref={canvasRef}
+                  width={620}
+                  height={160}
+                  className="border-2 border-dashed border-muted-foreground/40 w-full cursor-crosshair bg-white rounded touch-none"
+                  onMouseDown={(e) => startDraw(e.clientX, e.clientY)}
+                  onMouseMove={(e) => moveDraw(e.clientX, e.clientY)}
+                  onMouseUp={endDraw}
+                  onMouseLeave={endDraw}
+                  onTouchStart={(e) => { const t = e.touches[0]; if (t) startDraw(t.clientX, t.clientY); }}
+                  onTouchMove={(e) => { e.preventDefault(); const t = e.touches[0]; if (t) moveDraw(t.clientX, t.clientY); }}
+                  onTouchEnd={endDraw}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signature">Electronic Signature *</Label>
-                <Input
-                  id="signature"
-                  value={signature}
-                  onChange={(e) => setSignature(e.target.value)}
-                  placeholder="Type your full name as signature"
-                  required
-                />
+                <div className="flex justify-between items-center mt-2">
+                  <p className="text-xs text-muted-foreground">Sign with mouse or finger. Or type your name below if you can't draw.</p>
+                  <Button type="button" variant="outline" size="sm" onClick={clearCanvas} className="h-9">
+                    <Eraser className="h-4 w-4 mr-1" /> Clear
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="typedSignature">Or type signature (fallback)</Label>
+              <Input id="typedSignature" value={typedSignature} onChange={(e) => setTypedSignature(e.target.value)} placeholder="Type your full name as a typed signature" />
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
               <Button variant="outline" type="button" onClick={handleClose}>
                 Cancel
               </Button>
               <Button 
                 type="submit" 
-                disabled={isSubmitting || !fullName.trim() || !signature.trim()}
+                disabled={isSubmitting || !fullName.trim() || (!signatureDataUrl && !typedSignature.trim())}
                 className="bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800"
               >
                 {isSubmitting ? 'Signing...' : 'I Agree & Sign Agreement'}

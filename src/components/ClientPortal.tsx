@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
 import { ClientDocumentManager } from '@/components/ClientDocumentManager';
 import { ClientAgreementModal } from '@/components/ClientAgreementModal';
+import { OnboardingChecklist } from '@/components/OnboardingChecklist';
 import { useClientAgreement } from '@/hooks/useClientAgreement';
 import { DemoUserBanner } from '@/components/DemoUserBanner';
 import { ReceiptGenerator } from '@/components/ReceiptGenerator';
@@ -349,6 +350,9 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
           {/* Dashboard */}
           {activeTab === 'dashboard' && (
             <div className="space-y-4 animate-fade-in">
+              {!isAdminPreview && user?.id && (
+                <OnboardingChecklist userId={user.id} clientId={clientData.id} onJumpTab={setActiveTab} />
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { label: 'Profile', icon: User, content: <><p className="text-sm"><strong>Name:</strong> {clientData.full_name}</p><p className="text-sm"><strong>Plan:</strong> {clientData.membership_plan}</p></> },
