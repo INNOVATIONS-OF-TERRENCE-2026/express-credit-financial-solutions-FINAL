@@ -735,6 +735,9 @@ export default function AdminDashboard() {
           {/* Reminders */}
           {activeSection === 'reminders' && <div className="animate-fade-in"><AdminReminders /></div>}
 
+          {/* Audit Log */}
+          {activeSection === 'audit-log' && <div className="animate-fade-in"><AdminAuditLogPanel /></div>}
+
           {/* Users */}
           {activeSection === 'users' && (
             <div className="space-y-6 animate-fade-in">
