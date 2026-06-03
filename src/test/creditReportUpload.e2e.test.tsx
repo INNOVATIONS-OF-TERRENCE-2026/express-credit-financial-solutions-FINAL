@@ -124,11 +124,11 @@ describe('Credit Report Upload Center — E2E', () => {
     // Analysis was triggered
     expect(captured.fnInvocations.some((f) => f.name === 'analyze-credit-report')).toBe(true);
 
-    // File appears in the client-facing list
+    // File appears in the client-facing uploads list
     await waitFor(() => {
-      expect(screen.getByText('experian.pdf')).toBeInTheDocument();
+      expect(screen.getByText(/Uploaded Files \(1\)/i)).toBeInTheDocument();
     });
-    expect(screen.getByText(/Uploaded Files \(1\)/i)).toBeInTheDocument();
+    expect(screen.getAllByText('experian.pdf').length).toBeGreaterThanOrEqual(1);
 
     // Success toast fired
     expect(
