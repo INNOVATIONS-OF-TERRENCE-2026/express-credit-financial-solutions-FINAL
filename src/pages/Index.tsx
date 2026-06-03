@@ -402,7 +402,7 @@ const Index = () => {
             <div className="mt-12 grid grid-cols-3 gap-6 max-w-xl">
               {[
                 { n: '247+', l: '5-Star Reviews' },
-                { n: '95%', l: 'Success Rate' },
+                { n: '98%', l: 'Success Rate' },
                 { n: '15-30', l: 'Day Turnaround' },
               ].map(s => (
                 <div key={s.l}>
