@@ -25,6 +25,7 @@ import { AutomationControlCenter } from '@/components/AutomationControlCenter';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
 import { MarketingFunnelCard } from '@/components/admin/MarketingFunnelCard';
+import { AdminPaymentMetrics } from '@/components/admin/AdminPaymentMetrics';
 import { AdminReviewQueue } from '@/components/AdminReviewQueue';
 import { CasePipelineDashboard } from '@/components/CasePipelineDashboard';
 import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
@@ -678,6 +679,8 @@ export default function AdminDashboard() {
               {/* Block C: Existing BacklogOverview + quick external links */}
               <BacklogOverview />
 
+              <AdminPaymentMetrics />
+
               <MarketingFunnelCard />
 
               <div className="flex flex-wrap gap-2 pt-2">
@@ -686,6 +689,9 @@ export default function AdminDashboard() {
                 </Button>
                 <Button onClick={() => navigate('/admin/clients')} variant="outline" size="sm">
                   <Users className="h-4 w-4 mr-2" />Client Portals
+                </Button>
+                <Button onClick={() => navigate('/admin/payments')} variant="outline" size="sm">
+                  <ExternalLink className="h-4 w-4 mr-2" />Payment Center
                 </Button>
                 <Button onClick={() => navigate('/admin/tools')} variant="outline" size="sm">
                   <Settings className="h-4 w-4 mr-2" />Admin Tools
