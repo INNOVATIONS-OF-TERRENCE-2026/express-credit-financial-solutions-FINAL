@@ -5,19 +5,19 @@ import { useEffect } from 'react';
 const faqs = [
   {
     question: "How long does credit repair take?",
-    answer: "Most clients see improvements within 30-45 days. Complete credit restoration typically takes 3-6 months depending on the number of negative items and complexity of your credit report. Our Fast-5 service delivers results in just 5 days for urgent cases."
+    answer: "Express Credit produces measurable results in 4–21 days for the vast majority of clients — not the 3–6 month timelines you'll hear from legacy firms. Our AI-driven Metro 2 / FCRA dispute engine fires within 24 hours of enrollment, and most files see first deletions inside the first round."
   },
   {
-    question: "Is credit repair legal in Texas?",
-    answer: "Yes, credit repair is 100% legal. The Credit Repair Organizations Act (CROA) and Fair Credit Reporting Act (FCRA) give you the right to dispute inaccurate, incomplete, or unverifiable information on your credit reports. We operate in full compliance with all federal and Texas state laws."
+    question: "Is credit repair legal? Do you serve all 50 states?",
+    answer: "Yes — credit repair is 100% legal and we serve clients in all 50 states. The Credit Repair Organizations Act (CROA) and Fair Credit Reporting Act (FCRA) give every U.S. consumer the right to dispute inaccurate, incomplete, or unverifiable information on their credit reports. Express Credit operates in full compliance with all federal laws and applicable state credit-services regulations nationwide."
   },
   {
     question: "What is Metro 2 compliance?",
     answer: "Metro 2 is the industry-standard format for reporting credit information to credit bureaus. Our Metro 2 compliant dispute strategies ensure proper formatting and compliance with credit reporting standards, significantly increasing the success rate of disputes."
   },
   {
-    question: "How much does credit repair cost in Dallas?",
-    answer: "Our packages start at $99.99 for the Gold Basic Package. We offer flexible payment plans through Klarna, Affirm, and CashApp. Professional credit repair is an investment in your financial future that pays for itself through better loan rates and credit opportunities."
+    question: "How much does professional credit repair cost?",
+    answer: "Our ChexSystems Removal starts at $349.99, Full Credit Repair is $1,499.99, and Tradeline placements range $499–$1,499. Flexible payment options available. Professional credit repair is an investment in your financial future that pays for itself through better loan rates and credit opportunities."
   },
   {
     question: "Can you guarantee credit score improvements?",
@@ -28,8 +28,8 @@ const faqs = [
     answer: "We can dispute late payments, collections, charge-offs, repossessions, foreclosures, bankruptcies, judgments, tax liens, and credit inquiries. Any item that is inaccurate, incomplete, outdated, or unverifiable can be challenged under FCRA guidelines."
   },
   {
-    question: "Do I need to visit your office in Dallas?",
-    answer: "No, everything is done remotely through our secure online portal. However, we're based in Dallas, TX and available for in-person consultations by appointment for local clients who prefer face-to-face service."
+    question: "Do I have to live near your office to work with you?",
+    answer: "No — Express Credit serves clients in all 50 states 100% remotely through our secure online portal. We're headquartered in the Dallas–Frisco, TX metro and offer in-person consultations by appointment for local clients, but every service we provide is available nationwide with the exact same speed and results."
   },
   {
     question: "What is the difference between credit repair and credit counseling?",

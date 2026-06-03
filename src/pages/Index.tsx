@@ -6,7 +6,7 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { LoginForm } from '@/components/LoginForm';
 import { RegisterForm } from '@/components/RegisterForm';
 import { Button } from '@/components/ui/button';
-import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play, Upload, User, Sparkles, Snowflake, GraduationCap, CheckCircle2, ArrowRight, Zap, BarChart3, Bot, Send, Banknote, Check, X } from 'lucide-react';
+import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play, Upload, User, Sparkles, Snowflake, GraduationCap, CheckCircle2, ArrowRight, Zap, BarChart3, Bot, Send, Banknote, Check, X, Facebook, ShieldCheck, KeyRound, FileLock2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -543,6 +543,40 @@ const Index = () => {
               </div>
             ))}
           </div>
+
+          {/* Checkout compliance + prominent CTA */}
+          <div className="mt-12 rounded-2xl p-1" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)' }}>
+            <div className="rounded-2xl p-8 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
+              <div className="lg:col-span-2">
+                <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: '#c9a84c' }}>Secure Checkout · PCI-DSS Compliant</p>
+                <h3 className="font-serif-display text-3xl md:text-4xl tracking-tight" style={{ color: '#f5f0e0' }}>
+                  Ready to enroll? <span className="italic" style={{ color: '#c9a84c' }}>Your file fires within 24 hours.</span>
+                </h3>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {[
+                    { Icon: Lock, t: '256-bit SSL' },
+                    { Icon: ShieldCheck, t: 'PCI-DSS' },
+                    { Icon: KeyRound, t: 'Encrypted Payments' },
+                    { Icon: FileLock2, t: 'GLBA Privacy' },
+                    { Icon: Shield, t: 'SOC-Grade Hosting' },
+                  ].map(({ Icon, t }) => (
+                    <div key={t} className="flex items-center gap-2 px-3 py-2 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)' }}>
+                      <Icon className="h-3.5 w-3.5" style={{ color: '#c9a84c' }} />
+                      <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'rgba(245,240,224,0.85)' }}>{t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="w-full px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.5)' }}>
+                  Sign Up & Start Today <ArrowRight className="h-4 w-4" />
+                </button>
+                <button onClick={() => { setShowForms(true); setIsLogin(true); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="w-full px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
+                  Existing Client · Log In
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -554,13 +588,31 @@ const Index = () => {
             <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
               Clients who got <span className="italic" style={{ color: '#c9a84c' }}>funded.</span>
             </h2>
+            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              Results delivered in <span style={{ color: '#c9a84c' }}>4–21 days</span> — across all 50 states. No 90-day promises. We move fast or we don't take the file.
+            </p>
+          </div>
+
+          {/* Headline metric — $1.8M removed */}
+          <div className="mb-12 grid grid-cols-1 md:grid-cols-4 gap-px rounded-2xl overflow-hidden" style={{ backgroundColor: 'rgba(201,168,76,0.2)' }}>
+            {[
+              { k: '$1.8M+', l: 'Debt Removed · Jan–May 2026' },
+              { k: '4–21', l: 'Days to Results · Every Client' },
+              { k: '50', l: 'States Served · Nationwide' },
+              { k: '94%', l: 'Client Score Lift · 60 Days' },
+            ].map((m) => (
+              <div key={m.l} className="p-8 text-center" style={{ backgroundColor: 'rgba(3,21,15,0.92)' }}>
+                <p className="font-serif-display text-4xl md:text-5xl" style={{ color: '#c9a84c' }}>{m.k}</p>
+                <p className="text-[10px] uppercase tracking-[0.25em] mt-2" style={{ color: 'rgba(245,240,224,0.65)' }}>{m.l}</p>
+              </div>
+            ))}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
             {[
-              { name: 'Marcus J.', city: 'Dallas, TX', quote: '"Went from a 562 to 738 in 11 weeks. Closed on my SBA loan two months later. Real numbers, no fluff."', metric: '+176 pts', plan: 'Full Repair' },
-              { name: 'Daniela R.', city: 'Frisco, TX', quote: '"ChexSystems flagged me for years. Express Credit cleared it in 23 days and I had a Chase business account the next week."', metric: '23 days', plan: 'ChexSystems' },
-              { name: 'Travis B.', city: 'Arlington, TX', quote: '"The AI dashboard is unreal. I watched my disputes resolve in real time. This is what the future of credit looks like."', metric: '$420K funded', plan: 'Full Repair' },
+              { name: 'Marcus J.', city: 'Dallas, TX', quote: '"Went from a 562 to 738 in 18 days. Closed on my SBA loan the following month. Real numbers, no fluff."', metric: '+176 pts · 18 days', plan: 'Full Repair' },
+              { name: 'Daniela R.', city: 'Atlanta, GA', quote: '"ChexSystems flagged me for years. Express Credit cleared it in 14 days and I had a Chase business account the next week."', metric: '14 days', plan: 'ChexSystems' },
+              { name: 'Travis B.', city: 'Phoenix, AZ', quote: '"The AI dashboard is unreal. Disputes resolved in 9 days and I was funded shortly after. This is the future of credit."', metric: '$420K · 9 days', plan: 'Full Repair' },
             ].map((t, i) => (
               <div key={t.name} className="p-8 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.2)', backdropFilter: 'blur(8px)', animationDelay: `${i * 0.1}s` }}>
                 <div className="flex gap-0.5 mb-4">
@@ -631,10 +683,37 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="relative z-10 px-6 sm:px-10 py-10 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
+        {/* Facebook community strip */}
+        <div className="max-w-7xl mx-auto mb-10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6" style={{ backgroundColor: 'rgba(6,78,59,0.45)', border: '1px solid rgba(201,168,76,0.25)' }}>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.35)' }}>
+              <Facebook className="h-5 w-5" style={{ color: '#c9a84c' }} />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>The Community · Live Wins Daily</p>
+              <p className="font-serif-display text-2xl md:text-3xl tracking-tight" style={{ color: '#f5f0e0' }}>
+                Follow Express Credit on <span className="italic" style={{ color: '#c9a84c' }}>Facebook.</span>
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://www.facebook.com/ExpressCreditFinancial"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs uppercase tracking-widest font-bold transition-all hover-scale"
+            style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 30px rgba(201,168,76,0.4)' }}
+          >
+            <Facebook className="h-4 w-4" /> Follow @ExpressCreditFinancial
+          </a>
+        </div>
+
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           <div>
             <p className="font-serif-display text-xl">Express Credit & Financial Solutions</p>
             <p className="text-[10px] uppercase tracking-[0.3em] mt-1" style={{ color: 'rgba(245,240,224,0.5)' }}>6363 Dallas Pkwy · Frisco, TX · 531-348-9321</p>
+            <a href="https://www.facebook.com/ExpressCreditFinancial" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-3 text-[10px] uppercase tracking-[0.3em] transition-colors hover:text-white" style={{ color: 'rgba(245,240,224,0.6)' }}>
+              <Facebook className="h-3 w-3" /> Facebook
+            </a>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6">
             {(['terms','privacy','refund'] as const).map(p => (
