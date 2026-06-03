@@ -205,11 +205,12 @@ export function ClientOnboarding() {
           full_name: formData.fullName,
           dob: formData.dateOfBirth,
           ssn_last4: formData.ssn.slice(-4),
+          ssn_encrypted: encryptedSSN,
           phone: formData.phoneNumber,
           email: formData.emailAddress,
           address: 'Address to be updated',
           membership_plan: 'Basic'
-        });
+        } as any);
 
       if (error) throw error;
 
