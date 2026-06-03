@@ -654,6 +654,105 @@ const Index = () => {
         </div>
       </section>
 
+      {/* ═══════════ HOME LOAN DOMINATION ═══════════ */}
+      <section id="home-loans" className="relative z-10 px-6 sm:px-10 py-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16 max-w-3xl">
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Home Loan Domination</p>
+            <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
+              Built to Get You <span className="italic" style={{ color: '#c9a84c' }}>Funded.</span><br />
+              Home Loans. Underwriting. Closed.
+            </h2>
+            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              We don't just repair credit. We structure your file for the mortgage scorecard, then we talk directly to your loan officer and underwriter until the deal closes. Our underwriting pass rate on files we structure is 100%.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+            {[
+              { icon: HomeIcon, title: 'Credit Structured for Underwriting', desc: 'Tradelines, utilization, and derogatory removal sequenced specifically for mortgage scorecards (FICO 2/4/5).' },
+              { icon: Handshake, title: 'Proactive Lender Communication', desc: 'We engage your loan officer and underwriter directly. No silence. No surprises. No fallout.' },
+              { icon: Award, title: '100% Underwriting Pass Rate', desc: 'Every file we structure end-to-end has cleared underwriting. Zero exceptions on closed packages.' },
+            ].map((p) => {
+              const Icon = p.icon;
+              return (
+                <div key={p.title} className="p-8 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.2)', backdropFilter: 'blur(8px)' }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)' }}>
+                    <Icon className="h-5 w-5" style={{ color: '#c9a84c' }} />
+                  </div>
+                  <h3 className="font-serif-display text-2xl mb-2">{p.title}</h3>
+                  <p className="text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>{p.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Tiara Smith realtor partner spotlight */}
+          <div className="rounded-2xl p-1 mb-10" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)' }}>
+            <div className="rounded-2xl p-8 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
+              <div className="lg:col-span-2">
+                <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: '#c9a84c' }}>Featured Realtor Partner · Texas</p>
+                <h3 className="font-serif-display text-3xl md:text-5xl tracking-tight" style={{ color: '#f5f0e0' }}>
+                  Tiara Smith. <span className="italic" style={{ color: '#c9a84c' }}>Tiara Has The Key.</span>
+                </h3>
+                <p className="mt-4 text-base font-light max-w-2xl" style={{ color: 'rgba(245,240,224,0.75)' }}>
+                  Once your file is structured and your credit is funded-ready, our top Texas realtor partner Tiara Smith hands you the keys. From pre-approval to closing table, the entire path is wired.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <a href="https://www.tiarahasthekey.com" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+                  <Key className="h-4 w-4" /> Visit TiaraHasTheKey.com
+                </a>
+                <a href="https://www.zillow.com/profile/tiarahasthekey" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
+                  View Zillow Profile <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Brokerage + banking partners */}
+          <div className="rounded-2xl p-8 md:p-10" style={{ backgroundColor: 'rgba(3,21,15,0.6)', border: '1px solid rgba(201,168,76,0.2)' }}>
+            <div className="flex items-center gap-2 mb-6">
+              <Building2 className="h-4 w-4" style={{ color: '#c9a84c' }} />
+              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: 'rgba(201,168,76,0.85)' }}>Brokerage & Lending Partners</p>
+            </div>
+            <div className="flex flex-wrap gap-3 mb-6">
+              {['United Real Estate', 'Keller Williams Realty', 'Coldwell Banker', 'eXp Realty', 'Compass'].map((b) => (
+                <span key={b} className="px-4 py-2 rounded-full text-xs font-semibold" style={{ backgroundColor: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.3)', color: '#f5f0e0' }}>
+                  {b}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              Plus active relationships with <span style={{ color: '#c9a84c' }}>all major banks and credit unions</span> for mortgage, auto, and business financing.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ AUTO LOAN STRUCTURING ═══════════ */}
+      <section id="auto-loans" className="relative z-10 px-6 sm:px-10 py-20">
+        <div className="max-w-7xl mx-auto rounded-2xl p-8 md:p-12 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.25)', backdropFilter: 'blur(8px)' }}>
+          <div className="lg:col-span-2">
+            <div className="inline-flex items-center gap-2 mb-4">
+              <Car className="h-4 w-4" style={{ color: '#c9a84c' }} />
+              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>Auto Loan Structuring</p>
+            </div>
+            <h2 className="font-serif-display text-3xl md:text-5xl tracking-tight">
+              Auto Loans. <span className="italic" style={{ color: '#c9a84c' }}>Structured to Close.</span>
+            </h2>
+            <p className="mt-4 text-base font-light max-w-2xl" style={{ color: 'rgba(245,240,224,0.75)' }}>
+              We position your credit profile for the auto scorecard, clean up DTI, and hand the dealer or credit union a lender-ready file. Better rates. Lower down payments. Faster approvals.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+              Get Structured for Auto <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════ FAQ ═══════════ */}
       <div id="faq" className="relative z-10"><FAQSection /></div>
 
