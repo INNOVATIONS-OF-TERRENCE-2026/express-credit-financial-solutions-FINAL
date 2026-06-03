@@ -2841,6 +2841,36 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_cta_events: {
+        Row: {
+          created_at: string
+          cta_id: string
+          event: string
+          id: string
+          meta: Json
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          cta_id: string
+          event: string
+          id?: string
+          meta?: Json
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          cta_id?: string
+          event?: string
+          id?: string
+          meta?: Json
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       messaging_log: {
         Row: {
           channel: string
