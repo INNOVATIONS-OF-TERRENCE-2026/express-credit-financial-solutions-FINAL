@@ -748,24 +748,60 @@ const Index = () => {
       </section>
 
       {/* ═══════════ AUTO LOAN STRUCTURING ═══════════ */}
-      <section id="auto-loans" className="relative z-10 px-6 sm:px-10 py-20">
-        <div className="max-w-7xl mx-auto rounded-2xl p-8 md:p-12 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.25)', backdropFilter: 'blur(8px)' }}>
-          <div className="lg:col-span-2">
+      <section id="auto-loans" className="relative z-10 px-6 sm:px-10 py-24">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-16 max-w-3xl">
             <div className="inline-flex items-center gap-2 mb-4">
               <Car className="h-4 w-4" style={{ color: '#c9a84c' }} />
               <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>Auto Loan Structuring</p>
             </div>
-            <h2 className="font-serif-display text-3xl md:text-5xl tracking-tight">
+            <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
               Auto Loans. <span className="italic" style={{ color: '#c9a84c' }}>Structured to Close.</span>
             </h2>
-            <p className="mt-4 text-base font-light max-w-2xl" style={{ color: 'rgba(245,240,224,0.75)' }}>
+            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
               We position your credit profile for the auto scorecard, clean up DTI, and hand the dealer or credit union a lender-ready file. Better rates. Lower down payments. Faster approvals.
             </p>
           </div>
-          <div className="flex flex-col gap-3">
-            <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
-              Get Structured for Auto <ArrowRight className="h-4 w-4" />
-            </button>
+
+          {/* Step-by-step process */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            {[
+              { n: '01', icon: TrendingUp, title: 'Auto Scorecard Positioning', desc: 'We optimize your FICO Auto Score 8/9, utilization ratios, and age of accounts specifically for auto lender algorithms.' },
+              { n: '02', icon: FileText, title: 'DTI Cleanup & Debt Optimization', desc: 'Pay-down sequencing and derogatory suppression to drop your debt-to-income into the lender\'s green zone.' },
+              { n: '03', icon: CheckCircle2, title: 'Lender-Ready File Assembly', desc: 'Verification docs, credit explanation letters, and pre-qualification packets prepared before you walk into the dealership.' },
+              { n: '04', icon: Banknote, title: 'Dealer or Credit Union Close', desc: 'We negotiate rate sheets and down payment terms directly. Our clients average 3.2% lower APR and $2,400 less down.' },
+            ].map((step) => {
+              const Icon = step.icon;
+              return (
+                <div key={step.n} className="group relative p-6 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.18)', backdropFilter: 'blur(8px)' }}>
+                  <div className="absolute top-4 right-4 font-serif-display text-2xl italic" style={{ color: 'rgba(201,168,76,0.4)' }}>{step.n}</div>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)' }}>
+                    <Icon className="h-5 w-5" style={{ color: '#c9a84c' }} />
+                  </div>
+                  <h3 className="font-serif-display text-xl mb-2">{step.title}</h3>
+                  <p className="text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>{step.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* CTA bar */}
+          <div className="rounded-2xl p-1" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)' }}>
+            <div className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: '#c9a84c' }}>Next Step</p>
+                <h4 className="font-serif-display text-2xl md:text-3xl tracking-tight" style={{ color: '#f5f0e0' }}>
+                  Ready to drive off the lot?
+                </h4>
+                <p className="mt-2 text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
+                  Enroll today and we will have your auto file structured within 24 hours.
+                </p>
+              </div>
+              <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2 whitespace-nowrap" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+                Start My Auto File <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
