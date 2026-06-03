@@ -48,13 +48,13 @@ const Index = () => {
 
   const logCtaEvent = async (event: string, cta_id: string, meta: Record<string, unknown> = {}) => {
     try {
-      await supabase.from('marketing_cta_events').insert({
+      await supabase.from('marketing_cta_events').insert([{
         event,
         cta_id,
-        session_id: getCtaSessionId(),
-        user_id: user?.id ?? null,
-        meta,
-      });
+        session_id: getCtaSessionId() ?? undefined,
+        user_id: user?.id ?? undefined,
+        meta: meta as any,
+      }]);
     } catch (e) {
       console.warn('cta db log failed', e);
     }
