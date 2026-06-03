@@ -419,6 +419,22 @@ Date: ${new Date().toLocaleDateString()}
               <Input id="typedSignature" value={typedSignature} onChange={(e) => setTypedSignature(e.target.value)} placeholder="Type your full name as a typed signature" />
             </div>
 
+            {lastError && (
+              <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm space-y-2">
+                <p className="font-medium text-destructive">Signature failed at: {lastError.stage.replace(/_/g, ' ')}</p>
+                <p className="text-destructive/90">{lastError.message}</p>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={isSubmitting}
+                  onClick={() => void submitAgreement()}
+                >
+                  {isSubmitting ? 'Retrying…' : `Retry${attempt > 1 ? ` (attempt ${attempt + 1})` : ''}`}
+                </Button>
+              </div>
+            )}
+
             <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
               <Button variant="outline" type="button" onClick={handleClose}>
                 Cancel
