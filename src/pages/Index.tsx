@@ -640,8 +640,6 @@ const Index = () => {
               { src: '/lovable-uploads/fc9628bb-8f09-450a-ae12-b97627dd735d.png', alt: 'Discover' },
               { src: '/lovable-uploads/057496bb-7585-4c04-94b2-85d91eb244ea.png', alt: 'Apple Pay' },
               { src: '/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png', alt: 'Cash App' },
-              { src: '/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png', alt: 'Affirm' },
-              { src: '/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png', alt: 'Klarna' },
             ].map(img => <img key={img.alt} src={img.src} alt={img.alt} className="max-h-[36px] px-2 transition-all duration-300 hover:scale-110" />)}
             <VisaLogo />
           </div>
