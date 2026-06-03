@@ -865,7 +865,7 @@ const Index = () => {
                   Enroll today and we will have your auto file structured within 24 hours.
                 </p>
               </div>
-              <button onClick={() => { trackCtaClick('start_my_auto_file', { destination: 'signup' }); setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2 whitespace-nowrap" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+              <button onClick={() => { try { sessionStorage.setItem('pending_cta', 'start_my_auto_file'); sessionStorage.setItem('pending_cta_mode', 'signup'); } catch { /* noop */ } trackCtaClick('start_my_auto_file', { destination: 'signup' }); setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2 whitespace-nowrap" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
                 Start My Auto File <ArrowRight className="h-4 w-4" />
               </button>
             </div>
