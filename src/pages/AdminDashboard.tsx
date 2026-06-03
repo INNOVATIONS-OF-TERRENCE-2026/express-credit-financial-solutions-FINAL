@@ -24,6 +24,7 @@ import {
 import { AutomationControlCenter } from '@/components/AutomationControlCenter';
 import { AdminCreditReportManager } from '@/components/AdminCreditReportManager';
 import { BacklogOverview } from '@/components/BacklogOverview';
+import { MarketingFunnelCard } from '@/components/admin/MarketingFunnelCard';
 import { AdminReviewQueue } from '@/components/AdminReviewQueue';
 import { CasePipelineDashboard } from '@/components/CasePipelineDashboard';
 import { AIAnalysisViewer } from '@/components/AIAnalysisViewer';
@@ -676,6 +677,8 @@ export default function AdminDashboard() {
 
               {/* Block C: Existing BacklogOverview + quick external links */}
               <BacklogOverview />
+
+              <MarketingFunnelCard />
 
               <div className="flex flex-wrap gap-2 pt-2">
                 <Button onClick={() => navigate('/dispute-center')} variant="outline" size="sm">
