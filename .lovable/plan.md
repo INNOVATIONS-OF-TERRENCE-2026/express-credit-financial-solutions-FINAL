@@ -1,97 +1,47 @@
+## Root cause
 
-# Express Credit CRM — Surgical Upgrade Plan
+`/onboarding` (`src/pages/ClientOnboarding.tsx`) renders `DigitalSignature` for the "Complete Your Client Agreement" card. That component is broken for this use case in two compounding ways:
 
-I analyzed the existing build before writing this. Production architecture (auth, routes, Supabase client, RLS, War Board, dispute pipeline) stays intact. Every change is additive or surgical to existing components.
+1. **Storage RLS denies the upload.** `DigitalSignature.handleSign` uploads to the `signatures` bucket with a flat filename:
+   ```
+   signature_${user.id}_${Date.now()}.png
+   ```
+   The bucket's INSERT policy requires the first folder segment to equal `auth.uid()`:
+   ```
+   (bucket_id = 'signatures') AND (auth.uid()::text = (storage.foldername(name))[1])
+   ```
+   Because there is no `${user.id}/` folder prefix, `storage.foldername(name)[1]` is `null`, the policy fails, the upload throws, and the user sees the toast **"Failed to save signature. Please try again."** This is exactly what clients are hitting.
 
-## What's already in place (verified)
-- `client_activity_timeline` table — already has `activity_type`, `visible_to_client`, `metadata`
-- `audit_logs` table + `log_security_event` RPC — already records actions, table, user, timestamps
-- `client_agreements` table — has `signature_data`, `signed_at`, `agreement_version`
-- `client-agreements` storage bucket — exists
-- `user_onboarding` table — exists with step tracking
-- `DigitalSignature.tsx`, `ClientAgreementModal.tsx`, `ClientActivityTimeline.tsx` — present and wired
-- `credit_reports` table — has `file_name`, `storage_path`, `uploaded_at` per client (already supports version history by row)
+2. **No agreement record is ever written.** Even if the upload succeeded, the page passes `onSignatureSaved={async () => {}}` — an empty handler. Nothing is inserted into `client_agreements`, so `useClientAgreement` keeps returning `hasSignedAgreement = false` forever and the UI never advances.
 
-So most of this is wiring + UI, not new infra.
+The rest of the app already has a correct, production-grade signing path: `ClientAgreementModal` draws a canvas signature, generates a signed PDF via `jsPDF`, uploads to the `client-agreements` bucket under `${user.id}/...` (matching its RLS), inserts into `client_agreements` with `user_id` + `client_id`, and writes audit + timeline rows. `useClientAgreement` already reads from that exact table.
 
----
+## Fix (surgical, frontend only)
 
-## 1. Timeline Filters (Client Dashboard)
-File: `src/components/ClientActivityTimeline.tsx`
-- Add a filter chip row: All / Documents / AI & Agent / Disputes / Notes
-- Maps to `activity_type` values already used (`document_uploaded`, `ai_response`, `dispute_status`, `note`, etc.)
-- Filters client-side from already-fetched rows; no schema change
+Swap the broken inline `DigitalSignature` on the onboarding page for the existing, working `ClientAgreementModal`. No DB/RLS/auth/router changes required.
 
-## 2. PDF Version History
-Files: `src/components/AdminCreditReportManager.tsx` (or new `CreditReportVersionHistory.tsx`)
-- `credit_reports` already stores every upload as a row per `client_id`. Group by client and order by `uploaded_at` DESC
-- New "Version History" drawer in admin editor showing all uploads, with:
-  - Download (signed URL from `credit-reports` bucket)
-  - "Restore as current" button — sets a new `is_current` flag (one column add) and duplicates the row to the top, never deleting prior versions
-- Migration (additive only): `ALTER TABLE credit_reports ADD COLUMN is_current boolean DEFAULT true, ADD COLUMN version integer`
-- Trigger: on insert, increment version per client_id
+### File: `src/pages/ClientOnboarding.tsx`
 
-## 3. Admin Audit Log Panel
-File: new `src/components/AdminAuditLogPanel.tsx`, plugged into `AdminDashboard.tsx`
-- Reads from existing `audit_logs` table — no schema change
-- Filters: action type (MEMBERSHIP_CHANGE / CLIENT_UPDATE / DISPUTE_STATUS / FILE_UPLOAD / etc.), date range, admin user
-- Adds three new logging calls (in `AdminClientEditor.tsx` and dispute status update handlers) via existing `log_security_event` RPC so membership/field/dispute changes are captured going forward
-- Shows: who, what changed (diff in details jsonb), when
+- Remove `import { DigitalSignature } from '@/components/DigitalSignature'`.
+- Add `import { ClientAgreementModal } from '@/components/ClientAgreementModal'`.
+- Add local state `const [agreementOpen, setAgreementOpen] = useState(false)`.
+- In the "Complete Your Client Agreement" card, when `!hasSignedAgreement`:
+  - Replace the embedded `DigitalSignature` block with a short explainer + a primary "Review & Sign Agreement" button that sets `agreementOpen = true`.
+- Render `<ClientAgreementModal isOpen={agreementOpen} onClose={() => setAgreementOpen(false)} onAgreementSigned={() => { setAgreementOpen(false); refetchAgreementStatus(); }} />` once inside the page.
+- Keep the existing green "Agreement Signed" success state as-is (it already keys off `hasSignedAgreement`).
 
-## 4. Client Onboarding Checklist
-File: new `src/components/OnboardingChecklist.tsx` on `ClientPortal.tsx`
-Steps derived from existing data (no new tables needed):
-- Profile complete (profiles.first_name/last_name/dob set)
-- Identity uploaded (client_documents where document_type='government_id' status='verified')
-- SSN on file (client_documents document_type='ssn')
-- Credit report uploaded (credit_reports row exists)
-- Service agreement signed (client_agreements row exists)
-- First dispute submitted (dispute_letters row exists)
-- Each row links to its action; progress bar at top
+### Why this is safe
 
-## 5. Signature Fix (CRITICAL)
-Audit findings from current code:
-- `DigitalSignature.tsx` captures signature but `ClientAgreementModal` may not be persisting `client_id` correctly (only `user_id`)
-- Fix path:
-  1. `ClientAgreementModal.tsx` — on submit, also resolve `client_id` from `clients` table by `user_id` and store on `client_agreements` (add column if missing)
-  2. Upload rendered signed PDF to `client-agreements` bucket at `{client_id}/{timestamp}-agreement.pdf` using `jspdf` (already in deps)
-  3. Insert `client_agreements` row with `signature_data` (base64 PNG), `signed_pdf_path`, `client_id`, `user_id`, `signed_at`, `agreement_version`, `ip_address`
-  4. Log to `audit_logs` via `log_security_event`
-  5. Surface signed agreement in admin: list on `AdminClientEditor.tsx` with download link
-- Migration (additive): `ALTER TABLE client_agreements ADD COLUMN IF NOT EXISTS client_id uuid REFERENCES clients(id), ADD COLUMN IF NOT EXISTS signed_pdf_path text`
-- Storage RLS: ensure `client-agreements` bucket has policies for authenticated user to upload to their own folder and admins to read all (additive policies only — no DROP)
+- No changes to auth, routing, RLS, schema, or any other working flow.
+- `ClientAgreementModal` is already used elsewhere in the app and is known-good against the current storage policies on `client-agreements` and the `client_agreements` table.
+- `DigitalSignature` is left untouched for any other caller; only the onboarding page stops using it.
+- `useClientAgreement` already polls `client_agreements` by `user_id`, so the green "Agreement Signed" state will flip automatically after a successful sign.
 
-## 6. Dashboard / Portal / War Board Polish (cosmetic + UX)
-NOT a rebuild. Targeted improvements only:
-- `ClientPortal.tsx` — collapse cards into clean tabs: Overview / Documents / Disputes / Timeline / Agreement, mobile-first sizing (already large buttons, keep). Add the OnboardingChecklist at top.
-- `AdminDashboard.tsx` — top-bar quick actions (Upload, Add Client, View Audit Log, Open War Board). Add the AuditLogPanel as a new tab.
-- `AdminWarBoard.tsx` — bigger touch targets, sticky filter bar, status legend; no behavior changes
-- `AdminClientEditor.tsx` — add quick-edit inline controls for membership tier (already exists; wire audit log) + "Version History" + "Agreements" sections
-- All work uses existing semantic tokens — no new color values, no theme changes
+## Verification
 
----
-
-## Files modified
-- `src/components/ClientActivityTimeline.tsx`
-- `src/components/AdminCreditReportManager.tsx` + new `CreditReportVersionHistory.tsx`
-- new `src/components/AdminAuditLogPanel.tsx`
-- new `src/components/OnboardingChecklist.tsx`
-- `src/components/ClientAgreementModal.tsx`, `DigitalSignature.tsx`
-- `src/components/AdminClientEditor.tsx`
-- `src/components/ClientPortal.tsx`
-- `src/pages/AdminDashboard.tsx`
-- `src/components/AdminWarBoard.tsx` (cosmetic)
-
-## Migrations (additive only)
-1. `credit_reports`: add `is_current bool`, `version int` + per-client version trigger
-2. `client_agreements`: add `client_id uuid`, `signed_pdf_path text`
-3. Storage policies for `client-agreements` (additive INSERT/SELECT for owner + admin)
-
-## Safety guardrails
-- No auth/router/RLS rewrites
-- No DROP of existing policies, tables, or columns
-- No service_role exposure
-- TypeScript strict, semantic tokens only
-- All existing flows preserved; new UI only adds entry points
-
-Once approved I'll execute migrations first, then code in a single pass.
+1. Log in as a client with no signed agreement, visit `/onboarding`.
+2. Click **Review & Sign Agreement** → modal opens.
+3. Draw signature (or type fallback), enter full legal name, click **I Agree & Sign Agreement**.
+4. Expect: success toast, modal closes, card flips to green "Agreement Signed".
+5. In Supabase, confirm a new row in `client_agreements` for this `user_id` and a PDF in the `client-agreements` bucket at `${user.id}/...-service-agreement.pdf`.
+6. Reload `/onboarding` → still shows green signed state.
