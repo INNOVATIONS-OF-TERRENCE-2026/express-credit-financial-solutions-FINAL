@@ -6,7 +6,7 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { LoginForm } from '@/components/LoginForm';
 import { RegisterForm } from '@/components/RegisterForm';
 import { Button } from '@/components/ui/button';
-import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play, Upload, User, Sparkles, Snowflake, GraduationCap, CheckCircle2, ArrowRight, Zap, BarChart3, Bot, Send, Banknote, Check, X, Facebook, ShieldCheck, KeyRound, FileLock2 } from 'lucide-react';
+import { Shield, Star, Award, TrendingUp, CreditCard, Lock, FileText, UserCheck, Clock, Play, Upload, User, Sparkles, Snowflake, GraduationCap, CheckCircle2, ArrowRight, Zap, BarChart3, Bot, Send, Banknote, Check, X, Facebook, ShieldCheck, KeyRound, FileLock2, Home as HomeIcon, Car, Key, Handshake, Building2, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -318,7 +318,7 @@ const Index = () => {
               in 90 Days.
             </h1>
             <p className="mt-8 text-lg md:text-xl max-w-xl font-light" style={{ color: 'rgba(245,240,224,0.75)' }}>
-              The AI-powered command center that repairs your credit, files Metro-2 disputes, and prepares you for SBA approval — operating 24/7 while you sleep.
+              The AI-powered command center that repairs your credit, files Metro-2 disputes, and prepares you for SBA, mortgage, and auto loan approval. Operating 24/7 while you sleep.
             </p>
 
             {/* Primary CTAs */}
@@ -459,7 +459,7 @@ const Index = () => {
               Four moves. <span className="italic" style={{ color: '#c9a84c' }}>One outcome.</span>
             </h2>
             <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-              The Express Credit engine runs end-to-end — from upload to funded — without you lifting a finger.
+              The Express Credit engine runs end-to-end, from upload to funded, without you lifting a finger.
             </p>
           </div>
 
@@ -589,11 +589,11 @@ const Index = () => {
               Clients who got <span className="italic" style={{ color: '#c9a84c' }}>funded.</span>
             </h2>
             <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-              Results delivered in <span style={{ color: '#c9a84c' }}>4–21 days</span> — across all 50 states. No 90-day promises. We move fast or we don't take the file.
+              Results delivered in <span style={{ color: '#c9a84c' }}>4–21 days</span> across all 50 states. No 90-day promises. We move fast or we don't take the file.
             </p>
           </div>
 
-          {/* Headline metric — $1.8M removed */}
+          {/* Headline metric: $1.8M removed */}
           <div className="mb-12 grid grid-cols-1 md:grid-cols-4 gap-px rounded-2xl overflow-hidden" style={{ backgroundColor: 'rgba(201,168,76,0.2)' }}>
             {[
               { k: '$1.8M+', l: 'Debt Removed · Jan–May 2026' },
