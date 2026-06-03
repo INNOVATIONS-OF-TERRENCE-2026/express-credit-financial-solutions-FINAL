@@ -38,7 +38,7 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
     const t = setTimeout(() => {
       const section = signatureSectionRef.current;
       const container = scrollContainerRef.current;
-      if (section && container) {
+      if (section && container && typeof container.scrollTo === 'function') {
         const top = section.offsetTop - 8;
         container.scrollTo({ top, behavior: 'smooth' });
       }
