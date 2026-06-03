@@ -76,11 +76,17 @@ vi.mock('@/hooks/useFileUploadSecurity', () => ({
   }),
 }));
 
-const toastSpy = vi.fn();
-vi.mock('@/hooks/use-toast', () => ({
-  useToast: () => ({ toast: toastSpy }),
-  toast: toastSpy,
-}));
+vi.mock('@/hooks/use-toast', () => {
+  const fn = vi.fn();
+  return {
+    useToast: () => ({ toast: fn }),
+    toast: fn,
+    __toastSpy: fn,
+  };
+});
+
+import * as useToastModule from '@/hooks/use-toast';
+const toastSpy = (useToastModule as any).__toastSpy as ReturnType<typeof vi.fn>;
 
 import { EnhancedCreditReportUpload } from '@/components/EnhancedCreditReportUpload';
 
