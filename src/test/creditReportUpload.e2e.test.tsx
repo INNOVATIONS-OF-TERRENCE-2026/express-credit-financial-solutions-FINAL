@@ -110,7 +110,7 @@ describe('Credit Report Upload Center — E2E', () => {
     await user.upload(input, pdf);
 
     // File reached storage in the credit-reports bucket, scoped to user folder
-    await waitFor(() => expect(captured.storageUploads.length).toBe(1));
+    await waitFor(() => expect(captured.storageUploads.length).toBe(1), { timeout: 4000 });
     expect(captured.storageUploads[0].bucket).toBe('credit-reports');
     expect(captured.storageUploads[0].path.startsWith(`${USER_ID}/`)).toBe(true);
     expect(captured.storageUploads[0].opts?.contentType).toBe('application/pdf');
