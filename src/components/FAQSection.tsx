@@ -63,29 +63,31 @@ export const FAQSection = () => {
   }, []);
 
   return (
-    <div className="bg-fintech-primary py-20 border-t border-fintech-accent/20">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="font-poppins text-4xl md:text-5xl font-bold text-fintech-light mb-4">
-            Frequently Asked <span className="text-fintech-accent">Questions</span>
+    <section className="py-20 px-6 sm:px-12" style={{ backgroundColor: '#f5f0e0' }}>
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-12 text-center">
+          <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>The Knowledge Index</p>
+          <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight" style={{ color: '#064e3b' }}>
+            Frequently Asked <span className="italic" style={{ color: '#c9a84c' }}>Questions</span>
           </h2>
-          <p className="text-lg text-fintech-light/80 max-w-3xl mx-auto">
-            Get answers to common questions about credit repair, our services, and what to expect
+          <p className="text-base max-w-2xl mx-auto mt-4 font-light" style={{ color: 'rgba(6,78,59,0.7)' }}>
+            Answers to the questions our most discerning clients ask before they enroll.
           </p>
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-0">
             {faqs.map((faq, index) => (
-              <AccordionItem 
-                key={index} 
+              <AccordionItem
+                key={index}
                 value={`item-${index}`}
-                className="bg-fintech-secondary/50 backdrop-blur-sm border border-fintech-accent/20 rounded-lg px-6 hover:border-fintech-accent/50 transition-all"
+                className="border-0 border-t px-2 last:border-b"
+                style={{ borderColor: 'rgba(6,78,59,0.15)' }}
               >
-                <AccordionTrigger className="text-left text-fintech-light hover:text-fintech-accent font-semibold py-4">
+                <AccordionTrigger className="text-left font-work text-base font-medium py-6 hover:no-underline" style={{ color: '#064e3b' }}>
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-fintech-light/80 pb-4">
+                <AccordionContent className="font-light pb-6 text-sm leading-relaxed" style={{ color: 'rgba(6,78,59,0.75)' }}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -93,6 +95,6 @@ export const FAQSection = () => {
           </Accordion>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

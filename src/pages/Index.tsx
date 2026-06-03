@@ -265,174 +265,195 @@ const Index = () => {
 
   // ═══════════ LANDING PAGE (unauthenticated) ═══════════
   return (
-    <div className="min-h-screen bg-fintech-primary">
+    <div className="min-h-screen font-work" style={{ backgroundColor: '#f5f0e0', color: '#064e3b' }}>
       <SEOHead />
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeSelector />
-      </div>
+      <div className="fixed top-4 right-4 z-50"><ThemeSelector /></div>
       <EngineerCredit position="top" />
 
-      {/* Hero Section with Video Background */}
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
-          <source src="/videos/EXPRESS_CREDIT.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-br from-fintech-primary/95 via-fintech-primary/75 to-fintech-secondary/85" />
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,195,232,0.3) 35px, rgba(0,195,232,0.3) 36px)' }} />
+      {/* ═══════════ EDITORIAL PRESTIGE BENTO HERO ═══════════ */}
+      <section className="px-6 sm:px-12 pt-8 pb-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-min">
 
-        <div className="relative z-10 container mx-auto px-4 py-20">
-          <div className="flex flex-col items-center justify-center gap-12">
-            <div className="text-center max-w-5xl animate-fade-in">
-              <h1 className="font-poppins text-5xl md:text-6xl lg:text-7xl font-bold text-fintech-light mb-6 leading-tight">
-                Fix Your Credit. Fund Your Business.
-                <span className="block text-fintech-accent mt-2">Secure SBA Approval.</span>
+          {/* Hero Tile */}
+          <div className="md:col-span-8 md:row-span-2 p-8 md:p-12 flex flex-col justify-between relative overflow-hidden min-h-[560px]" style={{ backgroundColor: '#064e3b' }}>
+            <div className="relative z-10">
+              <h1 className="font-serif-display text-5xl md:text-7xl leading-[0.95] tracking-tight" style={{ color: '#f5f0e0' }}>
+                Fix Your Credit. <br />
+                Fund Your Business. <br />
+                <span className="italic" style={{ color: '#c9a84c' }}>Secure SBA Approval.</span>
               </h1>
-              <p className="text-xl md:text-2xl text-fintech-light/90 mb-4 font-light">Express Credit makes it simple to get approved — credit repair + SBA loan automation, all in one portal.</p>
-              <p className="text-lg md:text-xl text-fintech-light/70 mb-12 font-light">From credit repair to capital — we don't just fix scores, we fund dreams.</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                {[
-                  { icon: Star, title: 'FCRA & CFPB Analysis', desc: 'Advanced credit file investigations by certified FCRA experts', key: 'fcra' },
-                  { icon: Award, title: 'Legal Dispute Precision', desc: '95% success rate using verified legal methods', key: 'legal' },
-                  { icon: TrendingUp, title: 'Rapid Turnaround', desc: 'See improvements in 15-30 days', key: 'rapid' },
-                ].map(card => {
-                  const Icon = card.icon;
-                  return (
-                    <div key={card.key} className="group cursor-pointer p-6 bg-fintech-primary/40 backdrop-blur-md rounded-xl border border-fintech-accent/30 hover:border-fintech-accent hover:bg-fintech-primary/60 transition-all duration-300 hover:scale-105" onClick={() => setModalContent(card.key as any)}>
-                      <Icon className="h-12 w-12 text-fintech-accent mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
-                      <h3 className="font-poppins font-semibold text-lg text-fintech-light mb-2">{card.title}</h3>
-                      <p className="text-fintech-light/80 text-sm">{card.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!showForms && (
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button onClick={() => setShowForms(true)} variant="fintech-primary" size="lg" className="text-lg px-10 py-6 h-auto">Get Started Today</Button>
-                  <Button onClick={() => { setShowForms(true); setIsLogin(true); }} variant="fintech-outline" size="lg" className="text-lg px-10 py-6 h-auto">Client Login Portal</Button>
-                </div>
-              )}
+              <p className="mt-8 text-lg max-w-md font-light" style={{ color: 'rgba(245,240,224,0.8)' }}>
+                Express Credit makes it simple to get approved — credit repair and SBA loan automation, integrated into one professional portal.
+              </p>
             </div>
+            <div className="mt-10 flex flex-wrap gap-4 relative z-10">
+              <button onClick={() => setShowForms(true)} className="px-8 py-4 font-semibold uppercase tracking-widest text-xs transition-colors" style={{ backgroundColor: '#c9a84c', color: '#064e3b' }}>
+                Get Started
+              </button>
+              <button onClick={() => { setShowForms(true); setIsLogin(true); }} className="border px-8 py-4 font-semibold uppercase tracking-widest text-xs transition-colors" style={{ borderColor: 'rgba(245,240,224,0.3)', color: '#f5f0e0' }}>
+                Client Login
+              </button>
+            </div>
+            <div className="absolute -right-20 -bottom-20 w-96 h-96 rounded-full pointer-events-none" style={{ border: '0.5px solid rgba(201,168,76,0.2)' }} />
+          </div>
 
-            {showForms && (
-              <div className="animate-slide-up w-full max-w-md">
-                <div className="bg-card/90 backdrop-blur-md rounded-xl border border-border p-8 shadow-2xl">
-                  {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
-                </div>
+          {/* Stat Tile — 95% */}
+          <button onClick={() => setModalContent('legal')} className="md:col-span-4 p-8 flex flex-col justify-end text-left hover:opacity-90 transition-opacity" style={{ backgroundColor: '#c9a84c' }}>
+            <span className="font-serif-display italic text-6xl leading-none" style={{ color: '#064e3b' }}>95%</span>
+            <p className="font-semibold uppercase tracking-widest text-[10px] mt-2" style={{ color: '#064e3b' }}>Success Rate Precision</p>
+          </button>
+
+          {/* Rating Tile — 4.9/5 */}
+          <div className="md:col-span-4 p-8 flex flex-col justify-between" style={{ backgroundColor: '#0d7a5f' }}>
+            <div className="flex justify-between items-start w-full">
+              <div className="font-serif-display text-xl" style={{ color: '#f5f0e0' }}>4.9/5</div>
+              <div className="flex gap-0.5">
+                {[1,2,3,4].map(i => <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: '#c9a84c' }} />)}
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.4)' }} />
               </div>
-            )}
+            </div>
+            <p className="text-xs leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              247+ verified reviews from satisfied clients across Dallas and Texas.
+            </p>
           </div>
-        </div>
-      </div>
 
-      <ContentModal isOpen={modalContent !== null} onClose={() => setModalContent(null)} content={modalContent || 'fcra'} />
-
-      {/* Why Choose Us */}
-      <div className="bg-fintech-primary py-20 border-t border-fintech-accent/20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="font-poppins text-4xl md:text-5xl font-bold text-fintech-light mb-4">Why Choose <span className="text-fintech-accent">Express Credit?</span></h2>
-            <p className="text-lg text-fintech-light/80 max-w-3xl mx-auto">Transform your financial future with our proven strategies and expert guidance</p>
+          {/* Pricing — Full Credit Repair */}
+          <div className="md:col-span-4 md:row-span-2 p-8 flex flex-col" style={{ backgroundColor: '#f5f0e0', border: '1px solid rgba(6,78,59,0.1)' }}>
+            <div className="mb-8">
+              <h3 className="font-serif-display text-3xl italic">Full Credit Repair</h3>
+              <div className="text-4xl font-light tracking-tight mt-2" style={{ color: '#c9a84c' }}>$1,499.99</div>
+              <p className="text-[10px] uppercase tracking-widest mt-1" style={{ color: 'rgba(6,78,59,0.5)' }}>One-Time Investment</p>
+            </div>
+            <ul className="space-y-4 mb-10">
+              {['Full credit file audit & analysis','Targeted dispute preparation','Metro 2 compliant processes','FCRA-compliant correspondence'].map(f => (
+                <li key={f} className="flex items-center gap-3 text-sm font-light italic opacity-80">
+                  <span style={{ color: '#c9a84c' }}>—</span> {f}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => navigate('/checkout?plan=full-repair')} className="mt-auto w-full py-4 text-xs font-bold uppercase tracking-[0.2em] transition-all border" style={{ borderColor: '#064e3b', color: '#064e3b' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#064e3b'; e.currentTarget.style.color = '#f5f0e0'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#064e3b'; }}>
+              Secure Enrollment
+            </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: Shield, title: 'Proven Results', desc: 'Thousands of clients have improved their credit scores with our expert methods' },
-              { icon: Lock, title: 'Secure & Compliant', desc: 'FCRA compliant strategies that protect your rights and your data' },
-              { icon: Clock, title: 'Fast Results', desc: 'See improvements in as little as 15-30 days with our rapid process' },
-            ].map(item => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className="text-center p-8 bg-fintech-secondary/50 backdrop-blur-sm rounded-xl border border-fintech-accent/20 hover:border-fintech-accent/50 transition-all duration-300 hover:scale-105">
-                  <Icon className="h-16 w-16 text-fintech-accent mx-auto mb-4" />
-                  <h3 className="font-poppins font-semibold text-xl text-fintech-light mb-3">{item.title}</h3>
-                  <p className="text-fintech-light/70">{item.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
 
-      {/* Membership Plans */}
-      <div className="bg-fintech-support py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="font-poppins text-4xl md:text-5xl font-bold text-fintech-dark mb-4">Choose Your <span className="text-fintech-accent">Credit Solution</span></h2>
-            <p className="text-lg text-fintech-dark/80 max-w-4xl mx-auto">Professional credit restoration services designed to help you achieve your financial goals.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
-            {[
-              { title: 'Full Blown Credit Repair', price: '$1,499.99', badge: '👑 Elite Service', color: 'cyan', features: ['Full credit file audit & analysis', 'Targeted dispute preparation across all three bureaus', 'Inaccurate, unverifiable & outdated data challenges', 'Professional correspondence handled on your behalf', 'Consumer database review', 'Progress tracking inside client portal', 'FCRA-compliant processes'], plan: 'full-repair' },
-              { title: 'Full ChexSystems Removal', price: '$349.99', badge: '🏦 Banking Access', color: 'emerald', features: ['ChexSystems consumer file review', 'Identification of inaccurate or unverifiable reporting', 'Professional dispute submission & follow-up', 'Support for banking access restoration', 'Secondary consumer reporting agency review', 'Secure documentation review', 'Client portal access with status tracking'], plan: 'chexsystems' },
-              { title: 'Tradelines Add-Ons', price: '$499.99 – $1,499.99', badge: '⭐ Credit Enhancement', color: 'violet', features: ['Pricing varies by credit age, credit limit & reporting cycle', 'Personalized credit profile evaluation', 'Tradeline compatibility analysis', 'Education-based tradeline recommendations', 'Strategic integration guidance', 'Risk-aware placement strategy', 'Client consultation before implementation'], plan: 'tradelines' },
-            ].map(plan => (
-              <Card key={plan.plan} className="relative bg-card border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-primary text-primary-foreground font-bold text-sm px-4 py-1 shadow-lg">{plan.badge}</Badge>
-                </div>
-                <CardHeader className="text-center pt-10">
-                  <CardTitle className="font-poppins text-xl font-bold text-foreground">{plan.title}</CardTitle>
-                  <div className={`${plan.plan === 'tradelines' ? 'text-2xl' : 'text-4xl'} font-bold text-primary mt-2`}>{plan.price}</div>
-                  <div className="text-sm text-muted-foreground font-semibold">
-                    {plan.plan === 'tradelines' ? 'Based on credit age, limit & reporting cycle' : 'One-Time Investment'}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-2 px-4">
-                  <ul className="text-xs text-foreground/90 space-y-2">
-                    {plan.features.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2"><span className="text-primary font-bold">✓</span><span>{f}</span></li>
-                    ))}
-                  </ul>
-                  <Button onClick={() => navigate(`/checkout?plan=${plan.plan}`)} className="w-full mt-4">Secure Enrollment</Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <TrustSignals />
-      <FAQSection />
-
-      {/* Payment Methods */}
-      <div className="bg-fintech-secondary py-20">
-        <div className="container mx-auto px-4">
-          <div className="bg-fintech-primary/50 backdrop-blur-sm p-10 rounded-2xl border border-fintech-accent/30">
-            <h3 className="font-poppins text-3xl font-bold text-center text-fintech-light mb-8">We Accept All Major <span className="text-fintech-accent">Payment Methods</span></h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center mb-10">
+          {/* Trust Pillars */}
+          <div className="md:col-span-8 p-8 md:p-10" style={{ backgroundColor: '#064e3b' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {[
-                { src: '/lovable-uploads/607fa3b0-29f0-46a4-86de-39e4e8e1c245.png', alt: 'American Express' },
-                { src: '/lovable-uploads/c74587ad-a808-43ca-b093-cdc6ac5585c8.png', alt: 'MasterCard' },
-                { src: '/lovable-uploads/fc9628bb-8f09-450a-ae12-b97627dd735d.png', alt: 'Discover' },
-                { src: '/lovable-uploads/057496bb-7585-4c04-94b2-85d91eb244ea.png', alt: 'Apple Pay' },
-                { src: '/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png', alt: 'Cash App' },
-                { src: '/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png', alt: 'Affirm' },
-                { src: '/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png', alt: 'Klarna' },
-              ].map(img => <img key={img.alt} src={img.src} alt={img.alt} className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110" />)}
-              <VisaLogo />
-            </div>
-            <div className="text-center">
-              <h4 className="font-poppins text-2xl font-bold text-fintech-accent mb-4">Flexible Payment Plans Available!</h4>
-              <p className="text-fintech-light/80 mb-6 max-w-2xl mx-auto">We've partnered with industry-leading payment companies so you can get started today and pay your way</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <EngineerCredit position="bottom" />
-      <footer className="bg-fintech-primary py-10 border-t border-fintech-accent/20">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
-              {['terms', 'privacy', 'refund'].map(p => (
-                <button key={p} onClick={() => setPolicyModal(p as any)} className="text-fintech-light/70 hover:text-fintech-accent transition-colors text-sm font-medium">
-                  {p === 'terms' ? 'Terms & Conditions' : p === 'privacy' ? 'Privacy Policy' : 'Refund Policy'}
+                { title: 'FCRA Analysis', desc: 'Advanced credit file investigations by certified experts.', key: 'fcra' as const },
+                { title: 'Legal Precision', desc: '95% success rate using verified legal methods.', key: 'legal' as const },
+                { title: 'Rapid Result', desc: 'See tangible improvements in as little as 15–30 days.', key: 'rapid' as const },
+              ].map(p => (
+                <button key={p.key} onClick={() => setModalContent(p.key)} className="text-left group">
+                  <h4 className="font-serif-display text-xl italic mb-2 group-hover:underline underline-offset-4" style={{ color: '#c9a84c' }}>{p.title}</h4>
+                  <p className="text-xs leading-relaxed" style={{ color: 'rgba(245,240,224,0.6)' }}>{p.desc}</p>
                 </button>
               ))}
             </div>
-            <div className="text-sm text-fintech-light/60 text-center md:text-right">© 2024 Express Credit & Financial Solutions LLC. All rights reserved.</div>
           </div>
+
+          {/* ChexSystems Tile */}
+          <button onClick={() => navigate('/checkout?plan=chexsystems')} className="md:col-span-3 p-8 text-left hover:opacity-90 transition-opacity" style={{ backgroundColor: '#0d7a5f' }}>
+            <h4 className="font-serif-display text-xl" style={{ color: '#f5f0e0' }}>ChexSystems</h4>
+            <div className="text-2xl font-light mt-1" style={{ color: '#c9a84c' }}>$349.99</div>
+            <p className="text-[10px] mt-4 uppercase tracking-tighter" style={{ color: 'rgba(245,240,224,0.5)' }}>Removal Service</p>
+          </button>
+
+          {/* Tradelines Tile */}
+          <button onClick={() => navigate('/checkout?plan=tradelines')} className="md:col-span-3 p-8 text-left hover:opacity-90 transition-opacity" style={{ backgroundColor: '#064e3b' }}>
+            <h4 className="font-serif-display text-xl" style={{ color: '#f5f0e0' }}>Tradelines</h4>
+            <div className="text-2xl font-light mt-1" style={{ color: '#c9a84c' }}>$499+</div>
+            <p className="text-[10px] mt-4 uppercase tracking-tighter" style={{ color: 'rgba(245,240,224,0.5)' }}>Credit Enhancement</p>
+          </button>
+
+          {/* Contact / Compliance */}
+          <div className="md:col-span-6 p-8 flex flex-col justify-between" style={{ backgroundColor: '#f5f0e0', border: '1px solid #c9a84c' }}>
+            <div className="flex justify-between items-start gap-6">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold mb-2" style={{ color: '#c9a84c' }}>Headquarters</p>
+                <address className="not-italic text-sm leading-relaxed" style={{ color: '#064e3b' }}>
+                  6363 Dallas Pkwy, Frisco, TX 75034<br />
+                  531-348-9321<br />
+                  expresscreditfinancialsolution@gmail.com
+                </address>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] uppercase tracking-widest font-bold mb-2" style={{ color: '#c9a84c' }}>Compliance</p>
+                <p className="text-[10px] opacity-70" style={{ color: '#064e3b' }}>Licensed & Insured<br />FCRA Certified<br />Metro 2 Compliant<br />Bank-Level Security</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer stat bar */}
+          <div className="md:col-span-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-6 mt-2" style={{ borderTop: '1px solid rgba(6,78,59,0.1)' }}>
+            <div className="text-[10px] uppercase tracking-[0.3em] font-medium" style={{ color: 'rgba(6,78,59,0.4)' }}>
+              Express Credit & Financial Solutions LLC — Established Precision
+            </div>
+            <div className="font-serif-display italic text-2xl" style={{ color: '#064e3b' }}>
+              15–30 <span className="text-[10px] not-italic uppercase tracking-widest font-work font-bold align-middle ml-2">Day Turnaround</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Inline auth forms (revealed after CTA) */}
+      {showForms && (
+        <section className="px-6 sm:px-12 pb-12">
+          <div className="max-w-md mx-auto p-8 shadow-2xl" style={{ backgroundColor: '#ffffff', border: '1px solid rgba(6,78,59,0.1)' }}>
+            {isLogin ? <LoginForm onToggleForm={() => setIsLogin(false)} /> : <RegisterForm onToggleForm={() => setIsLogin(true)} />}
+          </div>
+        </section>
+      )}
+
+      <ContentModal isOpen={modalContent !== null} onClose={() => setModalContent(null)} content={modalContent || 'fcra'} />
+
+      {/* TrustSignals + FAQ wrapped in cream surround */}
+      <div style={{ backgroundColor: '#f5f0e0' }}>
+        <FAQSection />
+      </div>
+
+      {/* Payment Methods — emerald band */}
+      <section className="px-6 sm:px-12 py-16" style={{ backgroundColor: '#064e3b' }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Flexible Payment Options</p>
+            <h3 className="font-serif-display text-4xl md:text-5xl" style={{ color: '#f5f0e0' }}>
+              We Accept <span className="italic" style={{ color: '#c9a84c' }}>All Major</span> Payment Methods
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center mb-8 p-8" style={{ backgroundColor: 'rgba(245,240,224,0.06)', border: '1px solid rgba(201,168,76,0.2)' }}>
+            {[
+              { src: '/lovable-uploads/607fa3b0-29f0-46a4-86de-39e4e8e1c245.png', alt: 'American Express' },
+              { src: '/lovable-uploads/c74587ad-a808-43ca-b093-cdc6ac5585c8.png', alt: 'MasterCard' },
+              { src: '/lovable-uploads/fc9628bb-8f09-450a-ae12-b97627dd735d.png', alt: 'Discover' },
+              { src: '/lovable-uploads/057496bb-7585-4c04-94b2-85d91eb244ea.png', alt: 'Apple Pay' },
+              { src: '/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png', alt: 'Cash App' },
+              { src: '/lovable-uploads/4068ca38-422c-424c-a722-661a31ecc1b8.png', alt: 'Affirm' },
+              { src: '/lovable-uploads/b879e2a7-3060-4d30-8907-67cbecf22228.png', alt: 'Klarna' },
+            ].map(img => <img key={img.alt} src={img.src} alt={img.alt} className="max-h-[38px] px-3 py-1 transition-all duration-300 hover:scale-110" />)}
+            <VisaLogo />
+          </div>
+          <p className="text-center text-sm font-light max-w-2xl mx-auto" style={{ color: 'rgba(245,240,224,0.7)' }}>
+            Partnered with industry-leading payment companies — get started today and pay your way.
+          </p>
+        </div>
+      </section>
+
+      <EngineerCredit position="bottom" />
+
+      {/* Footer */}
+      <footer className="px-6 sm:px-12 py-10" style={{ backgroundColor: '#f5f0e0', borderTop: '1px solid rgba(6,78,59,0.1)' }}>
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
+            {(['terms','privacy','refund'] as const).map(p => (
+              <button key={p} onClick={() => setPolicyModal(p)} className="text-xs uppercase tracking-widest font-medium transition-colors hover:opacity-70" style={{ color: '#064e3b' }}>
+                {p === 'terms' ? 'Terms & Conditions' : p === 'privacy' ? 'Privacy Policy' : 'Refund Policy'}
+              </button>
+            ))}
+          </div>
+          <div className="text-[10px] uppercase tracking-[0.3em] text-center md:text-right" style={{ color: 'rgba(6,78,59,0.5)' }}>© 2026 Express Credit & Financial Solutions LLC</div>
         </div>
       </footer>
 
