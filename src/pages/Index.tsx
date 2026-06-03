@@ -683,10 +683,37 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="relative z-10 px-6 sm:px-10 py-10 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
+        {/* Facebook community strip */}
+        <div className="max-w-7xl mx-auto mb-10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6" style={{ backgroundColor: 'rgba(6,78,59,0.45)', border: '1px solid rgba(201,168,76,0.25)' }}>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.35)' }}>
+              <Facebook className="h-5 w-5" style={{ color: '#c9a84c' }} />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>The Community · Live Wins Daily</p>
+              <p className="font-serif-display text-2xl md:text-3xl tracking-tight" style={{ color: '#f5f0e0' }}>
+                Follow Express Credit on <span className="italic" style={{ color: '#c9a84c' }}>Facebook.</span>
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://www.facebook.com/ExpressCreditFinancial"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs uppercase tracking-widest font-bold transition-all hover-scale"
+            style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 30px rgba(201,168,76,0.4)' }}
+          >
+            <Facebook className="h-4 w-4" /> Follow @ExpressCreditFinancial
+          </a>
+        </div>
+
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           <div>
             <p className="font-serif-display text-xl">Express Credit & Financial Solutions</p>
             <p className="text-[10px] uppercase tracking-[0.3em] mt-1" style={{ color: 'rgba(245,240,224,0.5)' }}>6363 Dallas Pkwy · Frisco, TX · 531-348-9321</p>
+            <a href="https://www.facebook.com/ExpressCreditFinancial" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-3 text-[10px] uppercase tracking-[0.3em] transition-colors hover:text-white" style={{ color: 'rgba(245,240,224,0.6)' }}>
+              <Facebook className="h-3 w-3" /> Facebook
+            </a>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6">
             {(['terms','privacy','refund'] as const).map(p => (
