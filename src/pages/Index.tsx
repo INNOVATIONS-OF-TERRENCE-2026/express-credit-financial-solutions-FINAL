@@ -543,6 +543,40 @@ const Index = () => {
               </div>
             ))}
           </div>
+
+          {/* Checkout compliance + prominent CTA */}
+          <div className="mt-12 rounded-2xl p-1" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)' }}>
+            <div className="rounded-2xl p-8 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
+              <div className="lg:col-span-2">
+                <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: '#c9a84c' }}>Secure Checkout · PCI-DSS Compliant</p>
+                <h3 className="font-serif-display text-3xl md:text-4xl tracking-tight" style={{ color: '#f5f0e0' }}>
+                  Ready to enroll? <span className="italic" style={{ color: '#c9a84c' }}>Your file fires within 24 hours.</span>
+                </h3>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {[
+                    { Icon: Lock, t: '256-bit SSL' },
+                    { Icon: ShieldCheck, t: 'PCI-DSS' },
+                    { Icon: KeyRound, t: 'Encrypted Payments' },
+                    { Icon: FileLock2, t: 'GLBA Privacy' },
+                    { Icon: Shield, t: 'SOC-Grade Hosting' },
+                  ].map(({ Icon, t }) => (
+                    <div key={t} className="flex items-center gap-2 px-3 py-2 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)' }}>
+                      <Icon className="h-3.5 w-3.5" style={{ color: '#c9a84c' }} />
+                      <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'rgba(245,240,224,0.85)' }}>{t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="w-full px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.5)' }}>
+                  Sign Up & Start Today <ArrowRight className="h-4 w-4" />
+                </button>
+                <button onClick={() => { setShowForms(true); setIsLogin(true); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="w-full px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
+                  Existing Client · Log In
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
