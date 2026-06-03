@@ -63,14 +63,14 @@ export const FAQSection = () => {
   }, []);
 
   return (
-    <section className="py-20 px-6 sm:px-12" style={{ backgroundColor: '#f5f0e0' }}>
+    <section className="py-24 px-6 sm:px-12" style={{ backgroundColor: 'transparent' }}>
       <div className="max-w-5xl mx-auto">
         <div className="mb-12 text-center">
           <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>The Knowledge Index</p>
-          <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight" style={{ color: '#064e3b' }}>
+          <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight" style={{ color: '#f5f0e0' }}>
             Frequently Asked <span className="italic" style={{ color: '#c9a84c' }}>Questions</span>
           </h2>
-          <p className="text-base max-w-2xl mx-auto mt-4 font-light" style={{ color: 'rgba(6,78,59,0.7)' }}>
+          <p className="text-base max-w-2xl mx-auto mt-4 font-light" style={{ color: 'rgba(245,240,224,0.65)' }}>
             Answers to the questions our most discerning clients ask before they enroll.
           </p>
         </div>
@@ -82,12 +82,12 @@ export const FAQSection = () => {
                 key={index}
                 value={`item-${index}`}
                 className="border-0 border-t px-2 last:border-b"
-                style={{ borderColor: 'rgba(6,78,59,0.15)' }}
+                style={{ borderColor: 'rgba(201,168,76,0.18)' }}
               >
-                <AccordionTrigger className="text-left font-work text-base font-medium py-6 hover:no-underline" style={{ color: '#064e3b' }}>
+                <AccordionTrigger className="text-left font-work text-base font-medium py-6 hover:no-underline" style={{ color: '#f5f0e0' }}>
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="font-light pb-6 text-sm leading-relaxed" style={{ color: 'rgba(6,78,59,0.75)' }}>
+                <AccordionContent className="font-light pb-6 text-sm leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
