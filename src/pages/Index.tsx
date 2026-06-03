@@ -33,6 +33,19 @@ const Index = () => {
   const { shouldShowTour, isLoading: onboardingLoading, startTour, completeTour, skipTour } = useOnboarding();
   const navigate = useNavigate();
 
+  const trackCtaClick = (cta_id: string, meta: Record<string, unknown> = {}) => {
+    try {
+      const payload = { event: 'cta_click', cta_id, location: 'landing', ...meta, ts: new Date().toISOString() };
+      const w = window as any;
+      if (typeof w.gtag === 'function') w.gtag('event', 'cta_click', payload);
+      if (Array.isArray(w.dataLayer)) w.dataLayer.push(payload);
+      if (w.fbq) w.fbq('trackCustom', 'CTAClick', payload);
+      console.info('[cta]', payload);
+    } catch (e) {
+      console.warn('cta tracking failed', e);
+    }
+  };
+
   const handleLogin = async (email: string, password: string) => {
     const { error } = await signIn(email, password);
     if (error) toast({ title: "Login Failed", description: error.message, variant: "destructive" });
@@ -717,10 +730,10 @@ const Index = () => {
 
               {/* Right: CTAs */}
               <div className="lg:col-span-3 flex flex-col gap-3">
-                <a href="https://www.tiarahasthekey.com" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-2 px-6 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+                <a onClick={() => trackCtaClick('tiara_website', { href: 'https://www.tiarahasthekey.com' })} href="https://www.tiarahasthekey.com" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-2 px-6 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
                   <Key className="h-4 w-4" /> Visit TiaraHasTheKey.com
                 </a>
-                <a href="https://www.zillow.com/profile/tiarahasthekey" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
+                <a onClick={() => trackCtaClick('tiara_zillow', { href: 'https://www.zillow.com/profile/tiarahasthekey' })} href="https://www.zillow.com/profile/tiarahasthekey" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
                   View Zillow Profile <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </div>
@@ -798,7 +811,7 @@ const Index = () => {
                   Enroll today and we will have your auto file structured within 24 hours.
                 </p>
               </div>
-              <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2 whitespace-nowrap" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+              <button onClick={() => { trackCtaClick('start_my_auto_file', { destination: 'signup' }); setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2 whitespace-nowrap" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
                 Start My Auto File <ArrowRight className="h-4 w-4" />
               </button>
             </div>
