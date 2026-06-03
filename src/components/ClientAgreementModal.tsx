@@ -28,7 +28,7 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
   const { user } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
-  const signatureSectionRef = useRef<HTMLDivElement>(null);
+  const signatureSectionRef = useRef<HTMLFormElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to the signature form when the modal opens so users land
