@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, RefreshCw } from 'lucide-react';
+import { TrendingUp, RefreshCw, Download } from 'lucide-react';
 
 type Row = { cta_id: string; clicks: number; signups: number; logins: number };
 
@@ -51,6 +51,33 @@ export function MarketingFunnelCard() {
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [hours]);
 
+  const exportCsv = () => {
+    const rangeLabel = RANGE_OPTIONS.find(r => r.hours === hours)?.label ?? `${hours}h`;
+    const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+    const until = new Date().toISOString();
+    const header = ['CTA', 'CTA ID', 'Clicks', 'Signups', 'Logins', 'Conversion %', 'Range', 'Since (UTC)', 'Until (UTC)'];
+    const escape = (v: string | number) => {
+      const s = String(v ?? '');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [header.map(escape).join(',')];
+    for (const r of rows) {
+      const label = TRACKED_CTAS.find(c => c.id === r.cta_id)?.label ?? r.cta_id;
+      const conv = r.clicks > 0 ? ((r.signups + r.logins) / r.clicks) * 100 : 0;
+      lines.push([label, r.cta_id, r.clicks, r.signups, r.logins, conv.toFixed(1), rangeLabel, since, until].map(escape).join(','));
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `marketing-cta-funnel-${rangeLabel}-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Card className="glass-card">
       <CardHeader className="flex flex-row items-start justify-between gap-2">
@@ -66,6 +93,9 @@ export function MarketingFunnelCard() {
               {r.label}
             </Button>
           ))}
+          <Button size="sm" variant="outline" onClick={exportCsv} disabled={loading || rows.length === 0} className="h-7 px-2 text-xs gap-1">
+            <Download className="h-3.5 w-3.5" /> CSV
+          </Button>
           <Button size="sm" variant="ghost" onClick={load} className="h-7 px-2"><RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /></Button>
         </div>
       </CardHeader>
