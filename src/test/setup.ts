@@ -25,3 +25,11 @@ Object.defineProperty(window, 'matchMedia', {
   };
 };
 (HTMLCanvasElement.prototype as any).toDataURL = () => 'data:image/png;base64,AAAA';
+
+// jsdom doesn't implement ResizeObserver; provide a noop stub used by
+// the agreement modal's responsive canvas measurement.
+(globalThis as any).ResizeObserver = (globalThis as any).ResizeObserver || class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};

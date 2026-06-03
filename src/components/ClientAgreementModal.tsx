@@ -38,7 +38,7 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
     const t = setTimeout(() => {
       const section = signatureSectionRef.current;
       const container = scrollContainerRef.current;
-      if (section && container) {
+      if (section && container && typeof container.scrollTo === 'function') {
         const top = section.offsetTop - 8;
         container.scrollTo({ top, behavior: 'smooth' });
       }
@@ -73,13 +73,18 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
         img.src = prev;
       }
     };
-    resize();
+    // Defer initial measurement until after layout commits so the canvas
+    // has its final CSS dimensions inside the Radix Dialog portal.
+    const raf = requestAnimationFrame(resize);
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
     window.addEventListener('orientationchange', resize);
+    window.addEventListener('resize', resize);
     return () => {
+      cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener('orientationchange', resize);
+      window.removeEventListener('resize', resize);
     };
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -371,7 +376,18 @@ Date: ${new Date().toLocaleDateString()}
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[92vh] p-0 flex flex-col gap-0">
+      <DialogContent
+        className="max-w-4xl w-[95vw] max-h-[92vh] p-0 flex flex-col gap-0"
+        onOpenAutoFocus={(e) => {
+          // Radix focuses the first focusable element by default (the close
+          // button). Redirect initial focus to the name input so keyboard
+          // users land directly on the signature form. Focus trap stays
+          // intact — Tab/Shift+Tab cycles within the dialog only.
+          e.preventDefault();
+          const nameInput = document.getElementById('fullName') as HTMLInputElement | null;
+          nameInput?.focus({ preventScroll: true });
+        }}
+      >
         <DialogHeader className="px-6 pt-6 pb-3 border-b shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
