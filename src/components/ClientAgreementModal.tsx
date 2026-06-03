@@ -340,7 +340,7 @@ Date: ${new Date().toLocaleDateString()}
               <CardTitle className="text-lg">Service Agreement Terms</CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-64 w-full rounded border p-4 bg-muted/50">
+              <ScrollArea className="h-40 sm:h-56 w-full rounded border p-4 bg-muted/50">
                 <div className="whitespace-pre-line text-sm">
                   <h3 className="font-semibold mb-4">EXPRESS CREDIT & FINANCIAL SOLUTIONS</h3>
                   <h4 className="font-semibold mb-4">CLIENT SERVICE AGREEMENT</h4>
