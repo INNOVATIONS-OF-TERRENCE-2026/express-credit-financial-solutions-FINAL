@@ -73,13 +73,18 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
         img.src = prev;
       }
     };
-    resize();
+    // Defer initial measurement until after layout commits so the canvas
+    // has its final CSS dimensions inside the Radix Dialog portal.
+    const raf = requestAnimationFrame(resize);
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
     window.addEventListener('orientationchange', resize);
+    window.addEventListener('resize', resize);
     return () => {
+      cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener('orientationchange', resize);
+      window.removeEventListener('resize', resize);
     };
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
