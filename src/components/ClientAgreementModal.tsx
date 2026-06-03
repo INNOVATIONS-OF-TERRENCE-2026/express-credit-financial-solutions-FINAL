@@ -22,6 +22,8 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
   const [typedSignature, setTypedSignature] = useState('');
   const [signatureDataUrl, setSignatureDataUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastError, setLastError] = useState<{ stage: string; message: string } | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const { toast } = useToast();
   const { user } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
