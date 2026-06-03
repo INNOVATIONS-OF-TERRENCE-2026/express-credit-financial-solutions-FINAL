@@ -717,7 +717,7 @@ const Index = () => {
 
               {/* Right: CTAs */}
               <div className="lg:col-span-3 flex flex-col gap-3">
-                <a href="https://www.tiarahasthekey.com" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-2 px-6 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+                <a onClick={() => trackCtaClick('tiara_website', { href: 'https://www.tiarahasthekey.com' })} href="https://www.tiarahasthekey.com" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-2 px-6 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
                   <Key className="h-4 w-4" /> Visit TiaraHasTheKey.com
                 </a>
                 <a href="https://www.zillow.com/profile/tiarahasthekey" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
