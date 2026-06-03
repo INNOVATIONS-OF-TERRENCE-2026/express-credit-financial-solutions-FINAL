@@ -1382,6 +1382,42 @@ export type Database = {
           },
         ]
       }
+      client_payment_summary: {
+        Row: {
+          client_id: string | null
+          last_payment_amount: number | null
+          last_payment_date: string | null
+          last_payment_method: string | null
+          last_payment_status: string | null
+          total_paid: number
+          total_pending: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          last_payment_amount?: number | null
+          last_payment_date?: string | null
+          last_payment_method?: string | null
+          last_payment_status?: string | null
+          total_paid?: number
+          total_pending?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          last_payment_amount?: number | null
+          last_payment_date?: string | null
+          last_payment_method?: string | null
+          last_payment_status?: string | null
+          total_paid?: number
+          total_pending?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       client_processing_cycles: {
         Row: {
           client_id: string | null
@@ -3022,6 +3058,94 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_activity_events: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_type: string
+          id: string
+          payment_record_id: string
+          title: string
+          user_id: string
+          visible_to_client: boolean
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_type: string
+          id?: string
+          payment_record_id: string
+          title: string
+          user_id: string
+          visible_to_client?: boolean
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_type?: string
+          id?: string
+          payment_record_id?: string
+          title?: string
+          user_id?: string
+          visible_to_client?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_activity_events_payment_record_id_fkey"
+            columns: ["payment_record_id"]
+            isOneToOne: false
+            referencedRelation: "payment_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          payment_record_id: string | null
+          read_status: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          payment_record_id?: string | null
+          read_status?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          payment_record_id?: string | null
+          read_status?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_notifications_payment_record_id_fkey"
+            columns: ["payment_record_id"]
+            isOneToOne: false
+            referencedRelation: "payment_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_receipts: {
         Row: {
           amount_paid: number
@@ -3064,6 +3188,63 @@ export type Database = {
           receipt_pdf_url?: string | null
           stripe_payment_intent_id?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_records: {
+        Row: {
+          admin_notes: string | null
+          client_id: string | null
+          client_visible_message: string | null
+          created_at: string
+          id: string
+          payment_amount: number
+          payment_method: string
+          payment_note: string | null
+          payment_proof_file_path: string | null
+          payment_status: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          submitted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          client_id?: string | null
+          client_visible_message?: string | null
+          created_at?: string
+          id?: string
+          payment_amount: number
+          payment_method: string
+          payment_note?: string | null
+          payment_proof_file_path?: string | null
+          payment_status?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          client_id?: string | null
+          client_visible_message?: string | null
+          created_at?: string
+          id?: string
+          payment_amount?: number
+          payment_method?: string
+          payment_note?: string | null
+          payment_proof_file_path?: string | null
+          payment_status?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
