@@ -12,7 +12,7 @@ import { sanitizeInput, validateEmail, validatePhone, validateSSN, validateName 
 import { encryptSSN } from '@/utils/ssnEncryption';
 import { BackButton } from '@/components/BackButton';
 import { useClientAgreement } from '@/hooks/useClientAgreement';
-import { DigitalSignature } from '@/components/DigitalSignature';
+import { ClientAgreementModal } from '@/components/ClientAgreementModal';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -47,6 +47,7 @@ export function ClientOnboarding() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [agreementOpen, setAgreementOpen] = useState(false);
   const { toast } = useToast();
   const { validateFile, sanitizeFileName } = useFileUploadSecurity();
   const { logFileUpload } = useAuditLog();
@@ -325,14 +326,18 @@ export function ClientOnboarding() {
         </CardHeader>
         <CardContent>
           {!hasSignedAgreement ? (
-            <div className="border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg">
-              <DigitalSignature 
-                open={true}
-                onOpenChange={() => {}}
-                onSignatureSaved={async () => {}}
-                documentTitle="Client Agreement"
-                onSignatureComplete={refetchAgreementStatus} 
-              />
+            <div className="border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg text-center space-y-4">
+              <p className="text-sm text-yellow-900 dark:text-yellow-100">
+                Review the Express Credit & Financial Solutions service agreement, then draw or type your signature to activate your account.
+              </p>
+              <Button
+                type="button"
+                size="lg"
+                onClick={() => setAgreementOpen(true)}
+                className="bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800"
+              >
+                Review & Sign Agreement
+              </Button>
             </div>
           ) : (
             <div className="border-2 border-green-500/50 bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
@@ -348,6 +353,12 @@ export function ClientOnboarding() {
           )}
         </CardContent>
       </Card>
+
+      <ClientAgreementModal
+        isOpen={agreementOpen}
+        onClose={() => setAgreementOpen(false)}
+        onAgreementSigned={() => { setAgreementOpen(false); refetchAgreementStatus(); }}
+      />
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Personal Information */}
