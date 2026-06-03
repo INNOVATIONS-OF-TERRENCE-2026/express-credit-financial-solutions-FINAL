@@ -1585,6 +1585,7 @@ export type Database = {
           priority_level: string | null
           progress_status: number | null
           round_number: number | null
+          ssn_encrypted: string | null
           ssn_last4: string
           updated_at: string
           user_id: string | null
@@ -1606,6 +1607,7 @@ export type Database = {
           priority_level?: string | null
           progress_status?: number | null
           round_number?: number | null
+          ssn_encrypted?: string | null
           ssn_last4: string
           updated_at?: string
           user_id?: string | null
@@ -1627,6 +1629,7 @@ export type Database = {
           priority_level?: string | null
           progress_status?: number | null
           round_number?: number | null
+          ssn_encrypted?: string | null
           ssn_last4?: string
           updated_at?: string
           user_id?: string | null

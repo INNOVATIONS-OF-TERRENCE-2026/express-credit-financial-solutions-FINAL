@@ -1,47 +1,73 @@
-## Root cause
+## Goal
 
-`/onboarding` (`src/pages/ClientOnboarding.tsx`) renders `DigitalSignature` for the "Complete Your Client Agreement" card. That component is broken for this use case in two compounding ways:
+Prove end-to-end that an SSN entered on `/onboarding`:
+1. Gets encrypted via `encrypt_ssn_secure` (server-side, SECURITY DEFINER + pgcrypto).
+2. Is saved on the client's row.
+3. Can be round-tripped back through `decrypt_ssn_secure` and returns the masked `***-**-<last4>` value the function is designed to produce.
 
-1. **Storage RLS denies the upload.** `DigitalSignature.handleSign` uploads to the `signatures` bucket with a flat filename:
-   ```
-   signature_${user.id}_${Date.now()}.png
-   ```
-   The bucket's INSERT policy requires the first folder segment to equal `auth.uid()`:
-   ```
-   (bucket_id = 'signatures') AND (auth.uid()::text = (storage.foldername(name))[1])
-   ```
-   Because there is no `${user.id}/` folder prefix, `storage.foldername(name)[1]` is `null`, the policy fails, the upload throws, and the user sees the toast **"Failed to save signature. Please try again."** This is exactly what clients are hitting.
+## Important context discovered
 
-2. **No agreement record is ever written.** Even if the upload succeeded, the page passes `onSignatureSaved={async () => {}}` — an empty handler. Nothing is inserted into `client_agreements`, so `useClientAgreement` keeps returning `hasSignedAgreement = false` forever and the UI never advances.
+- `ClientOnboarding.tsx` already calls `encryptSSN(formData.ssn)` but **throws away the result** — only `ssn_last4` is saved. So today there is nothing on the row to "decrypt back". We need a column.
+- `decrypt_ssn_secure` intentionally returns only `***-**-XXXX` (not plaintext). Tests assert that masked format, not the raw SSN.
 
-The rest of the app already has a correct, production-grade signing path: `ClientAgreementModal` draws a canvas signature, generates a signed PDF via `jsPDF`, uploads to the `client-agreements` bucket under `${user.id}/...` (matching its RLS), inserts into `client_agreements` with `user_id` + `client_id`, and writes audit + timeline rows. `useClientAgreement` already reads from that exact table.
+## Plan
 
-## Fix (surgical, frontend only)
+### 1. Schema: persist the encrypted SSN
 
-Swap the broken inline `DigitalSignature` on the onboarding page for the existing, working `ClientAgreementModal`. No DB/RLS/auth/router changes required.
+Migration on `public.clients`:
+- Add `ssn_encrypted text` (nullable).
+- No grant/RLS change needed — existing client/admin policies on `clients` cover it.
 
-### File: `src/pages/ClientOnboarding.tsx`
+### 2. Wire onboarding to save it
 
-- Remove `import { DigitalSignature } from '@/components/DigitalSignature'`.
-- Add `import { ClientAgreementModal } from '@/components/ClientAgreementModal'`.
-- Add local state `const [agreementOpen, setAgreementOpen] = useState(false)`.
-- In the "Complete Your Client Agreement" card, when `!hasSignedAgreement`:
-  - Replace the embedded `DigitalSignature` block with a short explainer + a primary "Review & Sign Agreement" button that sets `agreementOpen = true`.
-- Render `<ClientAgreementModal isOpen={agreementOpen} onClose={() => setAgreementOpen(false)} onAgreementSigned={() => { setAgreementOpen(false); refetchAgreementStatus(); }} />` once inside the page.
-- Keep the existing green "Agreement Signed" success state as-is (it already keys off `hasSignedAgreement`).
+Edit `src/pages/ClientOnboarding.tsx`:
+- Keep `const encryptedSSN = await encryptSSN(formData.ssn);`
+- Add `ssn_encrypted: encryptedSSN` to the `clients` insert payload alongside `ssn_last4`.
 
-### Why this is safe
+### 3. Mocked E2E test (always runs)
 
-- No changes to auth, routing, RLS, schema, or any other working flow.
-- `ClientAgreementModal` is already used elsewhere in the app and is known-good against the current storage policies on `client-agreements` and the `client_agreements` table.
-- `DigitalSignature` is left untouched for any other caller; only the onboarding page stops using it.
-- `useClientAgreement` already polls `client_agreements` by `user_id`, so the green "Agreement Signed" state will flip automatically after a successful sign.
+New file `src/test/onboardingSsnEncryption.e2e.test.tsx`:
+- Mocks `@/hooks/useAuth` to return a signed-in user.
+- Mocks `@/integrations/supabase/client` with:
+  - `auth.getUser` → returns the test user.
+  - `rpc('encrypt_ssn_secure', ...)` → returns `'1234|ciphertextB64'`.
+  - `rpc('decrypt_ssn_secure', ...)` → returns `'***-**-1234'`.
+  - `from('clients').insert(...)` → captures the payload in a spy.
+  - `storage.from(...).upload` → no-op success.
+- Renders `<ClientOnboarding />`, fills name/DOB/SSN/phone/email via `@testing-library/user-event`, attaches dummy `File` blobs to the three file inputs, clicks Submit.
+- Asserts:
+  1. `rpc` was called with `{ ssn_text: '123456789' }`.
+  2. The `insert` payload contains `ssn_encrypted: '1234|ciphertextB64'` and `ssn_last4: '6789'`.
+  3. A follow-up call to the mocked `decrypt_ssn_secure` returns `***-**-1234`.
 
-## Verification
+### 4. Live Supabase round-trip test (opt-in)
 
-1. Log in as a client with no signed agreement, visit `/onboarding`.
-2. Click **Review & Sign Agreement** → modal opens.
-3. Draw signature (or type fallback), enter full legal name, click **I Agree & Sign Agreement**.
-4. Expect: success toast, modal closes, card flips to green "Agreement Signed".
-5. In Supabase, confirm a new row in `client_agreements` for this `user_id` and a PDF in the `client-agreements` bucket at `${user.id}/...-service-agreement.pdf`.
-6. Reload `/onboarding` → still shows green signed state.
+New file `src/test/ssnEncryption.live.test.ts`, skipped unless `E2E_SUPABASE_EMAIL` and `E2E_SUPABASE_PASSWORD` env vars are set:
+- Creates a fresh Supabase client using `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- `signInWithPassword` using the env-provided test user.
+- Calls `rpc('encrypt_ssn_secure', { ssn_text: '123456789' })`, asserts the returned string ends with `|<base64>` and starts with `6789|`.
+- Inserts a row in `clients` with `user_id=auth.uid()` and `ssn_encrypted=<ciphertext>`, then selects it back.
+- Calls `rpc('decrypt_ssn_secure', { encrypted_ssn: <ciphertext> })` and asserts it equals `***-**-6789`.
+- Cleans up the test row.
+
+This guards the real DB function against future regressions (e.g. the `search_path`/pgcrypto bug we just fixed) without requiring secrets to run the default test suite.
+
+### 5. Verify
+
+- Run the mocked test via `bunx vitest run src/test/onboardingSsnEncryption.e2e.test.tsx`.
+- The live test stays skipped in CI unless secrets are wired; document the two env vars in `README.md` test section.
+
+## Files touched
+
+```text
+supabase migration                     (add clients.ssn_encrypted)
+src/pages/ClientOnboarding.tsx         (persist ssn_encrypted in insert)
+src/test/onboardingSsnEncryption.e2e.test.tsx   (new, mocked)
+src/test/ssnEncryption.live.test.ts             (new, env-gated)
+README.md                              (note the two opt-in env vars)
+```
+
+## Out of scope
+
+- Changing `decrypt_ssn_secure` to return plaintext (intentionally masked for security).
+- Playwright browser automation (heavier infra; mocked + live RPC tests cover the same regressions).
