@@ -6,6 +6,7 @@ import { Upload, FileText, TrendingUp, Shield, Star, BarChart3 } from 'lucide-re
 import { Link } from 'react-router-dom';
 import { SecureVerificationUpload } from './SecureVerificationUpload';
 import { useAuth } from '@/hooks/useAuth';
+import { ClientPaymentWidget } from './payments/ClientPaymentWidget';
 
 interface ClientData {
   name: string;
@@ -122,6 +123,8 @@ export function ClientDashboard({ clientData, onUploadDocument, onLogout }: Clie
           </Card>
 
           {user && <div className="lg:col-span-3"><SecureVerificationUpload userId={user.id} /></div>}
+
+          <div className="lg:col-span-3"><ClientPaymentWidget /></div>
 
           <Card className="glass-card-hover lg:col-span-2">
             <CardHeader><CardTitle>Document Management</CardTitle><CardDescription>Upload documents for your credit repair process</CardDescription></CardHeader>
