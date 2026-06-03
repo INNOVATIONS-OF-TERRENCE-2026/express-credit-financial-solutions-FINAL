@@ -11,6 +11,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { Upload, FileText, Trash2, Eye, Download, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { downloadAsPdf } from '@/lib/documentUtils';
 
+const MAX_PDF_SIZE_MB = 10;
+const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024;
+
+/**
+ * Strict client-side validation for credit reports.
+ * Only PDFs are accepted, with a hard size cap. Returns null when valid.
+ */
+export function validateCreditReportFile(file: File): string | null {
+  const ext = file.name.split('.').pop()?.toLowerCase();
+  const isPdf = ext === 'pdf' || file.type === 'application/pdf';
+  if (!isPdf) {
+    return 'Only PDF credit reports are accepted.';
+  }
+  if (file.size === 0) {
+    return 'This file appears to be empty.';
+  }
+  if (file.size > MAX_PDF_SIZE_BYTES) {
+    return `File is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max ${MAX_PDF_SIZE_MB}MB.`;
+  }
+  return null;
+}
+
 interface CreditReportUpload {
   id: string;
   file_name: string;
@@ -27,12 +49,13 @@ interface CreditReportUpload {
 export function EnhancedCreditReportUpload() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatusText, setUploadStatusText] = useState<string>('');
   const [uploads, setUploads] = useState<CreditReportUpload[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const { validateFile, sanitizeFileName } = useFileUploadSecurity();
+  const { sanitizeFileName } = useFileUploadSecurity();
 
   const fetchUploads = useCallback(async () => {
     try {
@@ -111,39 +134,45 @@ export function EnhancedCreditReportUpload() {
     if (!files || files.length === 0) return;
 
     setUploading(true);
+    setUploadProgress(0);
+    setUploadStatusText('Preparing upload…');
     const totalFiles = files.length;
     let processed = 0;
+    let failed = 0;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       for (const file of Array.from(files)) {
-        // Validate file
-        const validation = validateFile(file);
-        if (!validation.isValid) {
+        // PDF-only + size validation
+        const err = validateCreditReportFile(file);
+        if (err) {
+          failed++;
           toast({
-            title: "Invalid File",
-            description: `${file.name}: ${validation.error}`,
-            variant: "destructive",
+            title: 'Invalid file',
+            description: `${file.name}: ${err}`,
+            variant: 'destructive',
           });
           continue;
         }
 
         const sanitizedFileName = sanitizeFileName(file.name);
-        const fileExt = file.name.split('.').pop()?.toLowerCase();
+        const fileExt = 'pdf';
         const fileName = `${user.id}/${Date.now()}_${sanitizedFileName}`;
+        setUploadStatusText(`Uploading ${file.name}…`);
 
         // Upload to Supabase Storage under credit-reports bucket
         const { error: uploadError } = await supabase.storage
           .from('credit-reports')
-          .upload(fileName, file);
+          .upload(fileName, file, { contentType: 'application/pdf', upsert: false });
 
         if (uploadError) {
+          failed++;
           toast({
-            title: "Upload Failed",
+            title: 'Upload failed',
             description: `Failed to upload ${file.name}: ${uploadError.message}`,
-            variant: "destructive",
+            variant: 'destructive',
           });
           continue;
         }
@@ -155,7 +184,7 @@ export function EnhancedCreditReportUpload() {
             user_id: user.id,
             file_name: file.name,
             file_path: fileName,
-            file_type: fileExt || 'unknown',
+            file_type: fileExt,
             file_size: file.size,
             analysis_status: 'pending'
           })
@@ -163,16 +192,17 @@ export function EnhancedCreditReportUpload() {
           .single();
 
         if (dbError) {
+          failed++;
           toast({
-            title: "Database Error",
+            title: 'Database error',
             description: `Failed to save ${file.name} record: ${dbError.message}`,
-            variant: "destructive",
+            variant: 'destructive',
           });
           continue;
         }
 
-        // Trigger analysis for PDF files
-        if (fileExt === 'pdf' && uploadData) {
+        if (uploadData) {
+          setUploadStatusText(`Starting analysis for ${file.name}…`);
           await triggerAnalysis(uploadData.id, fileName, file.name);
         }
 
@@ -182,21 +212,28 @@ export function EnhancedCreditReportUpload() {
 
       if (processed > 0) {
         toast({
-          title: "Upload Successful",
-          description: `Successfully uploaded ${processed} file(s)`,
+          title: 'Upload successful',
+          description: `Received ${processed} credit report${processed === 1 ? '' : 's'}.${failed ? ` ${failed} rejected.` : ''}`,
         });
         await fetchUploads();
+      } else if (failed > 0) {
+        toast({
+          title: 'No files uploaded',
+          description: `${failed} file${failed === 1 ? '' : 's'} were rejected. Please try again.`,
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Error uploading files:', error);
       toast({
-        title: "Upload Failed",
-        description: "Failed to upload files. Please try again.",
-        variant: "destructive",
+        title: 'Upload failed',
+        description: error instanceof Error ? error.message : 'Failed to upload files. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setUploading(false);
       setUploadProgress(0);
+      setUploadStatusText('');
     }
   };
 
@@ -326,6 +363,17 @@ export function EnhancedCreditReportUpload() {
       <CardContent className="space-y-6">
         {/* Upload Area */}
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="Upload credit report"
+          aria-disabled={uploading}
+          onClick={() => !uploading && inputRef.current?.click()}
+          onKeyDown={(e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && !uploading) {
+              e.preventDefault();
+              inputRef.current?.click();
+            }
+          }}
           onDragOver={(e) => {
             e.preventDefault();
             if (!uploading) setIsDragging(true);
@@ -339,21 +387,27 @@ export function EnhancedCreditReportUpload() {
               handleFileUpload(e.dataTransfer.files);
             }
           }}
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-colors cursor-pointer select-none touch-manipulation active:scale-[0.99] ${
             isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/50'
-          }`}
+          } ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
         >
-          <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-medium mb-2">Upload Credit Reports</h3>
-          <p className="text-muted-foreground mb-4">
-            Drag &amp; drop a file here, or browse to upload your credit reports for AI analysis
+          <Upload className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+          <h3 className="text-base sm:text-lg font-medium mb-2">Upload Credit Reports</h3>
+          <p className="text-sm text-muted-foreground mb-4 px-2">
+            <span className="hidden sm:inline">Drag &amp; drop a PDF here, or </span>
+            <span className="sm:hidden">Tap below to </span>
+            <span className="hidden sm:inline">browse</span>
+            <span className="sm:hidden">choose a PDF</span> from your device.
           </p>
 
           <Button
             type="button"
             disabled={uploading}
-            className="mb-4"
-            onClick={() => inputRef.current?.click()}
+            className="mb-4 w-full sm:w-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              inputRef.current?.click();
+            }}
           >
             {uploading ? 'Uploading...' : 'Browse Files'}
           </Button>
@@ -362,24 +416,25 @@ export function EnhancedCreditReportUpload() {
             ref={inputRef}
             id="credit-upload"
             type="file"
-            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+            accept="application/pdf,.pdf"
             onChange={handleFileSelect}
             multiple
             className="hidden"
             disabled={uploading}
+            data-testid="credit-upload-input"
           />
 
           {uploading && (
-            <div className="mt-4">
+            <div className="mt-4" aria-live="polite">
               <Progress value={uploadProgress} className="h-2" />
               <p className="text-sm text-muted-foreground mt-2">
-                {Math.round(uploadProgress)}% uploaded
+                {uploadStatusText || `${Math.round(uploadProgress)}% uploaded`}
               </p>
             </div>
           )}
 
           <p className="text-xs text-muted-foreground mt-2">
-            Supported: PDF, DOC, DOCX, PNG, JPG (max 10MB each)
+            PDF only · Max {MAX_PDF_SIZE_MB}MB per file
           </p>
         </div>
 
