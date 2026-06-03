@@ -22,6 +22,8 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
   const [typedSignature, setTypedSignature] = useState('');
   const [signatureDataUrl, setSignatureDataUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastError, setLastError] = useState<{ stage: string; message: string } | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const { toast } = useToast();
   const { user } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -107,8 +109,9 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
     return doc.output('blob');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitAgreement = async () => {
+    setLastError(null);
+    setAttempt((n) => n + 1);
 
     if (!fullName.trim()) {
       toast({ title: 'Missing Information', description: 'Please type your full legal name.', variant: 'destructive' });
@@ -124,8 +127,10 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
     }
 
     setIsSubmitting(true);
+    let stage = 'init';
     try {
       // Build PNG of signature (use canvas if drawn, otherwise render typed name)
+      stage = 'render_signature';
       let signaturePng = signatureDataUrl;
       if (!signaturePng) {
         const tmp = document.createElement('canvas');
@@ -141,20 +146,37 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
       }
 
       // Resolve client_id
+      stage = 'resolve_client';
       const { data: clientRow } = await supabase
         .from('clients').select('id').eq('user_id', user.id).maybeSingle();
       const clientId: string | null = (clientRow as any)?.id || null;
 
       // Build and upload signed PDF
+      stage = 'upload_pdf';
       const pdfBlob = buildPdfBlob(fullName.trim(), signaturePng);
       const ts = Date.now();
       const pdfPath = `${user.id}/${ts}-service-agreement.pdf`;
+      // Storage RLS requires the first folder segment to equal auth.uid() —
+      // assert it locally so we never POST a path the policy will reject.
+      if (pdfPath.split('/')[0] !== user.id) {
+        throw new Error('Path/policy mismatch: first folder segment must equal your user id.');
+      }
       const { error: uploadErr } = await supabase.storage
         .from('client-agreements')
         .upload(pdfPath, pdfBlob, { contentType: 'application/pdf', upsert: false });
       if (uploadErr) throw uploadErr;
 
+      // Verify storage policy actually grants this user read access to the path
+      stage = 'verify_storage_policy';
+      const { error: verifyErr } = await supabase.storage
+        .from('client-agreements')
+        .createSignedUrl(pdfPath, 60);
+      if (verifyErr) {
+        throw new Error(`Uploaded PDF is not readable under current storage policy: ${verifyErr.message}`);
+      }
+
       // Insert agreement record
+      stage = 'insert_record';
       const { data: inserted, error: insertErr } = await supabase
         .from('client_agreements')
         .insert({
@@ -166,11 +188,18 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
           ip_address: window.location.hostname,
           agreement_version: 'v1.0',
         } as any)
-        .select('id')
+        .select('id, signed_pdf_path, user_id')
         .single();
       if (insertErr) throw insertErr;
 
+      // Cross-check the stored record matches what we uploaded
+      stage = 'verify_record';
+      if ((inserted as any)?.signed_pdf_path !== pdfPath || (inserted as any)?.user_id !== user.id) {
+        throw new Error('Agreement record path does not match uploaded PDF path.');
+      }
+
       // Audit + activity timeline
+      stage = 'audit_log';
       await Promise.all([
         supabase.rpc('log_security_event', {
           p_action: 'CLIENT_AGREEMENT_SIGNED',
@@ -198,11 +227,31 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
       onAgreementSigned();
       onClose();
     } catch (error: any) {
-      console.error('Error signing agreement:', error);
-      toast({ title: 'Error', description: error?.message || 'Failed to sign agreement. Please try again.', variant: 'destructive' });
+      console.error('Error signing agreement:', error, 'stage:', stage);
+      const message = error?.message || 'Failed to sign agreement. Please try again.';
+      setLastError({ stage, message });
+      const stageLabel: Record<string, string> = {
+        render_signature: 'Rendering signature',
+        resolve_client: 'Looking up your client record',
+        upload_pdf: 'Uploading signed PDF',
+        verify_storage_policy: 'Verifying storage permissions',
+        insert_record: 'Saving agreement record',
+        verify_record: 'Validating saved record',
+        audit_log: 'Writing audit log',
+      };
+      toast({
+        title: `Signature failed at: ${stageLabel[stage] || stage}`,
+        description: `${message} — tap Retry to try again.`,
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void submitAgreement();
   };
 
   const downloadAgreement = () => {
@@ -369,6 +418,22 @@ Date: ${new Date().toLocaleDateString()}
               <Label htmlFor="typedSignature">Or type signature (fallback)</Label>
               <Input id="typedSignature" value={typedSignature} onChange={(e) => setTypedSignature(e.target.value)} placeholder="Type your full name as a typed signature" />
             </div>
+
+            {lastError && (
+              <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm space-y-2">
+                <p className="font-medium text-destructive">Signature failed at: {lastError.stage.replace(/_/g, ' ')}</p>
+                <p className="text-destructive/90">{lastError.message}</p>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={isSubmitting}
+                  onClick={() => void submitAgreement()}
+                >
+                  {isSubmitting ? 'Retrying…' : `Retry${attempt > 1 ? ` (attempt ${attempt + 1})` : ''}`}
+                </Button>
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
               <Button variant="outline" type="button" onClick={handleClose}>
