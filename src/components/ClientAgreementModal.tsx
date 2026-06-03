@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +28,60 @@ export function ClientAgreementModal({ isOpen, onClose, onAgreementSigned }: Cli
   const { user } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
+  const signatureSectionRef = useRef<HTMLFormElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to the signature form when the modal opens so users land
+  // directly on the name field + signature canvas (critical on small screens).
+  useEffect(() => {
+    if (!isOpen) return;
+    const t = setTimeout(() => {
+      const section = signatureSectionRef.current;
+      const container = scrollContainerRef.current;
+      if (section && container) {
+        const top = section.offsetTop - 8;
+        container.scrollTo({ top, behavior: 'smooth' });
+      }
+      // Focus the name input for immediate typing
+      const nameInput = document.getElementById('fullName') as HTMLInputElement | null;
+      nameInput?.focus({ preventScroll: true });
+    }, 120);
+    return () => clearTimeout(t);
+  }, [isOpen]);
+
+  // Responsive canvas: keep the internal bitmap sized to the rendered CSS
+  // dimensions (× devicePixelRatio) so drawing coordinates always line up,
+  // and the canvas never clips or overflows on small screens.
+  useEffect(() => {
+    if (!isOpen) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0) return;
+      // Preserve existing drawing
+      const prev = canvas.toDataURL('image/png');
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (signatureDataUrl) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        img.src = prev;
+      }
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    window.addEventListener('orientationchange', resize);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('orientationchange', resize);
+    };
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startDraw = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
@@ -325,7 +379,7 @@ Date: ${new Date().toLocaleDateString()}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 overflow-y-auto px-6 py-4 flex-1 min-h-0">
+        <div ref={scrollContainerRef} className="space-y-6 overflow-y-auto px-4 sm:px-6 py-4 flex-1 min-h-0">
           {/* Agreement Actions */}
           <div className="flex gap-4">
             <Button variant="outline" onClick={downloadAgreement}>
@@ -383,7 +437,7 @@ Date: ${new Date().toLocaleDateString()}
           </Card>
 
           {/* Signature Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form ref={signatureSectionRef} onSubmit={handleSubmit} className="space-y-4 scroll-mt-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Legal Name *</Label>
               <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full legal name" required />
@@ -391,12 +445,10 @@ Date: ${new Date().toLocaleDateString()}
 
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><PenTool className="h-4 w-4" /> Draw your signature *</Label>
-              <div className="border rounded-lg p-3 bg-muted/30">
+              <div className="border rounded-lg p-2 sm:p-3 bg-muted/30">
                 <canvas
                   ref={canvasRef}
-                  width={620}
-                  height={160}
-                  className="border-2 border-dashed border-muted-foreground/40 w-full cursor-crosshair bg-white rounded touch-none"
+                  className="border-2 border-dashed border-muted-foreground/40 w-full h-28 sm:h-40 cursor-crosshair bg-white rounded touch-none block"
                   onMouseDown={(e) => startDraw(e.clientX, e.clientY)}
                   onMouseMove={(e) => moveDraw(e.clientX, e.clientY)}
                   onMouseUp={endDraw}
