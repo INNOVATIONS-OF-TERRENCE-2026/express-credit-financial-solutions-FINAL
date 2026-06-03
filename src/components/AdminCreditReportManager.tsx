@@ -7,7 +7,18 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { FileText, Download, Eye, Filter, Search, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { FileText, Download, Eye, Filter, Search, CheckCircle, AlertCircle, Clock, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface CreditReportUpload {
   id: string;
@@ -142,6 +153,36 @@ export function AdminCreditReportManager() {
         title: "Error",
         description: "Failed to preview file",
         variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (uploadId: string, filePath: string, fileName: string) => {
+    try {
+      const { error: storageError } = await supabase.storage
+        .from('credit-reports')
+        .remove([filePath]);
+      if (storageError && storageError.message && !/not.*found/i.test(storageError.message)) {
+        throw storageError;
+      }
+
+      const { error: dbError } = await supabase
+        .from('credit_report_uploads')
+        .delete()
+        .eq('id', uploadId);
+      if (dbError) throw dbError;
+
+      toast({
+        title: 'File deleted',
+        description: `${fileName} has been removed.`,
+      });
+      await fetchUploads();
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast({
+        title: 'Delete failed',
+        description: error instanceof Error ? error.message : 'Failed to delete the file.',
+        variant: 'destructive',
       });
     }
   };
@@ -415,6 +456,36 @@ export function AdminCreditReportManager() {
                             <Filter className="h-4 w-4" />
                           </Button>
                         )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-destructive hover:text-destructive"
+                              title="Delete file"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete credit report?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This permanently removes <strong>{upload.file_name}</strong> from
+                                storage and the database. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(upload.id, upload.file_path, upload.file_name)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

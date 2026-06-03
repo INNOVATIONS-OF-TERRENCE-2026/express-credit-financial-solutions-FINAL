@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -8,8 +8,19 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useFileUploadSecurity } from '@/hooks/useFileUploadSecurity';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, FileText, Trash2, Eye, Download, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { Upload, FileText, Trash2, Eye, Download, CheckCircle, AlertCircle, Clock, Loader2, X } from 'lucide-react';
 import { downloadAsPdf } from '@/lib/documentUtils';
+type QueueItemStatus = 'queued' | 'uploading' | 'analyzing' | 'success' | 'error';
+
+interface UploadQueueItem {
+  id: string;
+  name: string;
+  size: number;
+  status: QueueItemStatus;
+  progress: number;
+  message?: string;
+}
+
 
 const MAX_PDF_SIZE_MB = 10;
 const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024;
@@ -47,15 +58,35 @@ interface CreditReportUpload {
 }
 
 export function EnhancedCreditReportUpload() {
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadStatusText, setUploadStatusText] = useState<string>('');
+  const [queue, setQueue] = useState<UploadQueueItem[]>([]);
   const [uploads, setUploads] = useState<CreditReportUpload[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { sanitizeFileName } = useFileUploadSecurity();
+
+  const uploading = useMemo(
+    () => queue.some((q) => q.status === 'queued' || q.status === 'uploading' || q.status === 'analyzing'),
+    [queue],
+  );
+  const overallProgress = useMemo(() => {
+    if (queue.length === 0) return 0;
+    const total = queue.reduce((sum, q) => sum + q.progress, 0);
+    return Math.round(total / queue.length);
+  }, [queue]);
+
+  const updateItem = useCallback((id: string, patch: Partial<UploadQueueItem>) => {
+    setQueue((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
+  }, []);
+
+  const removeItem = useCallback((id: string) => {
+    setQueue((prev) => prev.filter((it) => it.id !== id));
+  }, []);
+
+  const clearFinished = useCallback(() => {
+    setQueue((prev) => prev.filter((it) => it.status === 'queued' || it.status === 'uploading' || it.status === 'analyzing'));
+  }, []);
 
   const fetchUploads = useCallback(async () => {
     try {
@@ -84,7 +115,7 @@ export function EnhancedCreditReportUpload() {
     fetchUploads();
   }, [fetchUploads]);
 
-  const triggerAnalysis = async (uploadId: string, filePath: string, fileName: string) => {
+  const triggerAnalysis = async (uploadId: string, filePath: string, fileName: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase.functions.invoke('analyze-credit-report', {
         body: {
@@ -106,11 +137,7 @@ export function EnhancedCreditReportUpload() {
         .eq('id', uploadId);
 
       await fetchUploads();
-
-      toast({
-        title: "Analysis Started",
-        description: `Analysis initiated for ${fileName}. Results will be available shortly.`,
-      });
+      return true;
     } catch (error) {
       console.error('Error triggering analysis:', error);
       
@@ -121,120 +148,130 @@ export function EnhancedCreditReportUpload() {
         .eq('id', uploadId);
 
       await fetchUploads();
-
-      toast({
-        title: "Analysis Failed",
-        description: "Failed to analyze credit report. Please try again.",
-        variant: "destructive",
-      });
+      return false;
     }
   };
 
-  const handleFileUpload = async (files: FileList) => {
-    if (!files || files.length === 0) return;
+  const uploadOne = useCallback(
+    async (item: UploadQueueItem, file: File, userId: string) => {
+      // Simulated progress ticker for the storage upload (supabase-js has no native progress event).
+      let pct = 5;
+      updateItem(item.id, { status: 'uploading', progress: pct, message: 'Uploading…' });
+      const ticker = setInterval(() => {
+        pct = Math.min(85, pct + 7);
+        updateItem(item.id, { progress: pct });
+      }, 200);
 
-    setUploading(true);
-    setUploadProgress(0);
-    setUploadStatusText('Preparing upload…');
-    const totalFiles = files.length;
-    let processed = 0;
-    let failed = 0;
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      for (const file of Array.from(files)) {
-        // PDF-only + size validation
-        const err = validateCreditReportFile(file);
-        if (err) {
-          failed++;
-          toast({
-            title: 'Invalid file',
-            description: `${file.name}: ${err}`,
-            variant: 'destructive',
-          });
-          continue;
-        }
-
+      try {
         const sanitizedFileName = sanitizeFileName(file.name);
-        const fileExt = 'pdf';
-        const fileName = `${user.id}/${Date.now()}_${sanitizedFileName}`;
-        setUploadStatusText(`Uploading ${file.name}…`);
+        const storagePath = `${userId}/${Date.now()}_${sanitizedFileName}`;
 
-        // Upload to Supabase Storage under credit-reports bucket
         const { error: uploadError } = await supabase.storage
           .from('credit-reports')
-          .upload(fileName, file, { contentType: 'application/pdf', upsert: false });
+          .upload(storagePath, file, { contentType: 'application/pdf', upsert: false });
 
         if (uploadError) {
-          failed++;
+          clearInterval(ticker);
+          updateItem(item.id, { status: 'error', progress: 100, message: uploadError.message });
           toast({
             title: 'Upload failed',
-            description: `Failed to upload ${file.name}: ${uploadError.message}`,
+            description: `${file.name}: ${uploadError.message}`,
             variant: 'destructive',
           });
-          continue;
+          return;
         }
 
-        // Save record to database
+        updateItem(item.id, { progress: 92, message: 'Saving record…' });
+
         const { data: uploadData, error: dbError } = await supabase
           .from('credit_report_uploads')
           .insert({
-            user_id: user.id,
+            user_id: userId,
             file_name: file.name,
-            file_path: fileName,
-            file_type: fileExt,
+            file_path: storagePath,
+            file_type: 'pdf',
             file_size: file.size,
-            analysis_status: 'pending'
+            analysis_status: 'pending',
           })
           .select()
           .single();
 
         if (dbError) {
-          failed++;
+          clearInterval(ticker);
+          updateItem(item.id, { status: 'error', progress: 100, message: dbError.message });
           toast({
             title: 'Database error',
-            description: `Failed to save ${file.name} record: ${dbError.message}`,
+            description: `${file.name}: ${dbError.message}`,
             variant: 'destructive',
           });
-          continue;
+          return;
         }
 
+        clearInterval(ticker);
+        updateItem(item.id, { status: 'analyzing', progress: 98, message: 'Starting analysis…' });
         if (uploadData) {
-          setUploadStatusText(`Starting analysis for ${file.name}…`);
-          await triggerAnalysis(uploadData.id, fileName, file.name);
+          await triggerAnalysis(uploadData.id, storagePath, file.name);
         }
 
-        processed++;
-        setUploadProgress((processed / totalFiles) * 100);
-      }
-
-      if (processed > 0) {
+        updateItem(item.id, { status: 'success', progress: 100, message: 'Uploaded' });
         toast({
           title: 'Upload successful',
-          description: `Received ${processed} credit report${processed === 1 ? '' : 's'}.${failed ? ` ${failed} rejected.` : ''}`,
+          description: `${file.name} received. Analysis started.`,
         });
-        await fetchUploads();
-      } else if (failed > 0) {
+      } catch (err: any) {
+        clearInterval(ticker);
+        updateItem(item.id, {
+          status: 'error',
+          progress: 100,
+          message: err?.message || 'Upload failed',
+        });
         toast({
-          title: 'No files uploaded',
-          description: `${failed} file${failed === 1 ? '' : 's'} were rejected. Please try again.`,
+          title: 'Upload failed',
+          description: `${file.name}: ${err?.message || 'Unexpected error'}`,
           variant: 'destructive',
         });
       }
-    } catch (error) {
-      console.error('Error uploading files:', error);
+    },
+    [sanitizeFileName, toast, updateItem],
+  );
+
+  const handleFileUpload = async (files: FileList | File[]) => {
+    const list = Array.from(files as ArrayLike<File>);
+    if (list.length === 0) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       toast({
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'Failed to upload files. Please try again.',
+        title: 'Not signed in',
+        description: 'Please sign in to upload credit reports.',
         variant: 'destructive',
       });
-    } finally {
-      setUploading(false);
-      setUploadProgress(0);
-      setUploadStatusText('');
+      return;
     }
+
+    // Build queue items and validate up-front (pure synchronous classification)
+    const accepted: Array<{ item: UploadQueueItem; file: File }> = [];
+    const newQueueItems: UploadQueueItem[] = [];
+    for (const file of list) {
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`;
+      const err = validateCreditReportFile(file);
+      if (err) {
+        newQueueItems.push({ id, name: file.name, size: file.size, status: 'error', progress: 100, message: err });
+        toast({ title: 'Invalid file', description: `${file.name}: ${err}`, variant: 'destructive' });
+        continue;
+      }
+      const item: UploadQueueItem = { id, name: file.name, size: file.size, status: 'queued', progress: 0 };
+      newQueueItems.push(item);
+      accepted.push({ item, file });
+    }
+
+    setQueue((prev) => [...prev, ...newQueueItems]);
+
+    if (accepted.length === 0) return;
+
+    // Run uploads in parallel — each owns its own progress
+    await Promise.all(accepted.map(({ item, file }) => uploadOne(item, file, user.id)));
+    await fetchUploads();
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -426,9 +463,10 @@ export function EnhancedCreditReportUpload() {
 
           {uploading && (
             <div className="mt-4" aria-live="polite">
-              <Progress value={uploadProgress} className="h-2" />
+              <Progress value={overallProgress} className="h-2" />
               <p className="text-sm text-muted-foreground mt-2">
-                {uploadStatusText || `${Math.round(uploadProgress)}% uploaded`}
+                Uploading {queue.filter((q) => q.status !== 'success' && q.status !== 'error').length} of {queue.length}
+                {' '}({overallProgress}%)
               </p>
             </div>
           )}
@@ -437,6 +475,81 @@ export function EnhancedCreditReportUpload() {
             PDF only · Max {MAX_PDF_SIZE_MB}MB per file
           </p>
         </div>
+
+        {queue.length > 0 && (
+          <div className="space-y-2" data-testid="upload-queue">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">This upload</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFinished}
+                disabled={uploading}
+              >
+                Clear finished
+              </Button>
+            </div>
+            <ul className="space-y-2">
+              {queue.map((item) => (
+                <li
+                  key={item.id}
+                  data-testid={`queue-item-${item.name}`}
+                  data-status={item.status}
+                  className="flex items-center gap-3 rounded-lg border bg-card/60 p-3"
+                >
+                  <div className="rounded-md p-2 bg-muted shrink-0">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-medium truncate">{item.name}</p>
+                      <span className="text-[11px] text-muted-foreground shrink-0">
+                        {formatFileSize(item.size)}
+                      </span>
+                    </div>
+                    {(item.status === 'queued' || item.status === 'uploading' || item.status === 'analyzing') && (
+                      <Progress value={item.progress} className="mt-1.5 h-1" />
+                    )}
+                    {item.message && (
+                      <p
+                        className={`text-[11px] mt-1 break-words ${
+                          item.status === 'error' ? 'text-destructive' : 'text-muted-foreground'
+                        }`}
+                      >
+                        {item.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="shrink-0 flex items-center gap-1">
+                    {(item.status === 'queued' || item.status === 'uploading') && (
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    )}
+                    {item.status === 'analyzing' && (
+                      <Clock className="h-4 w-4 text-blue-500" />
+                    )}
+                    {item.status === 'success' && (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    )}
+                    {item.status === 'error' && (
+                      <AlertCircle className="h-5 w-5 text-destructive" />
+                    )}
+                    {(item.status === 'success' || item.status === 'error') && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={() => removeItem(item.id)}
+                        aria-label={`Dismiss ${item.name}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {uploads.length === 0 && !uploading && (
           <p className="text-center text-sm text-muted-foreground">

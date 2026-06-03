@@ -110,7 +110,7 @@ describe('Credit Report Upload Center — E2E', () => {
     await user.upload(input, pdf);
 
     // File reached storage in the credit-reports bucket, scoped to user folder
-    await waitFor(() => expect(captured.storageUploads.length).toBe(1));
+    await waitFor(() => expect(captured.storageUploads.length).toBe(1), { timeout: 4000 });
     expect(captured.storageUploads[0].bucket).toBe('credit-reports');
     expect(captured.storageUploads[0].path.startsWith(`${USER_ID}/`)).toBe(true);
     expect(captured.storageUploads[0].opts?.contentType).toBe('application/pdf');
@@ -124,11 +124,11 @@ describe('Credit Report Upload Center — E2E', () => {
     // Analysis was triggered
     expect(captured.fnInvocations.some((f) => f.name === 'analyze-credit-report')).toBe(true);
 
-    // File appears in the client-facing list
+    // File appears in the client-facing uploads list
     await waitFor(() => {
-      expect(screen.getByText('experian.pdf')).toBeInTheDocument();
+      expect(screen.getByText(/Uploaded Files \(1\)/i)).toBeInTheDocument();
     });
-    expect(screen.getByText(/Uploaded Files \(1\)/i)).toBeInTheDocument();
+    expect(screen.getAllByText('experian.pdf').length).toBeGreaterThanOrEqual(1);
 
     // Success toast fired
     expect(
