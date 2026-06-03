@@ -32,6 +32,11 @@ vi.mock('@/integrations/supabase/client', () => {
         if (table === 'client_agreements' && state._lastInsert) {
           return { data: state._lastInsert, error: null };
         }
+        if (table === 'client_agreements' && state._filters.user_id === userId) {
+          return fixture.agreement
+            ? { data: { id: fixture.agreement.id }, error: null }
+            : { data: null, error: { code: 'PGRST116', message: 'no rows' } };
+        }
         return { data: null, error: { code: 'PGRST116' } };
       },
       insert: (row: any) => {
