@@ -137,12 +137,12 @@ describe('Credit Report Upload Center — E2E', () => {
   });
 
   it('rejects a non-PDF file with a destructive toast and uploads nothing', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ applyAccept: false });
     render(<EnhancedCreditReportUpload />);
 
     const input = await screen.findByTestId<HTMLInputElement>('credit-upload-input');
     const png = new File([new Uint8Array([1, 2, 3])], 'photo.png', { type: 'image/png' });
-    await user.upload(input, png, { applyAccept: false });
+    await user.upload(input, png);
 
     await waitFor(() => {
       expect(
