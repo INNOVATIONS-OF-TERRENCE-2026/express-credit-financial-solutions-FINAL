@@ -554,6 +554,24 @@ const Index = () => {
             <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
               Clients who got <span className="italic" style={{ color: '#c9a84c' }}>funded.</span>
             </h2>
+            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              Results delivered in <span style={{ color: '#c9a84c' }}>4–21 days</span> — across all 50 states. No 90-day promises. We move fast or we don't take the file.
+            </p>
+          </div>
+
+          {/* Headline metric — $1.8M removed */}
+          <div className="mb-12 grid grid-cols-1 md:grid-cols-4 gap-px rounded-2xl overflow-hidden" style={{ backgroundColor: 'rgba(201,168,76,0.2)' }}>
+            {[
+              { k: '$1.8M+', l: 'Debt Removed · Jan–May 2026' },
+              { k: '4–21', l: 'Days to Results · Every Client' },
+              { k: '50', l: 'States Served · Nationwide' },
+              { k: '94%', l: 'Client Score Lift · 60 Days' },
+            ].map((m) => (
+              <div key={m.l} className="p-8 text-center" style={{ backgroundColor: 'rgba(3,21,15,0.92)' }}>
+                <p className="font-serif-display text-4xl md:text-5xl" style={{ color: '#c9a84c' }}>{m.k}</p>
+                <p className="text-[10px] uppercase tracking-[0.25em] mt-2" style={{ color: 'rgba(245,240,224,0.65)' }}>{m.l}</p>
+              </div>
+            ))}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
