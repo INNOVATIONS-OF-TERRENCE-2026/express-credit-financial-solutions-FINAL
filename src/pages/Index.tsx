@@ -20,7 +20,6 @@ import { EmailVerificationBanner } from '@/components/EmailVerificationBanner';
 import { SEOHead } from '@/components/SEOHead';
 import { TrustSignals } from '@/components/TrustSignals';
 import { FAQSection } from '@/components/FAQSection';
-import { EngineerCredit } from '@/components/EngineerCredit';
 import { ThemeSelector } from '@/components/ThemeSelector';
 
 const Index = () => {
@@ -267,7 +266,6 @@ const Index = () => {
   return (
     <div className="min-h-screen font-work relative overflow-x-hidden" style={{ backgroundColor: '#03150f', color: '#f5f0e0' }}>
       <SEOHead />
-      <EngineerCredit position="top" />
 
       {/* Ambient atmospheric backdrop */}
       <div className="pointer-events-none fixed inset-0 z-0" aria-hidden>
@@ -649,8 +647,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      <EngineerCredit position="bottom" />
 
       {/* Footer */}
       <footer className="relative z-10 px-6 sm:px-10 py-10 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
