@@ -81,6 +81,20 @@ vi.mock('@/hooks/useFileUploadSecurity', () => ({
 
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: () => {} }) }));
 
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: USER_ID, email: 'john@example.com' },
+    session: { user: { id: USER_ID } },
+    loading: false,
+    isAdmin: false,
+    signIn: async () => ({ error: null }),
+    signUp: async () => ({ error: null }),
+    signOut: async () => {},
+    checkAdminStatus: async () => false,
+  }),
+  AuthProvider: ({ children }: any) => children,
+}));
+
 import { ClientOnboarding } from '@/pages/ClientOnboarding';
 import { supabase } from '@/integrations/supabase/client';
 
