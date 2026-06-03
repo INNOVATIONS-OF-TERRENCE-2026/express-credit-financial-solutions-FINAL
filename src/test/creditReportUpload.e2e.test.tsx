@@ -142,7 +142,7 @@ describe('Credit Report Upload Center — E2E', () => {
 
     const input = await screen.findByTestId<HTMLInputElement>('credit-upload-input');
     const png = new File([new Uint8Array([1, 2, 3])], 'photo.png', { type: 'image/png' });
-    await user.upload(input, png);
+    await user.upload(input, png, { applyAccept: false });
 
     await waitFor(() => {
       expect(
