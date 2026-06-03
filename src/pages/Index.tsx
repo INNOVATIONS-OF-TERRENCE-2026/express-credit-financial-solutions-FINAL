@@ -687,23 +687,40 @@ const Index = () => {
             })}
           </div>
 
-          {/* Tiara Smith realtor partner spotlight */}
-          <div className="rounded-2xl p-1 mb-10" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)' }}>
-            <div className="rounded-2xl p-8 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
-              <div className="lg:col-span-2">
+          {/* Tiara Smith — Dedicated Spotlight */}
+          <div className="rounded-2xl p-1 mb-10" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)', boxShadow: '0 30px 80px -20px rgba(201,168,76,0.35)' }}>
+            <div className="rounded-2xl p-8 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
+              {/* Left: Giant Key Visual + Name */}
+              <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6" style={{ backgroundColor: 'rgba(201,168,76,0.12)', border: '2px solid rgba(201,168,76,0.4)', boxShadow: '0 0 40px rgba(201,168,76,0.15)' }}>
+                  <Key className="h-10 w-10" style={{ color: '#c9a84c' }} />
+                </div>
                 <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: '#c9a84c' }}>Featured Realtor Partner · Texas</p>
-                <h3 className="font-serif-display text-3xl md:text-5xl tracking-tight" style={{ color: '#f5f0e0' }}>
-                  Tiara Smith. <span className="italic" style={{ color: '#c9a84c' }}>Tiara Has The Key.</span>
+                <h3 className="font-serif-display text-4xl md:text-5xl tracking-tight" style={{ color: '#f5f0e0' }}>
+                  Tiara Smith
                 </h3>
-                <p className="mt-4 text-base font-light max-w-2xl" style={{ color: 'rgba(245,240,224,0.75)' }}>
-                  Once your file is structured and your credit is funded-ready, our top Texas realtor partner Tiara Smith hands you the keys. From pre-approval to closing table, the entire path is wired.
+                <p className="mt-2 font-serif-display text-2xl md:text-3xl italic" style={{ color: '#c9a84c' }}>
+                  Tiara Has The Key
                 </p>
               </div>
-              <div className="flex flex-col gap-3">
-                <a href="https://www.tiarahasthekey.com" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
+
+              {/* Center: Story / Value prop */}
+              <div className="lg:col-span-4">
+                <p className="text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.75)' }}>
+                  Once your file is structured and your credit is funded-ready, Tiara takes over. From pre-approval to the closing table, the entire home-buying path is wired. No gaps. No delays. Just keys in your hand.
+                </p>
+                <div className="mt-6 flex items-center gap-2">
+                  <Award className="h-4 w-4" style={{ color: '#c9a84c' }} />
+                  <span className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'rgba(245,240,224,0.85)' }}>100% Closing Rate on Funded Files</span>
+                </div>
+              </div>
+
+              {/* Right: CTAs */}
+              <div className="lg:col-span-3 flex flex-col gap-3">
+                <a href="https://www.tiarahasthekey.com" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-2 px-6 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
                   <Key className="h-4 w-4" /> Visit TiaraHasTheKey.com
                 </a>
-                <a href="https://www.zillow.com/profile/tiarahasthekey" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
+                <a href="https://www.zillow.com/profile/tiarahasthekey" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
                   View Zillow Profile <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </div>
