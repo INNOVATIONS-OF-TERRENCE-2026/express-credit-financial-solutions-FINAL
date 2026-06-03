@@ -33,6 +33,19 @@ const Index = () => {
   const { shouldShowTour, isLoading: onboardingLoading, startTour, completeTour, skipTour } = useOnboarding();
   const navigate = useNavigate();
 
+  const trackCtaClick = (cta_id: string, meta: Record<string, unknown> = {}) => {
+    try {
+      const payload = { event: 'cta_click', cta_id, location: 'landing', ...meta, ts: new Date().toISOString() };
+      const w = window as any;
+      if (typeof w.gtag === 'function') w.gtag('event', 'cta_click', payload);
+      if (Array.isArray(w.dataLayer)) w.dataLayer.push(payload);
+      if (w.fbq) w.fbq('trackCustom', 'CTAClick', payload);
+      console.info('[cta]', payload);
+    } catch (e) {
+      console.warn('cta tracking failed', e);
+    }
+  };
+
   const handleLogin = async (email: string, password: string) => {
     const { error } = await signIn(email, password);
     if (error) toast({ title: "Login Failed", description: error.message, variant: "destructive" });
