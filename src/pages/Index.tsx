@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { VisaLogo } from '@/components/VisaLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { useMembership } from '@/hooks/useMembership';
 import { useRoles } from '@/hooks/useRoles';
@@ -629,22 +628,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ═══════════ PAYMENT METHODS ═══════════ */}
-      <section className="relative z-10 px-6 sm:px-10 py-16">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center text-[10px] uppercase tracking-[0.3em] mb-8" style={{ color: 'rgba(201,168,76,0.85)' }}>Flexible Payments · 0% Plans Available</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center p-6 rounded-2xl" style={{ backgroundColor: 'rgba(245,240,224,0.04)', border: '1px solid rgba(201,168,76,0.15)' }}>
-            {[
-              { src: '/lovable-uploads/607fa3b0-29f0-46a4-86de-39e4e8e1c245.png', alt: 'American Express' },
-              { src: '/lovable-uploads/c74587ad-a808-43ca-b093-cdc6ac5585c8.png', alt: 'MasterCard' },
-              { src: '/lovable-uploads/fc9628bb-8f09-450a-ae12-b97627dd735d.png', alt: 'Discover' },
-              { src: '/lovable-uploads/057496bb-7585-4c04-94b2-85d91eb244ea.png', alt: 'Apple Pay' },
-              { src: '/lovable-uploads/891a5755-258c-44d1-8553-249b16e50413.png', alt: 'Cash App' },
-            ].map(img => <img key={img.alt} src={img.src} alt={img.alt} className="max-h-[36px] px-2 transition-all duration-300 hover:scale-110" />)}
-            <VisaLogo />
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="relative z-10 px-6 sm:px-10 py-10 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
