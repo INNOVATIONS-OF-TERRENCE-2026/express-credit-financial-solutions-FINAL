@@ -376,7 +376,18 @@ Date: ${new Date().toLocaleDateString()}
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[92vh] p-0 flex flex-col gap-0">
+      <DialogContent
+        className="max-w-4xl w-[95vw] max-h-[92vh] p-0 flex flex-col gap-0"
+        onOpenAutoFocus={(e) => {
+          // Radix focuses the first focusable element by default (the close
+          // button). Redirect initial focus to the name input so keyboard
+          // users land directly on the signature form. Focus trap stays
+          // intact — Tab/Shift+Tab cycles within the dialog only.
+          e.preventDefault();
+          const nameInput = document.getElementById('fullName') as HTMLInputElement | null;
+          nameInput?.focus({ preventScroll: true });
+        }}
+      >
         <DialogHeader className="px-6 pt-6 pb-3 border-b shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
