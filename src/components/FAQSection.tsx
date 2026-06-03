@@ -5,11 +5,23 @@ import { useEffect } from 'react';
 const faqs = [
   {
     question: "How long does credit repair take?",
-    answer: "Express Credit produces measurable results in 4–21 days for the vast majority of clients — not the 3–6 month timelines you'll hear from legacy firms. Our AI-driven Metro 2 / FCRA dispute engine fires within 24 hours of enrollment, and most files see first deletions inside the first round."
+    answer: "Express Credit produces measurable results in 4–21 days for the vast majority of clients, not the 3–6 month timelines you'll hear from legacy firms. Our AI-driven Metro 2 / FCRA dispute engine fires within 24 hours of enrollment, and most files see first deletions inside the first round."
   },
   {
     question: "Is credit repair legal? Do you serve all 50 states?",
-    answer: "Yes — credit repair is 100% legal and we serve clients in all 50 states. The Credit Repair Organizations Act (CROA) and Fair Credit Reporting Act (FCRA) give every U.S. consumer the right to dispute inaccurate, incomplete, or unverifiable information on their credit reports. Express Credit operates in full compliance with all federal laws and applicable state credit-services regulations nationwide."
+    answer: "Yes. Credit repair is 100% legal and we serve clients in all 50 states. The Credit Repair Organizations Act (CROA) and Fair Credit Reporting Act (FCRA) give every U.S. consumer the right to dispute inaccurate, incomplete, or unverifiable information on their credit reports. Express Credit operates in full compliance with all federal laws and applicable state credit-services regulations nationwide."
+  },
+  {
+    question: "Do you help clients get approved for a home loan or mortgage?",
+    answer: "Yes, and this is where we dominate. We structure your credit specifically for the mortgage scorecard (FICO 2/4/5), sequence tradelines and utilization for underwriting, and communicate proactively with your loan officer and underwriter from application to clear-to-close. Our underwriting pass rate on files we structure end-to-end is 100%."
+  },
+  {
+    question: "Do you work with realtors and lenders?",
+    answer: "Yes. Our featured Texas realtor partner is Tiara Smith (Tiara Has The Key). We also work alongside agents from United Real Estate, Keller Williams Realty, Coldwell Banker, eXp Realty, and Compass, and we maintain active relationships with all major banks and credit unions for mortgage, auto, and business financing."
+  },
+  {
+    question: "Can you help me qualify for an auto loan?",
+    answer: "Absolutely. We position your credit profile for the auto scorecard, reduce your debt-to-income, and hand the dealer or credit union a lender-ready file. The result is better rates, lower down payments, and faster approvals."
   },
   {
     question: "What is Metro 2 compliance?",
@@ -29,7 +41,7 @@ const faqs = [
   },
   {
     question: "Do I have to live near your office to work with you?",
-    answer: "No — Express Credit serves clients in all 50 states 100% remotely through our secure online portal. We're headquartered in the Dallas–Frisco, TX metro and offer in-person consultations by appointment for local clients, but every service we provide is available nationwide with the exact same speed and results."
+    answer: "No. Express Credit serves clients in all 50 states 100% remotely through our secure online portal. We're headquartered in the Dallas to Frisco, TX metro and offer in-person consultations by appointment for local clients, but every service we provide is available nationwide with the exact same speed and results."
   },
   {
     question: "What is the difference between credit repair and credit counseling?",
