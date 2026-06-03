@@ -1,37 +1,73 @@
-## Root Cause
+## Goal
 
-On `/dispute-center`, the **Credit Report Upload Center** card (`src/components/EnhancedCreditReportUpload.tsx`) renders the file picker like this:
+Reposition the landing page around Express Credit's loan-approval dominance (home + auto), surface the Tiara Smith realtor partnership, list brokerage/banking partners, and globally remove em-dashes (—) from all user-facing copy on the landing experience.
 
-```tsx
-<label htmlFor="credit-upload" className="cursor-pointer">
-  <Button disabled={uploading}>Browse Files</Button>
-</label>
-<input id="credit-upload" type="file" className="hidden" ... />
-```
+## Scope (frontend / presentation only)
 
-shadcn's `<Button>` renders as a real `<button>` element. Browsers **do not** forward a label-click to the associated input when the click target is itself an interactive `<button>` — the button swallows the event. Result: clicking "Browse Files" does literally nothing, no file dialog ever opens, no upload ever starts. This matches the symptom ("doesn't work at all").
+Files in play:
+- `src/pages/Index.tsx` (landing page)
+- `src/components/FAQSection.tsx` (copy + new FAQ entries)
 
-Storage RLS, table RLS, and the bucket (`credit-reports`) are all correct — verified against Supabase. No backend changes needed.
+No backend, auth, schema, RLS, or route changes.
 
-## Files to Modify
+## 1. Remove every em-dash (—)
 
-- `src/components/EnhancedCreditReportUpload.tsx` — fix the upload trigger and tighten the UX.
+Sweep both files and replace every `—` with a clean substitute based on context:
+- Mid-sentence emphasis → comma or period
+- Range separators like "4–21 days" stay (those are en-dashes, not em-dashes, and the user did not flag them)
+- Parenthetical asides → restructure into two clauses
 
-## Changes
+Confirmed current em-dash locations to fix:
+- `Index.tsx` lines 321, 462, 592, 596 (comment)
+- `FAQSection.tsx` lines 8, 12, 32
 
-1. Replace the `<label>`-wrapped Button with a `useRef<HTMLInputElement>()` and an `onClick={() => inputRef.current?.click()}` on the Button. Move the hidden `<input>` out of the label.
-2. Also wire **drag-and-drop** on the dashed area so users can drop a PDF directly (matches the visual affordance of the dropzone).
-3. Keep `accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"` aligned with what `useFileUploadSecurity` actually validates (drop `.csv,.txt` from `accept` since they get rejected by validation anyway — confusing).
-4. Add a clear empty-state hint when `uploads.length === 0` so the table area doesn't look broken.
+After the rewrite, grep the two files for `—` and require zero matches before finishing.
 
-## Out of Scope
+## 2. New "Home Loan Approval Domination" section
 
-- No DB migration, no RLS change, no edge function change, no auth change.
-- No styling overhaul — surgical fix only.
+Insert a dedicated section on the landing page (placed after the results/metrics block, before testimonials) covering:
 
-## Verification
+- Headline: "Built to Get You Funded. Home Loans, Underwriting, Closed."
+- Sub-copy emphasizing: 100% underwriting success rate, proactive lender communication, credit structured specifically for mortgage approval.
+- Three pillar cards:
+  1. Credit Structured for Underwriting (tradelines, utilization, derog removal sequenced for mortgage scorecards)
+  2. Proactive Lender Communication (we talk to the loan officer and underwriter directly)
+  3. 100% Underwriting Pass Rate on files we structure
+- "Realtor Partner Spotlight" card for Tiara Smith:
+  - Name: Tiara Smith
+  - Slogan: "Tiara Has The Key"
+  - Texas-based top realtor partnership
+  - Two CTAs: Visit website (`https://www.tiarahasthekey.com`) and View Zillow profile (`https://www.zillow.com/profile/tiarahasthekey`)
+  - Both links open in a new tab with `rel="noopener noreferrer"`
+- "Brokerage & Lending Partners" strip listing:
+  - Brokerages: United Real Estate, Keller Williams Realty, Coldwell Banker, eXp Realty, Compass
+  - Banking: "All major banks and credit unions"
+  - Rendered as styled text chips (no third-party logos; matches the recent decision to remove third-party payment logos)
 
-- Click **Browse Files** → OS file dialog opens.
-- Pick a PDF → progress bar advances, row appears in the "Uploaded Files" table, `analyze-credit-report` is invoked, toast confirms success.
-- Drag-and-drop a PDF onto the dashed area → same flow.
-- Existing rows still preview / download / delete correctly.
+Styling: reuses the existing Editorial Prestige tokens (`#0d0d0d` base, `#c9a84c` gold accents, serif display + work sans), bento-style card layout consistent with the rest of the page. No new dependencies.
+
+## 3. New "Auto Loan Structuring" section
+
+Compact section beneath the home-loan block:
+- Headline: "Auto Loans, Structured to Close."
+- Copy on how Express Credit positions clients for auto financing approval (score positioning, debt-to-income clean-up, lender-ready file).
+- Single CTA tied into the existing sign-up / log-in trigger already on the page (no new auth flow).
+
+## 4. FAQ updates (`FAQSection.tsx`)
+
+Add three new FAQ entries (and scrub em-dashes from existing ones):
+1. "Do you help clients get approved for a home loan / mortgage?" - covers underwriting structuring, 100% pass rate, lender communication.
+2. "Do you work with realtors?" - calls out Tiara Smith partnership and brokerages (United Real Estate, Keller Williams, Coldwell Banker, eXp Realty, Compass).
+3. "Can you help me qualify for an auto loan?" - yes, with structuring approach.
+
+## 5. Verification
+
+- `rg -n "—" src/pages/Index.tsx src/components/FAQSection.tsx` returns no matches.
+- Visual check of the landing page in the preview at 1032px confirms new sections render cleanly inside the existing Editorial Prestige theme.
+- No changes to routes, auth, Supabase, or admin code.
+
+## Out of scope
+
+- No new images / logo assets (text chips only, per prior removal of third-party logos).
+- No backend, schema, or RLS changes.
+- No changes to membership pricing, checkout, or testimonials beyond em-dash cleanup.
