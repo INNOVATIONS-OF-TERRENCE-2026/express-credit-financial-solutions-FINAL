@@ -558,9 +558,9 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
             {[
-              { name: 'Marcus J.', city: 'Dallas, TX', quote: '"Went from a 562 to 738 in 11 weeks. Closed on my SBA loan two months later. Real numbers, no fluff."', metric: '+176 pts', plan: 'Full Repair' },
-              { name: 'Daniela R.', city: 'Frisco, TX', quote: '"ChexSystems flagged me for years. Express Credit cleared it in 23 days and I had a Chase business account the next week."', metric: '23 days', plan: 'ChexSystems' },
-              { name: 'Travis B.', city: 'Arlington, TX', quote: '"The AI dashboard is unreal. I watched my disputes resolve in real time. This is what the future of credit looks like."', metric: '$420K funded', plan: 'Full Repair' },
+              { name: 'Marcus J.', city: 'Dallas, TX', quote: '"Went from a 562 to 738 in 18 days. Closed on my SBA loan the following month. Real numbers, no fluff."', metric: '+176 pts · 18 days', plan: 'Full Repair' },
+              { name: 'Daniela R.', city: 'Atlanta, GA', quote: '"ChexSystems flagged me for years. Express Credit cleared it in 14 days and I had a Chase business account the next week."', metric: '14 days', plan: 'ChexSystems' },
+              { name: 'Travis B.', city: 'Phoenix, AZ', quote: '"The AI dashboard is unreal. Disputes resolved in 9 days and I was funded shortly after. This is the future of credit."', metric: '$420K · 9 days', plan: 'Full Repair' },
             ].map((t, i) => (
               <div key={t.name} className="p-8 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.2)', backdropFilter: 'blur(8px)', animationDelay: `${i * 0.1}s` }}>
                 <div className="flex gap-0.5 mb-4">
