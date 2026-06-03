@@ -51,6 +51,9 @@ import AdminClientPreview from "./pages/AdminClientPreview";
 import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
 import CreditScoreTracker from "./pages/CreditScoreTracker";
+import PaymentsPage from "./pages/PaymentsPage";
+import PaymentHistoryPage from "./pages/PaymentHistoryPage";
+import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 
 const queryClient = new QueryClient();
 
@@ -108,6 +111,9 @@ const App = () => (
                         <Route path="/admin/login" element={<AdminLogin />} />
                         <Route path="/admin" element={<AdminDashboard />} />
                         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                        <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+                        <Route path="/payments" element={<PaymentsPage />} />
+                        <Route path="/payment-history" element={<PaymentHistoryPage />} />
                         <Route path="/admin/clients/:clientId" element={<AdminClientEdit />} />
                         <Route path="/admin/client-preview/:clientId" element={<AdminClientPreview />} />
                         <Route path="/admin/clients" element={<AdminClients />} />
