@@ -317,15 +317,15 @@ Date: ${new Date().toLocaleDateString()}
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[92vh] p-0 flex flex-col gap-0">
+        <DialogHeader className="px-6 pt-6 pb-3 border-b shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
             Express Credit & Financial Solutions - Service Agreement
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto px-6 py-4 flex-1 min-h-0">
           {/* Agreement Actions */}
           <div className="flex gap-4">
             <Button variant="outline" onClick={downloadAgreement}>
@@ -340,7 +340,7 @@ Date: ${new Date().toLocaleDateString()}
               <CardTitle className="text-lg">Service Agreement Terms</CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-64 w-full rounded border p-4 bg-muted/50">
+              <ScrollArea className="h-40 sm:h-56 w-full rounded border p-4 bg-muted/50">
                 <div className="whitespace-pre-line text-sm">
                   <h3 className="font-semibold mb-4">EXPRESS CREDIT & FINANCIAL SOLUTIONS</h3>
                   <h4 className="font-semibold mb-4">CLIENT SERVICE AGREEMENT</h4>
