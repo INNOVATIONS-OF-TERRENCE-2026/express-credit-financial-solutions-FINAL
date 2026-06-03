@@ -5,6 +5,10 @@ import { useRoles } from './useRoles';
 
 export type PlanType = 'basic' | 'pro' | 'elite' | 'vip';
 
+// All clients receive Premium access by default.
+const PREMIUM_PLAN: PlanType = 'elite';
+const PREMIUM_LABEL = 'Premium';
+
 interface MembershipContextType {
   planType: PlanType | null;
   paymentStatus: string | null;
@@ -20,17 +24,17 @@ const MembershipContext = createContext<MembershipContextType | undefined>(undef
 export function MembershipProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { isAdmin, loading: rolesLoading } = useRoles();
-  const [planType, setPlanType] = useState<PlanType | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
-  const [membershipType, setMembershipType] = useState<string | null>(null);
+  const [planType, setPlanType] = useState<PlanType | null>(PREMIUM_PLAN);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>('active');
+  const [membershipType, setMembershipType] = useState<string | null>(PREMIUM_LABEL);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchMembership = async () => {
     if (!user) {
-      setPlanType(null);
-      setPaymentStatus(null);
-      setMembershipType(null);
+      setPlanType(PREMIUM_PLAN);
+      setPaymentStatus('active');
+      setMembershipType(PREMIUM_LABEL);
       setExpiresAt(null);
       setLoading(false);
       return;
@@ -50,9 +54,10 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       }
 
       if (data) {
-        setPlanType(data.plan_type as PlanType);
-        setPaymentStatus(data.payment_status);
-        setMembershipType(data.membership_type);
+        // Force-display Premium for every client regardless of stored value.
+        setPlanType(PREMIUM_PLAN);
+        setPaymentStatus('active');
+        setMembershipType(PREMIUM_LABEL);
         setExpiresAt(data.expires_at);
 
         // Auto-expire VIP trials if past expiration
@@ -77,23 +82,8 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
   }, [user]);
 
   const hasAccess = (feature: string): boolean => {
-    // Admins have access to all features
-    if (!loading && !rolesLoading && isAdmin()) return true;
-
-    // VIP trial gets full access until expiration
-    if (membershipType === 'vip_trial' && paymentStatus === 'active') return true;
-
-    // Any active plan gets full access (no Stripe gating)
-    if (paymentStatus === 'active') return true;
-
-    // Publicly accessible features — available to all authenticated users
-    if (['education', 'dashboard', 'credit-building', 'data-freeze', 'credit-upload', 'dispute-generator', 'document-center'].includes(feature)) return true;
-
-    // For features not in the public list, still allow if user is logged in
-    // This removes Stripe dependency and makes membership admin-assigned
-    if (user) return true;
-
-    return false;
+    // All clients have Premium access — full feature access by default.
+    return true;
   };
 
   const refreshMembership = async () => {

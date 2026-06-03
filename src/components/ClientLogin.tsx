@@ -36,7 +36,7 @@ export function ClientLogin({ clientName, onSuccess }: ClientLoginProps) {
               user_id: userData.user.id,
               full_name: clientName,
               email: email,
-              membership_plan: clientName === 'Jadlyn Nicole Starkey' ? 'Basic' : 'Pro',
+              membership_plan: 'Premium',
               dob: '1990-01-01', // Placeholder - clients can update this later
               phone: '000-000-0000', // Placeholder
               ssn_last4: '0000', // Placeholder

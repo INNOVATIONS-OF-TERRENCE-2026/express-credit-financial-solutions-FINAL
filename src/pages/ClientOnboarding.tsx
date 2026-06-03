@@ -209,7 +209,7 @@ export function ClientOnboarding() {
           phone: formData.phoneNumber,
           email: formData.emailAddress,
           address: 'Address to be updated',
-          membership_plan: 'Basic'
+          membership_plan: 'Premium'
         } as any);
 
       if (error) throw error;
