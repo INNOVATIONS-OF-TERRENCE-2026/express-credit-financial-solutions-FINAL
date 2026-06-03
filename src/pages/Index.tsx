@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { useMembership } from '@/hooks/useMembership';
 import { useRoles } from '@/hooks/useRoles';
 import { NavigationHeader } from '@/components/NavigationHeader';
@@ -33,6 +34,32 @@ const Index = () => {
   const { shouldShowTour, isLoading: onboardingLoading, startTour, completeTour, skipTour } = useOnboarding();
   const navigate = useNavigate();
 
+  // Stable session id for funnel attribution (per browser session)
+  const getCtaSessionId = () => {
+    try {
+      let sid = sessionStorage.getItem('cta_session_id');
+      if (!sid) {
+        sid = (crypto as any)?.randomUUID?.() || `s_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        sessionStorage.setItem('cta_session_id', sid);
+      }
+      return sid;
+    } catch { return null; }
+  };
+
+  const logCtaEvent = async (event: string, cta_id: string, meta: Record<string, unknown> = {}) => {
+    try {
+      await supabase.from('marketing_cta_events').insert({
+        event,
+        cta_id,
+        session_id: getCtaSessionId(),
+        user_id: user?.id ?? null,
+        meta,
+      });
+    } catch (e) {
+      console.warn('cta db log failed', e);
+    }
+  };
+
   const trackCtaClick = (cta_id: string, meta: Record<string, unknown> = {}) => {
     try {
       const payload = { event: 'cta_click', cta_id, location: 'landing', ...meta, ts: new Date().toISOString() };
@@ -41,10 +68,37 @@ const Index = () => {
       if (Array.isArray(w.dataLayer)) w.dataLayer.push(payload);
       if (w.fbq) w.fbq('trackCustom', 'CTAClick', payload);
       console.info('[cta]', payload);
+      // Persist for admin funnel
+      logCtaEvent('cta_click', cta_id, meta);
     } catch (e) {
       console.warn('cta tracking failed', e);
     }
   };
+
+  // Fire end-to-end conversion event when a user finishes auth after clicking a tracked CTA
+  const conversionFiredRef = useRef(false);
+  useEffect(() => {
+    if (!user || conversionFiredRef.current) return;
+    let pendingCta: string | null = null;
+    try { pendingCta = sessionStorage.getItem('pending_cta'); } catch { /* noop */ }
+    if (!pendingCta) return;
+    conversionFiredRef.current = true;
+    const authMode = (() => { try { return sessionStorage.getItem('pending_cta_mode') || 'signup'; } catch { return 'signup'; } })();
+    const eventName = authMode === 'login' ? 'login_completed' : 'signup_completed';
+    const payload = { event: eventName, cta_id: pendingCta, location: 'landing', ts: new Date().toISOString() };
+    const w = window as any;
+    try {
+      if (typeof w.gtag === 'function') w.gtag('event', eventName, payload);
+      if (Array.isArray(w.dataLayer)) w.dataLayer.push(payload);
+      if (w.fbq) w.fbq('trackCustom', 'CTAConversion', payload);
+    } catch { /* noop */ }
+    console.info('[cta-conversion]', payload);
+    logCtaEvent(eventName, pendingCta, { mode: authMode });
+    try {
+      sessionStorage.removeItem('pending_cta');
+      sessionStorage.removeItem('pending_cta_mode');
+    } catch { /* noop */ }
+  }, [user]);
 
   const handleLogin = async (email: string, password: string) => {
     const { error } = await signIn(email, password);
