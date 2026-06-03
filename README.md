@@ -71,3 +71,28 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Testing
+
+Run the default Vitest suite (mocked, no network) with:
+
+```sh
+bunx vitest run
+```
+
+### Live SSN encryption round-trip test (opt-in)
+
+`src/test/ssnEncryption.live.test.ts` exercises the real Supabase
+`encrypt_ssn_secure` / `decrypt_ssn_secure` RPCs against the live
+project. It is **skipped by default** and runs only when both of these
+env vars are set:
+
+```sh
+E2E_SUPABASE_EMAIL=your-test-user@example.com \
+E2E_SUPABASE_PASSWORD=*** \
+bunx vitest run src/test/ssnEncryption.live.test.ts
+```
+
+The user must already exist in Supabase Auth and be allowed to insert
+into `public.clients` (i.e. an ordinary signed-in client). The test
+creates a single `clients` row and deletes it on completion.
