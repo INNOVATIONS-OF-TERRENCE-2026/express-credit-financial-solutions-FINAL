@@ -21,6 +21,8 @@ export default {
 			fontFamily: {
 				'inter': ['Inter', 'sans-serif'],
 				'poppins': ['Poppins', 'sans-serif'],
+				'serif-display': ['"Instrument Serif"', 'Georgia', 'serif'],
+				'work': ['"Work Sans"', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				fintech: {
