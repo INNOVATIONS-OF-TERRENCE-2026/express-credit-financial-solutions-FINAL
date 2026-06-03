@@ -44,6 +44,9 @@ export function AdminCreditReportManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [clientFilter, setClientFilter] = useState<string>('all');
+  const [dateFrom, setDateFrom] = useState<string>('');
+  const [dateTo, setDateTo] = useState<string>('');
   const { toast } = useToast();
 
   const fetchUploads = useCallback(async () => {
@@ -158,6 +161,7 @@ export function AdminCreditReportManager() {
   };
 
   const handleDelete = async (uploadId: string, filePath: string, fileName: string) => {
+    // Remove storage object first
     try {
       const { error: storageError } = await supabase.storage
         .from('credit-reports')
@@ -165,26 +169,56 @@ export function AdminCreditReportManager() {
       if (storageError && storageError.message && !/not.*found/i.test(storageError.message)) {
         throw storageError;
       }
+    } catch (error) {
+      console.error('Storage delete failed:', error);
+      toast({
+        title: 'Storage cleanup failed',
+        description: error instanceof Error ? error.message : 'Could not remove file from storage.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
+    // Remove related AI analysis rows
+    try {
+      const { error: analysisError } = await supabase
+        .from('ai_analysis_results')
+        .delete()
+        .eq('credit_report_id', uploadId);
+      if (analysisError) throw analysisError;
+    } catch (error) {
+      console.error('Related analysis cleanup failed:', error);
+      toast({
+        title: 'Analysis cleanup failed',
+        description:
+          error instanceof Error ? error.message : 'Could not remove related analysis rows.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Remove the upload row itself
+    try {
       const { error: dbError } = await supabase
         .from('credit_report_uploads')
         .delete()
         .eq('id', uploadId);
       if (dbError) throw dbError;
-
-      toast({
-        title: 'File deleted',
-        description: `${fileName} has been removed.`,
-      });
-      await fetchUploads();
     } catch (error) {
-      console.error('Error deleting file:', error);
+      console.error('DB delete failed:', error);
       toast({
-        title: 'Delete failed',
-        description: error instanceof Error ? error.message : 'Failed to delete the file.',
+        title: 'Database cleanup failed',
+        description: error instanceof Error ? error.message : 'Could not remove DB record.',
         variant: 'destructive',
       });
+      return;
     }
+
+    toast({
+      title: 'File deleted',
+      description: `${fileName} and all related data have been removed.`,
+    });
+    await fetchUploads();
   };
 
   const triggerReanalysis = async (uploadId: string, filePath: string, fileName: string) => {
@@ -276,11 +310,24 @@ export function AdminCreditReportManager() {
     
     const matchesStatus = statusFilter === 'all' || upload.analysis_status === statusFilter;
     const matchesType = typeFilter === 'all' || upload.file_type === typeFilter;
-    
-    return matchesSearch && matchesStatus && matchesType;
+    const matchesClient = clientFilter === 'all' || upload.user_id === clientFilter;
+
+    const uploadedTime = new Date(upload.uploaded_at).getTime();
+    const fromOk = !dateFrom || uploadedTime >= new Date(dateFrom).getTime();
+    const toOk = !dateTo || uploadedTime <= new Date(dateTo + 'T23:59:59').getTime();
+
+    return matchesSearch && matchesStatus && matchesType && matchesClient && fromOk && toOk;
   });
 
   const uniqueFileTypes = Array.from(new Set(uploads.map(u => u.file_type)));
+  const uniqueClients = Array.from(
+    new Map(
+      uploads.map((u) => [
+        u.user_id,
+        { id: u.user_id, label: u.client?.full_name || u.client?.email || 'Unknown' },
+      ]),
+    ).values(),
+  );
   const statusCounts = uploads.reduce((acc, upload) => {
     acc[upload.analysis_status] = (acc[upload.analysis_status] || 0) + 1;
     return acc;
@@ -351,6 +398,58 @@ export function AdminCreditReportManager() {
               ))}
             </SelectContent>
           </Select>
+
+          <Select value={clientFilter} onValueChange={setClientFilter}>
+            <SelectTrigger className="w-48" aria-label="Filter by client">
+              <SelectValue placeholder="Client" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Clients</SelectItem>
+              {uniqueClients.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="flex items-center gap-2">
+            <label htmlFor="date-from" className="text-sm text-muted-foreground">From</label>
+            <Input
+              id="date-from"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-40"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="date-to" className="text-sm text-muted-foreground">To</label>
+            <Input
+              id="date-to"
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-40"
+            />
+          </div>
+
+          {(clientFilter !== 'all' || statusFilter !== 'all' || typeFilter !== 'all' || dateFrom || dateTo || searchTerm) && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('all');
+                setTypeFilter('all');
+                setClientFilter('all');
+                setDateFrom('');
+                setDateTo('');
+              }}
+            >
+              Clear filters
+            </Button>
+          )}
         </div>
 
         {/* Results */}
