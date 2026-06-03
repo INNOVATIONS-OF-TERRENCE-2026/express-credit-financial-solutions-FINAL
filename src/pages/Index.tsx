@@ -411,7 +411,6 @@ const Index = () => {
 
       {/* TrustSignals + FAQ wrapped in cream surround */}
       <div style={{ backgroundColor: '#f5f0e0' }}>
-        <TrustSignals />
         <FAQSection />
       </div>
 
