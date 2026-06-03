@@ -249,24 +249,23 @@ export function EnhancedCreditReportUpload() {
       return;
     }
 
-    // Build queue items and validate up-front
+    // Build queue items and validate up-front (pure synchronous classification)
     const accepted: Array<{ item: UploadQueueItem; file: File }> = [];
-    setQueue((prev) => {
-      const next = [...prev];
-      for (const file of list) {
-        const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`;
-        const err = validateCreditReportFile(file);
-        if (err) {
-          next.push({ id, name: file.name, size: file.size, status: 'error', progress: 100, message: err });
-          toast({ title: 'Invalid file', description: `${file.name}: ${err}`, variant: 'destructive' });
-          continue;
-        }
-        const item: UploadQueueItem = { id, name: file.name, size: file.size, status: 'queued', progress: 0 };
-        next.push(item);
-        accepted.push({ item, file });
+    const newQueueItems: UploadQueueItem[] = [];
+    for (const file of list) {
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`;
+      const err = validateCreditReportFile(file);
+      if (err) {
+        newQueueItems.push({ id, name: file.name, size: file.size, status: 'error', progress: 100, message: err });
+        toast({ title: 'Invalid file', description: `${file.name}: ${err}`, variant: 'destructive' });
+        continue;
       }
-      return next;
-    });
+      const item: UploadQueueItem = { id, name: file.name, size: file.size, status: 'queued', progress: 0 };
+      newQueueItems.push(item);
+      accepted.push({ item, file });
+    }
+
+    setQueue((prev) => [...prev, ...newQueueItems]);
 
     if (accepted.length === 0) return;
 
