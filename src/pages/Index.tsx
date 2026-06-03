@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { VisaLogo } from '@/components/VisaLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { useMembership } from '@/hooks/useMembership';
 import { useRoles } from '@/hooks/useRoles';
