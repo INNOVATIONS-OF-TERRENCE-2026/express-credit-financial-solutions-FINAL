@@ -648,8 +648,6 @@ const Index = () => {
         </div>
       </section>
 
-      <EngineerCredit position="bottom" />
-
       {/* Footer */}
       <footer className="relative z-10 px-6 sm:px-10 py-10 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
