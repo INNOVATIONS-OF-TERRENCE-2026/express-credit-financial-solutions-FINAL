@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -29,6 +29,8 @@ export function EnhancedCreditReportUpload() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploads, setUploads] = useState<CreditReportUpload[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { validateFile, sanitizeFileName } = useFileUploadSecurity();
 
@@ -323,29 +325,50 @@ export function EnhancedCreditReportUpload() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Upload Area */}
-        <div className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-8 text-center">
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (!uploading) setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            if (uploading) return;
+            if (e.dataTransfer.files?.length) {
+              handleFileUpload(e.dataTransfer.files);
+            }
+          }}
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/50'
+          }`}
+        >
           <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-medium mb-2">Upload Credit Reports</h3>
           <p className="text-muted-foreground mb-4">
-            Upload your credit reports in various formats for AI analysis
+            Drag &amp; drop a file here, or browse to upload your credit reports for AI analysis
           </p>
-          
-          <label htmlFor="credit-upload" className="cursor-pointer">
-            <Button disabled={uploading} className="mb-4">
-              {uploading ? 'Uploading...' : 'Browse Files'}
-            </Button>
-          </label>
-          
+
+          <Button
+            type="button"
+            disabled={uploading}
+            className="mb-4"
+            onClick={() => inputRef.current?.click()}
+          >
+            {uploading ? 'Uploading...' : 'Browse Files'}
+          </Button>
+
           <input
+            ref={inputRef}
             id="credit-upload"
             type="file"
-            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.csv,.txt"
+            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
             onChange={handleFileSelect}
             multiple
             className="hidden"
             disabled={uploading}
           />
-          
+
           {uploading && (
             <div className="mt-4">
               <Progress value={uploadProgress} className="h-2" />
@@ -354,11 +377,17 @@ export function EnhancedCreditReportUpload() {
               </p>
             </div>
           )}
-          
+
           <p className="text-xs text-muted-foreground mt-2">
-            Supported: PDF, DOC, DOCX, PNG, JPG, CSV, TXT (max 10MB each)
+            Supported: PDF, DOC, DOCX, PNG, JPG (max 10MB each)
           </p>
         </div>
+
+        {uploads.length === 0 && !uploading && (
+          <p className="text-center text-sm text-muted-foreground">
+            No credit reports uploaded yet. Upload your first report above to get started.
+          </p>
+        )}
 
         {/* Uploaded Files */}
         {uploads.length > 0 && (
