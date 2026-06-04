@@ -7,12 +7,35 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AdminShell } from '@/components/admin/AdminShell';
-import { useClientRegistry, logRegistryAction, type MissingProfile, type OrphanIdentity, type RegistryClient } from '@/hooks/useClientRegistry';
+import { useClientRegistry, logRegistryAction, type MissingProfile, type OrphanIdentity, type RegistryClient, type RegistryTag } from '@/hooks/useClientRegistry';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
-import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users } from 'lucide-react';
+import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History } from 'lucide-react';
+
+const TAG_STYLES: Record<RegistryTag, string> = {
+  'Registered': 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
+  'Reconciled': 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
+  'Profile Only': 'bg-blue-500/15 text-blue-500 border-blue-500/30',
+  'Needs Client Row': 'bg-amber-500/15 text-amber-500 border-amber-500/30',
+  'Needs Portal Link': 'bg-amber-500/15 text-amber-500 border-amber-500/30',
+  'Duplicate Risk': 'bg-fuchsia-500/15 text-fuchsia-500 border-fuchsia-500/30',
+  'Orphan Data': 'bg-rose-500/15 text-rose-500 border-rose-500/30',
+  'Not Client': 'bg-muted text-muted-foreground border-border',
+};
+
+function TagChips({ tags }: { tags: RegistryTag[] | undefined }) {
+  if (!tags?.length) return <span className="text-xs text-muted-foreground">—</span>;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {tags.map((t) => (
+        <span key={t} className={`text-[10px] px-1.5 py-0.5 rounded border ${TAG_STYLES[t]}`}>{t}</span>
+      ))}
+    </div>
+  );
+}
 
 function KpiCard({ label, value, tone = 'text-foreground', hint }: { label: string; value: number | string; tone?: string; hint?: string }) {
   return (
@@ -34,11 +57,93 @@ export default function AdminClientRegistry() {
   const [confirmCreate, setConfirmCreate] = useState<MissingProfile | null>(null);
   const [attachOrphan, setAttachOrphan] = useState<OrphanIdentity | null>(null);
   const [attachTarget, setAttachTarget] = useState<string>('');
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [bulkPreviewOpen, setBulkPreviewOpen] = useState(false);
+  const [bulkRunning, setBulkRunning] = useState(false);
 
   if (!rolesLoading && !isAdmin()) {
     navigate('/');
     return null;
   }
+
+  const norm = (s: string | null | undefined) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  // Compute bulk-eligibility for each selected profile.
+  const bulkEval = useMemo(() => {
+    const selectedProfiles = snap.missingProfiles.filter((p) => selected[p.user_id]);
+    const emailToClient = new Map(snap.clients.filter((c) => c.email).map((c) => [c.email!.toLowerCase(), c]));
+    const nameToClients = new Map<string, RegistryClient[]>();
+    snap.clients.forEach((c) => {
+      const nk = norm(c.full_name);
+      if (!nk) return;
+      const arr = nameToClients.get(nk) || [];
+      arr.push(c); nameToClients.set(nk, arr);
+    });
+    const emailSeen = new Map<string, number>();
+    selectedProfiles.forEach((p) => {
+      const e = (p.email || '').toLowerCase();
+      if (e) emailSeen.set(e, (emailSeen.get(e) || 0) + 1);
+    });
+    const toCreate: MissingProfile[] = [];
+    const toSkip: { profile: MissingProfile; reason: string }[] = [];
+    selectedProfiles.forEach((p) => {
+      const e = (p.email || '').toLowerCase();
+      const nk = norm([p.first_name, p.last_name].filter(Boolean).join(' '));
+      if (!e) { toSkip.push({ profile: p, reason: 'No email — manual review required' }); return; }
+      if (emailToClient.has(e)) { toSkip.push({ profile: p, reason: 'Email already on a client row' }); return; }
+      if ((emailSeen.get(e) || 0) > 1) { toSkip.push({ profile: p, reason: 'Email duplicated in this batch' }); return; }
+      if (nk && (nameToClients.get(nk)?.length || 0) > 0) { toSkip.push({ profile: p, reason: 'Normalized name matches existing client' }); return; }
+      toCreate.push(p);
+    });
+    return { selectedProfiles, toCreate, toSkip };
+  }, [selected, snap.missingProfiles, snap.clients]);
+
+  const selectedCount = bulkEval.selectedProfiles.length;
+
+  const toggleSelected = (uid: string) =>
+    setSelected((s) => ({ ...s, [uid]: !s[uid] }));
+  const toggleSelectAllMissing = () => {
+    const all = snap.missingProfiles.every((p) => selected[p.user_id]);
+    const next: Record<string, boolean> = {};
+    if (!all) snap.missingProfiles.forEach((p) => (next[p.user_id] = true));
+    setSelected(next);
+  };
+
+  const runBulkCreate = async () => {
+    setBulkRunning(true);
+    let created = 0; let failed = 0;
+    for (const p of bulkEval.toCreate) {
+      try {
+        const full_name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || (p.email ? p.email.split('@')[0] : 'Unknown Client');
+        const { data, error } = await supabase
+          .from('clients')
+          .insert({
+            full_name,
+            email: p.email,
+            user_id: p.user_id,
+            membership_plan: p.membership_type ?? null,
+            portal_status: 'active',
+          } as any)
+          .select('id')
+          .single();
+        if (error) throw error;
+        created += 1;
+        await logRegistryAction('BULK_CREATE_FROM_PROFILE', { source_user_id: p.user_id, new_client_id: data?.id, email: p.email }, data?.id);
+      } catch (err: any) {
+        failed += 1;
+        await logRegistryAction('BULK_CREATE_FAILED', { source_user_id: p.user_id, email: p.email, error: err?.message || 'unknown' });
+      }
+    }
+    setBulkRunning(false);
+    setBulkPreviewOpen(false);
+    setSelected({});
+    toast({
+      title: 'Bulk reconciliation complete',
+      description: `${created} created · ${failed} failed · ${bulkEval.toSkip.length} skipped`,
+      variant: failed > 0 ? 'destructive' : 'default',
+    });
+    snap.refresh();
+  };
 
   const filteredClients = useMemo(() => {
     if (!search.trim()) return snap.clients;
