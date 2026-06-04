@@ -31,7 +31,6 @@ import NotFound from "./pages/NotFound";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
 import MembershipPricing from "./pages/MembershipPricing";
 import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
 import ClientPortals from "./pages/ClientPortals";
 import ClientPortalLinks from "./pages/ClientPortalLinks";
 import AdminClients from "./pages/AdminClients";
@@ -101,9 +100,7 @@ const App = () => (
                         <Route path="/membership" element={<MembershipPricing />} />
                         <Route path="/admin/login" element={<AdminLogin />} />
                         <Route path="/admin" element={<AdminCommandCenter />} />
-                        {/* Legacy admin dashboard — kept mounted under hidden path for rollback */}
                         <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
-                        <Route path="/admin-dashboard-legacy" element={<AdminDashboard />} />
                         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
                         <Route path="/admin/upload-reports" element={<AdminUploadReports />} />
                         <Route path="/admin/reports" element={<AdminReportsList />} />
