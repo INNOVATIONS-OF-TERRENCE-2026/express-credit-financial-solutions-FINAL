@@ -1951,7 +1951,11 @@ export type Database = {
       }
       document_archive: {
         Row: {
+          ai_analysis: string | null
+          bureau: string | null
+          client_id: string | null
           created_at: string
+          doc_type: string | null
           document_type: string
           file_name: string
           file_path: string
@@ -1959,10 +1963,15 @@ export type Database = {
           file_type: string
           id: string
           upload_date: string
+          uploaded_file_url: string | null
           user_id: string
         }
         Insert: {
+          ai_analysis?: string | null
+          bureau?: string | null
+          client_id?: string | null
           created_at?: string
+          doc_type?: string | null
           document_type: string
           file_name: string
           file_path: string
@@ -1970,10 +1979,15 @@ export type Database = {
           file_type: string
           id?: string
           upload_date?: string
+          uploaded_file_url?: string | null
           user_id: string
         }
         Update: {
+          ai_analysis?: string | null
+          bureau?: string | null
+          client_id?: string | null
           created_at?: string
+          doc_type?: string | null
           document_type?: string
           file_name?: string
           file_path?: string
@@ -1981,9 +1995,18 @@ export type Database = {
           file_type?: string
           id?: string
           upload_date?: string
+          uploaded_file_url?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "document_archive_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       document_classification_results: {
         Row: {
