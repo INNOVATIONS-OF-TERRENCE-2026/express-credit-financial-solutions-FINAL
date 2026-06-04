@@ -55,6 +55,24 @@ import PaymentsPage from "./pages/PaymentsPage";
 import PaymentHistoryPage from "./pages/PaymentHistoryPage";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 
+// New unified admin + premium client portal
+import AdminCommandCenter from "./pages/AdminCommandCenter";
+import AdminUploadReports from "./pages/AdminUploadReports";
+import AdminReportsList from "./pages/AdminReportsList";
+import AdminDisputesPage from "./pages/AdminDisputesPage";
+import AdminDocumentsPage from "./pages/AdminDocumentsPage";
+import AdminAgreementsPage from "./pages/AdminAgreementsPage";
+import AdminActivityPage from "./pages/AdminActivityPage";
+import ClientDashboardPage from "./pages/client/Dashboard";
+import ClientResultsPage from "./pages/client/Results";
+import ClientReportsPage from "./pages/client/Reports";
+import ClientDisputesPage from "./pages/client/Disputes";
+import ClientDocumentsPage from "./pages/client/Documents";
+import ClientPaymentsPage from "./pages/client/Payments";
+import ClientAgreementsPage from "./pages/client/Agreements";
+import ClientMessagesPage from "./pages/client/Messages";
+import ClientSettingsPage from "./pages/client/Settings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -109,9 +127,15 @@ const App = () => (
                         <Route path="/document-center" element={<ProtectedRoute requiredFeature="dashboard" featureName="Document Upload Center"><DocumentUploadCenter /></ProtectedRoute>} />
                         <Route path="/score-tracker" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Score Tracker"><CreditScoreTracker /></ProtectedRoute>} />
                         <Route path="/admin/login" element={<AdminLogin />} />
-                        <Route path="/admin" element={<AdminDashboard />} />
+                        <Route path="/admin" element={<AdminCommandCenter />} />
                         <Route path="/admin-dashboard" element={<AdminDashboard />} />
                         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+                        <Route path="/admin/upload-reports" element={<AdminUploadReports />} />
+                        <Route path="/admin/reports" element={<AdminReportsList />} />
+                        <Route path="/admin/disputes" element={<AdminDisputesPage />} />
+                        <Route path="/admin/documents" element={<AdminDocumentsPage />} />
+                        <Route path="/admin/agreements" element={<AdminAgreementsPage />} />
+                        <Route path="/admin/activity" element={<AdminActivityPage />} />
                         <Route path="/payments" element={<PaymentsPage />} />
                         <Route path="/payment-history" element={<PaymentHistoryPage />} />
                         <Route path="/admin/clients/:clientId" element={<AdminClientEdit />} />
@@ -120,6 +144,16 @@ const App = () => (
                         <Route path="/admin/settings" element={<AdminSettings />} />
                         <Route path="/admin/tools" element={<AdminTools />} />
                         <Route path="/client-portals" element={<ClientPortalLinks />} />
+                        {/* Canonical premium client portal */}
+                        <Route path="/client/dashboard"  element={<ClientDashboardPage />} />
+                        <Route path="/client/results"    element={<ClientResultsPage />} />
+                        <Route path="/client/reports"    element={<ClientReportsPage />} />
+                        <Route path="/client/disputes"   element={<ClientDisputesPage />} />
+                        <Route path="/client/documents"  element={<ClientDocumentsPage />} />
+                        <Route path="/client/payments"   element={<ClientPaymentsPage />} />
+                        <Route path="/client/agreements" element={<ClientAgreementsPage />} />
+                        <Route path="/client/messages"   element={<ClientMessagesPage />} />
+                        <Route path="/client/settings"   element={<ClientSettingsPage />} />
                         <Route path="/client/:clientSlug" element={<ClientPortals />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>

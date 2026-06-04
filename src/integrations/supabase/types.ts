@@ -1606,67 +1606,118 @@ export type Database = {
       }
       clients: {
         Row: {
+          accounts_deleted_count: number | null
           address: string
           agreement_signed: boolean | null
           created_at: string
+          current_dispute_round: number | null
+          current_score_eq: number | null
+          current_score_ex: number | null
+          current_score_tu: number | null
+          debt_removed_total: number | null
           dob: string
           documents_uploaded: number | null
           email: string | null
+          ftc_605b_readiness_status: string | null
           full_name: string
+          hard_inquiries_removed: number | null
           id: string
           membership_plan: string | null
+          mortgage_readiness_status: string | null
           next_action: string | null
+          next_step_note: string | null
           notes_summary: string | null
+          onboarding_status: string | null
+          personal_info_items_removed: number | null
           phone: string
           priority_level: string | null
           progress_status: number | null
+          remaining_negatives: number | null
           round_number: number | null
           ssn_encrypted: string | null
           ssn_last4: string
+          starting_score_eq: number | null
+          starting_score_ex: number | null
+          starting_score_tu: number | null
+          status: string | null
           updated_at: string
           user_id: string | null
           workflow_status: string | null
         }
         Insert: {
+          accounts_deleted_count?: number | null
           address: string
           agreement_signed?: boolean | null
           created_at?: string
+          current_dispute_round?: number | null
+          current_score_eq?: number | null
+          current_score_ex?: number | null
+          current_score_tu?: number | null
+          debt_removed_total?: number | null
           dob: string
           documents_uploaded?: number | null
           email?: string | null
+          ftc_605b_readiness_status?: string | null
           full_name: string
+          hard_inquiries_removed?: number | null
           id?: string
           membership_plan?: string | null
+          mortgage_readiness_status?: string | null
           next_action?: string | null
+          next_step_note?: string | null
           notes_summary?: string | null
+          onboarding_status?: string | null
+          personal_info_items_removed?: number | null
           phone: string
           priority_level?: string | null
           progress_status?: number | null
+          remaining_negatives?: number | null
           round_number?: number | null
           ssn_encrypted?: string | null
           ssn_last4: string
+          starting_score_eq?: number | null
+          starting_score_ex?: number | null
+          starting_score_tu?: number | null
+          status?: string | null
           updated_at?: string
           user_id?: string | null
           workflow_status?: string | null
         }
         Update: {
+          accounts_deleted_count?: number | null
           address?: string
           agreement_signed?: boolean | null
           created_at?: string
+          current_dispute_round?: number | null
+          current_score_eq?: number | null
+          current_score_ex?: number | null
+          current_score_tu?: number | null
+          debt_removed_total?: number | null
           dob?: string
           documents_uploaded?: number | null
           email?: string | null
+          ftc_605b_readiness_status?: string | null
           full_name?: string
+          hard_inquiries_removed?: number | null
           id?: string
           membership_plan?: string | null
+          mortgage_readiness_status?: string | null
           next_action?: string | null
+          next_step_note?: string | null
           notes_summary?: string | null
+          onboarding_status?: string | null
+          personal_info_items_removed?: number | null
           phone?: string
           priority_level?: string | null
           progress_status?: number | null
+          remaining_negatives?: number | null
           round_number?: number | null
           ssn_encrypted?: string | null
           ssn_last4?: string
+          starting_score_eq?: number | null
+          starting_score_ex?: number | null
+          starting_score_tu?: number | null
+          status?: string | null
           updated_at?: string
           user_id?: string | null
           workflow_status?: string | null
