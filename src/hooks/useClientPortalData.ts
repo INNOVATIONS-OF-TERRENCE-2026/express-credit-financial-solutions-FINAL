@@ -29,6 +29,14 @@ export interface ClientPortalData {
   agreementsSigned: number;
   agreementsPending: number;
   paymentSummary: any | null;
+  latestPayment: {
+    id: string;
+    payment_amount: number;
+    payment_method: string | null;
+    payment_status: string;
+    submitted_at: string | null;
+    reviewed_at: string | null;
+  } | null;
   activity: any[];
   refresh: () => Promise<void>;
 }
@@ -60,6 +68,7 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
     agreementsSigned: 0,
     agreementsPending: 0,
     paymentSummary: null,
+    latestPayment: null,
     activity: [],
   });
 
@@ -113,6 +122,17 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
         ? await client.from('client_payment_summary').select('*').eq('user_id', uid).maybeSingle()
         : { data: null };
 
+      const { data: latestPaymentRow } = uid
+        ? await client
+            .from('payment_records')
+            .select('id,payment_amount,payment_method,payment_status,submitted_at,reviewed_at')
+            .eq('user_id', uid)
+            .eq('payment_status', 'approved')
+            .order('reviewed_at', { ascending: false, nullsFirst: false })
+            .limit(1)
+            .maybeSingle()
+        : { data: null };
+
       const { data: activity } = cid
         ? await client.from('client_activity_timeline').select('*').eq('client_id', cid).order('created_at', { ascending: false }).limit(20)
         : { data: [] };
@@ -137,6 +157,7 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
         agreementsSigned,
         agreementsPending,
         paymentSummary,
+        latestPayment: latestPaymentRow || null,
         activity: activity || [],
       });
     } catch {
