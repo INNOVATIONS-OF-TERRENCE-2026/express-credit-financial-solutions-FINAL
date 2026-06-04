@@ -77,7 +77,11 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        // Roll back the orphaned storage object so it doesn't linger unreferenced
+        await supabase.storage.from('verification-docs').remove([fileName]);
+        throw dbError;
+      }
 
       setUploadStatus(prev => ({ ...prev, [docType]: 'uploaded' }));
       toast({
