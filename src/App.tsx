@@ -10,6 +10,7 @@ import { MembershipProvider } from "./hooks/useMembership";
 import { RolesProvider } from "./hooks/useRoles";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { FloatingChat } from "./components/FloatingChat";
+import { useLocation } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SBAConfigProvider } from "./contexts/SBAConfig";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -90,7 +91,7 @@ const App = () => (
                     <BrowserRouter>
                       <ScrollToTop />
                       <GlobalSearchCommand />
-                      <FloatingChat />
+                      <ScopedFloatingChat />
                       <Routes>
                         {/* SBA Routes */}
                         <Route path="/sba" element={<SBAHome />} />
