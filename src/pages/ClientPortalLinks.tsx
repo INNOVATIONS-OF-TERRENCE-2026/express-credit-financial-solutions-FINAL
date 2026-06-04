@@ -120,7 +120,7 @@ export default function ClientPortalLinks() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'registered': return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />Registered</Badge>;
+      case 'registered': return <Badge className="gap-1 bg-emerald-600"><CheckCircle className="h-3 w-3" />Active</Badge>;
       case 'needs-agreement': return <Badge variant="outline" className="gap-1 border-amber-500/50 text-amber-500"><AlertTriangle className="h-3 w-3" />Needs Agreement</Badge>;
       case 'needs-docs': return <Badge variant="outline" className="gap-1 border-blue-500/50 text-blue-500"><Upload className="h-3 w-3" />Needs Docs</Badge>;
       case 'portal-ready': return <Badge className="gap-1 bg-emerald-600"><CheckCircle className="h-3 w-3" />Portal Ready</Badge>;
@@ -243,7 +243,7 @@ export default function ClientPortalLinks() {
               {[
                 { label: 'Total', value: stats.total, icon: Users, color: 'text-blue-400' },
                 { label: 'New (7d)', value: stats.recentSignups, icon: Clock, color: 'text-green-400' },
-                { label: 'Registered', value: stats.registered, icon: AlertTriangle, color: 'text-amber-400' },
+                { label: 'Active', value: stats.registered, icon: CheckCircle, color: 'text-emerald-400' },
                 { label: 'Needs Agreement', value: stats.needsAgreement, icon: FileText, color: 'text-orange-400' },
                 { label: 'Portal Ready', value: stats.portalReady, icon: CheckCircle, color: 'text-emerald-400' },
                 { label: 'Active Services', value: stats.withServices, icon: Zap, color: 'text-purple-400' },
@@ -291,7 +291,7 @@ export default function ClientPortalLinks() {
                           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Statuses</SelectItem>
-                            <SelectItem value="registered">Registered</SelectItem>
+                            <SelectItem value="registered">Active</SelectItem>
                             <SelectItem value="needs-agreement">Needs Agreement</SelectItem>
                             <SelectItem value="needs-docs">Needs Docs</SelectItem>
                             <SelectItem value="portal-ready">Portal Ready</SelectItem>
