@@ -40,6 +40,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown, Crown, Gavel } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
+import { useClientRegistry } from '@/hooks/useClientRegistry';
 
 interface Client {
   id: string;
@@ -68,6 +70,7 @@ export default function AdminClients() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAdmin, loading: rolesLoading } = useRoles();
+  const registry = useClientRegistry();
   
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
