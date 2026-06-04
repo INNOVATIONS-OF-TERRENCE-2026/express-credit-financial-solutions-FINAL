@@ -690,6 +690,80 @@ export default function AdminClientRegistry() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk reconciliation preview */}
+      <Dialog open={bulkPreviewOpen} onOpenChange={(o) => !o && setBulkPreviewOpen(false)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Safe reconciliation preview</DialogTitle>
+            <DialogDescription>
+              No silent merges. Only profiles with a unique email and no name/email conflict will create new client rows.
+              Skipped rows stay untouched for manual review.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-3 gap-3 text-center text-sm">
+            <div className="rounded border border-border p-2">
+              <p className="text-2xl font-bold">{selectedCount}</p>
+              <p className="text-xs text-muted-foreground">Selected</p>
+            </div>
+            <div className="rounded border border-emerald-500/30 bg-emerald-500/5 p-2">
+              <p className="text-2xl font-bold text-emerald-500">{bulkEval.toCreate.length}</p>
+              <p className="text-xs text-muted-foreground">Clients to create</p>
+            </div>
+            <div className="rounded border border-amber-500/30 bg-amber-500/5 p-2">
+              <p className="text-2xl font-bold text-amber-500">{bulkEval.toSkip.length}</p>
+              <p className="text-xs text-muted-foreground">To skip</p>
+            </div>
+          </div>
+
+          <div className="max-h-72 overflow-y-auto space-y-3 text-sm">
+            {bulkEval.toCreate.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-emerald-500 uppercase mb-1">Will create</p>
+                <ul className="space-y-1">
+                  {bulkEval.toCreate.map((p) => (
+                    <li key={p.user_id} className="text-xs flex justify-between gap-2 border-b border-border/40 pb-1">
+                      <span className="truncate">{[p.first_name, p.last_name].filter(Boolean).join(' ') || p.email}</span>
+                      <span className="text-muted-foreground truncate">{p.email}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {bulkEval.toSkip.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-amber-500 uppercase mb-1">Will skip</p>
+                <ul className="space-y-1">
+                  {bulkEval.toSkip.map(({ profile: p, reason }) => (
+                    <li key={p.user_id} className="text-xs flex justify-between gap-2 border-b border-border/40 pb-1">
+                      <span className="truncate">{[p.first_name, p.last_name].filter(Boolean).join(' ') || p.email || p.user_id.slice(0, 8)}</span>
+                      <span className="text-muted-foreground truncate">{reason}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-md border border-border bg-muted/30 p-2 text-xs space-y-1">
+            <p className="font-semibold">Safety rules in effect</p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
+              <li>No auto-merge of duplicate clients</li>
+              <li>No deletion of profiles, clients, or orphan records</li>
+              <li>Existing client.user_id values are never overwritten</li>
+              <li>Profiles without an email are skipped from bulk create</li>
+            </ul>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkPreviewOpen(false)} disabled={bulkRunning}>Cancel</Button>
+            <Button onClick={runBulkCreate} disabled={bulkRunning || bulkEval.toCreate.length === 0}>
+              <UserPlus className="h-4 w-4 mr-1" />
+              {bulkRunning ? 'Creating…' : `Create ${bulkEval.toCreate.length} client${bulkEval.toCreate.length === 1 ? '' : 's'}`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 }
