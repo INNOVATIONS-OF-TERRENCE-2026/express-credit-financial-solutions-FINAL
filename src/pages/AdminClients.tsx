@@ -69,7 +69,10 @@ export default function AdminClients() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkPreview, setShowBulkPreview] = useState(false);
   const [bulkApplying, setBulkApplying] = useState(false);
-  const [bulkPreview, setBulkPreview] = useState<{ id: string; name: string; email: string; user_id: string | null; alreadyPaid: boolean }[]>([]);
+  const [bulkPreview, setBulkPreview] = useState<{
+    id: string; name: string; email: string; user_id: string | null;
+    alreadyPaid: boolean; currentStatus: string | null;
+  }[]>([]);
   
   // New client form
   const [newClient, setNewClient] = useState({
@@ -314,6 +317,7 @@ export default function AdminClients() {
     const chosen = clients.filter(c => selectedIds.has(c.id));
     const userIds = chosen.map(c => c.user_id).filter(Boolean) as string[];
     let paidUserIds = new Set<string>();
+    let statusByUser = new Map<string, string>();
     if (userIds.length) {
       const { data } = await supabase
         .from('payment_records')
@@ -321,6 +325,11 @@ export default function AdminClients() {
         .in('user_id', userIds)
         .eq('payment_status', 'approved');
       paidUserIds = new Set((data || []).map((r: any) => r.user_id));
+      const { data: profs } = await supabase
+        .from('profiles')
+        .select('user_id,payment_status')
+        .in('user_id', userIds);
+      (profs || []).forEach((p: any) => statusByUser.set(p.user_id, p.payment_status));
     }
     setBulkPreview(chosen.map(c => ({
       id: c.id,
@@ -328,6 +337,7 @@ export default function AdminClients() {
       email: c.email,
       user_id: c.user_id ?? null,
       alreadyPaid: !!c.user_id && paidUserIds.has(c.user_id),
+      currentStatus: c.user_id ? (statusByUser.get(c.user_id) ?? null) : null,
     })));
     setShowBulkPreview(true);
   };
@@ -596,49 +606,73 @@ export default function AdminClients() {
 
         {/* Bulk preview dialog */}
         <Dialog open={showBulkPreview} onOpenChange={setShowBulkPreview}>
-          <DialogContent className="sm:max-w-2xl">
+          <DialogContent className="sm:max-w-3xl">
             <DialogHeader>
               <DialogTitle>Preview: Mark Active & Paid-in-Full</DialogTitle>
               <DialogDescription>
-                Review the changes below. Inserts a $600 approved payment for each client and sets their profile status to <strong>paid</strong> (Active). Clients already paid will be skipped.
+                Per-client before → after summary. Nothing is written until you click <strong>Confirm &amp; Apply</strong>.
               </DialogDescription>
             </DialogHeader>
-            <div className="max-h-80 overflow-auto border rounded">
+            <div className="max-h-[28rem] overflow-auto border rounded">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Action</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Profile Status</TableHead>
+                    <TableHead>Payment Record</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {bulkPreview.map(p => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.name}</TableCell>
-                      <TableCell className="text-sm">{p.email}</TableCell>
-                      <TableCell>
-                        {!p.user_id ? (
-                          <Badge variant="outline" className="border-amber-500/50 text-amber-500">No user — skip payment</Badge>
-                        ) : p.alreadyPaid ? (
-                          <Badge variant="secondary">Already paid — keep</Badge>
-                        ) : (
-                          <Badge className="bg-emerald-600">Insert $600 + Active</Badge>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {bulkPreview.map(p => {
+                    const statusBefore = p.currentStatus || (p.user_id ? 'inactive' : '—');
+                    const statusAfter = p.user_id ? 'paid' : statusBefore;
+                    const statusChanges = p.user_id && statusBefore !== statusAfter;
+                    return (
+                      <TableRow key={p.id}>
+                        <TableCell>
+                          <div className="font-medium">{p.name}</div>
+                          <div className="text-xs text-muted-foreground">{p.email}</div>
+                          {!p.user_id && <Badge variant="outline" className="mt-1 border-amber-500/50 text-amber-500 text-[10px]">No linked user</Badge>}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          <span className={statusChanges ? 'line-through text-muted-foreground' : ''}>{statusBefore}</span>
+                          {statusChanges && (
+                            <>
+                              <span className="mx-2 text-muted-foreground">→</span>
+                              <span className="text-emerald-500 font-medium">paid (Active)</span>
+                            </>
+                          )}
+                          {!statusChanges && p.user_id && <span className="ml-2 text-xs text-muted-foreground">(no change)</span>}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {!p.user_id ? (
+                            <span className="text-muted-foreground">Skipped</span>
+                          ) : p.alreadyPaid ? (
+                            <span><Badge variant="secondary" className="text-[10px]">Existing approved payment</Badge> <span className="text-xs text-muted-foreground ml-1">(no change)</span></span>
+                          ) : (
+                            <span>
+                              <span className="line-through text-muted-foreground">none</span>
+                              <span className="mx-2 text-muted-foreground">→</span>
+                              <span className="text-emerald-500 font-medium">+ $600 approved (cash_app)</span>
+                            </span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
             <div className="flex justify-between items-center pt-2">
               <span className="text-sm text-muted-foreground">
-                {bulkPreview.filter(p => p.user_id && !p.alreadyPaid).length} new payment(s) · {bulkPreview.filter(p => p.alreadyPaid).length} already paid
+                {bulkPreview.filter(p => p.user_id && !p.alreadyPaid).length} new payment(s) ·{' '}
+                {bulkPreview.filter(p => p.user_id && p.currentStatus !== 'paid').length} status change(s) ·{' '}
+                {bulkPreview.filter(p => !p.user_id).length} skipped
               </span>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setShowBulkPreview(false)} disabled={bulkApplying}>Cancel</Button>
                 <Button onClick={applyBulk} disabled={bulkApplying}>
-                  {bulkApplying ? 'Applying…' : 'Apply Changes'}
+                  {bulkApplying ? 'Applying…' : 'Confirm & Apply'}
                 </Button>
               </div>
             </div>
