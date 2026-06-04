@@ -62,20 +62,25 @@ export function usePayments() {
       return;
     }
     setLoading(true);
-    const [{ data: recs }, { data: sum }] = await Promise.all([
-      supabase
-        .from("payment_records")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("submitted_at", { ascending: false }),
-      supabase
-        .from("client_payment_summary")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-    ]);
-    setRecords((recs ?? []) as PaymentRecord[]);
-    setSummary((sum as PaymentSummary) ?? null);
+    const { data: recs } = await supabase
+      .from("payment_records")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("submitted_at", { ascending: false });
+    const list = (recs ?? []) as PaymentRecord[];
+    setRecords(list);
+    const total_paid = list.filter((r) => r.payment_status === "approved").reduce((s, r) => s + Number(r.payment_amount || 0), 0);
+    const total_pending = list.filter((r) => r.payment_status === "pending").reduce((s, r) => s + Number(r.payment_amount || 0), 0);
+    const last = list[0];
+    setSummary(last ? {
+      user_id: user.id,
+      total_paid,
+      total_pending,
+      last_payment_amount: Number(last.payment_amount || 0),
+      last_payment_method: last.payment_method,
+      last_payment_status: last.payment_status,
+      last_payment_date: last.submitted_at,
+    } as PaymentSummary : null);
     setLoading(false);
   }, [user]);
 
