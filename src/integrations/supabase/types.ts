@@ -1585,6 +1585,11 @@ export type Database = {
           file_type: string
           flagged_accounts_count: number | null
           id: string
+          match_checked_at: string | null
+          match_error: string | null
+          match_reasons: Json | null
+          match_score: number | null
+          match_status: string | null
           updated_at: string
           uploaded_at: string
           user_id: string
@@ -1601,6 +1606,11 @@ export type Database = {
           file_type: string
           flagged_accounts_count?: number | null
           id?: string
+          match_checked_at?: string | null
+          match_error?: string | null
+          match_reasons?: Json | null
+          match_score?: number | null
+          match_status?: string | null
           updated_at?: string
           uploaded_at?: string
           user_id: string
@@ -1617,6 +1627,11 @@ export type Database = {
           file_type?: string
           flagged_accounts_count?: number | null
           id?: string
+          match_checked_at?: string | null
+          match_error?: string | null
+          match_reasons?: Json | null
+          match_score?: number | null
+          match_status?: string | null
           updated_at?: string
           uploaded_at?: string
           user_id?: string
