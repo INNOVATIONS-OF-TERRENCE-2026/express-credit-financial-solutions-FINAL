@@ -9,6 +9,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import { MembershipProvider } from "./hooks/useMembership";
 import { RolesProvider } from "./hooks/useRoles";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { RequireAuth, RequireAdmin } from "./components/RouteGuards";
 import { FloatingChat } from "./components/FloatingChat";
 import { useLocation } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -99,23 +100,23 @@ const App = () => (
                         <Route path="/onboarding" element={<ClientOnboarding />} />
                         <Route path="/membership" element={<MembershipPricing />} />
                         <Route path="/admin/login" element={<AdminLogin />} />
-                        <Route path="/admin" element={<AdminCommandCenter />} />
+                        <Route path="/admin" element={<RequireAdmin><AdminCommandCenter /></RequireAdmin>} />
                         <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
-                        <Route path="/admin/payments" element={<AdminPaymentsPage />} />
-                        <Route path="/admin/upload-reports" element={<AdminUploadReports />} />
-                        <Route path="/admin/reports" element={<AdminReportsList />} />
-                        <Route path="/admin/disputes" element={<AdminDisputesPage />} />
-                        <Route path="/admin/documents" element={<AdminDocumentsPage />} />
-                        <Route path="/admin/agreements" element={<AdminAgreementsPage />} />
-                        <Route path="/admin/activity" element={<AdminActivityPage />} />
+                        <Route path="/admin/payments" element={<RequireAdmin><AdminPaymentsPage /></RequireAdmin>} />
+                        <Route path="/admin/upload-reports" element={<RequireAdmin><AdminUploadReports /></RequireAdmin>} />
+                        <Route path="/admin/reports" element={<RequireAdmin><AdminReportsList /></RequireAdmin>} />
+                        <Route path="/admin/disputes" element={<RequireAdmin><AdminDisputesPage /></RequireAdmin>} />
+                        <Route path="/admin/documents" element={<RequireAdmin><AdminDocumentsPage /></RequireAdmin>} />
+                        <Route path="/admin/agreements" element={<RequireAdmin><AdminAgreementsPage /></RequireAdmin>} />
+                        <Route path="/admin/activity" element={<RequireAdmin><AdminActivityPage /></RequireAdmin>} />
                         {/* Legacy client payment routes → canonical client portal */}
                         <Route path="/payments" element={<Navigate to="/client/payments" replace />} />
                         <Route path="/payment-history" element={<Navigate to="/client/payments" replace />} />
-                        <Route path="/admin/clients/:clientId" element={<AdminClientEdit />} />
-                        <Route path="/admin/client-preview/:clientId" element={<AdminClientPreview />} />
-                        <Route path="/admin/clients" element={<AdminClients />} />
-                        <Route path="/admin/settings" element={<AdminSettings />} />
-                        <Route path="/admin/tools" element={<AdminTools />} />
+                        <Route path="/admin/clients/:clientId" element={<RequireAdmin><AdminClientEdit /></RequireAdmin>} />
+                        <Route path="/admin/client-preview/:clientId" element={<RequireAdmin><AdminClientPreview /></RequireAdmin>} />
+                        <Route path="/admin/clients" element={<RequireAdmin><AdminClients /></RequireAdmin>} />
+                        <Route path="/admin/settings" element={<RequireAdmin><AdminSettings /></RequireAdmin>} />
+                        <Route path="/admin/tools" element={<RequireAdmin><AdminTools /></RequireAdmin>} />
                         <Route path="/client-portals" element={<ClientPortalLinks />} />
                         {/* Legacy client-facing routes → canonical client portal */}
                         <Route path="/upload-credit-report" element={<Navigate to="/client/documents" replace />} />
@@ -140,15 +141,15 @@ const App = () => (
                         <Route path="/sba-portal/dashboard" element={<Navigate to="/sba/dashboard" replace />} />
                         <Route path="/sba-portal/admin" element={<Navigate to="/sba/admin" replace />} />
                         {/* Canonical premium client portal */}
-                        <Route path="/client/dashboard"  element={<ClientDashboardPage />} />
-                        <Route path="/client/results"    element={<ClientResultsPage />} />
-                        <Route path="/client/reports"    element={<ClientReportsPage />} />
-                        <Route path="/client/disputes"   element={<ClientDisputesPage />} />
-                        <Route path="/client/documents"  element={<ClientDocumentsPage />} />
-                        <Route path="/client/payments"   element={<ClientPaymentsPage />} />
-                        <Route path="/client/agreements" element={<ClientAgreementsPage />} />
-                        <Route path="/client/messages"   element={<ClientMessagesPage />} />
-                        <Route path="/client/settings"   element={<ClientSettingsPage />} />
+                        <Route path="/client/dashboard"  element={<RequireAuth><ClientDashboardPage /></RequireAuth>} />
+                        <Route path="/client/results"    element={<RequireAuth><ClientResultsPage /></RequireAuth>} />
+                        <Route path="/client/reports"    element={<RequireAuth><ClientReportsPage /></RequireAuth>} />
+                        <Route path="/client/disputes"   element={<RequireAuth><ClientDisputesPage /></RequireAuth>} />
+                        <Route path="/client/documents"  element={<RequireAuth><ClientDocumentsPage /></RequireAuth>} />
+                        <Route path="/client/payments"   element={<RequireAuth><ClientPaymentsPage /></RequireAuth>} />
+                        <Route path="/client/agreements" element={<RequireAuth><ClientAgreementsPage /></RequireAuth>} />
+                        <Route path="/client/messages"   element={<RequireAuth><ClientMessagesPage /></RequireAuth>} />
+                        <Route path="/client/settings"   element={<RequireAuth><ClientSettingsPage /></RequireAuth>} />
                         {/* Legacy slug-based portal → canonical premium portal */}
                         <Route path="/client/:clientSlug" element={<Navigate to="/client/dashboard" replace />} />
                         {/* Admin-only legacy preview kept for rollback */}
