@@ -44,7 +44,10 @@ export default function AdminUploadReports() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('clients').select('id, full_name, email').order('full_name');
+      const { data } = await supabase
+        .from('clients')
+        .select('id, full_name, email, phone, ssn_last4, dob, user_id')
+        .order('full_name');
       setClients(data || []);
     })();
   }, []);
