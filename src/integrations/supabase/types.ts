@@ -1306,7 +1306,7 @@ export type Database = {
       clients: {
         Row: {
           accounts_deleted_count: number | null
-          address: string
+          address: string | null
           admin_notes: string | null
           agreement_signed: boolean | null
           client_visible_update: string | null
@@ -1316,7 +1316,7 @@ export type Database = {
           current_score_ex: number | null
           current_score_tu: number | null
           debt_removed_total: number | null
-          dob: string
+          dob: string | null
           documents_uploaded: number | null
           email: string | null
           ftc_605b_readiness_status: string | null
@@ -1327,18 +1327,19 @@ export type Database = {
           mortgage_readiness_status: string | null
           next_action: string | null
           next_step_note: string | null
+          not_a_client: boolean
           notes_summary: string | null
           onboarding_status: string | null
           payment_status: string | null
           personal_info_items_removed: number | null
-          phone: string
+          phone: string | null
           portal_status: string | null
           priority_level: string | null
           progress_status: number | null
           remaining_negatives: number | null
           round_number: number | null
           ssn_encrypted: string | null
-          ssn_last4: string
+          ssn_last4: string | null
           starting_score_eq: number | null
           starting_score_ex: number | null
           starting_score_tu: number | null
@@ -1349,7 +1350,7 @@ export type Database = {
         }
         Insert: {
           accounts_deleted_count?: number | null
-          address: string
+          address?: string | null
           admin_notes?: string | null
           agreement_signed?: boolean | null
           client_visible_update?: string | null
@@ -1359,7 +1360,7 @@ export type Database = {
           current_score_ex?: number | null
           current_score_tu?: number | null
           debt_removed_total?: number | null
-          dob: string
+          dob?: string | null
           documents_uploaded?: number | null
           email?: string | null
           ftc_605b_readiness_status?: string | null
@@ -1370,18 +1371,19 @@ export type Database = {
           mortgage_readiness_status?: string | null
           next_action?: string | null
           next_step_note?: string | null
+          not_a_client?: boolean
           notes_summary?: string | null
           onboarding_status?: string | null
           payment_status?: string | null
           personal_info_items_removed?: number | null
-          phone: string
+          phone?: string | null
           portal_status?: string | null
           priority_level?: string | null
           progress_status?: number | null
           remaining_negatives?: number | null
           round_number?: number | null
           ssn_encrypted?: string | null
-          ssn_last4: string
+          ssn_last4?: string | null
           starting_score_eq?: number | null
           starting_score_ex?: number | null
           starting_score_tu?: number | null
@@ -1392,7 +1394,7 @@ export type Database = {
         }
         Update: {
           accounts_deleted_count?: number | null
-          address?: string
+          address?: string | null
           admin_notes?: string | null
           agreement_signed?: boolean | null
           client_visible_update?: string | null
@@ -1402,7 +1404,7 @@ export type Database = {
           current_score_ex?: number | null
           current_score_tu?: number | null
           debt_removed_total?: number | null
-          dob?: string
+          dob?: string | null
           documents_uploaded?: number | null
           email?: string | null
           ftc_605b_readiness_status?: string | null
@@ -1413,18 +1415,19 @@ export type Database = {
           mortgage_readiness_status?: string | null
           next_action?: string | null
           next_step_note?: string | null
+          not_a_client?: boolean
           notes_summary?: string | null
           onboarding_status?: string | null
           payment_status?: string | null
           personal_info_items_removed?: number | null
-          phone?: string
+          phone?: string | null
           portal_status?: string | null
           priority_level?: string | null
           progress_status?: number | null
           remaining_negatives?: number | null
           round_number?: number | null
           ssn_encrypted?: string | null
-          ssn_last4?: string
+          ssn_last4?: string | null
           starting_score_eq?: number | null
           starting_score_ex?: number | null
           starting_score_tu?: number | null
