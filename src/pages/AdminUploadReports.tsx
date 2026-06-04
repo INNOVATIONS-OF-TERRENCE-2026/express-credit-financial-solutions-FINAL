@@ -10,6 +10,12 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileCheck } from 'lucide-react';
+import { ClientMatchEnginePanel } from '@/components/admin/ClientMatchEnginePanel';
+import { MatchResult } from '@/lib/clientMatchEngine';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const REPORT_STAGES = [
   { value: 'before', label: 'Before Report' },
@@ -34,6 +40,7 @@ export default function AdminUploadReports() {
   const [bureau, setBureau] = useState('3_bureau');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pendingConfirm, setPendingConfirm] = useState<MatchResult | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -43,6 +50,15 @@ export default function AdminUploadReports() {
   }, []);
 
   const selectedClient = clients.find((c) => c.id === clientId);
+
+  const applyMatch = (m: MatchResult) => {
+    setClientId(m.clientId);
+    setParams({ clientId: m.clientId });
+    toast({
+      title: 'Client matched',
+      description: `${m.fullName} (${m.confidence}%) — ${m.reasons.join(', ')}`,
+    });
+  };
 
   const handleUpload = async () => {
     if (!clientId) return toast({ title: 'Pick a client', variant: 'destructive' });
@@ -138,18 +154,47 @@ export default function AdminUploadReports() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2"><FileCheck className="h-4 w-4" /> Safety Checks</CardTitle>
-            <CardDescription>Reports are always tied to the explicit selected client id (no implicit admin uid).</CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>• File stored in <code className="text-foreground">credit-reports</code> bucket under <code className="text-foreground">{`<clientId>/<timestamp>_<stage>_<bureau>_<name>`}</code>.</p>
-            <p>• Row inserted in <code className="text-foreground">credit_report_uploads</code> with <code className="text-foreground">client_id</code> + <code className="text-foreground">user_id</code>.</p>
-            <p>• Activity timeline event is created and visible to the client.</p>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <ClientMatchEnginePanel
+            selectedClientId={clientId || null}
+            onAutoMatch={applyMatch}
+            onConfirmMatch={(m) => setPendingConfirm(m)}
+          />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2"><FileCheck className="h-4 w-4" /> Safety Checks</CardTitle>
+              <CardDescription>Reports are always tied to the explicit clients.id (never auth.uid()).</CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground space-y-2">
+              <p>• File stored in <code className="text-foreground">credit-reports</code> under <code className="text-foreground">{`<clientId>/<timestamp>_<stage>_<bureau>_<name>`}</code>.</p>
+              <p>• Row inserted in <code className="text-foreground">credit_report_uploads</code> with <code className="text-foreground">client_id</code> + the client's <code className="text-foreground">user_id</code>.</p>
+              <p>• Confidence ≥ 95% auto-matches. 80–94% requires confirmation. Below 80% requires manual selection.</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+
+      <AlertDialog open={!!pendingConfirm} onOpenChange={(o) => !o && setPendingConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm client match</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingConfirm && (
+                <>
+                  Attach uploads to <strong>{pendingConfirm.fullName}</strong> ({pendingConfirm.email ?? 'no email'})?
+                  <br />Confidence: {pendingConfirm.confidence}%. {pendingConfirm.reasons.join(', ')}.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { if (pendingConfirm) applyMatch(pendingConfirm); setPendingConfirm(null); }}>
+              Confirm &amp; use
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminShell>
   );
 }
