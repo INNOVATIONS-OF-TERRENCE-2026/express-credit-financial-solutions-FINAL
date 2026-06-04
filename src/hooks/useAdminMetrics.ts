@@ -54,20 +54,7 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
       monthStart.setDate(1);
       monthStart.setHours(0, 0, 0, 0);
 
-      const [
-        totalClients,
-        activeClients,
-        onboardingClients,
-        flaggedDisputes,
-        disputesNeedReview,
-        paymentsNeedsReview,
-        reportsUploaded,
-        disputesInProgress,
-        documentsPending,
-        paymentsPending,
-        agreementsPending,
-        mortgageReady,
-      ] = await Promise.all([
+      const tasks: Promise<number>[] = [
         countHead(supabase.from('clients').select('id', { count: 'exact', head: true })),
         countHead(supabase.from('clients').select('id', { count: 'exact', head: true }).eq('status', 'active')),
         countHead(supabase.from('clients').select('id', { count: 'exact', head: true }).neq('onboarding_status', 'complete')),
@@ -80,7 +67,13 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
         countHead(supabase.from('payment_records').select('id', { count: 'exact', head: true }).eq('payment_status', 'pending')),
         countHead(supabase.from('client_agreements').select('id', { count: 'exact', head: true }).is('signed_at', null)),
         countHead(supabase.from('clients').select('id', { count: 'exact', head: true }).eq('mortgage_readiness_status', 'ready')),
-      ]);
+      ];
+      const r = await Promise.all(tasks);
+      const [
+        totalClients, activeClients, onboardingClients, flaggedDisputes, disputesNeedReview,
+        paymentsNeedsReview, reportsUploaded, disputesInProgress, documentsPending,
+        paymentsPending, agreementsPending, mortgageReady,
+      ] = r;
 
       // Aggregates from clients override fields
       const { data: aggRows } = await supabase
