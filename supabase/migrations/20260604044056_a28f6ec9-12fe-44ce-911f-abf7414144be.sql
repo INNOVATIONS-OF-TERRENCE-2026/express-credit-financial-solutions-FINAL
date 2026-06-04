@@ -1,0 +1,6 @@
+ALTER TABLE public.document_archive
+  ALTER COLUMN user_id DROP NOT NULL,
+  ALTER COLUMN file_name DROP NOT NULL,
+  ALTER COLUMN file_path DROP NOT NULL,
+  ALTER COLUMN file_type DROP NOT NULL,
+  ALTER COLUMN document_type DROP NOT NULL;

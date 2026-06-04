@@ -1956,15 +1956,15 @@ export type Database = {
           client_id: string | null
           created_at: string
           doc_type: string | null
-          document_type: string
-          file_name: string
-          file_path: string
+          document_type: string | null
+          file_name: string | null
+          file_path: string | null
           file_size: number | null
-          file_type: string
+          file_type: string | null
           id: string
           upload_date: string
           uploaded_file_url: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           ai_analysis?: string | null
@@ -1972,15 +1972,15 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           doc_type?: string | null
-          document_type: string
-          file_name: string
-          file_path: string
+          document_type?: string | null
+          file_name?: string | null
+          file_path?: string | null
           file_size?: number | null
-          file_type: string
+          file_type?: string | null
           id?: string
           upload_date?: string
           uploaded_file_url?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           ai_analysis?: string | null
@@ -1988,15 +1988,15 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           doc_type?: string | null
-          document_type?: string
-          file_name?: string
-          file_path?: string
+          document_type?: string | null
+          file_name?: string | null
+          file_path?: string | null
           file_size?: number | null
-          file_type?: string
+          file_type?: string | null
           id?: string
           upload_date?: string
           uploaded_file_url?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
