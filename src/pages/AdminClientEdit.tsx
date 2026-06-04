@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { BackButton } from '@/components/BackButton';
 import { AdminNotesPanel } from '@/components/AdminNotesPanel';
+import { ResultsOverridePanel } from '@/components/admin/ResultsOverridePanel';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
@@ -395,6 +396,9 @@ export default function AdminClientEdit() {
                 <Zap className="h-4 w-4 mr-2" />{generating ? 'Generating...' : 'Generate Disputes'}
               </Button>
             </div>
+
+            {/* Results Override (Client Portal Sync) */}
+            <ResultsOverridePanel clientId={client.id} />
           </div>
 
           {/* Right column - Admin Notes */}
