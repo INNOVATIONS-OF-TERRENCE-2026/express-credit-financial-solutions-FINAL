@@ -28,8 +28,8 @@ export function OnboardingChecklist({ userId, clientId, onJumpTab }: Props) {
       setLoading(true);
       const [profile, idDoc, ssnDoc, report, agreement, dispute] = await Promise.all([
         supabase.from('profiles').select('first_name,last_name,date_of_birth').eq('user_id', userId).maybeSingle(),
-        supabase.from('client_documents').select('id').eq('user_id', userId).eq('document_type', 'government_id').limit(1),
-        supabase.from('client_documents').select('id').eq('user_id', userId).eq('document_type', 'ssn').limit(1),
+        supabase.from('document_archive').select('id').eq('user_id', userId).eq('document_type', 'government_id').limit(1),
+        supabase.from('document_archive').select('id').eq('user_id', userId).eq('document_type', 'ssn').limit(1),
         supabase.from('credit_reports').select('id').eq('client_id', clientId).limit(1),
         supabase.from('client_agreements').select('id').eq('user_id', userId).limit(1),
         supabase.from('dispute_letters').select('id').eq('client_id', clientId).limit(1),

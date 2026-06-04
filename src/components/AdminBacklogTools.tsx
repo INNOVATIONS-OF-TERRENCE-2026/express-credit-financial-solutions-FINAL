@@ -81,7 +81,7 @@ export async function fetchAllClientCases(): Promise<ClientCaseData[]> {
     supabase.from('flagged_disputes').select('user_id, id, dispute_letter_generated'),
     supabase.from('dispute_letters').select('user_id, id, case_status, status_updated_at'),
     supabase.from('client_agreements').select('user_id'),
-    supabase.from('client_documents').select('user_id, document_type'),
+    supabase.from('document_archive').select('user_id, document_type'),
   ]);
 
   const profiles = profilesRes.data || [];

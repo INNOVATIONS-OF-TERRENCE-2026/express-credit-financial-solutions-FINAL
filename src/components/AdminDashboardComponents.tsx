@@ -62,7 +62,7 @@ export function AdminDashboardComponents({ userEmail }: AdminDashboardComponents
 
       // Fetch dispute timeline
       const { data: disputesData, error: disputesError } = await supabase
-        .from('dispute_timeline')
+        .from('dispute_letters')
         .select(`
           *,
           profiles!inner(email)

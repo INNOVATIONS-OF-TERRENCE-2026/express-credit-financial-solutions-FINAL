@@ -119,7 +119,7 @@ export function AdminCRMFixedPanel() {
     try {
       // Fetch identity documents
       const { data: docsData, error: docsError } = await supabase
-        .from('identity_docs')
+        .from('document_archive')
         .select('*')
         .eq('client_id', selectedClient)
         .order('created_at', { ascending: false });
@@ -162,7 +162,7 @@ export function AdminCRMFixedPanel() {
       let error;
       
       if (type === 'identity') {
-        ({ error } = await supabase.from('identity_docs').delete().eq('id', docId));
+        ({ error } = await supabase.from('document_archive').delete().eq('id', docId));
       } else if (type === 'credit') {
         ({ error } = await supabase.from('credit_reports').delete().eq('id', docId));
       } else {

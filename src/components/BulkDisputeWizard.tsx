@@ -249,7 +249,7 @@ export function BulkDisputeWizard() {
 
         // Insert timeline entries
         const { error: timelineError } = await supabase
-          .from('dispute_timeline')
+          .from('dispute_letters')
           .insert(timelineEntries);
 
         if (timelineError) {

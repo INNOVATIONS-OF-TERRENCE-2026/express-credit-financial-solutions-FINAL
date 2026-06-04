@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, FileText, CreditCard, GraduationCap, LogOut, Settings, Shield, Snowflake, TrendingUp, Sparkles, Menu, Search } from 'lucide-react';
+import { Home, FileText, CreditCard, LogOut, Settings, Shield, Menu, Search, LayoutDashboard, Wallet } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { cn } from '@/lib/utils';
@@ -33,16 +33,12 @@ export function NavigationHeader() {
   };
 
   const navItems = [
-    { label: 'Dashboard', path: '/', icon: Home, accessible: hasAccess('dashboard') },
-    { label: 'SBA Portal', path: '/sba-portal', icon: Shield, accessible: true },
-    { label: 'Data Freeze', path: '/data-freeze', icon: Snowflake, accessible: hasAccess('dispute-generator') },
-    { label: 'Dispute Center', path: '/dispute-center', icon: FileText, accessible: hasAccess('dispute-generator') },
-    { label: 'Documents', path: '/documents', icon: CreditCard, accessible: hasAccess('credit-upload') },
-    { label: 'Credit Report', path: '/upload-credit-report', icon: FileText, accessible: hasAccess('credit-upload') },
-    { label: 'Education', path: '/education', icon: GraduationCap, accessible: hasAccess('education') },
-    { label: 'Credit Building', path: '/credit-building', icon: TrendingUp, accessible: hasAccess('credit-building') },
-    { label: 'Credit Monitoring', path: '/credit-monitoring', icon: TrendingUp, accessible: hasAccess('dashboard') },
-    { label: 'AI Assistant', path: '/ai-assistant', icon: Sparkles, accessible: hasAccess('dashboard') },
+    { label: 'Home', path: '/', icon: Home, accessible: true },
+    { label: 'Client Portal', path: '/client/dashboard', icon: LayoutDashboard, accessible: hasAccess('dashboard') },
+    { label: 'Disputes', path: '/client/disputes', icon: FileText, accessible: hasAccess('dispute-generator') },
+    { label: 'Documents', path: '/client/documents', icon: CreditCard, accessible: hasAccess('credit-upload') },
+    { label: 'Payments', path: '/client/payments', icon: Wallet, accessible: true },
+    { label: 'SBA Portal', path: '/sba', icon: Shield, accessible: true },
     { label: 'Membership', path: '/membership', icon: Settings, accessible: true },
   ];
 
