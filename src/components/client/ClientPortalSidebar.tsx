@@ -66,9 +66,8 @@ export function ClientPortalSidebar() {
       </SidebarHeader>
       <SidebarContent>
         {GROUPS.map((group) => {
-          const groupActive = group.items.some((i) => isActive(i.to));
           return (
-            <SidebarGroup key={group.label} defaultOpen={groupActive || true}>
+            <SidebarGroup key={group.label}>
               {!collapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu>

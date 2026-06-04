@@ -75,9 +75,8 @@ export function AdminSidebar() {
       </SidebarHeader>
       <SidebarContent>
         {GROUPS.map((group) => {
-          const groupActive = group.items.some((i) => isActive(i.to, i.exact));
           return (
-            <SidebarGroup key={group.label} defaultOpen={groupActive || true}>
+            <SidebarGroup key={group.label}>
               {!collapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu>
