@@ -929,6 +929,15 @@ function ClientRow({
       <TableCell className="font-medium">{client.full_name}</TableCell>
       <TableCell>{client.email}</TableCell>
       <TableCell>{client.phone}</TableCell>
+      <TableCell>
+        {client.membership_type ? (
+          <Badge variant="outline" className="capitalize text-[10px]">
+            {client.membership_type.replace(/_/g, ' ')}
+          </Badge>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
+      </TableCell>
       <TableCell><ClientPaymentInfo userId={client.user_id} /></TableCell>
       <TableCell>
         {statsLoaded ? (
