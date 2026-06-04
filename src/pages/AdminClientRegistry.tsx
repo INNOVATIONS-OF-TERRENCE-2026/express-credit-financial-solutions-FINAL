@@ -13,7 +13,7 @@ import { useClientRegistry, logRegistryAction, type MissingProfile, type OrphanI
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
-import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History, Download } from 'lucide-react';
+import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History, Download, Zap } from 'lucide-react';
 
 const TAG_STYLES: Record<RegistryTag, string> = {
   'Registered': 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
@@ -60,6 +60,27 @@ export default function AdminClientRegistry() {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [bulkPreviewOpen, setBulkPreviewOpen] = useState(false);
   const [bulkRunning, setBulkRunning] = useState(false);
+  const [engineRunning, setEngineRunning] = useState(false);
+  const [enginePreview, setEnginePreview] = useState<any>(null);
+  const [engineLast, setEngineLast] = useState<any>(null);
+
+  const runEngine = async (dryRun: boolean) => {
+    setEngineRunning(true);
+    try {
+      const { data, error } = await (supabase as any).rpc('reconcile_client_links', { dry_run: dryRun });
+      if (error) throw error;
+      if (dryRun) setEnginePreview(data);
+      else { setEngineLast(data); setEnginePreview(null); await snap.refresh(); }
+      toast({
+        title: dryRun ? 'Dry run complete' : 'Reconciliation executed',
+        description: `Profiles linked: ${data.profiles_linked_to_clients} · Reports: ${data.reports_relinked} · Payments: ${data.payments_relinked} · Agreements: ${data.agreements_relinked} · Disputes: ${data.disputes_relinked} · Documents: ${data.documents_relinked}`,
+      });
+    } catch (e: any) {
+      toast({ title: 'Engine failed', description: e?.message || String(e), variant: 'destructive' });
+    } finally {
+      setEngineRunning(false);
+    }
+  };
 
   if (!rolesLoading && !isAdmin()) {
     navigate('/');
@@ -410,6 +431,7 @@ export default function AdminClientRegistry() {
             <TabsTrigger value="orphans">Orphan Identities ({snap.orphanIdentities.length})</TabsTrigger>
             <TabsTrigger value="duplicates">Possible Duplicates ({snap.totals.possibleDuplicates})</TabsTrigger>
             <TabsTrigger value="needs-link">Needs Portal Link ({snap.needsPortalLink.length})</TabsTrigger>
+            <TabsTrigger value="engine">Reconciliation Engine</TabsTrigger>
             <TabsTrigger value="audit">Audit Trail ({snap.recentAudit.length})</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
           </TabsList>
@@ -682,6 +704,56 @@ export default function AdminClientRegistry() {
             </Card>
           </TabsContent>
 
+          {/* Reconciliation Engine */}
+          <TabsContent value="engine" className="space-y-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2"><Zap className="h-4 w-4" /> Deterministic reconciliation engine</CardTitle>
+                <CardDescription>
+                  Backfills <code>clients.user_id</code> from profiles by unique email match, then backfills <code>client_id</code> across
+                  payments, credit reports, agreements, dispute letters, and documents whenever <code>user_id</code> resolves to exactly one client.
+                  Never overwrites existing links. Never merges duplicates. Every run is logged to <code>audit_logs</code>.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex gap-2 flex-wrap">
+                  <Button size="sm" variant="outline" onClick={() => runEngine(true)} disabled={engineRunning}>
+                    {engineRunning ? 'Running…' : 'Dry run preview'}
+                  </Button>
+                  <Button size="sm" onClick={() => runEngine(false)} disabled={engineRunning || !enginePreview}>
+                    Execute reconciliation
+                  </Button>
+                  {enginePreview && (
+                    <Button size="sm" variant="ghost" onClick={() => setEnginePreview(null)} disabled={engineRunning}>Clear preview</Button>
+                  )}
+                </div>
+                {!enginePreview && !engineLast && (
+                  <p className="text-xs text-muted-foreground">Start with a dry run to see exactly what will change before executing.</p>
+                )}
+                {(enginePreview || engineLast) && (
+                  <div className="rounded border border-border/60 p-3 text-sm space-y-1">
+                    <p className="font-medium">
+                      {enginePreview ? 'Dry run preview' : 'Last execution result'}
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {new Date((enginePreview || engineLast).ran_at).toLocaleString()}
+                      </span>
+                    </p>
+                    {(['profiles_linked_to_clients','profiles_skipped_ambiguous','reports_relinked','payments_relinked','agreements_relinked','disputes_relinked','documents_relinked'] as const).map((k) => {
+                      const v = (enginePreview || engineLast)[k] ?? 0;
+                      return (
+                        <div key={k} className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">{k.replace(/_/g, ' ')}</span>
+                          <span className={v > 0 ? 'font-semibold' : ''}>{v}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Audit Trail (rendered list) */}
           {/* Checklist */}
           <TabsContent value="checklist" className="space-y-3">
             <Card>
