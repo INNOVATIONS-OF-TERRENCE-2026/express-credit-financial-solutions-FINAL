@@ -60,6 +60,27 @@ export default function AdminClientRegistry() {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [bulkPreviewOpen, setBulkPreviewOpen] = useState(false);
   const [bulkRunning, setBulkRunning] = useState(false);
+  const [engineRunning, setEngineRunning] = useState(false);
+  const [enginePreview, setEnginePreview] = useState<any>(null);
+  const [engineLast, setEngineLast] = useState<any>(null);
+
+  const runEngine = async (dryRun: boolean) => {
+    setEngineRunning(true);
+    try {
+      const { data, error } = await (supabase as any).rpc('reconcile_client_links', { dry_run: dryRun });
+      if (error) throw error;
+      if (dryRun) setEnginePreview(data);
+      else { setEngineLast(data); setEnginePreview(null); await snap.refresh(); }
+      toast({
+        title: dryRun ? 'Dry run complete' : 'Reconciliation executed',
+        description: `Profiles linked: ${data.profiles_linked_to_clients} · Reports: ${data.reports_relinked} · Payments: ${data.payments_relinked} · Agreements: ${data.agreements_relinked} · Disputes: ${data.disputes_relinked} · Documents: ${data.documents_relinked}`,
+      });
+    } catch (e: any) {
+      toast({ title: 'Engine failed', description: e?.message || String(e), variant: 'destructive' });
+    } finally {
+      setEngineRunning(false);
+    }
+  };
 
   if (!rolesLoading && !isAdmin()) {
     navigate('/');
