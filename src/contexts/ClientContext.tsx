@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { resolveClientForPortal } from '@/lib/clientResolver';
 
 export interface ResolvedClientContext {
   clientId: string | null;
@@ -8,6 +9,8 @@ export interface ResolvedClientContext {
   fullName: string | null;
   email: string | null;
   loading: boolean;
+  portalStatus: 'linked' | 'auto_linked' | 'pending_setup' | null;
+  pendingReason: string | null;
   refresh: () => Promise<void>;
   raw: any | null;
 }
@@ -22,27 +25,53 @@ export function ClientProvider({ children, overrideClientId }: { children: React
     fullName: null,
     email: null,
     loading: true,
+    portalStatus: null,
+    pendingReason: null,
     raw: null,
   });
 
   const load = async () => {
     setState((s) => ({ ...s, loading: true }));
     try {
-      let row: any = null;
       if (overrideClientId) {
         const { data } = await supabase.from('clients').select('*').eq('id', overrideClientId).maybeSingle();
-        row = data;
-      } else if (user) {
-        const { data } = await supabase.from('clients').select('*').eq('user_id', user.id).maybeSingle();
-        row = data;
+        setState({
+          clientId: data?.id ?? null,
+          userId: data?.user_id ?? user?.id ?? null,
+          fullName: data?.full_name ?? null,
+          email: data?.email ?? user?.email ?? null,
+          loading: false,
+          portalStatus: data ? 'linked' : 'pending_setup',
+          pendingReason: data ? null : 'no_match',
+          raw: data,
+        });
+        return;
       }
+
+      const resolution = await resolveClientForPortal(user);
+      if (resolution.status === 'pending_setup') {
+        setState({
+          clientId: null,
+          userId: user?.id ?? null,
+          fullName: null,
+          email: user?.email ?? null,
+          loading: false,
+          portalStatus: 'pending_setup',
+          pendingReason: resolution.reason,
+          raw: null,
+        });
+        return;
+      }
+      const c = resolution.client;
       setState({
-        clientId: row?.id ?? null,
-        userId: row?.user_id ?? user?.id ?? null,
-        fullName: row?.full_name ?? null,
-        email: row?.email ?? user?.email ?? null,
+        clientId: c.clientId,
+        userId: c.userId ?? user?.id ?? null,
+        fullName: c.fullName,
+        email: c.email ?? user?.email ?? null,
         loading: false,
-        raw: row,
+        portalStatus: resolution.status,
+        pendingReason: null,
+        raw: c.raw,
       });
     } catch {
       setState((s) => ({ ...s, loading: false }));
