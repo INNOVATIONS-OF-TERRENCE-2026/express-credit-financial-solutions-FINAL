@@ -277,6 +277,86 @@ export default function AdminClientRegistry() {
     }
   };
 
+  const escapeCsv = (v: string | number | null | undefined) => {
+    const s = String(v ?? '');
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  const exportReconciliationPreviewCsv = () => {
+    const now = new Date().toISOString().replace(/[:.]/g, '-');
+    const lines: string[] = [];
+
+    // Section 1: Summary
+    lines.push('Reconciliation Preview Summary');
+    lines.push(`Generated,${escapeCsv(now)}`);
+    lines.push(`Selected Records,${selectedCount}`);
+    lines.push(`Clients to Create,${bulkEval.toCreate.length}`);
+    lines.push(`Skipped Records,${bulkEval.toSkip.length}`);
+    lines.push(`Duplicate Risk Groups,${snap.duplicates.length}`);
+    lines.push('');
+
+    // Section 2: Selected Records
+    lines.push('Selected Records');
+    lines.push('User ID,First Name,Last Name,Email,Membership Type,Tags');
+    for (const p of bulkEval.selectedProfiles) {
+      const tags = (snap.profileTags[p.user_id] || []).join('; ');
+      lines.push([p.user_id, p.first_name, p.last_name, p.email, p.membership_type, tags].map(escapeCsv).join(','));
+    }
+    lines.push('');
+
+    // Section 3: Clients to Create
+    lines.push('Clients to Create');
+    lines.push('User ID,Full Name,Email,Membership Type,Portal Status,Admin Notes');
+    for (const p of bulkEval.toCreate) {
+      const fullName = [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || (p.email ? p.email.split('@')[0] : 'Unknown Client');
+      lines.push([p.user_id, fullName, p.email, p.membership_type || '', 'active', 'Bulk reconciliation'].map(escapeCsv).join(','));
+    }
+    lines.push('');
+
+    // Section 4: Links to Be Made (suggested matches among selected)
+    lines.push('Links to Be Made (Suggested Matches)');
+    lines.push('User ID,First Name,Last Name,Email,Suggested Client ID,Suggested Client Name,Confidence');
+    for (const p of bulkEval.selectedProfiles) {
+      if (p.suggested_client_id) {
+        lines.push([p.user_id, p.first_name, p.last_name, p.email, p.suggested_client_id, p.suggested_client_label, `${p.suggested_confidence}%`].map(escapeCsv).join(','));
+      }
+    }
+    if (!bulkEval.selectedProfiles.some((p) => p.suggested_client_id)) {
+      lines.push('No suggested links for selected records');
+    }
+    lines.push('');
+
+    // Section 5: Skipped Records
+    lines.push('Skipped Records');
+    lines.push('User ID,First Name,Last Name,Email,Skip Reason');
+    for (const { profile: p, reason } of bulkEval.toSkip) {
+      lines.push([p.user_id, p.first_name, p.last_name, p.email, reason].map(escapeCsv).join(','));
+    }
+    lines.push('');
+
+    // Section 6: Duplicate Risks
+    lines.push('Duplicate Risk Groups');
+    lines.push('Reason,Key,Client ID,Client Name,Email,Phone,User ID');
+    for (const g of snap.duplicates) {
+      for (const c of g.clients) {
+        lines.push([g.reason, g.key, c.id, c.full_name, c.email, c.phone, c.user_id || ''].map(escapeCsv).join(','));
+      }
+    }
+    if (snap.duplicates.length === 0) {
+      lines.push('No duplicate risks detected');
+    }
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reconciliation-preview-${now}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <AdminShell title="Client Registry">
       <div className="space-y-6">
