@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 import { useAdminMetrics } from '@/hooks/useAdminMetrics';
 import {
   Users, UserCheck, UserPlus, AlertCircle, FileSearch, Gavel,
-  FileText, Wallet, ScrollText, TrendingDown, XCircle, Home, DollarSign,
+  FileText, Wallet, ScrollText, TrendingDown, XCircle, Home, DollarSign, ShieldCheck,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -25,6 +25,7 @@ export function AdminKpiGrid() {
     { label: 'Debt Removed',           value: fmtMoney(m.totalDebtRemoved), icon: TrendingDown, to: '/admin/clients',                 tone: 'text-emerald-400' },
     { label: 'Accounts Deleted',       value: m.totalAccountsDeleted,   icon: XCircle,      to: '/admin/clients',                     tone: 'text-emerald-300' },
     { label: 'Mortgage Ready',         value: m.mortgageReadyClients,   icon: Home,         to: '/admin/clients?status=mortgage_ready', tone: 'text-amber-400' },
+    { label: 'FTC / 605B Ready',       value: m.ftcReadyClients,        icon: ShieldCheck,  to: '/admin/clients?status=ftc_ready',    tone: 'text-blue-400' },
     { label: 'Revenue This Month',     value: fmtMoney(m.monthlyRevenue), icon: DollarSign, to: '/admin/payments?status=approved',    tone: 'text-emerald-500' },
   ];
 

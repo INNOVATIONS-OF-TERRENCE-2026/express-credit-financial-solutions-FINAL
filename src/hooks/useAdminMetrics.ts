@@ -14,6 +14,7 @@ export interface AdminMetrics {
   totalDebtRemoved: number;
   totalAccountsDeleted: number;
   mortgageReadyClients: number;
+  ftcReadyClients: number;
   monthlyRevenue: number;
   loading: boolean;
   error: string | null;
@@ -32,6 +33,7 @@ const empty: Omit<AdminMetrics, 'loading' | 'error'> = {
   totalDebtRemoved: 0,
   totalAccountsDeleted: 0,
   mortgageReadyClients: 0,
+  ftcReadyClients: 0,
   monthlyRevenue: 0,
 };
 
@@ -70,12 +72,13 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
         countHead('payment_records', (q) => q.eq('payment_status', 'pending')),
         countHead('client_agreements', (q) => q.is('signed_at', null)),
         countHead('clients', (q) => q.eq('mortgage_readiness_status', 'ready')),
+        countHead('clients', (q) => q.eq('ftc_readiness_status', 'ready')),
       ];
       const r = await Promise.all(tasks);
       const [
         totalClients, activeClients, onboardingClients, flaggedDisputes, disputesNeedReview,
         paymentsNeedsReview, reportsUploaded, disputesInProgress, documentsPending,
-        paymentsPending, agreementsPending, mortgageReady,
+        paymentsPending, agreementsPending, mortgageReady, ftcReady,
       ] = r;
 
       // Aggregates from clients override fields
@@ -107,6 +110,7 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
         totalDebtRemoved,
         totalAccountsDeleted,
         mortgageReadyClients: mortgageReady,
+        ftcReadyClients: ftcReady,
         monthlyRevenue,
         loading: false,
         error: null,
