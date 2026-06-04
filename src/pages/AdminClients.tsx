@@ -53,6 +53,9 @@ interface Client {
   updated_at: string;
   user_id?: string | null;
   membership_type?: string | null;
+  membership_plan?: string | null;
+  portal_status?: string | null;
+  portal_account_status?: 'linked' | 'email_match' | 'needs_invite';
 }
 
 interface ClientStats {
@@ -127,7 +130,32 @@ export default function AdminClients() {
           .in('user_id', userIds);
         (profs || []).forEach((p: any) => tierByUser.set(p.user_id, p.membership_type));
       }
-      setClients(rows.map((r) => ({ ...r, membership_type: r.user_id ? tierByUser.get(r.user_id) ?? null : null })));
+
+      // Detect email-match availability for unlinked clients (single batched query).
+      const unlinkedEmails = rows
+        .filter((r) => !r.user_id && r.email)
+        .map((r) => String(r.email).toLowerCase());
+      const matchedEmails = new Set<string>();
+      if (unlinkedEmails.length) {
+        const { data: profMatches } = await supabase
+          .from('profiles')
+          .select('email')
+          .in('email', unlinkedEmails);
+        (profMatches || []).forEach((p: any) => p?.email && matchedEmails.add(String(p.email).toLowerCase()));
+      }
+
+      setClients(
+        rows.map((r) => {
+          const profileTier = r.user_id ? tierByUser.get(r.user_id) ?? null : null;
+          const tier = r.membership_plan ?? profileTier;
+          const portal_account_status: 'linked' | 'email_match' | 'needs_invite' = r.user_id
+            ? 'linked'
+            : (r.email && matchedEmails.has(String(r.email).toLowerCase()))
+              ? 'email_match'
+              : 'needs_invite';
+          return { ...r, membership_type: tier, portal_account_status };
+        })
+      );
     } catch (error) {
       console.error('Error fetching clients:', error);
       toast({
@@ -339,19 +367,32 @@ export default function AdminClients() {
   const selectedUserIds = () => selectedClients().map((c) => c.user_id).filter(Boolean) as string[];
 
   const bulkChangeTier = async (newTier: string) => {
-    const uids = selectedUserIds();
-    if (!uids.length) {
-      toast({ title: 'No linked users', description: 'Selected clients have no user accounts to update.', variant: 'destructive' });
-      return;
-    }
+    const chosen = selectedClients();
+    if (!chosen.length) return;
+    const cids = chosen.map((c) => c.id);
+    const uids = chosen.map((c) => c.user_id).filter(Boolean) as string[];
     setBulkBusy('tier');
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ membership_type: newTier } as any)
-        .in('user_id', uids);
-      if (error) throw error;
-      toast({ title: 'Tier updated', description: `${uids.length} client(s) set to "${newTier}".` });
+      // Write to clients.membership_plan for ALL selected (works without auth user).
+      const { error: cErr } = await supabase
+        .from('clients')
+        .update({ membership_plan: newTier, updated_at: new Date().toISOString() } as any)
+        .in('id', cids);
+      if (cErr) throw cErr;
+
+      // Mirror to profiles.membership_type for the subset with linked auth users.
+      if (uids.length) {
+        const { error: pErr } = await supabase
+          .from('profiles')
+          .update({ membership_type: newTier } as any)
+          .in('user_id', uids);
+        if (pErr) throw pErr;
+      }
+
+      toast({
+        title: 'Tier updated',
+        description: `${cids.length} client(s) set to "${newTier}"${uids.length ? ` (${uids.length} portal profiles synced)` : ''}.`,
+      });
       setSelectedIds(new Set());
       await fetchClients();
     } catch (err: any) {
