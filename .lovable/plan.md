@@ -1,1505 +1,302 @@
-# MASTER ADMIN + CLIENT PORTAL REBUILD PROMPT
 
-## Original [ExpressCreditFinancials.org](http://ExpressCreditFinancials.org) Supabase Master Build
+# Express Credit Financial Solutions — Platform Rearchitecture Plan
 
-YOU ARE [LOVABLE.DEV](http://LOVABLE.DEV)’S CURRENT MOST ADVANCED AI MODEL OPERATING AS A SENIOR PRINCIPAL SOFTWARE ENGINEER, SUPABASE ARCHITECT, ENTERPRISE CRM ENGINEER, CREDIT REPAIR PLATFORM ARCHITECT, PRODUCT DESIGNER, DATABASE CLEANUP SPECIALIST, AND PRODUCTION-GRADE SAAS REFACTORING EXPERT.
+This is a **plan-only deliverable**. No code, schema, or routes will change until you approve a phase.
 
-PROJECT:
+---
 
-Express Credit & Financial Solutions original master build
+## 1. Current Architecture Map
 
-DOMAIN:
+**Auth / providers** (`src/App.tsx`): ErrorBoundary → QueryClient → Theme → SBAConfig → Auth → Roles → Membership → Tooltip → Router. Global: ScrollToTop, GlobalSearchCommand, FloatingChat.
 
-[https://expresscreditfinancials.org](https://expresscreditfinancials.org)
+**Route surface (~55 routes)** grouped by intent:
 
-BACKEND:
+- **Marketing / public:** `/`, `/membership`
+- **SBA sub-product (duplicated):** `/sba/*` and `/sba-portal/*` (8 pages × 2 = 16 routes)
+- **Client tools (legacy, scattered):** `/dispute-center`, `/data-freeze`, `/onboarding`, `/documents`, `/education`, `/credit-tracking`, `/credit-building`, `/goodwill-letters`, `/credit-monitoring`, `/upload-credit-report`, `/ai-assistant`, `/document-center`, `/score-tracker`, `/payments`, `/payment-history`
+- **Client portal (new canonical):** `/client/dashboard|results|reports|disputes|documents|payments|agreements|messages|settings` + legacy `/client/:slug` and `/client-portals`
+- **Admin (new canonical):** `/admin` (Command Center), `/admin/clients`, `/admin/clients/:id`, `/admin/client-preview/:id`, `/admin/upload-reports`, `/admin/reports`, `/admin/disputes`, `/admin/documents`, `/admin/payments`, `/admin/agreements`, `/admin/activity`, `/admin/settings`, `/admin/tools`
+- **Admin (legacy still mounted):** `/admin-dashboard`, `/admin/login`
 
-Supabase
+**Component inventory:** ~120 components in `src/components/` including 18 admin-only modules (WarBoard, ProcessingGrid, CasePipelineDashboard, ReviewQueue, AutonomousControlPanel, AdminAIControlPanel, CIPExecutionCenter, AutomationControlCenter, BacklogTools, CRMFixedPanel, ClientEditor, ClientOverview, CreditReportManager, CreditReportUploader, DailyOps, DashboardComponents, DocumentList, DocumentUploader, FileUploader, MobileNav, NotesPanel, Panel, Reminders, ReviewQueue, TaskEngine), 10+ client-overlap components (ClientDashboard, ClientPortal, ClientDocumentManager, ClientProfileDetail, ClientProgressTracker, ClientActivityTimeline, ClientNotificationsPanel, ClientAgreementModal, ClientLogin), 9 payment components (new), 5 SBA components.
 
-IMPORTANT:
+**Database (87 tables)** — already production. Manual override columns recently added to `clients` (starting/current scores per bureau, accounts_deleted_count, debt_removed_total, hard_inquiries_removed, personal_info_items_removed, remaining_negatives, current_dispute_round, mortgage_readiness_status, ftc_readiness_status, next_step_note, onboarding_status). Live tables for: payment_records, payment_activity_events, client_payment_summary, client_activity_timeline, dispute_cases, dispute_letters, flagged_disputes, credit_report_uploads, document_uploads, client_agreements, client_notifications, user_roles, profiles.
 
-This is the original production build.
+---
 
-Do NOT use Lovable Cloud for this task.
+## 2. User Journey Audit (current state issues)
 
-Do NOT create a new app.
+**Owner / Admin**
+- Two competing dashboards (`/admin` vs `/admin-dashboard`) — confusion about which is canonical.
+- Multiple client managers overlap: `AdminClients`, `AdminClientEditor`, `AdminClientOverview`, `AdminCRMFixedPanel`, `ClientProcessingGrid`, `AdminWarBoard`. Same client reachable via 4 routes.
+- Reports, disputes, payments split between top-level admin pages, embedded panels in `/admin-dashboard`, and modules now hidden inside `/admin/tools`.
+- "Upload Credit Report" workflow exists in 3 places: `AdminCreditReportUploader`, `AdminUploadReports`, `EnhancedCreditReportUpload`.
 
-Do NOT rebuild from scratch.
+**Client**
+- Two parallel portals: legacy `/client/:slug` (ClientPortals + ClientPortal/ClientDashboard) and new `/client/dashboard` set. Both wired to data; users may land on either depending on entry point.
+- Onboarding (`/onboarding`) disconnected from `/client/dashboard` (no post-onboarding redirect contract documented).
+- Client-facing routes outside the portal shell (`/upload-credit-report`, `/document-center`, `/payments`, `/dispute-center`, `/credit-monitoring`, `/credit-tracking`, `/score-tracker`, `/credit-building`, `/goodwill-letters`, `/education`, `/ai-assistant`) — same user, ten different chromes.
 
-Do NOT disconnect Supabase.
+**Owner / role gating**
+- No separate "Owner" role today (`user_roles` enum is admin/moderator/user). Owner = admin in practice. KPIs already wired via `useAdminMetrics`; mortgage-ready + revenue exist; FTC-ready aggregation does not.
 
-Do NOT destroy existing data.
+---
 
-Do NOT create duplicate auth.
+## 3. Navigation Audit
 
-Do NOT create duplicate Supabase clients.
+Current admin sidebar already matches the target 11 items. Problems:
+- `/admin-dashboard` (legacy) is still discoverable and contains widgets that duplicate Command Center.
+- Client-side has no unified navigation — every legacy page renders its own header or none.
+- Public site (`/`) advertises pages (`/credit-tracking`, `/credit-building`, `/goodwill-letters`, `/education`) that are technically client-portal features.
 
-Do NOT add more clutter.
+---
 
-Do NOT create fake/demo dashboard data.
+## 4. Component Audit — Disposition
 
-Do NOT implement AI first.
+| Disposition | Components |
+|---|---|
+| **Keep as primary** | `AdminShell`, `AdminSidebar`, `AdminCommandCenter`, `AdminKpiGrid`, `AdminClients`, `AdminClientEdit` (+`ResultsOverridePanel`), `AdminUploadReports` (+`ClientMatchEnginePanel`), `AdminReportsList`, `AdminDisputesPage`, `AdminDocumentsPage`, `AdminPaymentsPage` (+payments/* widgets), `AdminAgreementsPage`, `AdminActivityPage`, `AdminSettings`, `AdminTools`, `ClientPortalLayout`, `ClientPortalSidebar`, all `pages/client/*` |
+| **Merge into primary** | `AdminClientOverview`, `AdminClientEditor`, `AdminCRMFixedPanel`, `ClientProfileDetail`, `ClientDetailOperations` → into `AdminClientEdit`. `AdminCreditReportUploader`, `AdminCreditReportManager`, `EnhancedCreditReportUpload`, `CreditReportUpload`, `UnifiedUploader` → into `AdminUploadReports`. `AdminDocumentList`, `AdminDocumentUploader`, `ClientDocumentManager`, `DocumentArchive`, `BulkDocumentIntelligence` → into `AdminDocumentsPage`. `FlaggedDisputesTable`, `DisputeCommandCenter`, `DisputeTimelineTracker`, `BulkDisputeWizard` → into `AdminDisputesPage`. `AdminTaskEngine`, `AdminReminders`, `AdminNotesPanel`, `AdminDailyOps`, `AdminAuditLogPanel`, `AdminPanel`, `AdminDashboardComponents` → distributed into Command Center / Activity / Settings. |
+| **Move to `/admin/tools` (already done)** | War Board, Processing Grid, Case Pipeline, Review Queue, Autonomous, AI Control, CIP, Automation Center, Backlog Tools |
+| **Remove from nav, keep file for now** | `AdminDashboard` (legacy `/admin-dashboard`), `AdminMobileNav` (replaced by sidebar), `ClientPortal`, `ClientDashboard` (legacy), `ClientNotificationsPanel` legacy widget, `ClientProgressTracker` standalone, `OpenAITestPanel`, `OnboardingTour` (re-evaluate later) |
+| **Consolidate as client portal pages** | `CreditScoreTracker`, `CreditTracking`, `CreditMonitoring`, `CreditBuildingCenter`, `GoodwillLetters`, `Education`/`EducationCenter`, `DocumentUploadCenter`, `DocumentUpload`, `CreditReportUploadPage`, `AICreditAssistantPage`, `DisputeCenter`, `DataFreezeCenter`, `PaymentsPage`, `PaymentHistoryPage` → become tabs/sections under `/client/*` or removed from client nav |
+| **Keep as separate sub-product** | All SBA pages (but dedupe `/sba` vs `/sba-portal` — pick one canonical) |
 
-MISSION:
+---
 
-Fully audit, clean, simplify, redesign, and repair the entire admin dashboard and client portal system so Express Credit & Financial Solutions operates like a premium white-label credit repair CRM.
+## 5. Route Audit — Proposed Disposition
 
-The current system has too many disconnected modules, incorrect dashboard metrics, broken client workflows, weak portal UI, duplicate routes, confusing navigation, and inconsistent client/user/profile mapping.
+**Remove from nav (return 301 → canonical):**
+- `/admin-dashboard` → `/admin`
+- `/sba-portal/*` → `/sba/*` (or reverse — pick one)
+- `/payments`, `/payment-history` → `/client/payments`
+- `/upload-credit-report`, `/document-center`, `/documents` → `/client/documents`
+- `/dispute-center`, `/data-freeze` → `/client/disputes`
+- `/credit-tracking`, `/credit-monitoring`, `/score-tracker` → `/client/results`
+- `/credit-building`, `/goodwill-letters`, `/education` → `/client/resources` (new single page) or hide
+- `/ai-assistant` → hide until Phase 10
+- `/client-portals`, `/client/:slug` → `/client/dashboard` (admin-only preview keeps `/admin/client-preview/:id`)
+
+**Keep:** `/`, `/membership`, `/onboarding`, `/admin/login`, all `/admin/*` canonical, all `/client/*` canonical, `/sba/*` canonical.
+
+Result: ~55 routes → **~25 routes**.
+
+---
 
-Your job is to turn the original master build into a clean, premium, working operating system.
+## 6. Database Audit
 
-==================================================
+Schema is sound. Findings:
+- `clients` has the manual-override columns required for Phase 8. No new tables needed for Phases 1–9.
+- Missing aggregate: FTC/605B readiness count — already a column (`ftc_readiness_status`), just needs to be added to `useAdminMetrics`.
+- `client_activity_timeline` is in use; needs writes from upload/dispute/payment/agreement flows (most already covered by triggers; verify documents + agreements).
+- `client_payment_summary` populated by triggers — verified.
+- Duplicate concepts: `credit_reports` vs `Credit Reports` vs `credit_report_uploads`. Recommend standardizing reads on `credit_report_uploads` (already in use across new admin pages); leave the older tables untouched but stop writing to them.
+- No schema migration is part of this plan. Any future change will be a separate approved migration.
 
-PHASE 0 — DATABASE TRUTH AUDIT FIRST
+---
 
-====================================
+## 7. Duplicate Functionality Report
 
-Before changing any code, perform a full Supabase database truth audit.
+| Area | Duplicates | Canonical |
+|---|---|---|
+| Admin dashboard | `/admin`, `/admin-dashboard` | `/admin` |
+| Client portal | `/client/:slug`, `/client/dashboard` | `/client/dashboard` |
+| Client edit | `AdminClientEdit`, `AdminClientEditor`, `AdminClientOverview`, `AdminCRMFixedPanel` | `AdminClientEdit` |
+| Report upload | `AdminUploadReports`, `AdminCreditReportUploader`, `EnhancedCreditReportUpload`, `CreditReportUploadPage` | `AdminUploadReports` (admin) + `/client/reports` (client view) |
+| Documents | `AdminDocumentsPage`, `DocumentUploadCenter`, `DocumentUpload`, `ClientDocumentManager`, `DocumentArchive` | `AdminDocumentsPage` + `/client/documents` |
+| Disputes | `AdminDisputesPage`, `DisputeCommandCenter`, `DisputeCenter`, `BulkDisputeWizard`, `FlaggedDisputesTable` | `AdminDisputesPage` + `/client/disputes` |
+| Payments | `AdminPaymentsPage`, `PaymentsPage`, `PaymentHistoryPage` | `AdminPaymentsPage` + `/client/payments` |
+| Score views | `CreditScoreTracker`, `CreditTracking`, `CreditMonitoring`, `ScorePredictionCard` | `/client/results` |
+| SBA | `/sba/*`, `/sba-portal/*` | `/sba/*` |
+
+---
+
+## 8. Dead / Abandoned Feature Report
+
+- `OpenAITestPanel` — dev artifact
+- `DemoUserBanner` + `demo_users` table — appears unused in current routes
+- `OnboardingTour` — not wired to current portal shell
+- `ChatHistoryPanel` + `chat_history` — present, unused outside AI assistant
+- `FloatingChat` global — visible on every route, including admin and public site (decide: keep on client portal only)
+- `MailingLabelGenerator`, `MailingBundleDownloader` — orphaned from new dispute flow
+- `PlaidBankLink` + `create-plaid-link-token` + `exchange-plaid-token` edge functions — present but not surfaced anywhere
+- `ReceiptGenerator` — not wired into payments flow
+- `score_predictions`, `predict-credit-score` edge function — not surfaced
+
+---
+
+## 9. UX Problems Report
+
+1. Two routes lead to "admin dashboard"; KPI numbers differ between them.
+2. Client identity collision: some flows use `auth.uid()` / `profile.id`, others use `clients.id`. (Match engine + ResultsOverridePanel are correct; legacy pages need audit.)
+3. No persistent shell on client pages outside `/client/*` — chrome changes per page.
+4. Public marketing nav links to deep client features, breaking funnel.
+5. Floating chat overlays admin tables.
+6. Too many "upload" entry points produce inconsistent results across `credit_report_uploads`, `documents`, `document_uploads`, `bulk_upload_files`.
+7. Admin sidebar exposes "Advanced Tools" — fine — but tool tabs themselves are not labeled as legacy.
+8. Mobile: admin sidebar collapses, but tables overflow; client portal lacks bottom nav.
+9. Empty-state copy is inconsistent ("No data", "Nothing yet", blank panels).
+10. Loading states inconsistent — some pages show skeletons, others spinners, others nothing.
 
-Audit every Supabase table.
+---
+
+## 10. Proposed New Information Architecture
 
-Identify:
+```text
+Marketing
+  /                       Landing
+  /membership             Plans
 
-* duplicate client tables
+Auth
+  /admin/login            Owner/Admin login
+  (client login lives in public site, redirects to /client/dashboard)
 
-* duplicate profile tables
+Client Portal              [shell: ClientPortalLayout]
+  /client/dashboard        Hero + KPIs + Next Step + Activity
+  /client/results          Bureau scores, deletions, debt removed, readiness
+  /client/reports          Uploaded credit reports + history
+  /client/disputes         Rounds, letters, status
+  /client/documents        Required + uploaded + status
+  /client/payments         Submit, history, receipts
+  /client/agreements       Sign + view
+  /client/messages         Notifications + admin notes (client-visible)
+  /client/settings         Profile, security
 
-* orphaned auth users
+Admin / Owner              [shell: AdminShell]
+  /admin                   Command Center (13 KPIs, activity feed)
+  /admin/clients           Single client list (search, filter)
+  /admin/clients/:id       Single client edit (tabs: Overview, Results Override, Reports, Disputes, Documents, Payments, Agreements, Notes, Activity)
+  /admin/upload-reports    Upload + Match Engine
+  /admin/reports           All reports across clients
+  /admin/disputes          All disputes across clients
+  /admin/documents         Document review queue
+  /admin/payments          Payment review + history
+  /admin/agreements        Agreement status
+  /admin/activity          Cross-client activity stream
+  /admin/settings          Roles, branding, integrations
+  /admin/tools             Advanced/legacy modules (War Board, Pipeline, etc.)
 
-* orphaned client records
+SBA sub-product
+  /sba, /sba/precheck, /sba/consent, /sba/intake, /sba/documents, /sba/packet, /sba/dashboard, /sba/admin
+```
 
-* orphaned profile records
+---
 
-* broken foreign key relationships
+## 11. Proposed New Navigation Structure
 
-* tables with no active code references
+**Admin sidebar (already correct):** Dashboard, Clients, Upload Reports, Reports & Results, Disputes, Documents, Payments, Agreements, Activity, Settings, Advanced Tools.
 
-* tables used by old/deprecated modules
+**Client sidebar:** Dashboard, Results, Reports, Disputes, Documents, Payments, Agreements, Messages, Settings.
 
-* dead tables
+**Public top nav:** Home, Pricing, Login. (No deep links into client features.)
 
-* active tables
+**Client `/admin/clients/:id` tabs:** Overview · Results Override · Reports · Disputes · Documents · Payments · Agreements · Notes · Activity.
 
-* legacy tables
+---
 
-* tables feeding real dashboards
+## 12. Proposed New Admin Experience
 
-* tables not feeding anything
+After login (admin role) → `/admin` Command Center.
 
-* tables containing client portal data
+- Above the fold: 13 KPI tiles (already built) wired to `useAdminMetrics` + new FTC-ready aggregate.
+- Row 2: Clients needing action (flagged disputes, payments needing review, documents pending) — each row is one click to that client.
+- Row 3: Cross-client activity feed (latest 20 events from `client_activity_timeline`).
+- Sidebar always visible; mobile collapses to icon rail.
+- Every client reachable in ≤2 clicks: Command Center → Clients → row click; or Command Center → action card → client.
 
-* tables containing uploaded documents
+---
 
-* tables containing credit reports
+## 13. Proposed New Client Experience
 
-* tables containing dispute data
+After login (user role with `clients` row) → `/client/dashboard`.
 
-* tables containing payment data
+Above the fold:
+- Welcome + name + next-step banner.
+- Score snapshot (Starting / Current / Change).
+- Transformation tiles (Accounts Deleted, Debt Removed, Inquiries Removed, Personal Info Removed).
 
-* tables containing agreement/signature data
+Below:
+- Dispute Progress (round + remaining negatives + progress bar).
+- Payment summary card.
+- Documents needed, Agreements signed, Reports count (each one click to dedicated page).
+- Activity timeline (latest 10).
+- Empty-state copy when no data yet ("Your portal is set up…").
 
-* tables containing audit/activity logs
+Visual language: midnight black + deep navy background, gold primary, electric-blue accent, glass cards, consistent spacing, single H1 per page.
 
-Generate a DATABASE TRUTH REPORT with:
+---
 
-1. Table name
+## 14. Migration Plan (phased, surgical, no rebuilds)
 
-2. Purpose
+Each phase ships independently and is reversible.
 
-3. Record count
+**M1 — Route consolidation (frontend only):**
+- Add redirects from legacy routes to canonical (`/admin-dashboard` → `/admin`, `/payments` → `/client/payments`, etc.).
+- Keep legacy components mounted but unreachable from nav.
 
-4. Primary key
+**M2 — Client portal shell unification:**
+- Wrap remaining client-facing legacy pages (CreditScoreTracker, CreditMonitoring, DocumentUploadCenter, etc.) in `ClientPortalLayout` or fold their content into existing `/client/*` pages, then redirect.
 
-5. Relationship to clients/profiles/auth users
+**M3 — Admin client edit consolidation:**
+- Convert `AdminClientEdit` into a tabbed page; move content from `AdminClientEditor`, `AdminClientOverview`, `AdminCRMFixedPanel`, `ClientProfileDetail`, `ClientDetailOperations` into tabs; delete duplicate routes.
 
-6. Files using this table
+**M4 — Upload / Documents consolidation:**
+- Make `AdminUploadReports` the only admin upload entry; route legacy uploaders to it. Same for documents.
 
-7. Routes using this table
+**M5 — Public site cleanup:**
+- Remove deep client-feature links from `Index`/marketing.
+- Restrict `FloatingChat` to client portal only.
 
-8. Status:
+**M6 — KPI completeness:**
+- Add FTC/605B-ready count to `useAdminMetrics`.
+- Verify document + agreement events write to `client_activity_timeline`.
 
-   * Active
+**M7 — Visual polish pass:**
+- Standardize empty-states, loading states, table density, card radius, spacing tokens in `index.css` + `tailwind.config.ts`.
 
-   * Legacy
+**M8 — Dead code removal (only after M1–M7 ship and bake):**
+- Remove `OpenAITestPanel`, `DemoUserBanner`, orphaned mail/plaid/score-prediction surfaces (kept in git history).
 
-   * Duplicate
+**M9 (later) — AI roadmap:** out of scope here.
 
-   * Dead
+No database migration is part of M1–M8. No auth changes. No new tables. No new providers in `App.tsx`.
 
-   * Needs repair
+---
 
-9. Recommended action:
+## 15. Risk Analysis
 
-   * Keep
+| Risk | Likelihood | Mitigation |
+|---|---|---|
+| Breaking a live client bookmark (e.g. `/payments`) | High | All legacy routes become **redirects**, not 404s. |
+| Hidden dependency on `/admin-dashboard` widgets | Medium | Keep the page mounted but un-linked for 1 release; monitor logs. |
+| Auth/role regression | High | Do not touch `AuthProvider`, `RolesProvider`, `ProtectedRoute`, `user_roles`, or RLS. |
+| Client identity mix-up in consolidated edit page | High | All reads/writes continue to use `clients.id` + `client.user_id` as established in `ResultsOverridePanel` and `clientMatchEngine`. |
+| Visual regression on public site | Low | Marketing edits are limited to nav links + chat scope. |
+| Data loss on duplicate-component removal | Low | Removal happens last (M8), after redirects and consolidation are proven. |
+| Mobile regressions | Medium | Each phase includes mobile QA at 375 / 768 / 1024. |
 
-   * Merge
+---
 
-   * Hide
+## 16. Implementation Roadmap (build only after you approve each phase)
 
-   * Refactor
+1. **Approve plan** (this document).
+2. **M1 — Route consolidation** (1 PR, no schema).
+3. **M2 — Client shell unification** (1 PR).
+4. **M3 — Admin client edit tabs** (1 PR).
+5. **M4 — Upload/Documents consolidation** (1 PR).
+6. **M5 — Public site cleanup + chat scope** (1 PR).
+7. **M6 — KPI completeness** (1 PR; metric only, no schema).
+8. **M7 — Visual polish tokens** (1 PR).
+9. **M8 — Dead code removal** (1 PR).
+10. **M9 — AI roadmap** (separate plan).
 
-   * Leave untouched
+---
 
-Do NOT delete tables.
+## What I need from you
 
-Do NOT drop columns.
+Confirm one of:
+- **A)** Approve the full plan and let me begin **M1 (route consolidation)** next.
+- **B)** Approve the audit but reorder phases (tell me which to do first).
+- **C)** Request changes to the disposition lists in §4/§5/§7 before any build.
 
-Do NOT weaken RLS.
-
-This phase is audit-only unless a safe additive migration is explicitly required later.
-
-==================================================
-
-PHASE 1 — FULL CODEBASE AUDIT
-
-=============================
-
-Audit the entire existing build before implementation.
-
-Inspect:
-
-1. All admin dashboard routes
-
-2. All client portal routes
-
-3. All sidebar navigation items
-
-4. All dashboard components
-
-5. All client management components
-
-6. All portal management components
-
-7. All upload/report components
-
-8. All document components
-
-9. All dispute components
-
-10. All payment components
-
-11. All agreement/signature components
-
-12. All activity timeline components
-
-13. All auth/session logic
-
-14. All Supabase client logic
-
-15. All Supabase queries
-
-16. All role logic
-
-17. All client/user/profile mapping
-
-18. All route guards
-
-19. All hardcoded/demo/static data
-
-20. All dead buttons
-
-21. All duplicate dashboards
-
-22. All duplicate portals
-
-23. All duplicate admin surfaces
-
-Current known issues to verify:
-
-* AdminDashboard.tsx is too large and overloaded
-
-* Admin nav has too many disconnected modules
-
-* `/admin`, `/admin-dashboard`, `/admin/clients`, and inline admin sections compete with each other
-
-* liveCounts incorrectly derives totals from profiles instead of clients
-
-* onboarding counts are not accurate
-
-* client identity mapping drifts between auth.uid(), profiles.user_id, [clients.id](http://clients.id), and route params
-
-* resolveClient exists but is not used consistently
-
-* client portal uses hardcoded recent activity and static progress
-
-* ClientDashboard and ClientPortal duplicate logic
-
-* some modules render empty because queries do not match schema
-
-* admin has to click too deeply to manage clients
-
-* edit/view/upload workflows are not cleanly connected
-
-* client portal does not feel premium or data-driven
-
-==================================================
-
-PHASE 2 — ROOT ARCHITECTURE DECISION
-
-====================================
-
-Preserve:
-
-* Supabase Auth
-
-* existing AuthProvider
-
-* existing RolesProvider
-
-* existing user_roles table
-
-* existing has_role() function
-
-* existing Supabase client
-
-* existing payments system if working
-
-* existing agreements/signatures if working
-
-* existing document uploads if working
-
-* existing client data
-
-* existing credit report uploads
-
-Do NOT create replacement auth.
-
-Do NOT introduce a new backend.
-
-Do NOT destroy existing business logic.
-
-Consolidate the app into two clean experiences:
-
-1. ADMIN COMMAND CENTER
-
-2. PREMIUM CLIENT PORTAL
-
-Everything else must be merged, hidden, or moved to Advanced Tools.
-
-==================================================
-
-PHASE 3 — ADMIN COMMAND CENTER REBUILD
-
-======================================
-
-Replace the overloaded admin experience with one clean Admin Command Center.
-
-Route:
-
-/admin
-
-The Admin Command Center must show real Supabase data only.
-
-No fake numbers.
-
-No static dashboard metrics.
-
-No demo arrays.
-
-Top KPI cards:
-
-* Total Clients
-
-* Active Clients
-
-* New Onboarding Clients
-
-* Clients Needing Review
-
-* Reports Uploaded
-
-* Disputes In Progress
-
-* Documents Pending Review
-
-* Payments Pending
-
-* Agreements Pending
-
-* Total Debt Removed
-
-* Total Deleted Accounts
-
-* Mortgage Ready Clients
-
-* Clients Ready for FTC / 605B Review
-
-Owner business intelligence cards:
-
-* Monthly Revenue
-
-* Lifetime Revenue
-
-* Pending Payments
-
-* Approved Payments This Month
-
-* Average Score Increase
-
-* Total Accounts Deleted
-
-* Total Negative Debt Removed
-
-* Clients Needing Action Today
-
-Primary admin navigation must be simplified to:
-
-1. Command Center
-
-2. Clients
-
-3. Upload Reports
-
-4. Reports & Results
-
-5. Disputes
-
-6. Documents
-
-7. Payments
-
-8. Agreements
-
-9. Activity / Audit Logs
-
-10. Settings
-
-11. Advanced Tools
-
-Remove from primary navigation:
-
-* War Board
-
-* Processing Grid
-
-* Pipeline
-
-* Review Queue
-
-* Autonomous Mode
-
-* AI Execution
-
-* Client Portal Management
-
-* Full Admin Dashboard
-
-* Admin Client Manager
-
-* CIP Execution
-
-* Backlog Tools
-
-* Automation Center
-
-If these components contain useful logic, merge them into the simplified sections.
-
-If broken/static/duplicate, hide under `/admin/tools`.
-
-==================================================
-
-PHASE 4 — ADMIN CLIENT MANAGEMENT REBUILD
-
-=========================================
-
-Create one direct client management route:
-
-/admin/clients
-
-The admin must not have to dig through multiple dashboards to reach clients.
-
-Client table must show:
-
-* client full name
-
-* email
-
-* phone
-
-* portal status
-
-* onboarding status
-
-* payment/membership status
-
-* last report upload
-
-* last activity
-
-* current score if available
-
-* documents pending
-
-* disputes in progress
-
-* next action
-
-* action buttons
-
-Action buttons:
-
-* View Portal
-
-* Edit Client
-
-* Upload Report
-
-* Documents
-
-* Disputes
-
-* Payments
-
-* Notes
-
-All buttons must work.
-
-Rules:
-
-* Edit Client routes to `/admin/clients/:clientId`
-
-* View Portal routes to `/admin/client-preview/:clientId`
-
-* Upload Report routes to `/admin/upload-reports?clientId=<clientId>`
-
-* Documents routes to `/admin/documents?clientId=<clientId>`
-
-* Disputes routes to `/admin/disputes?clientId=<clientId>`
-
-* Payments routes to `/admin/payments?clientId=<clientId>`
-
-All row actions must pass `clients.id`.
-
-Never use admin auth.uid() as the selected client.
-
-==================================================
-
-PHASE 5 — CLIENT IDENTITY NORMALIZATION
-
-=======================================
-
-Normalize all identity mapping.
-
-The system must clearly distinguish:
-
-* [auth.users.id](http://auth.users.id)
-
-* profiles.user_id
-
-* [clients.id](http://clients.id)
-
-* clients.user_id
-
-* route clientId
-
-* portal clientSlug
-
-* report client_id
-
-* document client_id
-
-* payment client_id
-
-* agreement client_id
-
-* dispute client_id
-
-Rules:
-
-Admin-side:
-
-* Always use explicit `clientId`
-
-* `clientId` means `clients.id`
-
-* Admin preview uses `/admin/client-preview/:clientId`
-
-* Admin mutation components accept `clientId` as a required prop
-
-Client-side:
-
-* Client portal resolves current client once using authenticated user id
-
-* Use `resolveClient(user.id)`
-
-* Store resolved client in `ClientContext`
-
-* Pass `client.id` and `client.user_id` through the client portal
-
-Uploaders:
-
-* Always insert both `client_id` and `user_id` when available
-
-* No implicit auth.uid() fallback in admin upload tools
-
-Required utility:
-
-Create or harden:
-
-`src/contexts/ClientContext.tsx`
-
-`src/lib/resolveClient.ts`
-
-Use them consistently.
-
-==================================================
-
-PHASE 6 — PREMIUM CLIENT PORTAL REBUILD
-
-=======================================
-
-Create a premium client portal layout.
-
-Canonical route:
-
-/client/dashboard
-
-Client routes:
-
-/client/dashboard
-
-/client/results
-
-/client/reports
-
-/client/disputes
-
-/client/documents
-
-/client/payments
-
-/client/agreements
-
-/client/messages
-
-/client/settings
-
-Legacy route:
-
-/client/:clientSlug
-
-Keep for backwards compatibility, but redirect correctly:
-
-* client owner → `/client/dashboard`
-
-* admin → `/admin/client-preview/:clientId`
-
-Client portal must look like a premium white-label fintech dashboard.
-
-Visual style:
-
-* midnight black/navy background
-
-* gold accents
-
-* electric blue accents
-
-* glass cards
-
-* premium sidebar
-
-* clean top nav
-
-* notification bell
-
-* mobile responsive
-
-* no clutter
-
-* no admin tools visible to clients
-
-Client dashboard must show:
-
-Hero:
-
-“Welcome back, [Client Name]”
-
-“Your credit progress is being actively managed.”
-
-Cards:
-
-* Starting Score
-
-* Current Score
-
-* Score Change
-
-* Accounts Deleted
-
-* Debt Removed
-
-* Hard Inquiries Removed
-
-* Personal Info Items Removed
-
-* Remaining Negative Accounts
-
-* Current Dispute Round
-
-* Next Step
-
-Sections:
-
-1. Credit Transformation Snapshot
-
-2. Before vs Current Results
-
-3. Deleted Accounts
-
-4. Remaining Negative Accounts
-
-5. Hard Inquiry Updates
-
-6. Personal Information Updates
-
-7. Dispute Progress
-
-8. Documents Needed
-
-9. Signed Agreements
-
-10. Payment Status
-
-11. Activity Timeline
-
-12. Notifications / Updates
-
-IMPORTANT:
-
-NO STATIC CLIENT PORTAL DATA.
-
-Every client portal metric must come from:
-
-* credit reports
-
-* score history
-
-* dispute records
-
-* document records
-
-* payment records
-
-* agreement records
-
-* activity logs
-
-* manual admin override fields
-
-No fake activity arrays.
-
-No demo metrics.
-
-No static dispute progress.
-
-No placeholder results unless clearly shown as empty state.
-
-==================================================
-
-PHASE 7 — REAL DATA METRICS + HOOKS
-
-===================================
-
-Create:
-
-`src/hooks/useAdminMetrics.ts`
-
-`src/hooks/useClientPortalData.ts`
-
-Admin metrics must query real Supabase data:
-
-* Total Clients: clients count
-
-* Active Clients: clients where status = active
-
-* New Onboarding: onboarding_status != complete
-
-* Clients Needing Review: flagged disputes + dispute letters needing review + payment needs_review + documents pending
-
-* Reports Uploaded: credit_report_uploads count
-
-* Disputes In Progress: active dispute_cases
-
-* Documents Pending Review: document_uploads pending
-
-* Payments Pending: payment_records pending
-
-* Agreements Pending: client_agreements unsigned
-
-* Debt Removed: client override fields or resolved dispute result fields
-
-* Accounts Deleted: client override fields or resolved dispute result fields
-
-Client metrics must query real client data:
-
-* Starting score: first score_history or manual override
-
-* Current score: latest score_history or manual override
-
-* Score change: calculated
-
-* Accounts deleted: manual override or result records
-
-* Debt removed: manual override or result records
-
-* Inquiries removed: manual override or result records
-
-* Personal info removed: manual override or result records
-
-* Remaining negatives: manual override or current report/account state
-
-* Current dispute round: latest dispute_case
-
-* Next step: client next_step_note or latest activity/task
-
-==================================================
-
-PHASE 8 — BEFORE / AFTER + MANUAL OVERRIDE SYSTEM
-
-=================================================
-
-Because AI should be last, build manual/admin-controlled results first.
-
-Add safe additive columns to `clients` if missing:
-
-* starting_score_eq
-
-* starting_score_tu
-
-* starting_score_ex
-
-* current_score_eq
-
-* current_score_tu
-
-* current_score_ex
-
-* accounts_deleted_count
-
-* debt_removed_total
-
-* hard_inquiries_removed
-
-* personal_info_items_removed
-
-* remaining_negatives
-
-* current_dispute_round
-
-* next_step_note
-
-* mortgage_readiness_status
-
-* ftc_605b_readiness_status
-
-Do not drop anything.
-
-Admin Client Edit page must include:
-
-“Portal Results Override” section.
-
-Admin can manually update:
-
-* starting scores
-
-* current scores
-
-* accounts deleted
-
-* debt removed
-
-* hard inquiries removed
-
-* personal info removed
-
-* remaining negatives
-
-* dispute round
-
-* next step
-
-* mortgage readiness
-
-* FTC / 605B readiness
-
-Client portal reads these values immediately.
-
-This guarantees the portal can be accurate before AI automation exists.
-
-==================================================
-
-PHASE 9 — UPLOAD REPORT WORKFLOW REPAIR
-
-=======================================
-
-Route:
-
-/admin/upload-reports
-
-Workflow:
-
-1. Admin opens client row
-
-2. Clicks Upload Report
-
-3. Route opens with selected client preloaded
-
-4. Admin chooses:
-
-   * Before Report
-
-   * Updated Report
-
-   * Current Report
-
-   * Final Report
-
-5. Admin chooses bureau:
-
-   * Experian
-
-   * Equifax
-
-   * TransUnion
-
-   * 3-Bureau
-
-6. Upload saves to correct client
-
-7. Upload writes to report table
-
-8. Upload writes to storage
-
-9. Upload inserts activity timeline event
-
-10. Client portal updates reports page
-
-Uploader must accept explicit `clientId`.
-
-No implicit admin user id.
-
-==================================================
-
-PHASE 10 — CLIENT MATCH ENGINE WITHOUT AI FIRST
-
-===============================================
-
-Build deterministic client matching first.
-
-When a report is uploaded:
-
-Match using:
-
-1. selected clientId from admin action
-
-2. email if extracted or entered
-
-3. full name
-
-4. DOB if available
-
-5. SSN last 4 if available
-
-6. address if available
-
-Confidence score:
-
-* 100% = selected clientId direct match
-
-* 95%+ = strong match
-
-* 80–94% = require confirmation
-
-* below 80% = manual selection required
-
-Never silently attach a report to the wrong client.
-
-If confidence is below 95%, show admin confirmation.
-
-AI extraction comes later.
-
-==================================================
-
-PHASE 11 — FILE ORGANIZATION SYSTEM
-
-===================================
-
-Organize uploads automatically.
-
-Logical folder structure per client:
-
-Client Name
-
-├── Before Reports
-
-├── Updated Reports
-
-├── Final Reports
-
-├── Documents
-
-├── FTC
-
-├── 605B
-
-├── Agreements
-
-├── Payments
-
-├── Notes
-
-├── AI Audits
-
-Every upload should be tagged with:
-
-* client_id
-
-* user_id
-
-* file_type
-
-* bureau
-
-* upload_stage
-
-* uploaded_by
-
-* created_at
-
-If actual Supabase Storage folder paths are already established, preserve them and add metadata.
-
-Do not break old file URLs.
-
-==================================================
-
-PHASE 12 — PAYMENTS, AGREEMENTS, DOCUMENTS
-
-==========================================
-
-Preserve working payment system.
-
-Payments:
-
-* client sees own payment history
-
-* admin sees all payments
-
-* pending/approved/rejected statuses work
-
-* dashboard cards use payment_records and client_payment_summary
-
-Agreements:
-
-* client sees signed/pending agreements
-
-* admin sees signed/pending
-
-* status appears on dashboard
-
-Documents:
-
-* client can upload documents
-
-* admin can review documents
-
-* pending documents appear on admin dashboard
-
-* needed documents appear on client dashboard
-
-==================================================
-
-PHASE 13 — ACTIVITY + AUDIT LOGS
-
-================================
-
-Create unified activity pages.
-
-Admin:
-
-/admin/activity
-
-Shows:
-
-* audit_logs
-
-* client_activity_timeline
-
-* payment events
-
-* document events
-
-* report uploads
-
-* agreement events
-
-* dispute updates
-
-Client:
-
-Activity Timeline on dashboard.
-
-Client only sees visible_to_client = true events.
-
-==================================================
-
-PHASE 14 — ADVANCED TOOLS CONSOLIDATION
-
-=======================================
-
-Move old experimental modules to:
-
-/admin/tools
-
-Include:
-
-* War Board
-
-* Processing Grid
-
-* Pipeline
-
-* Review Queue
-
-* Autonomous Mode
-
-* AI Execution
-
-* CIP Execution
-
-* Automation Center
-
-* Backlog Tools
-
-* Bulk Document Intelligence
-
-Only if they still compile.
-
-Otherwise hide from navigation but do not delete files.
-
-Primary admin users should not see clutter.
-
-==================================================
-
-PHASE 15 — AI LAST
-
-==================
-
-AI is LAST in this plan.
-
-Do not build AI automation until:
-
-1. database truth audit is complete
-
-2. admin dashboard is clean
-
-3. client portal is rebuilt
-
-4. client identity mapping is normalized
-
-5. manual before/after override works
-
-6. upload report flow works
-
-7. payments/documents/agreements work
-
-8. activity logs work
-
-9. real data dashboards work
-
-After all above is stable, then plan AI.
-
-Future AI phase only:
-
-* credit report parser
-
-* report extraction
-
-* before/current comparison
-
-* deleted account detection
-
-* inquiry removal detection
-
-* personal info removal detection
-
-* dispute recommendations
-
-* client update summaries
-
-* mortgage readiness summaries
-
-Do NOT implement AI in this build unless specifically approved later.
-
-==================================================
-
-FILES TO MODIFY / ADD
-
-=====================
-
-Modify:
-
-* src/App.tsx
-
-* src/pages/AdminDashboard.tsx
-
-* src/pages/AdminClients.tsx
-
-* src/components/ClientDashboard.tsx
-
-* src/components/ClientPortal.tsx
-
-* src/pages/ClientPortals.tsx
-
-* src/components/AdminCreditReportUploader.tsx
-
-* src/components/SecureVerificationUpload.tsx
-
-Verify unchanged:
-
-* src/integrations/supabase/client.ts
-
-Add:
-
-* src/contexts/ClientContext.tsx
-
-* src/hooks/useAdminMetrics.ts
-
-* src/hooks/useClientPortalData.ts
-
-* src/components/admin/AdminCommandCenter.tsx
-
-* src/components/admin/AdminKpiGrid.tsx
-
-* src/components/admin/AdminClientsTable.tsx
-
-* src/components/admin/AdminSidebar.tsx
-
-* src/pages/AdminUploadReports.tsx
-
-* src/pages/AdminReportsList.tsx
-
-* src/pages/AdminDisputesPage.tsx
-
-* src/pages/AdminDocumentsPage.tsx
-
-* src/pages/AdminAgreementsPage.tsx
-
-* src/pages/AdminActivityPage.tsx
-
-* src/components/client/ClientPortalLayout.tsx
-
-* src/components/client/ClientPortalSidebar.tsx
-
-* src/pages/client/Dashboard.tsx
-
-* src/pages/client/Results.tsx
-
-* src/pages/client/Reports.tsx
-
-* src/pages/client/Disputes.tsx
-
-* src/pages/client/Documents.tsx
-
-* src/pages/client/Payments.tsx
-
-* src/pages/client/Agreements.tsx
-
-* src/pages/client/Messages.tsx
-
-* src/pages/client/Settings.tsx
-
-==================================================
-
-RISK / SAFETY PLAN
-
-==================
-
-* All migrations additive only
-
-* No DROP statements
-
-* No destructive RLS changes
-
-* Keep old components on disk
-
-* Hide deprecated modules from primary nav
-
-* Preserve single AuthProvider
-
-* Preserve single Supabase client
-
-* Preserve existing payment hooks
-
-* Preserve existing agreement system
-
-* Preserve existing upload storage URLs
-
-* Add fallback route `/admin-dashboard?legacy=1` or preserve legacy admin access temporarily
-
-* Use feature-safe route transition
-
-==================================================
-
-IMPLEMENTATION PHASING
-
-======================
-
-Phase 0:
-
-Database Truth Audit
-
-Phase 1:
-
-Full codebase audit and architecture map
-
-Phase 2:
-
-Client identity normalization
-
-Phase 3:
-
-Admin Command Center shell and real KPI hooks
-
-Phase 4:
-
-Admin Clients Table and row actions
-
-Phase 5:
-
-Upload Report workflow repair
-
-Phase 6:
-
-Manual Before/After Results Override
-
-Phase 7:
-
-Premium Client Portal Layout and dashboard
-
-Phase 8:
-
-Client section pages
-
-Phase 9:
-
-Payments/Documents/Agreements integration cleanup
-
-Phase 10:
-
-Activity/Audit Logs
-
-Phase 11:
-
-Move legacy modules into Advanced Tools
-
-Phase 12:
-
-Regression testing
-
-Phase 13:
-
-AI planning only, no AI implementation yet
-
-==================================================
-
-PLAN MODE OUTPUT REQUIRED
-
-=========================
-
-Before building, return:
-
-1. Database Truth Report
-
-2. Root Cause Summary
-
-3. Current Architecture Map
-
-4. Active Tables
-
-5. Legacy/Duplicate/Dead Tables
-
-6. Components to Keep
-
-7. Components to Merge
-
-8. Components to Hide
-
-9. Components to Rebuild
-
-10. Exact Files to Modify
-
-11. Exact Files to Add
-
-12. Exact Additive Migrations Needed
-
-13. Exact Route Changes
-
-14. Supabase Query Repair Plan
-
-15. Client Identity Normalization Plan
-
-16. Admin Dashboard Rebuild Plan
-
-17. Client Portal Rebuild Plan
-
-18. Manual Results Override Plan
-
-19. Report Upload Workflow Plan
-
-20. Payment/Document/Agreement Preservation Plan
-
-21. Risk/Safety Plan
-
-22. Test Plan
-
-DO NOT BUILD UNTIL PLAN IS APPROVED.
-
-==================================================
-
-BUILD MODE OUTPUT REQUIRED
-
-==========================
-
-After implementation, return:
-
-1. Files changed
-
-2. Routes changed
-
-3. Components created
-
-4. Components hidden/consolidated
-
-5. Supabase queries repaired
-
-6. Migrations applied
-
-7. Workflows fixed
-
-8. Admin test checklist
-
-9. Client test checklist
-
-10. Known remaining issues
-
-11. AI phase deferred items
-
-==================================================
-
-TEST PLAN
-
-=========
-
-Admin tests:
-
-1. Login as admin
-
-2. Open `/admin`
-
-3. Verify KPI counts are real
-
-4. Open `/admin/clients`
-
-5. Search client
-
-6. Edit client
-
-7. Update portal results override
-
-8. Upload report for selected client
-
-9. Verify report attaches to correct client
-
-10. View client preview
-
-11. Review payments
-
-12. Review documents
-
-13. Review agreements
-
-14. Check activity logs
-
-Client tests:
-
-1. Login as client
-
-2. Open `/client/dashboard`
-
-3. Verify dashboard loads real client data
-
-4. Verify no fake activity
-
-5. Open results
-
-6. Open reports
-
-7. Open documents
-
-8. Open payments
-
-9. Open agreements
-
-10. Confirm client cannot access another client’s data
-
-Security tests:
-
-1. Non-admin cannot access `/admin`
-
-2. Client cannot access another client portal by URL
-
-3. Admin preview works without becoming the client
-
-4. RLS remains intact
-
-5. Supabase keys are not exposed
-
-Mobile tests:
-
-1. Admin sidebar collapses
-
-2. Client sidebar collapses
-
-3. Tables become mobile cards
-
-4. Uploads are mobile usable
-
-5. Portal remains premium on phone
-
-==================================================
-
-FINAL DIRECTIVE
-
-===============
-
-Operate like the strongest senior software engineer and enterprise SaaS architect available.
-
-This is a production Supabase system with real clients and real data.
-
-Do not patch randomly.
-
-Do not add clutter.
-
-Do not build AI first.
-
-Do not break working systems.
-
-First audit the database truth.
-
-Then audit the full codebase.
-
-Then normalize client identity.
-
-Then rebuild admin dashboard.
-
-Then rebuild client portal.
-
-Then repair workflows.
-
-Then preserve payment/document/agreement systems.
-
-Then test everything.
-
-AI comes last.
-
-The final product must feel like a premium white-label credit repair operating system, not a cluttered beginner dashboard.
+No files will be changed until you choose.
