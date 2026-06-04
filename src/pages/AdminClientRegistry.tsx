@@ -138,15 +138,14 @@ export default function AdminClientRegistry() {
     setBusyId(attachOrphan.user_id);
     try {
       // Re-key feature rows from user_id to existing client_id where missing.
-      const updates: Promise<any>[] = [];
+      const sb: any = supabase;
       if (attachOrphan.source === 'payment_records') {
-        updates.push(supabase.from('payment_records').update({ client_id: attachTarget } as any).eq('user_id', attachOrphan.user_id).is('client_id', null));
+        await sb.from('payment_records').update({ client_id: attachTarget }).eq('user_id', attachOrphan.user_id).is('client_id', null);
       } else if (attachOrphan.source === 'credit_report_uploads') {
-        updates.push(supabase.from('credit_report_uploads').update({ client_id: attachTarget } as any).eq('user_id', attachOrphan.user_id).is('client_id', null));
+        await sb.from('credit_report_uploads').update({ client_id: attachTarget }).eq('user_id', attachOrphan.user_id).is('client_id', null);
       } else if (attachOrphan.source === 'client_agreements') {
-        updates.push(supabase.from('client_agreements').update({ client_id: attachTarget } as any).eq('user_id', attachOrphan.user_id).is('client_id', null));
+        await sb.from('client_agreements').update({ client_id: attachTarget }).eq('user_id', attachOrphan.user_id).is('client_id', null);
       }
-      await Promise.all(updates);
       await logRegistryAction('ATTACH_ORPHAN_TO_CLIENT', { source: attachOrphan.source, source_user_id: attachOrphan.user_id, client_id: attachTarget }, attachTarget);
       toast({ title: 'Attached', description: 'Orphan records re-keyed to target client.' });
       setAttachOrphan(null); setAttachTarget('');
