@@ -97,7 +97,7 @@ export function AdminDocumentUploader() {
     try {
       // Fetch identity documents
       const { data: docsData, error: docsError } = await supabase
-        .from('identity_docs')
+        .from('document_archive')
         .select('*')
         .eq('client_id', selectedClient)
         .order('created_at', { ascending: false });
@@ -140,7 +140,7 @@ export function AdminDocumentUploader() {
 
     try {
       const { error } = await supabase
-        .from('identity_docs')
+        .from('document_archive')
         .insert({
           client_id: selectedClient,
           doc_type: docType,
@@ -203,7 +203,7 @@ export function AdminDocumentUploader() {
       let error;
       
       if (type === 'identity') {
-        ({ error } = await supabase.from('identity_docs').delete().eq('id', docId));
+        ({ error } = await supabase.from('document_archive').delete().eq('id', docId));
       } else if (type === 'credit') {
         ({ error } = await supabase.from('credit_reports').delete().eq('id', docId));
       } else {

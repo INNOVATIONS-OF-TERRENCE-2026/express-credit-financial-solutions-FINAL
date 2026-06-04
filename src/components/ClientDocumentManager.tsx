@@ -43,7 +43,7 @@ export function ClientDocumentManager({ clientId }: ClientDocumentManagerProps) 
   const fetchDocuments = async () => {
     try {
       const { data: docsData, error: docsError } = await supabase
-        .from('identity_docs')
+        .from('document_archive')
         .select('*')
         .eq('client_id', clientId)
         .order('created_at', { ascending: false });
@@ -89,7 +89,7 @@ export function ClientDocumentManager({ clientId }: ClientDocumentManagerProps) 
 
   const handleDocumentUpload = async (docType: string, fileUrl: string) => {
     try {
-      const { error } = await supabase.from('identity_docs').insert({
+      const { error } = await supabase.from('document_archive').insert({
         client_id: clientId, doc_type: docType, uploaded_file_url: fileUrl,
       });
       if (error) throw error;

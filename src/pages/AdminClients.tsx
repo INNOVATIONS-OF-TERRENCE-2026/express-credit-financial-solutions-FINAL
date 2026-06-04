@@ -150,13 +150,13 @@ export default function AdminClients() {
 
       // Count documents
       const { count: docCount } = await supabase
-        .from('identity_docs')
+        .from('document_archive')
         .select('*', { count: 'exact', head: true })
         .eq('client_id', clientId);
 
       // Get last activity (most recent document or dispute)
       const { data: lastDoc } = await supabase
-        .from('identity_docs')
+        .from('document_archive')
         .select('created_at')
         .eq('client_id', clientId)
         .order('created_at', { ascending: false })

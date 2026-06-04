@@ -48,7 +48,7 @@ export function ClientProgressTracker({ clientId, userId, compact = false }: Cli
 
         // Get documents for this client
         const { data: docs } = await supabase
-          .from('identity_docs')
+          .from('document_archive')
           .select('*')
           .eq('client_id', clientId);
         documentsCount = docs?.length || 0;
@@ -88,7 +88,7 @@ export function ClientProgressTracker({ clientId, userId, compact = false }: Cli
         // Get documents for this user's client
         if (client) {
           const { data: docs } = await supabase
-            .from('identity_docs')
+            .from('document_archive')
             .select('*')
             .eq('client_id', client.id);
           documentsCount = docs?.length || 0;
