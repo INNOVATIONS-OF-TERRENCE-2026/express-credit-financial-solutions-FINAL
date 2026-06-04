@@ -767,6 +767,7 @@ export default function AdminClients() {
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Tier</TableHead>
+                  <TableHead>Portal</TableHead>
                   <TableHead>Paid-in-Full</TableHead>
                   <TableHead>Active Disputes</TableHead>
                   <TableHead>Last Activity</TableHead>
@@ -977,6 +978,17 @@ function ClientRow({
           </Badge>
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
+        )}
+      </TableCell>
+      <TableCell>
+        {client.portal_account_status === 'linked' && (
+          <Badge className="text-[10px] bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">Linked</Badge>
+        )}
+        {client.portal_account_status === 'email_match' && (
+          <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-500">Email match</Badge>
+        )}
+        {client.portal_account_status === 'needs_invite' && (
+          <Badge variant="outline" className="text-[10px] border-muted-foreground/40 text-muted-foreground">Needs invite</Badge>
         )}
       </TableCell>
       <TableCell><ClientPaymentInfo userId={client.user_id} /></TableCell>
