@@ -7,12 +7,35 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AdminShell } from '@/components/admin/AdminShell';
-import { useClientRegistry, logRegistryAction, type MissingProfile, type OrphanIdentity, type RegistryClient } from '@/hooks/useClientRegistry';
+import { useClientRegistry, logRegistryAction, type MissingProfile, type OrphanIdentity, type RegistryClient, type RegistryTag } from '@/hooks/useClientRegistry';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
-import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users } from 'lucide-react';
+import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History } from 'lucide-react';
+
+const TAG_STYLES: Record<RegistryTag, string> = {
+  'Registered': 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
+  'Reconciled': 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
+  'Profile Only': 'bg-blue-500/15 text-blue-500 border-blue-500/30',
+  'Needs Client Row': 'bg-amber-500/15 text-amber-500 border-amber-500/30',
+  'Needs Portal Link': 'bg-amber-500/15 text-amber-500 border-amber-500/30',
+  'Duplicate Risk': 'bg-fuchsia-500/15 text-fuchsia-500 border-fuchsia-500/30',
+  'Orphan Data': 'bg-rose-500/15 text-rose-500 border-rose-500/30',
+  'Not Client': 'bg-muted text-muted-foreground border-border',
+};
+
+function TagChips({ tags }: { tags: RegistryTag[] | undefined }) {
+  if (!tags?.length) return <span className="text-xs text-muted-foreground">—</span>;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {tags.map((t) => (
+        <span key={t} className={`text-[10px] px-1.5 py-0.5 rounded border ${TAG_STYLES[t]}`}>{t}</span>
+      ))}
+    </div>
+  );
+}
 
 function KpiCard({ label, value, tone = 'text-foreground', hint }: { label: string; value: number | string; tone?: string; hint?: string }) {
   return (
@@ -34,11 +57,93 @@ export default function AdminClientRegistry() {
   const [confirmCreate, setConfirmCreate] = useState<MissingProfile | null>(null);
   const [attachOrphan, setAttachOrphan] = useState<OrphanIdentity | null>(null);
   const [attachTarget, setAttachTarget] = useState<string>('');
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [bulkPreviewOpen, setBulkPreviewOpen] = useState(false);
+  const [bulkRunning, setBulkRunning] = useState(false);
 
   if (!rolesLoading && !isAdmin()) {
     navigate('/');
     return null;
   }
+
+  const norm = (s: string | null | undefined) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+  // Compute bulk-eligibility for each selected profile.
+  const bulkEval = useMemo(() => {
+    const selectedProfiles = snap.missingProfiles.filter((p) => selected[p.user_id]);
+    const emailToClient = new Map(snap.clients.filter((c) => c.email).map((c) => [c.email!.toLowerCase(), c]));
+    const nameToClients = new Map<string, RegistryClient[]>();
+    snap.clients.forEach((c) => {
+      const nk = norm(c.full_name);
+      if (!nk) return;
+      const arr = nameToClients.get(nk) || [];
+      arr.push(c); nameToClients.set(nk, arr);
+    });
+    const emailSeen = new Map<string, number>();
+    selectedProfiles.forEach((p) => {
+      const e = (p.email || '').toLowerCase();
+      if (e) emailSeen.set(e, (emailSeen.get(e) || 0) + 1);
+    });
+    const toCreate: MissingProfile[] = [];
+    const toSkip: { profile: MissingProfile; reason: string }[] = [];
+    selectedProfiles.forEach((p) => {
+      const e = (p.email || '').toLowerCase();
+      const nk = norm([p.first_name, p.last_name].filter(Boolean).join(' '));
+      if (!e) { toSkip.push({ profile: p, reason: 'No email — manual review required' }); return; }
+      if (emailToClient.has(e)) { toSkip.push({ profile: p, reason: 'Email already on a client row' }); return; }
+      if ((emailSeen.get(e) || 0) > 1) { toSkip.push({ profile: p, reason: 'Email duplicated in this batch' }); return; }
+      if (nk && (nameToClients.get(nk)?.length || 0) > 0) { toSkip.push({ profile: p, reason: 'Normalized name matches existing client' }); return; }
+      toCreate.push(p);
+    });
+    return { selectedProfiles, toCreate, toSkip };
+  }, [selected, snap.missingProfiles, snap.clients]);
+
+  const selectedCount = bulkEval.selectedProfiles.length;
+
+  const toggleSelected = (uid: string) =>
+    setSelected((s) => ({ ...s, [uid]: !s[uid] }));
+  const toggleSelectAllMissing = () => {
+    const all = snap.missingProfiles.every((p) => selected[p.user_id]);
+    const next: Record<string, boolean> = {};
+    if (!all) snap.missingProfiles.forEach((p) => (next[p.user_id] = true));
+    setSelected(next);
+  };
+
+  const runBulkCreate = async () => {
+    setBulkRunning(true);
+    let created = 0; let failed = 0;
+    for (const p of bulkEval.toCreate) {
+      try {
+        const full_name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || (p.email ? p.email.split('@')[0] : 'Unknown Client');
+        const { data, error } = await supabase
+          .from('clients')
+          .insert({
+            full_name,
+            email: p.email,
+            user_id: p.user_id,
+            membership_plan: p.membership_type ?? null,
+            portal_status: 'active',
+          } as any)
+          .select('id')
+          .single();
+        if (error) throw error;
+        created += 1;
+        await logRegistryAction('BULK_CREATE_FROM_PROFILE', { source_user_id: p.user_id, new_client_id: data?.id, email: p.email }, data?.id);
+      } catch (err: any) {
+        failed += 1;
+        await logRegistryAction('BULK_CREATE_FAILED', { source_user_id: p.user_id, email: p.email, error: err?.message || 'unknown' });
+      }
+    }
+    setBulkRunning(false);
+    setBulkPreviewOpen(false);
+    setSelected({});
+    toast({
+      title: 'Bulk reconciliation complete',
+      description: `${created} created · ${failed} failed · ${bulkEval.toSkip.length} skipped`,
+      variant: failed > 0 ? 'destructive' : 'default',
+    });
+    snap.refresh();
+  };
 
   const filteredClients = useMemo(() => {
     if (!search.trim()) return snap.clients;
@@ -225,6 +330,8 @@ export default function AdminClientRegistry() {
             <TabsTrigger value="orphans">Orphan Identities ({snap.orphanIdentities.length})</TabsTrigger>
             <TabsTrigger value="duplicates">Possible Duplicates ({snap.totals.possibleDuplicates})</TabsTrigger>
             <TabsTrigger value="needs-link">Needs Portal Link ({snap.needsPortalLink.length})</TabsTrigger>
+            <TabsTrigger value="audit">Audit Trail ({snap.recentAudit.length})</TabsTrigger>
+            <TabsTrigger value="checklist">Checklist</TabsTrigger>
           </TabsList>
 
           {/* Registered */}
@@ -241,7 +348,7 @@ export default function AdminClientRegistry() {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Phone</TableHead>
-                      <TableHead>Portal</TableHead>
+                      <TableHead>Tags</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -251,11 +358,7 @@ export default function AdminClientRegistry() {
                         <TableCell className="font-medium">{c.full_name || '—'}</TableCell>
                         <TableCell>{c.email || '—'}</TableCell>
                         <TableCell>{c.phone || '—'}</TableCell>
-                        <TableCell>
-                          {c.user_id
-                            ? <Badge className="text-[10px] bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">Linked</Badge>
-                            : <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-500">Not linked</Badge>}
-                        </TableCell>
+                        <TableCell><TagChips tags={snap.clientTags[c.id]} /></TableCell>
                         <TableCell>
                           <Button size="sm" variant="outline" onClick={() => navigate(`/admin/clients/${c.id}`)}>Edit</Button>
                         </TableCell>
@@ -269,6 +372,19 @@ export default function AdminClientRegistry() {
 
           {/* Missing From Clients */}
           <TabsContent value="missing" className="space-y-3">
+            {snap.missingProfiles.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 justify-between">
+                <div className="flex items-center gap-2 text-sm">
+                  <Button size="sm" variant="outline" onClick={toggleSelectAllMissing}>
+                    {snap.missingProfiles.every((p) => selected[p.user_id]) ? 'Clear selection' : 'Select all'}
+                  </Button>
+                  <span className="text-muted-foreground">{selectedCount} selected</span>
+                </div>
+                <Button size="sm" disabled={selectedCount === 0} onClick={() => setBulkPreviewOpen(true)}>
+                  <UserPlus className="h-3 w-3 mr-1" /> Bulk review & create
+                </Button>
+              </div>
+            )}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Profiles without a client row</CardTitle>
@@ -278,25 +394,29 @@ export default function AdminClientRegistry() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-8"></TableHead>
                       <TableHead>Name / Email</TableHead>
-                      <TableHead>Membership</TableHead>
+                      <TableHead>Tags</TableHead>
                       <TableHead>Suggested match</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {snap.missingProfiles.length === 0 && (
-                      <TableRow><TableCell colSpan={4} className="text-center text-sm text-muted-foreground py-6">No unreconciled profiles. Everyone has a client row.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">No unreconciled profiles. Everyone has a client row.</TableCell></TableRow>
                     )}
                     {snap.missingProfiles.map((p) => {
                       const name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim();
                       return (
                         <TableRow key={p.user_id}>
                           <TableCell>
+                            <Checkbox checked={!!selected[p.user_id]} onCheckedChange={() => toggleSelected(p.user_id)} />
+                          </TableCell>
+                          <TableCell>
                             <p className="font-medium">{name || (p.email || p.user_id.slice(0, 8))}</p>
                             <p className="text-xs text-muted-foreground">{p.email || 'no email'}</p>
                           </TableCell>
-                          <TableCell><Badge variant="outline" className="text-[10px] capitalize">{p.membership_type || '—'}</Badge></TableCell>
+                          <TableCell><TagChips tags={snap.profileTags[p.user_id]} /></TableCell>
                           <TableCell>
                             {p.suggested_client_id ? (
                               <div className="text-xs">
@@ -444,6 +564,74 @@ export default function AdminClientRegistry() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Audit Trail */}
+          <TabsContent value="audit" className="space-y-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2"><History className="h-4 w-4" /> Recent reconciliation actions</CardTitle>
+                <CardDescription>Latest 50 registry actions from the audit log.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>When</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Admin</TableHead>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Target client</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {snap.recentAudit.length === 0 && (
+                      <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">No reconciliation actions yet.</TableCell></TableRow>
+                    )}
+                    {snap.recentAudit.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="text-xs whitespace-nowrap">{new Date(a.created_at).toLocaleString()}</TableCell>
+                        <TableCell><Badge variant="outline" className="text-[10px]">{a.action.replace(/^REGISTRY_/, '')}</Badge></TableCell>
+                        <TableCell className="text-xs"><code>{a.user_id ? a.user_id.slice(0, 8) + '…' : '—'}</code></TableCell>
+                        <TableCell className="text-xs">{a.details?.source || a.details?.source_user_id?.slice?.(0, 8) || '—'}</TableCell>
+                        <TableCell className="text-xs"><code>{a.record_id ? a.record_id.slice(0, 8) + '…' : '—'}</code></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Checklist */}
+          <TabsContent value="checklist" className="space-y-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Reconciliation completion checklist</CardTitle>
+                <CardDescription>Live status of the data-repair workstream.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                {[
+                  { ok: snap.totals.profilesMissingClient === 0, label: 'All real clients registered', detail: `${snap.totals.profilesMissingClient} profiles still need a client row` },
+                  { ok: snap.totals.clientsWithoutPortal === 0, label: 'All portal users linked', detail: `${snap.totals.clientsWithoutPortal} clients without a portal user_id` },
+                  { ok: snap.totals.reportsOrphan === 0, label: 'All orphan reports assigned', detail: `${snap.totals.reportsOrphan} credit report rows orphaned` },
+                  { ok: snap.totals.paymentsOrphan === 0, label: 'All orphan payments assigned', detail: `${snap.totals.paymentsOrphan} payment rows orphaned` },
+                  { ok: snap.totals.agreementsOrphan === 0, label: 'All orphan agreements assigned', detail: `${snap.totals.agreementsOrphan} agreement rows orphaned` },
+                  { ok: snap.totals.possibleDuplicates === 0, label: 'Duplicate risks reviewed', detail: `${snap.totals.possibleDuplicates} duplicate groups outstanding` },
+                  { ok: snap.totals.notClientCount > 0 || snap.totals.profilesMissingClient === 0, label: 'Non-client / test records marked', detail: `${snap.totals.notClientCount} rows flagged not-a-client` },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-start gap-2">
+                    {row.ok
+                      ? <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5" />
+                      : <Circle className="h-4 w-4 text-amber-500 mt-0.5" />}
+                    <div>
+                      <p className={row.ok ? 'text-foreground' : 'font-medium'}>{row.label}</p>
+                      <p className="text-xs text-muted-foreground">{row.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -498,6 +686,80 @@ export default function AdminClientRegistry() {
             <Button variant="outline" onClick={() => { setAttachOrphan(null); setAttachTarget(''); }}>Cancel</Button>
             <Button onClick={attachOrphanToExistingClient} disabled={!attachTarget || busyId === attachOrphan?.user_id}>
               <Link2 className="h-4 w-4 mr-1" /> Attach
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk reconciliation preview */}
+      <Dialog open={bulkPreviewOpen} onOpenChange={(o) => !o && setBulkPreviewOpen(false)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Safe reconciliation preview</DialogTitle>
+            <DialogDescription>
+              No silent merges. Only profiles with a unique email and no name/email conflict will create new client rows.
+              Skipped rows stay untouched for manual review.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-3 gap-3 text-center text-sm">
+            <div className="rounded border border-border p-2">
+              <p className="text-2xl font-bold">{selectedCount}</p>
+              <p className="text-xs text-muted-foreground">Selected</p>
+            </div>
+            <div className="rounded border border-emerald-500/30 bg-emerald-500/5 p-2">
+              <p className="text-2xl font-bold text-emerald-500">{bulkEval.toCreate.length}</p>
+              <p className="text-xs text-muted-foreground">Clients to create</p>
+            </div>
+            <div className="rounded border border-amber-500/30 bg-amber-500/5 p-2">
+              <p className="text-2xl font-bold text-amber-500">{bulkEval.toSkip.length}</p>
+              <p className="text-xs text-muted-foreground">To skip</p>
+            </div>
+          </div>
+
+          <div className="max-h-72 overflow-y-auto space-y-3 text-sm">
+            {bulkEval.toCreate.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-emerald-500 uppercase mb-1">Will create</p>
+                <ul className="space-y-1">
+                  {bulkEval.toCreate.map((p) => (
+                    <li key={p.user_id} className="text-xs flex justify-between gap-2 border-b border-border/40 pb-1">
+                      <span className="truncate">{[p.first_name, p.last_name].filter(Boolean).join(' ') || p.email}</span>
+                      <span className="text-muted-foreground truncate">{p.email}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {bulkEval.toSkip.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-amber-500 uppercase mb-1">Will skip</p>
+                <ul className="space-y-1">
+                  {bulkEval.toSkip.map(({ profile: p, reason }) => (
+                    <li key={p.user_id} className="text-xs flex justify-between gap-2 border-b border-border/40 pb-1">
+                      <span className="truncate">{[p.first_name, p.last_name].filter(Boolean).join(' ') || p.email || p.user_id.slice(0, 8)}</span>
+                      <span className="text-muted-foreground truncate">{reason}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-md border border-border bg-muted/30 p-2 text-xs space-y-1">
+            <p className="font-semibold">Safety rules in effect</p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
+              <li>No auto-merge of duplicate clients</li>
+              <li>No deletion of profiles, clients, or orphan records</li>
+              <li>Existing client.user_id values are never overwritten</li>
+              <li>Profiles without an email are skipped from bulk create</li>
+            </ul>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkPreviewOpen(false)} disabled={bulkRunning}>Cancel</Button>
+            <Button onClick={runBulkCreate} disabled={bulkRunning || bulkEval.toCreate.length === 0}>
+              <UserPlus className="h-4 w-4 mr-1" />
+              {bulkRunning ? 'Creating…' : `Create ${bulkEval.toCreate.length} client${bulkEval.toCreate.length === 1 ? '' : 's'}`}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -38,8 +38,27 @@ export interface OrphanIdentity {
 
 export interface DuplicateGroup {
   key: string;       // email or normalized name
-  reason: 'email' | 'name';
+  reason: 'email' | 'name' | 'phone';
   clients: RegistryClient[];
+}
+
+export type RegistryTag =
+  | 'Registered'
+  | 'Profile Only'
+  | 'Needs Client Row'
+  | 'Needs Portal Link'
+  | 'Duplicate Risk'
+  | 'Orphan Data'
+  | 'Reconciled'
+  | 'Not Client';
+
+export interface RegistryAuditEntry {
+  id: string;
+  action: string;
+  details: any;
+  record_id: string | null;
+  user_id: string | null;
+  created_at: string;
 }
 
 export interface RegistrySnapshot {
@@ -58,12 +77,19 @@ export interface RegistrySnapshot {
     disputesOrphan: number;
     possibleDuplicates: number;
     totalPotentialIdentities: number;
+    notClientCount: number;
+    reconciledThisSession: number;
   };
   clients: RegistryClient[];
   missingProfiles: MissingProfile[];
   orphanIdentities: OrphanIdentity[];
   duplicates: DuplicateGroup[];
   needsPortalLink: RegistryClient[];
+  recentAudit: RegistryAuditEntry[];
+  /** Map of missing-profile user_id -> tags. */
+  profileTags: Record<string, RegistryTag[]>;
+  /** Map of client.id -> tags. */
+  clientTags: Record<string, RegistryTag[]>;
   refresh: () => Promise<void>;
 }
 
@@ -81,8 +107,10 @@ export function useClientRegistry(): RegistrySnapshot {
       registeredClients: 0, profiles: 0, portalLinked: 0, clientsWithoutPortal: 0,
       profilesMissingClient: 0, reportsOrphan: 0, documentsOrphan: 0, paymentsOrphan: 0,
       agreementsOrphan: 0, disputesOrphan: 0, possibleDuplicates: 0, totalPotentialIdentities: 0,
+      notClientCount: 0, reconciledThisSession: 0,
     },
     clients: [], missingProfiles: [], orphanIdentities: [], duplicates: [], needsPortalLink: [],
+    recentAudit: [], profileTags: {}, clientTags: {},
   });
 
   const load = useCallback(async () => {
@@ -182,6 +210,8 @@ export function useClientRegistry(): RegistrySnapshot {
       const dupGroups: DuplicateGroup[] = [];
       const emailBuckets = new Map<string, RegistryClient[]>();
       const nameBuckets = new Map<string, RegistryClient[]>();
+      const phoneBuckets = new Map<string, RegistryClient[]>();
+      const userIdBuckets = new Map<string, RegistryClient[]>();
       clients.forEach((c) => {
         if (c.not_a_client) return;
         if (c.email) {
@@ -194,6 +224,15 @@ export function useClientRegistry(): RegistrySnapshot {
           const a = nameBuckets.get(nk) || [];
           a.push(c); nameBuckets.set(nk, a);
         }
+        const pk = (c.phone || '').replace(/[^0-9]/g, '');
+        if (pk.length >= 7) {
+          const a = phoneBuckets.get(pk) || [];
+          a.push(c); phoneBuckets.set(pk, a);
+        }
+        if (c.user_id) {
+          const a = userIdBuckets.get(c.user_id) || [];
+          a.push(c); userIdBuckets.set(c.user_id, a);
+        }
       });
       emailBuckets.forEach((arr, key) => { if (arr.length > 1) dupGroups.push({ key, reason: 'email', clients: arr }); });
       nameBuckets.forEach((arr, key) => {
@@ -201,11 +240,62 @@ export function useClientRegistry(): RegistrySnapshot {
           dupGroups.push({ key, reason: 'name', clients: arr });
         }
       });
+      phoneBuckets.forEach((arr, key) => {
+        if (arr.length > 1 && !dupGroups.some((g) => g.clients.every((c) => arr.includes(c)))) {
+          dupGroups.push({ key, reason: 'phone', clients: arr });
+        }
+      });
+
+      // Index missing profiles by email + normalized name for tag lookups
+      const missingEmails = new Set(missingProfiles.map((p) => (p.email || '').toLowerCase()).filter(Boolean));
+      const missingNames = new Set(missingProfiles.map((p) => norm(composeName(p.first_name, p.last_name))).filter(Boolean));
+
+      // Build per-profile tags
+      const profileTags: Record<string, RegistryTag[]> = {};
+      missingProfiles.forEach((p) => {
+        const tags: RegistryTag[] = ['Profile Only', 'Needs Client Row'];
+        const emailLc = (p.email || '').toLowerCase();
+        const nk = norm(composeName(p.first_name, p.last_name));
+        const dup =
+          (emailLc && clientByEmail.has(emailLc)) ||
+          (nk && (clientByName.get(nk)?.length || 0) > 0) ||
+          (emailLc && Array.from(missingEmails).filter((e) => e === emailLc).length > 1);
+        if (dup) tags.push('Duplicate Risk');
+        if (orphanIdentities.some((o) => o.user_id === p.user_id)) tags.push('Orphan Data');
+        profileTags[p.user_id] = tags;
+      });
+
+      // Build per-client tags
+      const clientTags: Record<string, RegistryTag[]> = {};
+      const dupClientIds = new Set<string>();
+      dupGroups.forEach((g) => g.clients.forEach((c) => dupClientIds.add(c.id)));
+      clients.forEach((c) => {
+        const tags: RegistryTag[] = [];
+        if (c.not_a_client) { clientTags[c.id] = ['Not Client']; return; }
+        tags.push('Registered');
+        if (!c.user_id) tags.push('Needs Portal Link');
+        else tags.push('Reconciled');
+        if (dupClientIds.has(c.id)) tags.push('Duplicate Risk');
+        clientTags[c.id] = tags;
+      });
+
+      // Recent audit trail (REGISTRY_*)
+      let recentAudit: RegistryAuditEntry[] = [];
+      try {
+        const { data: auditRows } = await sb
+          .from('audit_logs')
+          .select('id, action, details, record_id, user_id, created_at')
+          .like('action', 'REGISTRY_%')
+          .order('created_at', { ascending: false })
+          .limit(50);
+        recentAudit = auditRows || [];
+      } catch {}
 
       const needsPortalLink = clients.filter((c) => !c.user_id && !c.not_a_client);
       const profilesMissingClient = missingProfiles.length;
       const portalLinked = clients.filter((c) => !!c.user_id).length;
       const clientsWithoutPortal = clients.filter((c) => !c.user_id).length;
+      const notClientCount = clients.filter((c) => c.not_a_client).length;
       const totalPotentialIdentities =
         clients.length + profilesMissingClient + orphanIdentities.length;
 
@@ -225,12 +315,17 @@ export function useClientRegistry(): RegistrySnapshot {
           disputesOrphan,
           possibleDuplicates: dupGroups.length,
           totalPotentialIdentities,
+          notClientCount,
+          reconciledThisSession: 0,
         },
         clients,
         missingProfiles,
         orphanIdentities,
         duplicates: dupGroups,
         needsPortalLink,
+        recentAudit,
+        profileTags,
+        clientTags,
       });
     } catch (e: any) {
       setSnap((s) => ({ ...s, loading: false, error: e?.message || 'Failed to load registry' }));
