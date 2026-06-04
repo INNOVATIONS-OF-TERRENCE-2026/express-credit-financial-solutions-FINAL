@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { resolveClient as resolveClientId } from '@/lib/resolveClient';
 import { Save, Zap, CreditCard, FileSignature, Download } from 'lucide-react';
 import { CreditReportVersionHistory } from './CreditReportVersionHistory';
+import { ClientPaymentInfo } from './admin/ClientPaymentInfo';
 
 interface ClientData {
   id: string;
@@ -294,6 +295,14 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
 
           {/* Credit Report Versions */}
           <CreditReportVersionHistory clientId={client.id} />
+
+          {/* Latest Payment */}
+          <Card>
+            <CardHeader><CardTitle className="text-base">Latest Payment</CardTitle></CardHeader>
+            <CardContent>
+              <ClientPaymentInfo userId={client.user_id} variant="block" />
+            </CardContent>
+          </Card>
         </div>
         )}
       </DialogContent>
