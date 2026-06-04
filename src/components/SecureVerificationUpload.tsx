@@ -13,6 +13,7 @@ interface UploadStatus {
   id: 'pending' | 'uploaded';
   ssn: 'pending' | 'uploaded';
   address: 'pending' | 'uploaded';
+  other: 'pending' | 'uploaded';
 }
 
 interface SecureVerificationUploadProps {
@@ -24,7 +25,8 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
     id: 'pending',
     ssn: 'pending',
-    address: 'pending'
+    address: 'pending',
+    other: 'pending'
   });
   const [uploading, setUploading] = useState<string | null>(null);
   const [ssn, setSsn] = useState('');
@@ -34,7 +36,7 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
   const [saving, setSaving] = useState(false);
   const [credentialsSaved, setCredentialsSaved] = useState(false);
 
-  const handleFileUpload = async (file: File, docType: 'id' | 'ssn' | 'address') => {
+  const handleFileUpload = async (file: File, docType: 'id' | 'ssn' | 'address' | 'other') => {
     if (!file) return;
 
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -58,24 +60,33 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('verification-docs')
-        .getPublicUrl(fileName);
-
-      // Update verification record
-      const columnMap = {
-        id: 'id_document_url',
-        ssn: 'ssn_document_url',
-        address: 'address_document_url'
-      };
-
-      const { error: dbError } = await supabase
-        .from('client_verification_secure')
-        .upsert({
+      // The first three categories are stored on the verification record so admins
+      // can see at a glance which required docs are received. "other" goes into the
+      // general documents table tagged with a category, keeping the verification
+      // record clean for the 3 required items.
+      let dbError: any = null;
+      if (docType === 'other') {
+        const { error } = await supabase.from('documents').insert({
           user_id: userId,
-          [columnMap[docType]]: fileName,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
+          doc_type: 'other_supporting',
+          file_path: fileName,
+        } as any);
+        dbError = error;
+      } else {
+        const columnMap = {
+          id: 'id_document_url',
+          ssn: 'ssn_document_url',
+          address: 'address_document_url',
+        } as const;
+        const { error } = await supabase
+          .from('client_verification_secure')
+          .upsert({
+            user_id: userId,
+            [columnMap[docType]]: fileName,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_id' });
+        dbError = error;
+      }
 
       if (dbError) {
         // Roll back the orphaned storage object so it doesn't linger unreferenced
@@ -148,11 +159,12 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
     }
   };
 
-  const UploadZone = ({ docType, label, description, acceptedFormats }: {
-    docType: 'id' | 'ssn' | 'address';
+  const UploadZone = ({ docType, label, description, acceptedFormats, required = true }: {
+    docType: 'id' | 'ssn' | 'address' | 'other';
     label: string;
     description: string;
     acceptedFormats: string;
+    required?: boolean;
   }) => {
     const onDrop = useCallback((acceptedFiles: File[]) => {
       if (acceptedFiles[0]) {
@@ -206,7 +218,7 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
           )}
         </div>
         <Badge variant={status === 'uploaded' ? 'default' : 'secondary'} className="mt-1">
-          {status === 'uploaded' ? 'Complete' : 'Required'}
+          {status === 'uploaded' ? 'Received' : required ? 'Required' : 'Optional'}
         </Badge>
       </div>
     );
@@ -235,24 +247,31 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
             Document Upload (All 3 Required)
           </h4>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             <UploadZone
               docType="id"
-              label="Government-Issued Photo ID"
-              description="Driver's License or State ID"
+              label="1. Government Photo ID"
+              description="Driver's License, State ID, or US Passport. Must be clear, unexpired, and show full face + ID number."
               acceptedFormats="PDF, JPG, PNG"
             />
             <UploadZone
               docType="ssn"
-              label="Proof of Social Security"
-              description="SSN Card, W-2, 1099, SSA-1099, or Pay Stub (showing last 4)"
+              label="2. Social Security Card"
+              description="SSN card, W-2, SSA-1099, or recent pay stub displaying your full SSN or last 4 digits."
               acceptedFormats="PDF, JPG, PNG"
             />
             <UploadZone
               docType="address"
-              label="Proof of Current Address"
-              description="Utility Bill, Bank Statement, or Lease/Mortgage"
+              label="3. Proof of Current Address"
+              description="Utility bill, bank statement, lease, or mortgage dated within the last 60 days showing name + current address."
               acceptedFormats="PDF, JPG, PNG"
+            />
+            <UploadZone
+              docType="other"
+              label="4. Other Supporting Documents"
+              description="Optional: court orders, name-change paperwork, FTC report, or anything else your specialist requested."
+              acceptedFormats="PDF, JPG, PNG"
+              required={false}
             />
           </div>
         </div>
