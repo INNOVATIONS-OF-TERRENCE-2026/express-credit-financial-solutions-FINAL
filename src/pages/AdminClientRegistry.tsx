@@ -13,7 +13,7 @@ import { useClientRegistry, logRegistryAction, type MissingProfile, type OrphanI
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
-import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History, Download } from 'lucide-react';
+import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History, Download, Zap } from 'lucide-react';
 
 const TAG_STYLES: Record<RegistryTag, string> = {
   'Registered': 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
@@ -410,6 +410,7 @@ export default function AdminClientRegistry() {
             <TabsTrigger value="orphans">Orphan Identities ({snap.orphanIdentities.length})</TabsTrigger>
             <TabsTrigger value="duplicates">Possible Duplicates ({snap.totals.possibleDuplicates})</TabsTrigger>
             <TabsTrigger value="needs-link">Needs Portal Link ({snap.needsPortalLink.length})</TabsTrigger>
+            <TabsTrigger value="engine">Reconciliation Engine</TabsTrigger>
             <TabsTrigger value="audit">Audit Trail ({snap.recentAudit.length})</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
           </TabsList>
