@@ -3,6 +3,7 @@ import { useAdminMetrics } from '@/hooks/useAdminMetrics';
 import {
   Users, UserCheck, UserPlus, AlertCircle, FileSearch, Gavel,
   FileText, Wallet, ScrollText, TrendingDown, XCircle, Home, DollarSign, ShieldCheck,
+  Link2, UserX,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -14,6 +15,8 @@ export function AdminKpiGrid() {
 
   const cards = [
     { label: 'Total Clients',          value: m.totalClients,           icon: Users,        to: '/admin/clients',                     tone: 'text-amber-500' },
+    { label: 'Portal Linked',          value: m.portalLinkedClients,    icon: Link2,        to: '/admin/clients',                     tone: 'text-emerald-500' },
+    { label: 'Portal Not Linked',      value: m.portalUnlinkedClients,  icon: UserX,        to: '/admin/clients',                     tone: 'text-amber-400' },
     { label: 'Active Clients',         value: m.activeClients,          icon: UserCheck,    to: '/admin/clients?status=active',       tone: 'text-emerald-500' },
     { label: 'Onboarding',             value: m.onboardingClients,      icon: UserPlus,     to: '/admin/clients?status=onboarding',   tone: 'text-blue-500' },
     { label: 'Needs Review',           value: m.clientsNeedingReview,   icon: AlertCircle,  to: '/admin/disputes?status=review',      tone: 'text-rose-500' },
