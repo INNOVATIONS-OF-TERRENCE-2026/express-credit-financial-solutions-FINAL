@@ -13,7 +13,7 @@ import { useClientRegistry, logRegistryAction, type MissingProfile, type OrphanI
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
-import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History } from 'lucide-react';
+import { RefreshCw, UserPlus, Link2, EyeOff, Search, AlertTriangle, ShieldCheck, Users, CheckCircle2, Circle, History, Download } from 'lucide-react';
 
 const TAG_STYLES: Record<RegistryTag, string> = {
   'Registered': 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30',
