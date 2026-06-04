@@ -28,6 +28,9 @@ import {
   Pencil
 } from 'lucide-react';
 import { AdminClientEditor } from '@/components/AdminClientEditor';
+import { ClientPaymentInfo } from '@/components/admin/ClientPaymentInfo';
+import { Checkbox } from '@/components/ui/checkbox';
+import { CheckCircle } from 'lucide-react';
 
 interface Client {
   id: string;
@@ -39,6 +42,7 @@ interface Client {
   ssn_last4: string;
   created_at: string;
   updated_at: string;
+  user_id?: string | null;
 }
 
 interface ClientStats {
@@ -62,6 +66,10 @@ export default function AdminClients() {
   const [uploadingReports, setUploadingReports] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkPreview, setShowBulkPreview] = useState(false);
+  const [bulkApplying, setBulkApplying] = useState(false);
+  const [bulkPreview, setBulkPreview] = useState<{ id: string; name: string; email: string; user_id: string | null; alreadyPaid: boolean }[]>([]);
   
   // New client form
   const [newClient, setNewClient] = useState({
@@ -290,6 +298,79 @@ export default function AdminClients() {
     client.phone.includes(searchTerm)
   );
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredClients.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredClients.map(c => c.id)));
+  };
+
+  const openBulkPreview = async () => {
+    const chosen = clients.filter(c => selectedIds.has(c.id));
+    const userIds = chosen.map(c => c.user_id).filter(Boolean) as string[];
+    let paidUserIds = new Set<string>();
+    if (userIds.length) {
+      const { data } = await supabase
+        .from('payment_records')
+        .select('user_id')
+        .in('user_id', userIds)
+        .eq('payment_status', 'approved');
+      paidUserIds = new Set((data || []).map((r: any) => r.user_id));
+    }
+    setBulkPreview(chosen.map(c => ({
+      id: c.id,
+      name: c.full_name,
+      email: c.email,
+      user_id: c.user_id ?? null,
+      alreadyPaid: !!c.user_id && paidUserIds.has(c.user_id),
+    })));
+    setShowBulkPreview(true);
+  };
+
+  const applyBulk = async () => {
+    setBulkApplying(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const userIds = bulkPreview.map(p => p.user_id).filter(Boolean) as string[];
+      const toInsert = bulkPreview
+        .filter(p => p.user_id && !p.alreadyPaid)
+        .map(p => ({
+          user_id: p.user_id as string,
+          client_id: p.id,
+          payment_method: 'cash_app',
+          payment_amount: 600,
+          payment_status: 'approved',
+          payment_note: 'Bulk admin mark paid-in-full',
+          reviewed_by: user?.id ?? null,
+          reviewed_at: new Date().toISOString(),
+        }));
+      if (toInsert.length) {
+        const { error } = await supabase.from('payment_records').insert(toInsert as any);
+        if (error) throw error;
+      }
+      if (userIds.length) {
+        const { error: upErr } = await supabase
+          .from('profiles')
+          .update({ payment_status: 'paid' } as any)
+          .in('user_id', userIds);
+        if (upErr) throw upErr;
+      }
+      toast({ title: 'Bulk update complete', description: `${bulkPreview.length} client(s) marked Active & Paid-in-Full.` });
+      setShowBulkPreview(false);
+      setSelectedIds(new Set());
+      fetchClients();
+    } catch (err: any) {
+      toast({ title: 'Bulk update failed', description: err?.message || 'Could not apply bulk changes', variant: 'destructive' });
+    } finally {
+      setBulkApplying(false);
+    }
+  };
+
   if (rolesLoading || loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -455,14 +536,32 @@ export default function AdminClients() {
             <CardDescription>
               View and manage all client accounts
             </CardDescription>
+            {selectedIds.size > 0 && (
+              <div className="flex items-center justify-between mt-3 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3">
+                <span className="text-sm"><strong>{selectedIds.size}</strong> selected</span>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>Clear</Button>
+                  <Button size="sm" onClick={openBulkPreview}>
+                    <CheckCircle className="h-4 w-4 mr-1" /> Mark Active & Paid-in-Full
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-8">
+                    <Checkbox
+                      checked={filteredClients.length > 0 && selectedIds.size === filteredClients.length}
+                      onCheckedChange={toggleSelectAll}
+                    />
+                  </TableHead>
                   <TableHead>Client Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
+                  <TableHead>Paid-in-Full</TableHead>
                   <TableHead>Active Disputes</TableHead>
                   <TableHead>Last Activity</TableHead>
                   <TableHead>Actions</TableHead>
@@ -473,6 +572,8 @@ export default function AdminClients() {
                   <ClientRow 
                     key={client.id} 
                     client={client}
+                    selected={selectedIds.has(client.id)}
+                    onSelect={() => toggleSelect(client.id)}
                     onViewPortal={() => openClientPortal(client)}
                     onEdit={() => setEditingClientId(client.id)}
                     onUploadDocs={() => openUploadModal(client.id)}
@@ -492,6 +593,57 @@ export default function AdminClients() {
           onOpenChange={(open) => { if (!open) setEditingClientId(null); }}
           onSaved={() => { setEditingClientId(null); fetchClients(); }}
         />
+
+        {/* Bulk preview dialog */}
+        <Dialog open={showBulkPreview} onOpenChange={setShowBulkPreview}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Preview: Mark Active & Paid-in-Full</DialogTitle>
+              <DialogDescription>
+                Review the changes below. Inserts a $600 approved payment for each client and sets their profile status to <strong>paid</strong> (Active). Clients already paid will be skipped.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-80 overflow-auto border rounded">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bulkPreview.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">{p.name}</TableCell>
+                      <TableCell className="text-sm">{p.email}</TableCell>
+                      <TableCell>
+                        {!p.user_id ? (
+                          <Badge variant="outline" className="border-amber-500/50 text-amber-500">No user — skip payment</Badge>
+                        ) : p.alreadyPaid ? (
+                          <Badge variant="secondary">Already paid — keep</Badge>
+                        ) : (
+                          <Badge className="bg-emerald-600">Insert $600 + Active</Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <div className="flex justify-between items-center pt-2">
+              <span className="text-sm text-muted-foreground">
+                {bulkPreview.filter(p => p.user_id && !p.alreadyPaid).length} new payment(s) · {bulkPreview.filter(p => p.alreadyPaid).length} already paid
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowBulkPreview(false)} disabled={bulkApplying}>Cancel</Button>
+                <Button onClick={applyBulk} disabled={bulkApplying}>
+                  {bulkApplying ? 'Applying…' : 'Apply Changes'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Upload Documents Modal */}
         <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
@@ -549,6 +701,8 @@ export default function AdminClients() {
 // Separate component for client row to handle async stats loading
 function ClientRow({ 
   client, 
+  selected,
+  onSelect,
   onViewPortal, 
   onEdit,
   onUploadDocs, 
@@ -556,6 +710,8 @@ function ClientRow({
   getStats 
 }: {
   client: Client;
+  selected: boolean;
+  onSelect: () => void;
   onViewPortal: () => void;
   onEdit: () => void;
   onUploadDocs: () => void;
@@ -578,9 +734,13 @@ function ClientRow({
 
   return (
     <TableRow>
+      <TableCell>
+        <Checkbox checked={selected} onCheckedChange={onSelect} />
+      </TableCell>
       <TableCell className="font-medium">{client.full_name}</TableCell>
       <TableCell>{client.email}</TableCell>
       <TableCell>{client.phone}</TableCell>
+      <TableCell><ClientPaymentInfo userId={client.user_id} /></TableCell>
       <TableCell>
         {statsLoaded ? (
           <Badge variant={stats.activeDisputes > 0 ? "default" : "secondary"}>
