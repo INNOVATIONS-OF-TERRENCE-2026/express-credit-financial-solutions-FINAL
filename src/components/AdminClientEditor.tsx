@@ -23,6 +23,28 @@ interface ClientData {
   ssn_last4: string;
   membership_plan: string | null;
   user_id: string | null;
+  // Admin override / portal-visible fields
+  starting_score_ex?: number | null;
+  starting_score_eq?: number | null;
+  starting_score_tu?: number | null;
+  current_score_ex?: number | null;
+  current_score_eq?: number | null;
+  current_score_tu?: number | null;
+  accounts_deleted_count?: number | null;
+  debt_removed_total?: number | null;
+  hard_inquiries_removed?: number | null;
+  personal_info_items_removed?: number | null;
+  remaining_negatives?: number | null;
+  current_dispute_round?: number | null;
+  next_step_note?: string | null;
+  client_visible_update?: string | null;
+  mortgage_readiness_status?: string | null;
+  ftc_605b_readiness_status?: string | null;
+  portal_status?: string | null;
+  payment_status?: string | null;
+  admin_notes?: string | null;
+  status?: string | null;
+  onboarding_status?: string | null;
 }
 
 interface CreditScores {
@@ -144,14 +166,47 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
       });
 
       const { error: clientErr } = await supabase.from('clients')
-        .update({ full_name: client.full_name, email: client.email, phone: client.phone, address: client.address, dob: client.dob, ssn_last4: client.ssn_last4, membership_plan: client.membership_plan, updated_at: new Date().toISOString() })
+        .update({
+          full_name: client.full_name,
+          email: client.email,
+          phone: client.phone,
+          address: client.address,
+          dob: client.dob,
+          ssn_last4: client.ssn_last4,
+          membership_plan: client.membership_plan,
+          status: client.status ?? null,
+          onboarding_status: client.onboarding_status ?? null,
+          portal_status: client.portal_status ?? null,
+          payment_status: client.payment_status ?? null,
+          admin_notes: client.admin_notes ?? null,
+          client_visible_update: client.client_visible_update ?? null,
+          mortgage_readiness_status: client.mortgage_readiness_status ?? null,
+          ftc_605b_readiness_status: client.ftc_605b_readiness_status ?? null,
+          next_step_note: client.next_step_note ?? null,
+          current_dispute_round: client.current_dispute_round ?? null,
+          starting_score_ex: client.starting_score_ex ?? null,
+          starting_score_eq: client.starting_score_eq ?? null,
+          starting_score_tu: client.starting_score_tu ?? null,
+          current_score_ex: client.current_score_ex ?? null,
+          current_score_eq: client.current_score_eq ?? null,
+          current_score_tu: client.current_score_tu ?? null,
+          accounts_deleted_count: client.accounts_deleted_count ?? null,
+          debt_removed_total: client.debt_removed_total ?? null,
+          hard_inquiries_removed: client.hard_inquiries_removed ?? null,
+          personal_info_items_removed: client.personal_info_items_removed ?? null,
+          remaining_negatives: client.remaining_negatives ?? null,
+          updated_at: new Date().toISOString(),
+        } as any)
         .eq('id', client.id);
       if (clientErr) throw clientErr;
 
-      // Upsert credit scores
-      const { error: scoreErr } = await supabase.from('client_credit_scores' as any)
-        .upsert({ client_id: client.id, user_id: client.user_id, ...scores, source: 'manual', updated_at: new Date().toISOString() } as any, { onConflict: 'client_id' });
-      if (scoreErr) throw scoreErr;
+      // Mirror current bureau scores into legacy client_credit_scores when present.
+      const hasAnyScore = scores.experian_score != null || scores.equifax_score != null || scores.transunion_score != null;
+      if (hasAnyScore) {
+        const { error: scoreErr } = await supabase.from('client_credit_scores' as any)
+          .upsert({ client_id: client.id, user_id: client.user_id, ...scores, source: 'manual', updated_at: new Date().toISOString() } as any, { onConflict: 'client_id' });
+        if (scoreErr) throw scoreErr;
+      }
 
       // Audit log — separate entries for membership and field edits
       if (diff.membership_plan) {
@@ -178,8 +233,8 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
 
       toast({ title: 'Client Updated', description: 'All changes saved successfully.' });
       setOriginalClient({ ...client });
-      // Fire automation events
-      try {
+      // Fire automation events only when an auth user is linked.
+      if (client.user_id) try {
         await supabase.functions.invoke('process-automation-event', {
           body: { event_type: 'client_profile_updated', client_id: client.id, user_id: client.user_id, payload: { updated_by: 'admin' }, source: 'admin_editor' },
         });
