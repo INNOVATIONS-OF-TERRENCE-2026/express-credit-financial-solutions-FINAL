@@ -4,7 +4,7 @@ import { useClientPortalData } from '@/hooks/useClientPortalData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, XCircle, ScrollText, FileText, Wallet, Activity, ArrowRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, XCircle, ScrollText, FileText, Wallet, Activity, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MatchStatusBadge } from '@/components/MatchStatusBadge';
 
@@ -31,6 +31,32 @@ function DashboardInner() {
           </div>
         )}
       </div>
+
+      {d.latestPayment && (
+        <Card className="border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 to-transparent">
+          <CardContent className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-emerald-500/15 p-2">
+                <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-emerald-500 uppercase tracking-wide">Paid in Full</p>
+                <p className="text-2xl font-bold">{fmtMoney(Number(d.latestPayment.payment_amount || 600))}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Payment Date:{' '}
+                  <span className="text-foreground font-medium">
+                    {new Date(d.latestPayment.reviewed_at || d.latestPayment.submitted_at || '').toLocaleDateString()}
+                  </span>
+                </p>
+                <p className="text-[11px] text-muted-foreground font-mono break-all">
+                  Ref: {d.latestPayment.id}
+                </p>
+              </div>
+            </div>
+            <Badge className="bg-emerald-600 hover:bg-emerald-600 self-start md:self-center">Active</Badge>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Score snapshot */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
