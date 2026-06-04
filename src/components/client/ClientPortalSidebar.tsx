@@ -9,16 +9,36 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
-const NAV = [
-  { label: 'Dashboard',  to: '/client/dashboard',  icon: LayoutDashboard },
-  { label: 'Results',    to: '/client/results',    icon: BarChart3 },
-  { label: 'Reports',    to: '/client/reports',    icon: FileText },
-  { label: 'Disputes',   to: '/client/disputes',   icon: Gavel },
-  { label: 'Documents',  to: '/client/documents',  icon: Upload },
-  { label: 'Payments',   to: '/client/payments',   icon: Wallet },
-  { label: 'Agreements', to: '/client/agreements', icon: ScrollText },
-  { label: 'Messages',   to: '/client/messages',   icon: Bell },
-  { label: 'Settings',   to: '/client/settings',   icon: Settings },
+const GROUPS: { label: string; items: { label: string; to: string; icon: any }[] }[] = [
+  {
+    label: 'Overview',
+    items: [
+      { label: 'Dashboard', to: '/client/dashboard', icon: LayoutDashboard },
+      { label: 'Results',   to: '/client/results',   icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Credit Work',
+    items: [
+      { label: 'Reports',   to: '/client/reports',   icon: FileText },
+      { label: 'Disputes',  to: '/client/disputes',  icon: Gavel },
+      { label: 'Documents', to: '/client/documents', icon: Upload },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [
+      { label: 'Payments',   to: '/client/payments',   icon: Wallet },
+      { label: 'Agreements', to: '/client/agreements', icon: ScrollText },
+    ],
+  },
+  {
+    label: 'Communication',
+    items: [
+      { label: 'Messages', to: '/client/messages', icon: Bell },
+      { label: 'Settings', to: '/client/settings', icon: Settings },
+    ],
+  },
 ];
 
 export function ClientPortalSidebar() {
@@ -26,6 +46,8 @@ export function ClientPortalSidebar() {
   const { pathname } = useLocation();
   const { signOut } = useAuth();
   const collapsed = state === 'collapsed';
+
+  const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/');
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/50">
@@ -43,23 +65,27 @@ export function ClientPortalSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigate</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV.map((n) => (
-                <SidebarMenuItem key={n.to}>
-                  <SidebarMenuButton asChild isActive={pathname === n.to}>
-                    <NavLink to={n.to} className="flex items-center gap-2">
-                      <n.icon className="h-4 w-4" />
-                      {!collapsed && <span>{n.label}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {GROUPS.map((group) => {
+          return (
+            <SidebarGroup key={group.label}>
+              {!collapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map((n) => (
+                    <SidebarMenuItem key={n.to}>
+                      <SidebarMenuButton asChild isActive={isActive(n.to)} tooltip={n.label}>
+                        <NavLink to={n.to} className="flex items-center gap-2">
+                          <n.icon className="h-4 w-4" />
+                          {!collapsed && <span>{n.label}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
       <SidebarFooter className="p-3">
         {!collapsed && (

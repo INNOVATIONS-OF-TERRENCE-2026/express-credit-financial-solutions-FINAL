@@ -10,18 +10,43 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
-const NAV = [
-  { label: 'Command Center', to: '/admin', icon: LayoutDashboard },
-  { label: 'Clients', to: '/admin/clients', icon: Users },
-  { label: 'Upload Reports', to: '/admin/upload-reports', icon: Upload },
-  { label: 'Reports & Results', to: '/admin/reports', icon: FileSearch },
-  { label: 'Disputes', to: '/admin/disputes', icon: Gavel },
-  { label: 'Documents', to: '/admin/documents', icon: FileText },
-  { label: 'Payments', to: '/admin/payments', icon: Wallet },
-  { label: 'Agreements', to: '/admin/agreements', icon: ScrollText },
-  { label: 'Activity', to: '/admin/activity', icon: Activity },
-  { label: 'Settings', to: '/admin/settings', icon: Settings },
-  { label: 'Advanced Tools', to: '/admin/tools', icon: Wrench },
+const GROUPS: { label: string; items: { label: string; to: string; icon: any; exact?: boolean }[] }[] = [
+  {
+    label: 'Overview',
+    items: [
+      { label: 'Command Center', to: '/admin', icon: LayoutDashboard, exact: true },
+      { label: 'Activity',       to: '/admin/activity', icon: Activity },
+    ],
+  },
+  {
+    label: 'Clients',
+    items: [
+      { label: 'All Clients', to: '/admin/clients',    icon: Users },
+      { label: 'Agreements',  to: '/admin/agreements', icon: ScrollText },
+    ],
+  },
+  {
+    label: 'Credit Operations',
+    items: [
+      { label: 'Upload Reports',    to: '/admin/upload-reports', icon: Upload },
+      { label: 'Reports & Results', to: '/admin/reports',        icon: FileSearch },
+      { label: 'Disputes',          to: '/admin/disputes',       icon: Gavel },
+      { label: 'Documents',         to: '/admin/documents',      icon: FileText },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      { label: 'Payments', to: '/admin/payments', icon: Wallet },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { label: 'Settings',       to: '/admin/settings', icon: Settings },
+      { label: 'Advanced Tools', to: '/admin/tools',    icon: Wrench },
+    ],
+  },
 ];
 
 export function AdminSidebar() {
@@ -30,8 +55,8 @@ export function AdminSidebar() {
   const { signOut } = useAuth();
   const collapsed = state === 'collapsed';
 
-  const isActive = (path: string) =>
-    path === '/admin' ? pathname === '/admin' : pathname.startsWith(path);
+  const isActive = (path: string, exact?: boolean) =>
+    exact ? pathname === path : pathname === path || pathname.startsWith(path + '/');
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/50">
@@ -49,23 +74,27 @@ export function AdminSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Operations</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV.map((n) => (
-                <SidebarMenuItem key={n.to}>
-                  <SidebarMenuButton asChild isActive={isActive(n.to)}>
-                    <NavLink to={n.to} className="flex items-center gap-2">
-                      <n.icon className="h-4 w-4" />
-                      {!collapsed && <span>{n.label}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {GROUPS.map((group) => {
+          return (
+            <SidebarGroup key={group.label}>
+              {!collapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map((n) => (
+                    <SidebarMenuItem key={n.to}>
+                      <SidebarMenuButton asChild isActive={isActive(n.to, n.exact)} tooltip={n.label}>
+                        <NavLink to={n.to} className="flex items-center gap-2">
+                          <n.icon className="h-4 w-4" />
+                          {!collapsed && <span>{n.label}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
       <SidebarFooter className="p-3">
         {!collapsed && (
