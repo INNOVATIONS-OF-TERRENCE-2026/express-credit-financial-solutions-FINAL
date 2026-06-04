@@ -662,6 +662,26 @@ export default function AdminClients() {
           </Dialog>
         </div>
 
+        {/* Registry health banner */}
+        {(registry.totals.profilesMissingClient + registry.orphanIdentities.length) > 0 && (
+          <Card className="mb-4 border-amber-500/40 bg-amber-500/5">
+            <CardContent className="pt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="h-5 w-5 text-amber-500 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium">Potential unreconciled client records found.</p>
+                  <p className="text-muted-foreground">
+                    {registry.totals.profilesMissingClient} profile(s) without a client row · {registry.orphanIdentities.length} orphan owner identity(ies).
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => navigate('/admin/client-registry')}>
+                Review Client Registry
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Search Bar */}
         <Card className="mb-6">
           <CardContent className="pt-6 space-y-3">
