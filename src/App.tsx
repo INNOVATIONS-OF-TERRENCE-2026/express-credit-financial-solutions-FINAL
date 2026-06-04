@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { ThemeConfigProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./hooks/useAuth";
@@ -94,21 +94,13 @@ const App = () => (
                       <Routes>
                         {/* SBA Routes */}
                         <Route path="/sba" element={<SBAHome />} />
-                        <Route path="/sba-portal" element={<SBAHome />} />
                         <Route path="/sba/precheck" element={<SBAPreCheck />} />
-                        <Route path="/sba-portal/precheck" element={<SBAPreCheck />} />
                         <Route path="/sba/consent" element={<SBAConsent />} />
-                        <Route path="/sba-portal/consent" element={<SBAConsent />} />
                         <Route path="/sba/intake" element={<SBAIntake />} />
-                        <Route path="/sba-portal/intake" element={<SBAIntake />} />
                         <Route path="/sba/documents" element={<SBADocuments />} />
-                        <Route path="/sba-portal/documents" element={<SBADocuments />} />
                         <Route path="/sba/packet" element={<SBAPacket />} />
-                        <Route path="/sba-portal/packet" element={<SBAPacket />} />
                         <Route path="/sba/dashboard" element={<SBADashboard />} />
-                        <Route path="/sba-portal/dashboard" element={<SBADashboard />} />
                         <Route path="/sba/admin" element={<SBAAdmin />} />
-                        <Route path="/sba-portal/admin" element={<SBAAdmin />} />
                         
                         {/* Existing Routes */}
                         <Route path="/" element={<Index />} />
@@ -128,7 +120,9 @@ const App = () => (
                         <Route path="/score-tracker" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Score Tracker"><CreditScoreTracker /></ProtectedRoute>} />
                         <Route path="/admin/login" element={<AdminLogin />} />
                         <Route path="/admin" element={<AdminCommandCenter />} />
-                        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                        {/* Legacy admin dashboard — kept mounted under hidden path for rollback */}
+                        <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
+                        <Route path="/admin-dashboard-legacy" element={<AdminDashboard />} />
                         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
                         <Route path="/admin/upload-reports" element={<AdminUploadReports />} />
                         <Route path="/admin/reports" element={<AdminReportsList />} />
@@ -136,14 +130,37 @@ const App = () => (
                         <Route path="/admin/documents" element={<AdminDocumentsPage />} />
                         <Route path="/admin/agreements" element={<AdminAgreementsPage />} />
                         <Route path="/admin/activity" element={<AdminActivityPage />} />
-                        <Route path="/payments" element={<PaymentsPage />} />
-                        <Route path="/payment-history" element={<PaymentHistoryPage />} />
+                        {/* Legacy client payment routes → canonical client portal */}
+                        <Route path="/payments" element={<Navigate to="/client/payments" replace />} />
+                        <Route path="/payment-history" element={<Navigate to="/client/payments" replace />} />
                         <Route path="/admin/clients/:clientId" element={<AdminClientEdit />} />
                         <Route path="/admin/client-preview/:clientId" element={<AdminClientPreview />} />
                         <Route path="/admin/clients" element={<AdminClients />} />
                         <Route path="/admin/settings" element={<AdminSettings />} />
                         <Route path="/admin/tools" element={<AdminTools />} />
                         <Route path="/client-portals" element={<ClientPortalLinks />} />
+                        {/* Legacy client-facing routes → canonical client portal */}
+                        <Route path="/upload-credit-report" element={<Navigate to="/client/documents" replace />} />
+                        <Route path="/document-center" element={<Navigate to="/client/documents" replace />} />
+                        <Route path="/documents" element={<Navigate to="/client/documents" replace />} />
+                        <Route path="/dispute-center" element={<Navigate to="/client/disputes" replace />} />
+                        <Route path="/data-freeze" element={<Navigate to="/client/disputes" replace />} />
+                        <Route path="/credit-tracking" element={<Navigate to="/client/results" replace />} />
+                        <Route path="/credit-monitoring" element={<Navigate to="/client/results" replace />} />
+                        <Route path="/score-tracker" element={<Navigate to="/client/results" replace />} />
+                        <Route path="/credit-building" element={<Navigate to="/client/dashboard" replace />} />
+                        <Route path="/goodwill-letters" element={<Navigate to="/client/disputes" replace />} />
+                        <Route path="/education" element={<Navigate to="/client/dashboard" replace />} />
+                        <Route path="/ai-assistant" element={<Navigate to="/client/dashboard" replace />} />
+                        {/* Legacy SBA duplicate prefix → canonical /sba */}
+                        <Route path="/sba-portal" element={<Navigate to="/sba" replace />} />
+                        <Route path="/sba-portal/precheck" element={<Navigate to="/sba/precheck" replace />} />
+                        <Route path="/sba-portal/consent" element={<Navigate to="/sba/consent" replace />} />
+                        <Route path="/sba-portal/intake" element={<Navigate to="/sba/intake" replace />} />
+                        <Route path="/sba-portal/documents" element={<Navigate to="/sba/documents" replace />} />
+                        <Route path="/sba-portal/packet" element={<Navigate to="/sba/packet" replace />} />
+                        <Route path="/sba-portal/dashboard" element={<Navigate to="/sba/dashboard" replace />} />
+                        <Route path="/sba-portal/admin" element={<Navigate to="/sba/admin" replace />} />
                         {/* Canonical premium client portal */}
                         <Route path="/client/dashboard"  element={<ClientDashboardPage />} />
                         <Route path="/client/results"    element={<ClientResultsPage />} />
