@@ -835,7 +835,10 @@ export default function AdminClientRegistry() {
             </ul>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={exportReconciliationPreviewCsv} disabled={bulkRunning} className="gap-1">
+              <Download className="h-4 w-4" /> Export CSV
+            </Button>
             <Button variant="outline" onClick={() => setBulkPreviewOpen(false)} disabled={bulkRunning}>Cancel</Button>
             <Button onClick={runBulkCreate} disabled={bulkRunning || bulkEval.toCreate.length === 0}>
               <UserPlus className="h-4 w-4 mr-1" />
