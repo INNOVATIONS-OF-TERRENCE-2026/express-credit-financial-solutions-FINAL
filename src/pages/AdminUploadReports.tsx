@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileCheck } from 'lucide-react';
 import { ClientMatchEnginePanel } from '@/components/admin/ClientMatchEnginePanel';
+import { RecentReportMatches } from '@/components/admin/RecentReportMatches';
 import { MatchResult } from '@/lib/clientMatchEngine';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
