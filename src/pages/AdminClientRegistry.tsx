@@ -674,7 +674,33 @@ export default function AdminClientRegistry() {
                 <CardTitle className="text-base flex items-center gap-2"><History className="h-4 w-4" /> Recent reconciliation actions</CardTitle>
                 <CardDescription>Latest 50 registry actions from the audit log.</CardDescription>
               </CardHeader>
-              <CardContent className="p-0" />
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>When</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Admin</TableHead>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Target client</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {snap.recentAudit.length === 0 && (
+                      <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">No reconciliation actions yet.</TableCell></TableRow>
+                    )}
+                    {snap.recentAudit.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="text-xs whitespace-nowrap">{new Date(a.created_at).toLocaleString()}</TableCell>
+                        <TableCell><Badge variant="outline" className="text-[10px]">{a.action.replace(/^REGISTRY_/, '')}</Badge></TableCell>
+                        <TableCell className="text-xs"><code>{a.user_id ? a.user_id.slice(0, 8) + '…' : '—'}</code></TableCell>
+                        <TableCell className="text-xs">{a.details?.source || a.details?.source_user_id?.slice?.(0, 8) || '—'}</TableCell>
+                        <TableCell className="text-xs"><code>{a.record_id ? a.record_id.slice(0, 8) + '…' : '—'}</code></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
             </Card>
           </TabsContent>
 
@@ -728,42 +754,6 @@ export default function AdminClientRegistry() {
           </TabsContent>
 
           {/* Audit Trail (rendered list) */}
-          <TabsContent value="audit-list" className="space-y-3">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2"><History className="h-4 w-4" /> Recent reconciliation actions</CardTitle>
-                <CardDescription>Latest 50 registry actions from the audit log.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>When</TableHead>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Admin</TableHead>
-                      <TableHead>Source</TableHead>
-                      <TableHead>Target client</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {snap.recentAudit.length === 0 && (
-                      <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">No reconciliation actions yet.</TableCell></TableRow>
-                    )}
-                    {snap.recentAudit.map((a) => (
-                      <TableRow key={a.id}>
-                        <TableCell className="text-xs whitespace-nowrap">{new Date(a.created_at).toLocaleString()}</TableCell>
-                        <TableCell><Badge variant="outline" className="text-[10px]">{a.action.replace(/^REGISTRY_/, '')}</Badge></TableCell>
-                        <TableCell className="text-xs"><code>{a.user_id ? a.user_id.slice(0, 8) + '…' : '—'}</code></TableCell>
-                        <TableCell className="text-xs">{a.details?.source || a.details?.source_user_id?.slice?.(0, 8) || '—'}</TableCell>
-                        <TableCell className="text-xs"><code>{a.record_id ? a.record_id.slice(0, 8) + '…' : '—'}</code></TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           {/* Checklist */}
           <TabsContent value="checklist" className="space-y-3">
             <Card>
