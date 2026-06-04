@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { resolveClient as resolveClientId } from '@/lib/resolveClient';
 import { Save, Zap, CreditCard, FileSignature, Download } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Link2, AlertCircle, Send } from 'lucide-react';
 import { CreditReportVersionHistory } from './CreditReportVersionHistory';
 import { ClientPaymentInfo } from './admin/ClientPaymentInfo';
 
@@ -283,6 +285,63 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
     setClient({ ...client, [field]: value });
   };
 
+  const updateNumeric = (field: keyof ClientData, value: string) => {
+    if (!client) return;
+    setClient({ ...client, [field]: value === '' ? null : Number(value) } as ClientData);
+  };
+
+  const linkExistingUser = async () => {
+    if (!client?.email) {
+      toast({ title: 'Cannot link', description: 'Client needs an email on file first.', variant: 'destructive' });
+      return;
+    }
+    try {
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('user_id, email')
+        .ilike('email', client.email)
+        .limit(1)
+        .maybeSingle();
+      if (!prof?.user_id) {
+        toast({ title: 'No matching user', description: 'No auth profile found for that email.', variant: 'destructive' });
+        return;
+      }
+      const { data: linked, error } = await supabase
+        .from('clients')
+        .update({ user_id: prof.user_id, updated_at: new Date().toISOString() } as any)
+        .eq('id', client.id)
+        .is('user_id', null)
+        .select('user_id')
+        .maybeSingle();
+      if (error) throw error;
+      if (!linked?.user_id) {
+        toast({ title: 'Already linked', description: 'This client already has a portal account linked.' });
+        return;
+      }
+      setClient({ ...client, user_id: linked.user_id });
+      setOriginalClient({ ...client, user_id: linked.user_id });
+      toast({ title: 'Linked', description: 'Portal account linked to this client.' });
+    } catch (err: any) {
+      toast({ title: 'Link failed', description: err?.message || 'Could not link user.', variant: 'destructive' });
+    }
+  };
+
+  const markInviteNeeded = async () => {
+    if (!client) return;
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .update({ portal_status: 'invite_needed', updated_at: new Date().toISOString() } as any)
+        .eq('id', client.id);
+      if (error) throw error;
+      setClient({ ...client, portal_status: 'invite_needed' });
+      setOriginalClient({ ...client, portal_status: 'invite_needed' } as ClientData);
+      toast({ title: 'Marked', description: 'Portal status set to invite_needed.' });
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err?.message || 'Could not update.', variant: 'destructive' });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -362,6 +421,138 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
               <Zap className="h-4 w-4 mr-2" />{generating ? 'Generating...' : 'Generate Disputes'}
             </Button>
           </div>
+
+          {/* Portal Account Status & Link / Invite */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Link2 className="h-4 w-4" /> Portal Account
+                {client.user_id ? (
+                  <Badge className="bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 text-[10px]">Linked</Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-500">Not Linked</Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Admin edits save to the client record regardless of portal login status.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={linkExistingUser} disabled={!!client.user_id}>
+                  <Link2 className="h-4 w-4 mr-1" /> Link Existing User by Email
+                </Button>
+                <Button size="sm" variant="outline" onClick={markInviteNeeded}>
+                  <AlertCircle className="h-4 w-4 mr-1" /> Mark Portal Invite Needed
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => toast({ title: 'Coming soon', description: 'Automated portal invites are not enabled yet.' })}
+                >
+                  <Send className="h-4 w-4 mr-1" /> Resend Portal Invite
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs">Portal Status</Label>
+                  <Select value={client.portal_status || 'active'} onValueChange={v => updateField('portal_status', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">active</SelectItem>
+                      <SelectItem value="invite_needed">invite_needed</SelectItem>
+                      <SelectItem value="paused">paused</SelectItem>
+                      <SelectItem value="closed">closed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Payment Status</Label>
+                  <Input
+                    placeholder="paid / pending / overdue"
+                    value={client.payment_status || ''}
+                    onChange={e => updateField('payment_status', e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Admin Override Panel — portal-visible values */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Save className="h-4 w-4" /> Admin Override — Portal Display Values
+                <Badge variant="outline">Saves to clients</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Starting Bureau Scores</Label>
+                <div className="grid grid-cols-3 gap-3 mt-1">
+                  <div><Label className="text-xs">Experian</Label><Input type="number" min={300} max={850} value={client.starting_score_ex ?? ''} onChange={e => updateNumeric('starting_score_ex', e.target.value)} /></div>
+                  <div><Label className="text-xs">Equifax</Label><Input type="number" min={300} max={850} value={client.starting_score_eq ?? ''} onChange={e => updateNumeric('starting_score_eq', e.target.value)} /></div>
+                  <div><Label className="text-xs">TransUnion</Label><Input type="number" min={300} max={850} value={client.starting_score_tu ?? ''} onChange={e => updateNumeric('starting_score_tu', e.target.value)} /></div>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground">Current Bureau Scores</Label>
+                <div className="grid grid-cols-3 gap-3 mt-1">
+                  <div><Label className="text-xs">Experian</Label><Input type="number" min={300} max={850} value={client.current_score_ex ?? ''} onChange={e => updateNumeric('current_score_ex', e.target.value)} /></div>
+                  <div><Label className="text-xs">Equifax</Label><Input type="number" min={300} max={850} value={client.current_score_eq ?? ''} onChange={e => updateNumeric('current_score_eq', e.target.value)} /></div>
+                  <div><Label className="text-xs">TransUnion</Label><Input type="number" min={300} max={850} value={client.current_score_tu ?? ''} onChange={e => updateNumeric('current_score_tu', e.target.value)} /></div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div><Label className="text-xs">Accounts Deleted</Label><Input type="number" min={0} value={client.accounts_deleted_count ?? ''} onChange={e => updateNumeric('accounts_deleted_count', e.target.value)} /></div>
+                <div><Label className="text-xs">Debt Removed ($)</Label><Input type="number" min={0} step="0.01" value={client.debt_removed_total ?? ''} onChange={e => updateNumeric('debt_removed_total', e.target.value)} /></div>
+                <div><Label className="text-xs">Hard Inquiries Removed</Label><Input type="number" min={0} value={client.hard_inquiries_removed ?? ''} onChange={e => updateNumeric('hard_inquiries_removed', e.target.value)} /></div>
+                <div><Label className="text-xs">Personal Info Removed</Label><Input type="number" min={0} value={client.personal_info_items_removed ?? ''} onChange={e => updateNumeric('personal_info_items_removed', e.target.value)} /></div>
+                <div><Label className="text-xs">Remaining Negatives</Label><Input type="number" min={0} value={client.remaining_negatives ?? ''} onChange={e => updateNumeric('remaining_negatives', e.target.value)} /></div>
+                <div><Label className="text-xs">Current Dispute Round</Label><Input type="number" min={0} value={client.current_dispute_round ?? ''} onChange={e => updateNumeric('current_dispute_round', e.target.value)} /></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs">Mortgage Readiness</Label>
+                  <Select value={client.mortgage_readiness_status || ''} onValueChange={v => updateField('mortgage_readiness_status', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="foundation">Foundation</SelectItem>
+                      <SelectItem value="building">Building</SelectItem>
+                      <SelectItem value="near_ready">Near Ready</SelectItem>
+                      <SelectItem value="ready">Ready</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">FTC / 605B Status</Label>
+                  <Select value={client.ftc_605b_readiness_status || ''} onValueChange={v => updateField('ftc_605b_readiness_status', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="not_started">Not Started</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="ready">Ready</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs">Next Step Note (internal)</Label>
+                <Textarea rows={2} value={client.next_step_note || ''} onChange={e => updateField('next_step_note', e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs">Client-Visible Update</Label>
+                <Textarea rows={2} placeholder="Shown on the client portal dashboard" value={client.client_visible_update || ''} onChange={e => updateField('client_visible_update', e.target.value)} />
+              </div>
+              <div>
+                <Label className="text-xs">Admin Notes (private)</Label>
+                <Textarea rows={3} value={client.admin_notes || ''} onChange={e => updateField('admin_notes', e.target.value)} />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Click <strong>Save Changes</strong> above to persist these values.
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Signed Agreements */}
           <Card>
