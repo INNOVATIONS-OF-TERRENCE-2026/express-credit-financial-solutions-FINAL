@@ -28,32 +28,17 @@ import SBAAdmin from "./pages/sba/Admin";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import { DisputeCenter } from "./pages/DisputeCenter";
-import { DataFreezeCenter } from "./pages/DataFreezeCenter";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
-import { DocumentUpload } from "./pages/DocumentUpload";
 import MembershipPricing from "./pages/MembershipPricing";
-
-import Education from "./pages/Education";
-import CreditTracking from "./pages/CreditTracking";
-import CreditBuildingCenter from "./pages/CreditBuildingCenter";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientPortals from "./pages/ClientPortals";
 import ClientPortalLinks from "./pages/ClientPortalLinks";
-import { GoodwillLetters } from "./pages/GoodwillLetters";
-import { CreditMonitoring } from "./pages/CreditMonitoring";
-import { CreditReportUploadPage } from "./pages/CreditReportUploadPage";
-import { AICreditAssistantPage } from "./pages/AICreditAssistantPage";
-import { DocumentUploadCenter } from "./pages/DocumentUploadCenter";
 import AdminClients from "./pages/AdminClients";
 import AdminClientEdit from "./pages/AdminClientEdit";
 import AdminClientPreview from "./pages/AdminClientPreview";
 import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
-import CreditScoreTracker from "./pages/CreditScoreTracker";
-import PaymentsPage from "./pages/PaymentsPage";
-import PaymentHistoryPage from "./pages/PaymentHistoryPage";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 
 // New unified admin + premium client portal
@@ -112,20 +97,8 @@ const App = () => (
                         
                         {/* Existing Routes */}
                         <Route path="/" element={<Index />} />
-                        <Route path="/dispute-center" element={<ProtectedRoute requiredFeature="dispute-generator" featureName="Dispute Center"><DisputeCenter /></ProtectedRoute>} />
-                        <Route path="/data-freeze" element={<ProtectedRoute requiredFeature="dispute-generator" featureName="Data Freeze Center"><DataFreezeCenter /></ProtectedRoute>} />
                         <Route path="/onboarding" element={<ClientOnboarding />} />
-                        <Route path="/documents" element={<ProtectedRoute requiredFeature="credit-upload" featureName="Document Upload"><DocumentUpload /></ProtectedRoute>} />
                         <Route path="/membership" element={<MembershipPricing />} />
-                        <Route path="/education" element={<ProtectedRoute requiredFeature="education" featureName="Education Center"><Education /></ProtectedRoute>} />
-                        <Route path="/credit-tracking" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Tracking"><CreditTracking /></ProtectedRoute>} />
-                        <Route path="/credit-building" element={<ProtectedRoute requiredFeature="credit-building" featureName="Credit Building Center"><CreditBuildingCenter /></ProtectedRoute>} />
-                        <Route path="/goodwill-letters" element={<GoodwillLetters />} />
-                        <Route path="/credit-monitoring" element={<CreditMonitoring />} />
-                        <Route path="/upload-credit-report" element={<ProtectedRoute requiredFeature="credit-upload" featureName="Credit Report Upload"><CreditReportUploadPage /></ProtectedRoute>} />
-                        <Route path="/ai-assistant" element={<ProtectedRoute requiredFeature="dashboard" featureName="AI Credit Assistant"><AICreditAssistantPage /></ProtectedRoute>} />
-                        <Route path="/document-center" element={<ProtectedRoute requiredFeature="dashboard" featureName="Document Upload Center"><DocumentUploadCenter /></ProtectedRoute>} />
-                        <Route path="/score-tracker" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Score Tracker"><CreditScoreTracker /></ProtectedRoute>} />
                         <Route path="/admin/login" element={<AdminLogin />} />
                         <Route path="/admin" element={<AdminCommandCenter />} />
                         {/* Legacy admin dashboard — kept mounted under hidden path for rollback */}
