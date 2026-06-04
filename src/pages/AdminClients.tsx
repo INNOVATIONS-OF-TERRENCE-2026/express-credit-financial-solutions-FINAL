@@ -206,9 +206,8 @@ export default function AdminClients() {
   };
 
   const openUploadModal = async (clientId: string) => {
-    setSelectedClientId(clientId);
-    await fetchClientCreditReports(clientId);
-    setShowUploadModal(true);
+    // Route to the unified Upload Reports workflow with the client preselected
+    navigate(`/admin/upload-reports?clientId=${clientId}`);
   };
 
   const fetchClientCreditReports = async (clientId: string) => {
