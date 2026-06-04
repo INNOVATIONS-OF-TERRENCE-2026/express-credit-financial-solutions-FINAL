@@ -35,8 +35,11 @@ const empty: Omit<AdminMetrics, 'loading' | 'error'> = {
   monthlyRevenue: 0,
 };
 
-const countHead = async (q: any): Promise<number> => {
+const countHead = async (table: string, build?: (q: any) => any): Promise<number> => {
   try {
+    const client: any = supabase;
+    let q = client.from(table).select('id', { count: 'exact', head: true });
+    if (build) q = build(q);
     const { count } = await q;
     return count ?? 0;
   } catch {
@@ -55,18 +58,18 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
       monthStart.setHours(0, 0, 0, 0);
 
       const tasks: Promise<number>[] = [
-        countHead(supabase.from('clients').select('id', { count: 'exact', head: true })),
-        countHead(supabase.from('clients').select('id', { count: 'exact', head: true }).eq('status', 'active')),
-        countHead(supabase.from('clients').select('id', { count: 'exact', head: true }).neq('onboarding_status', 'complete')),
-        countHead(supabase.from('flagged_disputes').select('id', { count: 'exact', head: true }).eq('status', 'pending')),
-        countHead(supabase.from('dispute_letters').select('id', { count: 'exact', head: true }).eq('case_status', 'needs_admin_review')),
-        countHead(supabase.from('payment_records').select('id', { count: 'exact', head: true }).eq('payment_status', 'needs_review')),
-        countHead(supabase.from('credit_report_uploads').select('id', { count: 'exact', head: true })),
-        countHead(supabase.from('dispute_cases').select('id', { count: 'exact', head: true }).in('status', ['intake_received','documents_missing','extracted','validation_passed','draft_generated','needs_admin_review','approved'])),
-        countHead(supabase.from('document_uploads').select('id', { count: 'exact', head: true }).eq('review_status', 'pending')),
-        countHead(supabase.from('payment_records').select('id', { count: 'exact', head: true }).eq('payment_status', 'pending')),
-        countHead(supabase.from('client_agreements').select('id', { count: 'exact', head: true }).is('signed_at', null)),
-        countHead(supabase.from('clients').select('id', { count: 'exact', head: true }).eq('mortgage_readiness_status', 'ready')),
+        countHead('clients'),
+        countHead('clients', (q) => q.eq('status', 'active')),
+        countHead('clients', (q) => q.neq('onboarding_status', 'complete')),
+        countHead('flagged_disputes', (q) => q.eq('status', 'pending')),
+        countHead('dispute_letters', (q) => q.eq('case_status', 'needs_admin_review')),
+        countHead('payment_records', (q) => q.eq('payment_status', 'needs_review')),
+        countHead('credit_report_uploads'),
+        countHead('dispute_cases', (q) => q.in('status', ['intake_received','documents_missing','extracted','validation_passed','draft_generated','needs_admin_review','approved'])),
+        countHead('document_uploads', (q) => q.eq('review_status', 'pending')),
+        countHead('payment_records', (q) => q.eq('payment_status', 'pending')),
+        countHead('client_agreements', (q) => q.is('signed_at', null)),
+        countHead('clients', (q) => q.eq('mortgage_readiness_status', 'ready')),
       ];
       const r = await Promise.all(tasks);
       const [
