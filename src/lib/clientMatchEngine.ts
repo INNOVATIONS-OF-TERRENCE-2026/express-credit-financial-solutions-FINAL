@@ -74,23 +74,21 @@ export async function matchClient(input: MatchInput): Promise<MatchResult[]> {
   }
 
   // Pull a candidate pool. Filter server-side by email exact when given to keep it tight.
-  const queries: Promise<any>[] = [];
+  const results: any[] = [];
   if (input.email) {
-    queries.push(Promise.resolve(
-      supabase.from('clients')
+    results.push(
+      await supabase.from('clients')
         .select('id,user_id,full_name,email,dob,ssn_last4,address')
         .ilike('email', input.email.trim())
         .limit(20)
-    ));
+    );
   }
-  queries.push(Promise.resolve(
-    supabase.from('clients')
+  results.push(
+    await supabase.from('clients')
       .select('id,user_id,full_name,email,dob,ssn_last4,address')
       .order('updated_at', { ascending: false })
       .limit(500)
-  ));
-
-  const results = await Promise.all(queries);
+  );
   const seen = new Set<string>();
   const pool: any[] = [];
   results.forEach((r) => (r.data ?? []).forEach((row: any) => {
