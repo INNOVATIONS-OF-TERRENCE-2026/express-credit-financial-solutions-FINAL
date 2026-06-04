@@ -76,6 +76,13 @@ import ClientSettingsPage from "./pages/client/Settings";
 
 const queryClient = new QueryClient();
 
+function ScopedFloatingChat() {
+  const { pathname } = useLocation();
+  // Only render on canonical client portal pages
+  if (!pathname.startsWith("/client/")) return null;
+  return <FloatingChat />;
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
