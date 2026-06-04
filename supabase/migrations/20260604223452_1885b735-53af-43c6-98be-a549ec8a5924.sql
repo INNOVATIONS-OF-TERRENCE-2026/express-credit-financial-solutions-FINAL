@@ -1,0 +1,8 @@
+ALTER TABLE public.clients
+  ALTER COLUMN phone DROP NOT NULL,
+  ALTER COLUMN address DROP NOT NULL,
+  ALTER COLUMN dob DROP NOT NULL,
+  ALTER COLUMN ssn_last4 DROP NOT NULL;
+
+ALTER TABLE public.clients
+  ADD COLUMN IF NOT EXISTS not_a_client boolean NOT NULL DEFAULT false;

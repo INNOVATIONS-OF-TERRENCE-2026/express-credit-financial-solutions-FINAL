@@ -5,7 +5,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard, Users, Upload, FileSearch, Gavel, FileText,
-  Wallet, ScrollText, Activity, Settings, Wrench, Crown,
+  Wallet, ScrollText, Activity, Settings, Wrench, Crown, ShieldCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,6 +22,7 @@ const GROUPS: { label: string; items: { label: string; to: string; icon: any; ex
     label: 'Clients',
     items: [
       { label: 'All Clients', to: '/admin/clients',    icon: Users },
+      { label: 'Client Registry', to: '/admin/client-registry', icon: ShieldCheck },
       { label: 'Agreements',  to: '/admin/agreements', icon: ScrollText },
     ],
   },
