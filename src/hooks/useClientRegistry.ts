@@ -107,8 +107,10 @@ export function useClientRegistry(): RegistrySnapshot {
       registeredClients: 0, profiles: 0, portalLinked: 0, clientsWithoutPortal: 0,
       profilesMissingClient: 0, reportsOrphan: 0, documentsOrphan: 0, paymentsOrphan: 0,
       agreementsOrphan: 0, disputesOrphan: 0, possibleDuplicates: 0, totalPotentialIdentities: 0,
+      notClientCount: 0, reconciledThisSession: 0,
     },
     clients: [], missingProfiles: [], orphanIdentities: [], duplicates: [], needsPortalLink: [],
+    recentAudit: [], profileTags: {}, clientTags: {},
   });
 
   const load = useCallback(async () => {
