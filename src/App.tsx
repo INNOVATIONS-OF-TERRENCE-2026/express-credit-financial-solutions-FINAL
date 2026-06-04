@@ -97,20 +97,8 @@ const App = () => (
                         
                         {/* Existing Routes */}
                         <Route path="/" element={<Index />} />
-                        <Route path="/dispute-center" element={<ProtectedRoute requiredFeature="dispute-generator" featureName="Dispute Center"><DisputeCenter /></ProtectedRoute>} />
-                        <Route path="/data-freeze" element={<ProtectedRoute requiredFeature="dispute-generator" featureName="Data Freeze Center"><DataFreezeCenter /></ProtectedRoute>} />
                         <Route path="/onboarding" element={<ClientOnboarding />} />
-                        <Route path="/documents" element={<ProtectedRoute requiredFeature="credit-upload" featureName="Document Upload"><DocumentUpload /></ProtectedRoute>} />
                         <Route path="/membership" element={<MembershipPricing />} />
-                        <Route path="/education" element={<ProtectedRoute requiredFeature="education" featureName="Education Center"><Education /></ProtectedRoute>} />
-                        <Route path="/credit-tracking" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Tracking"><CreditTracking /></ProtectedRoute>} />
-                        <Route path="/credit-building" element={<ProtectedRoute requiredFeature="credit-building" featureName="Credit Building Center"><CreditBuildingCenter /></ProtectedRoute>} />
-                        <Route path="/goodwill-letters" element={<GoodwillLetters />} />
-                        <Route path="/credit-monitoring" element={<CreditMonitoring />} />
-                        <Route path="/upload-credit-report" element={<ProtectedRoute requiredFeature="credit-upload" featureName="Credit Report Upload"><CreditReportUploadPage /></ProtectedRoute>} />
-                        <Route path="/ai-assistant" element={<ProtectedRoute requiredFeature="dashboard" featureName="AI Credit Assistant"><AICreditAssistantPage /></ProtectedRoute>} />
-                        <Route path="/document-center" element={<ProtectedRoute requiredFeature="dashboard" featureName="Document Upload Center"><DocumentUploadCenter /></ProtectedRoute>} />
-                        <Route path="/score-tracker" element={<ProtectedRoute requiredFeature="dashboard" featureName="Credit Score Tracker"><CreditScoreTracker /></ProtectedRoute>} />
                         <Route path="/admin/login" element={<AdminLogin />} />
                         <Route path="/admin" element={<AdminCommandCenter />} />
                         {/* Legacy admin dashboard — kept mounted under hidden path for rollback */}
