@@ -3407,6 +3407,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      reconcile_client_links: { Args: { dry_run?: boolean }; Returns: Json }
       validate_case_transition: {
         Args: { from_status: string; to_status: string }
         Returns: boolean
