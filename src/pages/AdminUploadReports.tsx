@@ -73,17 +73,38 @@ export default function AdminUploadReports() {
       if (upErr) throw upErr;
 
       const client: any = supabase;
-      const { error: insertErr } = await client.from('credit_report_uploads').insert({
-        client_id: clientId,
-        user_id: selectedClient?.user_id ?? user.id,
-        file_name: file.name,
-        file_path: path,
-        report_type: stage,
-        bureau,
-        analysis_status: 'pending',
-        uploaded_by: user.id,
-      });
+      const { data: inserted, error: insertErr } = await client
+        .from('credit_report_uploads')
+        .insert({
+          client_id: clientId,
+          user_id: selectedClient?.user_id ?? user.id,
+          file_name: file.name,
+          file_path: path,
+          report_type: stage,
+          bureau,
+          analysis_status: 'pending',
+          uploaded_by: user.id,
+        })
+        .select('id')
+        .single();
       if (insertErr) throw insertErr;
+
+      // Phase 6: verify client linkage via deterministic matcher
+      try {
+        await supabase.functions.invoke('match-report-to-client', {
+          body: {
+            report_id: inserted?.id,
+            source: 'credit_report_uploads',
+            name: selectedClient?.full_name,
+            email: selectedClient?.email,
+            phone: selectedClient?.phone,
+            ssn_last4: selectedClient?.ssn_last4,
+            dob: selectedClient?.dob,
+          },
+        });
+      } catch (matchErr) {
+        console.warn('[match-report-to-client] non-fatal:', matchErr);
+      }
 
       await client.from('client_activity_timeline').insert({
         client_id: clientId,
