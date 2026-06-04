@@ -330,6 +330,8 @@ export default function AdminClientRegistry() {
             <TabsTrigger value="orphans">Orphan Identities ({snap.orphanIdentities.length})</TabsTrigger>
             <TabsTrigger value="duplicates">Possible Duplicates ({snap.totals.possibleDuplicates})</TabsTrigger>
             <TabsTrigger value="needs-link">Needs Portal Link ({snap.needsPortalLink.length})</TabsTrigger>
+            <TabsTrigger value="audit">Audit Trail ({snap.recentAudit.length})</TabsTrigger>
+            <TabsTrigger value="checklist">Checklist</TabsTrigger>
           </TabsList>
 
           {/* Registered */}
@@ -346,7 +348,7 @@ export default function AdminClientRegistry() {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Phone</TableHead>
-                      <TableHead>Portal</TableHead>
+                      <TableHead>Tags</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -356,11 +358,7 @@ export default function AdminClientRegistry() {
                         <TableCell className="font-medium">{c.full_name || '—'}</TableCell>
                         <TableCell>{c.email || '—'}</TableCell>
                         <TableCell>{c.phone || '—'}</TableCell>
-                        <TableCell>
-                          {c.user_id
-                            ? <Badge className="text-[10px] bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">Linked</Badge>
-                            : <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-500">Not linked</Badge>}
-                        </TableCell>
+                        <TableCell><TagChips tags={snap.clientTags[c.id]} /></TableCell>
                         <TableCell>
                           <Button size="sm" variant="outline" onClick={() => navigate(`/admin/clients/${c.id}`)}>Edit</Button>
                         </TableCell>
@@ -374,6 +372,19 @@ export default function AdminClientRegistry() {
 
           {/* Missing From Clients */}
           <TabsContent value="missing" className="space-y-3">
+            {snap.missingProfiles.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 justify-between">
+                <div className="flex items-center gap-2 text-sm">
+                  <Button size="sm" variant="outline" onClick={toggleSelectAllMissing}>
+                    {snap.missingProfiles.every((p) => selected[p.user_id]) ? 'Clear selection' : 'Select all'}
+                  </Button>
+                  <span className="text-muted-foreground">{selectedCount} selected</span>
+                </div>
+                <Button size="sm" disabled={selectedCount === 0} onClick={() => setBulkPreviewOpen(true)}>
+                  <UserPlus className="h-3 w-3 mr-1" /> Bulk review & create
+                </Button>
+              </div>
+            )}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Profiles without a client row</CardTitle>
@@ -383,25 +394,29 @@ export default function AdminClientRegistry() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-8"></TableHead>
                       <TableHead>Name / Email</TableHead>
-                      <TableHead>Membership</TableHead>
+                      <TableHead>Tags</TableHead>
                       <TableHead>Suggested match</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {snap.missingProfiles.length === 0 && (
-                      <TableRow><TableCell colSpan={4} className="text-center text-sm text-muted-foreground py-6">No unreconciled profiles. Everyone has a client row.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">No unreconciled profiles. Everyone has a client row.</TableCell></TableRow>
                     )}
                     {snap.missingProfiles.map((p) => {
                       const name = [p.first_name, p.last_name].filter(Boolean).join(' ').trim();
                       return (
                         <TableRow key={p.user_id}>
                           <TableCell>
+                            <Checkbox checked={!!selected[p.user_id]} onCheckedChange={() => toggleSelected(p.user_id)} />
+                          </TableCell>
+                          <TableCell>
                             <p className="font-medium">{name || (p.email || p.user_id.slice(0, 8))}</p>
                             <p className="text-xs text-muted-foreground">{p.email || 'no email'}</p>
                           </TableCell>
-                          <TableCell><Badge variant="outline" className="text-[10px] capitalize">{p.membership_type || '—'}</Badge></TableCell>
+                          <TableCell><TagChips tags={snap.profileTags[p.user_id]} /></TableCell>
                           <TableCell>
                             {p.suggested_client_id ? (
                               <div className="text-xs">
@@ -546,6 +561,74 @@ export default function AdminClientRegistry() {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Audit Trail */}
+          <TabsContent value="audit" className="space-y-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2"><History className="h-4 w-4" /> Recent reconciliation actions</CardTitle>
+                <CardDescription>Latest 50 registry actions from the audit log.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>When</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Admin</TableHead>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Target client</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {snap.recentAudit.length === 0 && (
+                      <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">No reconciliation actions yet.</TableCell></TableRow>
+                    )}
+                    {snap.recentAudit.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell className="text-xs whitespace-nowrap">{new Date(a.created_at).toLocaleString()}</TableCell>
+                        <TableCell><Badge variant="outline" className="text-[10px]">{a.action.replace(/^REGISTRY_/, '')}</Badge></TableCell>
+                        <TableCell className="text-xs"><code>{a.user_id ? a.user_id.slice(0, 8) + '…' : '—'}</code></TableCell>
+                        <TableCell className="text-xs">{a.details?.source || a.details?.source_user_id?.slice?.(0, 8) || '—'}</TableCell>
+                        <TableCell className="text-xs"><code>{a.record_id ? a.record_id.slice(0, 8) + '…' : '—'}</code></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Checklist */}
+          <TabsContent value="checklist" className="space-y-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Reconciliation completion checklist</CardTitle>
+                <CardDescription>Live status of the data-repair workstream.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                {[
+                  { ok: snap.totals.profilesMissingClient === 0, label: 'All real clients registered', detail: `${snap.totals.profilesMissingClient} profiles still need a client row` },
+                  { ok: snap.totals.clientsWithoutPortal === 0, label: 'All portal users linked', detail: `${snap.totals.clientsWithoutPortal} clients without a portal user_id` },
+                  { ok: snap.totals.reportsOrphan === 0, label: 'All orphan reports assigned', detail: `${snap.totals.reportsOrphan} credit report rows orphaned` },
+                  { ok: snap.totals.paymentsOrphan === 0, label: 'All orphan payments assigned', detail: `${snap.totals.paymentsOrphan} payment rows orphaned` },
+                  { ok: snap.totals.agreementsOrphan === 0, label: 'All orphan agreements assigned', detail: `${snap.totals.agreementsOrphan} agreement rows orphaned` },
+                  { ok: snap.totals.possibleDuplicates === 0, label: 'Duplicate risks reviewed', detail: `${snap.totals.possibleDuplicates} duplicate groups outstanding` },
+                  { ok: snap.totals.notClientCount > 0 || snap.totals.profilesMissingClient === 0, label: 'Non-client / test records marked', detail: `${snap.totals.notClientCount} rows flagged not-a-client` },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-start gap-2">
+                    {row.ok
+                      ? <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5" />
+                      : <Circle className="h-4 w-4 text-amber-500 mt-0.5" />}
+                    <div>
+                      <p className={row.ok ? 'text-foreground' : 'font-medium'}>{row.label}</p>
+                      <p className="text-xs text-muted-foreground">{row.detail}</p>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           </TabsContent>
