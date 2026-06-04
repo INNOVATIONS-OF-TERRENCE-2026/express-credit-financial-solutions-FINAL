@@ -37,6 +37,7 @@ import ClientPortalLinks from "./pages/ClientPortalLinks";
 import AdminClients from "./pages/AdminClients";
 import AdminClientEdit from "./pages/AdminClientEdit";
 import AdminClientPreview from "./pages/AdminClientPreview";
+import AdminClientRegistry from "./pages/AdminClientRegistry";
 import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
@@ -115,6 +116,7 @@ const App = () => (
                         <Route path="/admin/clients/:clientId" element={<RequireAdmin><AdminClientEdit /></RequireAdmin>} />
                         <Route path="/admin/client-preview/:clientId" element={<RequireAdmin><AdminClientPreview /></RequireAdmin>} />
                         <Route path="/admin/clients" element={<RequireAdmin><AdminClients /></RequireAdmin>} />
+                        <Route path="/admin/client-registry" element={<RequireAdmin><AdminClientRegistry /></RequireAdmin>} />
                         <Route path="/admin/settings" element={<RequireAdmin><AdminSettings /></RequireAdmin>} />
                         <Route path="/admin/tools" element={<RequireAdmin><AdminTools /></RequireAdmin>} />
                         <Route path="/client-portals" element={<ClientPortalLinks />} />
