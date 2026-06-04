@@ -112,7 +112,7 @@ export function AdminFileUploader({ clientId, onUploadComplete }: AdminFileUploa
         user_id: documentData.uploaded_by
       };
     } else if (['Driver\'s License', 'Utility Bill', 'Lease Agreement', 'Pay Stub', 'SSN Card'].includes(category)) {
-      tableName = 'identity_docs';
+      tableName = 'document_archive';
       insertData = {
         client_id: clientId,
         doc_type: category,

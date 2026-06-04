@@ -23,7 +23,7 @@ export function useRealtimeRefresh(
       .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_letters' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'flagged_disputes' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'credit_report_uploads' }, debouncedRefresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_documents' }, debouncedRefresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'document_archive' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'client_agreements' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'autonomous_jobs' }, debouncedRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'document_ai_results' }, debouncedRefresh)
