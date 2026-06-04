@@ -38,8 +38,27 @@ export interface OrphanIdentity {
 
 export interface DuplicateGroup {
   key: string;       // email or normalized name
-  reason: 'email' | 'name';
+  reason: 'email' | 'name' | 'phone';
   clients: RegistryClient[];
+}
+
+export type RegistryTag =
+  | 'Registered'
+  | 'Profile Only'
+  | 'Needs Client Row'
+  | 'Needs Portal Link'
+  | 'Duplicate Risk'
+  | 'Orphan Data'
+  | 'Reconciled'
+  | 'Not Client';
+
+export interface RegistryAuditEntry {
+  id: string;
+  action: string;
+  details: any;
+  record_id: string | null;
+  user_id: string | null;
+  created_at: string;
 }
 
 export interface RegistrySnapshot {
@@ -58,12 +77,19 @@ export interface RegistrySnapshot {
     disputesOrphan: number;
     possibleDuplicates: number;
     totalPotentialIdentities: number;
+    notClientCount: number;
+    reconciledThisSession: number;
   };
   clients: RegistryClient[];
   missingProfiles: MissingProfile[];
   orphanIdentities: OrphanIdentity[];
   duplicates: DuplicateGroup[];
   needsPortalLink: RegistryClient[];
+  recentAudit: RegistryAuditEntry[];
+  /** Map of missing-profile user_id -> tags. */
+  profileTags: Record<string, RegistryTag[]>;
+  /** Map of client.id -> tags. */
+  clientTags: Record<string, RegistryTag[]>;
   refresh: () => Promise<void>;
 }
 
