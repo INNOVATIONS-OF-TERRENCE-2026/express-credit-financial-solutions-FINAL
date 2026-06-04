@@ -49,5 +49,5 @@ function ReportsInner() {
 }
 
 export default function ClientReportsPage() {
-  return <ClientPortalLayout title="Reports"><ReportsInner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="My Reports"><ReportsInner /></ClientPortalLayout>;
 }

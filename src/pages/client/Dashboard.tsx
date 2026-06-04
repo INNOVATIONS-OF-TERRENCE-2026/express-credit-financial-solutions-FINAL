@@ -4,9 +4,11 @@ import { useClientPortalData } from '@/hooks/useClientPortalData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, XCircle, ScrollText, FileText, Wallet, Activity, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, XCircle, ScrollText, FileText, Wallet, Activity, ArrowRight, CheckCircle2, Home, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MatchStatusBadge } from '@/components/MatchStatusBadge';
+import { computeReadiness } from '@/lib/mortgageReadiness';
+import { Button } from '@/components/ui/button';
 
 const fmtMoney = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
@@ -17,17 +19,60 @@ function DashboardInner() {
   if (d.loading) return <p className="text-sm text-muted-foreground">Loading your credit progress…</p>;
 
   const noData = d.startingScore == null && d.currentScore == null && d.accountsDeleted === 0 && d.debtRemoved === 0;
+  const readiness = computeReadiness(d.currentScore, d.remainingNegatives);
+  const pointsToNext = d.currentScore != null
+    ? Math.max(0, readiness.nextMilestoneTarget - d.currentScore)
+    : null;
 
   return (
     <div className="space-y-6">
-      {/* Hero */}
+      {/* Hero — Credit Score Center */}
       <div className="rounded-xl border border-border/50 bg-gradient-to-br from-amber-500/10 via-background to-blue-500/10 p-6">
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Welcome back, {fullName || 'Client'}</h2>
-        <p className="text-muted-foreground mt-1">Your credit progress is being actively managed.</p>
+        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Welcome back</p>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight truncate">{fullName || 'Client'}</h2>
+            <div className={`mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${readiness.tone}`}>
+              <Home className="h-3.5 w-3.5" />
+              {readiness.label}
+            </div>
+            <p className="text-sm text-muted-foreground mt-2 max-w-xl">{readiness.description}</p>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Current Score</p>
+              <p className="text-5xl font-bold text-amber-500 leading-none">{d.currentScore ?? '—'}</p>
+              {d.scoreChange != null && (
+                <p className={`text-xs font-semibold mt-1 flex items-center justify-center gap-1 ${d.scoreChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  {d.scoreChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                  {d.scoreChange > 0 ? '+' : ''}{d.scoreChange} from start
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Milestone progress */}
+        <div className="mt-5 rounded-lg border border-border/40 bg-background/60 p-4">
+          <div className="flex items-center justify-between mb-2 text-xs">
+            <span className="flex items-center gap-1 text-muted-foreground"><Target className="h-3.5 w-3.5" /> Next milestone: <span className="text-foreground font-semibold">{readiness.nextMilestoneLabel}</span></span>
+            {pointsToNext != null && pointsToNext > 0 && (
+              <span className="text-amber-500 font-semibold">{pointsToNext} pts to go</span>
+            )}
+          </div>
+          <Progress value={readiness.progressPct} />
+        </div>
+
+        {/* Next action CTA */}
         {d.nextStep && (
-          <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm">
-            <ArrowRight className="h-4 w-4 text-amber-500" />
-            <span><span className="text-muted-foreground">Next step:</span> {d.nextStep}</span>
+          <div className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 flex flex-col md:flex-row md:items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-amber-500 font-bold">Your Next Action</p>
+              <p className="text-sm font-medium mt-0.5">{d.nextStep}</p>
+            </div>
+            <Button asChild size="sm" variant="default" className="shrink-0">
+              <Link to="/client/messages">Message Specialist <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
+            </Button>
           </div>
         )}
       </div>
@@ -209,7 +254,7 @@ function SmallCard({ title, value, icon: Icon, to }: { title: string; value: any
 
 export default function ClientDashboardPage() {
   return (
-    <ClientPortalLayout title="Dashboard">
+    <ClientPortalLayout title="Credit Score Center">
       <DashboardInner />
     </ClientPortalLayout>
   );

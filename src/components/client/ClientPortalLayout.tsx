@@ -5,6 +5,7 @@ import { ClientProvider, useClient } from '@/contexts/ClientContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ClientStatusStrip } from './ClientStatusStrip';
 
 function Inner({ children, title }: { children: ReactNode; title: string }) {
   const { user, loading } = useAuth();
@@ -37,6 +38,7 @@ function Inner({ children, title }: { children: ReactNode; title: string }) {
           </div>
         </div>
       </header>
+      <ClientStatusStrip />
       <main className="flex-1 p-4 md:p-6 overflow-x-hidden">{children}</main>
     </div>
   );
