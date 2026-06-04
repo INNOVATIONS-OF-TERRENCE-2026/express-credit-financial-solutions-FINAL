@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,6 +48,45 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [agreements, setAgreements] = useState<any[]>([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const SCORE_LABELS: Record<string, string> = {
+    experian_score: 'Experian',
+    equifax_score: 'Equifax',
+    transunion_score: 'TransUnion',
+  };
+  const FIELD_LABELS: Record<string, string> = {
+    full_name: 'Full Name',
+    email: 'Email',
+    phone: 'Phone',
+    address: 'Address',
+    dob: 'Date of Birth',
+    ssn_last4: 'SSN Last 4',
+    membership_plan: 'Membership Plan',
+  };
+
+  const computeDiff = () => {
+    const fieldDiff: { key: string; label: string; from: any; to: any }[] = [];
+    if (originalClient && client) {
+      (Object.keys(FIELD_LABELS) as (keyof ClientData)[]).forEach(k => {
+        const before = (originalClient as any)?.[k] ?? null;
+        const after = (client as any)?.[k] ?? null;
+        if ((before ?? '') !== (after ?? '')) {
+          fieldDiff.push({ key: k as string, label: FIELD_LABELS[k as string], from: before, to: after });
+        }
+      });
+    }
+    const scoreDiff: { key: string; label: string; from: any; to: any }[] = [];
+    (['experian_score','equifax_score','transunion_score'] as const).forEach(k => {
+      const before = (originalClient as any)?.[k] ?? null;
+      const after = (scores as any)[k] ?? null;
+      // originals on clients table may not carry scores; only flag when an explicit new value is set
+      if (after !== before && after != null) {
+        scoreDiff.push({ key: k, label: SCORE_LABELS[k], from: before, to: after });
+      }
+    });
+    return { fieldDiff, scoreDiff };
+  };
 
   useEffect(() => {
     if (clientId && open) fetchClient();
@@ -85,8 +124,14 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
     }
   };
 
+  const requestSave = () => {
+    if (!client) return;
+    setShowConfirm(true);
+  };
+
   const handleSave = async () => {
     if (!client) return;
+    setShowConfirm(false);
     setSaving(true);
     try {
       // Compute diff vs originals for audit log
@@ -255,7 +300,7 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button onClick={handleSave} disabled={saving} className="flex-1">
+            <Button onClick={requestSave} disabled={saving} className="flex-1">
               <Save className="h-4 w-4 mr-2" />{saving ? 'Saving...' : 'Save Changes'}
             </Button>
             <Button onClick={handleGenerateDisputes} disabled={generating} variant="outline">
@@ -304,6 +349,57 @@ export function AdminClientEditor({ clientId, open, onOpenChange, onSaved }: Adm
             </CardContent>
           </Card>
         </div>
+        )}
+
+        {client && (
+          <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Confirm changes for {client.full_name}</DialogTitle>
+                <DialogDescription>
+                  Review the pending updates below. Nothing is saved until you confirm.
+                </DialogDescription>
+              </DialogHeader>
+              {(() => {
+                const { fieldDiff, scoreDiff } = computeDiff();
+                if (fieldDiff.length === 0 && scoreDiff.length === 0) {
+                  return <p className="text-sm text-muted-foreground py-4">No changes detected.</p>;
+                }
+                const Row = ({ label, from, to }: { label: string; from: any; to: any }) => (
+                  <div className="grid grid-cols-[140px_1fr] gap-2 text-sm py-1.5 border-b border-border/40 last:border-0">
+                    <span className="font-medium">{label}</span>
+                    <span className="min-w-0">
+                      <span className="line-through text-muted-foreground break-words">{from ? String(from) : <em className="opacity-60">empty</em>}</span>
+                      <span className="mx-2 text-muted-foreground">→</span>
+                      <span className="text-emerald-500 font-medium break-words">{to ? String(to) : <em className="opacity-60">empty</em>}</span>
+                    </span>
+                  </div>
+                );
+                return (
+                  <div className="max-h-80 overflow-auto">
+                    {fieldDiff.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Profile</p>
+                        {fieldDiff.map(d => <Row key={d.key} label={d.label} from={d.from} to={d.to} />)}
+                      </div>
+                    )}
+                    {scoreDiff.length > 0 && (
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Credit Scores</p>
+                        {scoreDiff.map(d => <Row key={d.key} label={d.label} from={d.from ?? '—'} to={d.to} />)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowConfirm(false)} disabled={saving}>Cancel</Button>
+                <Button onClick={handleSave} disabled={saving}>
+                  <Save className="h-4 w-4 mr-2" />{saving ? 'Saving…' : 'Confirm & Save'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         )}
       </DialogContent>
     </Dialog>
