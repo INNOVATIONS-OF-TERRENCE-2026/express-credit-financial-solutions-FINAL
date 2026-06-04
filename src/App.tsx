@@ -171,7 +171,10 @@ const App = () => (
                         <Route path="/client/agreements" element={<ClientAgreementsPage />} />
                         <Route path="/client/messages"   element={<ClientMessagesPage />} />
                         <Route path="/client/settings"   element={<ClientSettingsPage />} />
-                        <Route path="/client/:clientSlug" element={<ClientPortals />} />
+                        {/* Legacy slug-based portal → canonical premium portal */}
+                        <Route path="/client/:clientSlug" element={<Navigate to="/client/dashboard" replace />} />
+                        {/* Admin-only legacy preview kept for rollback */}
+                        <Route path="/client-portals-legacy/:clientSlug" element={<ClientPortals />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </BrowserRouter>
