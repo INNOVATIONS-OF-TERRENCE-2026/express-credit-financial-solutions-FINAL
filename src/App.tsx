@@ -94,21 +94,13 @@ const App = () => (
                       <Routes>
                         {/* SBA Routes */}
                         <Route path="/sba" element={<SBAHome />} />
-                        <Route path="/sba-portal" element={<SBAHome />} />
                         <Route path="/sba/precheck" element={<SBAPreCheck />} />
-                        <Route path="/sba-portal/precheck" element={<SBAPreCheck />} />
                         <Route path="/sba/consent" element={<SBAConsent />} />
-                        <Route path="/sba-portal/consent" element={<SBAConsent />} />
                         <Route path="/sba/intake" element={<SBAIntake />} />
-                        <Route path="/sba-portal/intake" element={<SBAIntake />} />
                         <Route path="/sba/documents" element={<SBADocuments />} />
-                        <Route path="/sba-portal/documents" element={<SBADocuments />} />
                         <Route path="/sba/packet" element={<SBAPacket />} />
-                        <Route path="/sba-portal/packet" element={<SBAPacket />} />
                         <Route path="/sba/dashboard" element={<SBADashboard />} />
-                        <Route path="/sba-portal/dashboard" element={<SBADashboard />} />
                         <Route path="/sba/admin" element={<SBAAdmin />} />
-                        <Route path="/sba-portal/admin" element={<SBAAdmin />} />
                         
                         {/* Existing Routes */}
                         <Route path="/" element={<Index />} />
