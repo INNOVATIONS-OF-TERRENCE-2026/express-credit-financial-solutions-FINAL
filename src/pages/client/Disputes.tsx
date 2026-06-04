@@ -37,5 +37,5 @@ function Inner() {
   );
 }
 export default function ClientDisputesPage() {
-  return <ClientPortalLayout title="Disputes"><Inner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="Disputes & Letters"><Inner /></ClientPortalLayout>;
 }

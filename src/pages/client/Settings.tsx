@@ -15,5 +15,5 @@ function Inner() {
   );
 }
 export default function ClientSettingsPage() {
-  return <ClientPortalLayout title="Settings"><Inner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="Account"><Inner /></ClientPortalLayout>;
 }

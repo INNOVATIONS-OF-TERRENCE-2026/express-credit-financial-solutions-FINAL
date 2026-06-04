@@ -37,5 +37,5 @@ function Inner() {
   );
 }
 export default function ClientAgreementsPage() {
-  return <ClientPortalLayout title="Agreements"><Inner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="Agreement Center"><Inner /></ClientPortalLayout>;
 }
