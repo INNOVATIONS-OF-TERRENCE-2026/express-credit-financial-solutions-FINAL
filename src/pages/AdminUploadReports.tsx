@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileCheck } from 'lucide-react';
 import { ClientMatchEnginePanel } from '@/components/admin/ClientMatchEnginePanel';
+import { RecentReportMatches } from '@/components/admin/RecentReportMatches';
 import { MatchResult } from '@/lib/clientMatchEngine';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -196,6 +197,10 @@ export default function AdminUploadReports() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      <div className="max-w-5xl mt-4">
+        <RecentReportMatches clientId={clientId || null} />
       </div>
 
       <AlertDialog open={!!pendingConfirm} onOpenChange={(o) => !o && setPendingConfirm(null)}>

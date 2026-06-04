@@ -15,6 +15,15 @@ export interface ClientPortalData {
   currentDisputeRound: number;
   nextStep: string | null;
   reportsCount: number;
+  recentReports: Array<{
+    id: string;
+    file_name: string;
+    uploaded_at: string;
+    match_status: 'matched' | 'needs_review' | 'failed' | null;
+    match_score: number | null;
+    match_checked_at: string | null;
+    match_error: string | null;
+  }>;
   disputesCount: number;
   documentsPendingCount: number;
   agreementsSigned: number;
@@ -45,6 +54,7 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
     currentDisputeRound: 0,
     nextStep: null,
     reportsCount: 0,
+    recentReports: [],
     disputesCount: 0,
     documentsPendingCount: 0,
     agreementsSigned: 0,
@@ -90,6 +100,15 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
         countBy('client_agreements', 'client_id', cid, (q) => q.is('signed_at', null)),
       ]);
 
+      const { data: recentReports } = cid
+        ? await client
+            .from('credit_report_uploads')
+            .select('id,file_name,uploaded_at,match_status,match_score,match_checked_at,match_error')
+            .eq('client_id', cid)
+            .order('uploaded_at', { ascending: false })
+            .limit(5)
+        : { data: [] };
+
       const { data: paymentSummary } = uid
         ? await client.from('client_payment_summary').select('*').eq('user_id', uid).maybeSingle()
         : { data: null };
@@ -112,6 +131,7 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
         currentDisputeRound: Number(clientRow?.current_dispute_round || 0),
         nextStep: clientRow?.next_step_note ?? null,
         reportsCount,
+        recentReports: recentReports || [],
         disputesCount,
         documentsPendingCount: docsPending,
         agreementsSigned,

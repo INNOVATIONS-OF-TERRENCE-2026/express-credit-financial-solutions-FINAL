@@ -124,11 +124,31 @@ Deno.serve(async (req) => {
     const confident = !!top && top.score >= Number(confidence_threshold) && gap >= 0.1;
 
     let linked = false;
-    if (confident && auto_link && (report as any).client_id !== top.client.id) {
+    const match_status = !top || top.score === 0
+      ? "failed"
+      : confident ? "matched" : "needs_review";
+    const match_error = match_status === "failed"
+      ? "No client candidates scored above zero — provide ssn_last4, dob, email, phone, or name to match."
+      : match_status === "needs_review"
+        ? `Top score ${top.score.toFixed(2)} below threshold ${confidence_threshold} (gap ${gap.toFixed(2)}).`
+        : null;
+
+    if (confident && auto_link && (report as any).client_id !== top!.client.id) {
       const { error: uErr } = await supabase
-        .from(reportTable).update({ client_id: top.client.id }).eq("id", report_id);
+        .from(reportTable).update({ client_id: top!.client.id }).eq("id", report_id);
       if (uErr) throw uErr;
       linked = true;
+    }
+
+    // Persist status on the report row (only credit_report_uploads has these columns)
+    if (reportTable === "credit_report_uploads") {
+      await supabase.from("credit_report_uploads").update({
+        match_status,
+        match_score: top?.score ?? 0,
+        match_reasons: top?.reasons ?? [],
+        match_checked_at: new Date().toISOString(),
+        match_error,
+      }).eq("id", report_id);
     }
 
     if (!confident) {
@@ -149,6 +169,8 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({
       report_id,
       source: reportTable,
+      match_status,
+      match_error,
       linked,
       confident,
       top_match: top ? { client_id: top.client.id, score: top.score, reasons: top.reasons } : null,

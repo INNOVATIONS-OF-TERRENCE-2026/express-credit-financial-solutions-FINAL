@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, XCircle, ScrollText, FileText, Wallet, Activity, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { MatchStatusBadge } from '@/components/MatchStatusBadge';
 
 const fmtMoney = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
@@ -108,6 +109,36 @@ function DashboardInner() {
           )}
         </CardContent>
       </Card>
+
+      {d.recentReports.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" />Recent Credit Reports</CardTitle>
+            <CardDescription>Match status for the latest uploads on your file.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y divide-border/40">
+              {d.recentReports.map((r) => (
+                <li key={r.id} className="py-2 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{r.file_name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Uploaded {new Date(r.uploaded_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <MatchStatusBadge
+                    status={r.match_status}
+                    score={r.match_score}
+                    checkedAt={r.match_checked_at}
+                    error={r.match_error}
+                    compact
+                  />
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       {noData && (
         <Card className="border-dashed">
