@@ -199,6 +199,10 @@ export default function AdminUploadReports() {
         </div>
       </div>
 
+      <div className="max-w-5xl mt-4">
+        <RecentReportMatches clientId={clientId || null} />
+      </div>
+
       <AlertDialog open={!!pendingConfirm} onOpenChange={(o) => !o && setPendingConfirm(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
