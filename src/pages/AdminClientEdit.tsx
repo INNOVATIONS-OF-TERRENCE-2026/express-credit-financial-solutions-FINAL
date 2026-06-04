@@ -12,11 +12,13 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { BackButton } from '@/components/BackButton';
 import { AdminNotesPanel } from '@/components/AdminNotesPanel';
 import { ResultsOverridePanel } from '@/components/admin/ResultsOverridePanel';
+import { ClientActivityTimeline } from '@/components/ClientActivityTimeline';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
 import { resolveClient as resolveClientId } from '@/lib/resolveClient';
-import { Save, Zap, CreditCard, ArrowLeft, Eye, User, Shield } from 'lucide-react';
+import { Save, Zap, CreditCard, ArrowLeft, Eye, User, Shield, FileSearch, Gavel, FileText, Wallet, ScrollText, Activity, StickyNote, ExternalLink } from 'lucide-react';
 
 interface ClientData {
   id: string;
@@ -232,7 +234,7 @@ export default function AdminClientEdit() {
   return (
     <div className="min-h-screen bg-background">
       <NavigationHeader />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -252,7 +254,21 @@ export default function AdminClientEdit() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="flex flex-wrap h-auto justify-start">
+            <TabsTrigger value="overview"><User className="h-3.5 w-3.5 mr-1" />Overview</TabsTrigger>
+            <TabsTrigger value="results"><CreditCard className="h-3.5 w-3.5 mr-1" />Results Override</TabsTrigger>
+            <TabsTrigger value="reports"><FileSearch className="h-3.5 w-3.5 mr-1" />Reports</TabsTrigger>
+            <TabsTrigger value="disputes"><Gavel className="h-3.5 w-3.5 mr-1" />Disputes</TabsTrigger>
+            <TabsTrigger value="documents"><FileText className="h-3.5 w-3.5 mr-1" />Documents</TabsTrigger>
+            <TabsTrigger value="payments"><Wallet className="h-3.5 w-3.5 mr-1" />Payments</TabsTrigger>
+            <TabsTrigger value="agreements"><ScrollText className="h-3.5 w-3.5 mr-1" />Agreements</TabsTrigger>
+            <TabsTrigger value="notes"><StickyNote className="h-3.5 w-3.5 mr-1" />Notes</TabsTrigger>
+            <TabsTrigger value="activity"><Activity className="h-3.5 w-3.5 mr-1" />Activity</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column - Main edit form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Info */}
@@ -396,16 +412,10 @@ export default function AdminClientEdit() {
                 <Zap className="h-4 w-4 mr-2" />{generating ? 'Generating...' : 'Generate Disputes'}
               </Button>
             </div>
-
-            {/* Results Override (Client Portal Sync) */}
-            <ResultsOverridePanel clientId={client.id} />
           </div>
 
-          {/* Right column - Admin Notes */}
+          {/* Right column - meta */}
           <div className="space-y-6">
-            <AdminNotesPanel clientId={client.id} clientName={client.full_name} />
-
-            {/* Meta info */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Record Info</CardTitle>
@@ -418,8 +428,96 @@ export default function AdminClientEdit() {
               </CardContent>
             </Card>
           </div>
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="results">
+            <ResultsOverridePanel clientId={client.id} />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <ClientCrossLinkCard
+              title="Credit Reports"
+              description="Upload a new credit report or view the report archive for this client."
+              primaryHref={`/admin/upload-reports?clientId=${client.id}`}
+              primaryLabel="Upload Report"
+              secondaryHref={`/admin/reports?clientId=${client.id}`}
+              secondaryLabel="View All Reports"
+            />
+          </TabsContent>
+
+          <TabsContent value="disputes">
+            <ClientCrossLinkCard
+              title="Disputes"
+              description="Review dispute cases, generate letters, and track round progress."
+              primaryHref={`/admin/disputes?clientId=${client.id}`}
+              primaryLabel="Open Disputes"
+            />
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <ClientCrossLinkCard
+              title="Documents"
+              description="Review uploaded identification, proofs, and supporting documents."
+              primaryHref={`/admin/documents?clientId=${client.id}`}
+              primaryLabel="Open Documents"
+            />
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <ClientCrossLinkCard
+              title="Payments"
+              description="Review payment proof submissions, history, and outstanding balances."
+              primaryHref={`/admin/payments?clientId=${client.id}`}
+              primaryLabel="Open Payments"
+            />
+          </TabsContent>
+
+          <TabsContent value="agreements">
+            <ClientCrossLinkCard
+              title="Agreements"
+              description="View signed agreements and pending signature requests."
+              primaryHref={`/admin/agreements?clientId=${client.id}`}
+              primaryLabel="Open Agreements"
+            />
+          </TabsContent>
+
+          <TabsContent value="notes">
+            <AdminNotesPanel clientId={client.id} clientName={client.full_name} />
+          </TabsContent>
+
+          <TabsContent value="activity">
+            <ClientActivityTimeline clientId={client.id} userId={client.user_id || undefined} limit={50} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
+  );
+}
+
+function ClientCrossLinkCard({
+  title, description, primaryHref, primaryLabel, secondaryHref, secondaryLabel,
+}: {
+  title: string; description: string;
+  primaryHref: string; primaryLabel: string;
+  secondaryHref?: string; secondaryLabel?: string;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2">
+        <Button asChild>
+          <a href={primaryHref}><ExternalLink className="h-4 w-4 mr-2" />{primaryLabel}</a>
+        </Button>
+        {secondaryHref && secondaryLabel && (
+          <Button asChild variant="outline">
+            <a href={secondaryHref}><ExternalLink className="h-4 w-4 mr-2" />{secondaryLabel}</a>
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }
