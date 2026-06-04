@@ -87,59 +87,6 @@ export type Database = {
           },
         ]
       }
-      admin_notifications: {
-        Row: {
-          action_url: string | null
-          created_at: string
-          id: string
-          is_read: boolean
-          message: string | null
-          metadata: Json | null
-          notification_type: string
-          read_at: string | null
-          related_client_id: string | null
-          related_user_id: string | null
-          severity: string
-          title: string
-        }
-        Insert: {
-          action_url?: string | null
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          message?: string | null
-          metadata?: Json | null
-          notification_type: string
-          read_at?: string | null
-          related_client_id?: string | null
-          related_user_id?: string | null
-          severity?: string
-          title: string
-        }
-        Update: {
-          action_url?: string | null
-          created_at?: string
-          id?: string
-          is_read?: boolean
-          message?: string | null
-          metadata?: Json | null
-          notification_type?: string
-          read_at?: string | null
-          related_client_id?: string | null
-          related_user_id?: string | null
-          severity?: string
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "admin_notifications_related_client_id_fkey"
-            columns: ["related_client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       admin_reminders: {
         Row: {
           client_id: string | null
@@ -362,70 +309,6 @@ export type Database = {
             columns: ["credit_report_id"]
             isOneToOne: false
             referencedRelation: "credit_report_uploads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_dispute_letters: {
-        Row: {
-          bureau: string | null
-          client_id: string | null
-          confidence_score: number | null
-          dispute_case_id: string | null
-          generated_at: string
-          generated_from_cip_id: string | null
-          id: string
-          letter_content: string
-          letter_type: string | null
-          status: string
-          user_id: string | null
-        }
-        Insert: {
-          bureau?: string | null
-          client_id?: string | null
-          confidence_score?: number | null
-          dispute_case_id?: string | null
-          generated_at?: string
-          generated_from_cip_id?: string | null
-          id?: string
-          letter_content: string
-          letter_type?: string | null
-          status?: string
-          user_id?: string | null
-        }
-        Update: {
-          bureau?: string | null
-          client_id?: string | null
-          confidence_score?: number | null
-          dispute_case_id?: string | null
-          generated_at?: string
-          generated_from_cip_id?: string | null
-          id?: string
-          letter_content?: string
-          letter_type?: string | null
-          status?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_dispute_letters_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_dispute_letters_dispute_case_id_fkey"
-            columns: ["dispute_case_id"]
-            isOneToOne: false
-            referencedRelation: "dispute_cases"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_dispute_letters_generated_from_cip_id_fkey"
-            columns: ["generated_from_cip_id"]
-            isOneToOne: false
-            referencedRelation: "client_intelligence_packets"
             referencedColumns: ["id"]
           },
         ]
@@ -896,45 +779,6 @@ export type Database = {
           },
         ]
       }
-      cashapp_orders: {
-        Row: {
-          amount: number
-          created_at: string
-          email: string
-          full_name: string
-          id: string
-          plan: string
-          screenshot_url: string
-          status: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          email: string
-          full_name: string
-          id?: string
-          plan: string
-          screenshot_url: string
-          status?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          email?: string
-          full_name?: string
-          id?: string
-          plan?: string
-          screenshot_url?: string
-          status?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       chat_history: {
         Row: {
           created_at: string
@@ -964,65 +808,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      client_action_tracker: {
-        Row: {
-          client_id: string
-          completed: boolean | null
-          credit_report_uploaded: boolean | null
-          has_605b: boolean | null
-          has_ftc: boolean | null
-          id: string
-          identity_docs_received: boolean | null
-          innovis_frozen: boolean | null
-          lexisnexis_frozen: boolean | null
-          pushed_to_experian: boolean | null
-          report_parsed: boolean | null
-          scores_updated: boolean | null
-          updated_at: string | null
-          work_number_frozen: boolean | null
-        }
-        Insert: {
-          client_id: string
-          completed?: boolean | null
-          credit_report_uploaded?: boolean | null
-          has_605b?: boolean | null
-          has_ftc?: boolean | null
-          id?: string
-          identity_docs_received?: boolean | null
-          innovis_frozen?: boolean | null
-          lexisnexis_frozen?: boolean | null
-          pushed_to_experian?: boolean | null
-          report_parsed?: boolean | null
-          scores_updated?: boolean | null
-          updated_at?: string | null
-          work_number_frozen?: boolean | null
-        }
-        Update: {
-          client_id?: string
-          completed?: boolean | null
-          credit_report_uploaded?: boolean | null
-          has_605b?: boolean | null
-          has_ftc?: boolean | null
-          id?: string
-          identity_docs_received?: boolean | null
-          innovis_frozen?: boolean | null
-          lexisnexis_frozen?: boolean | null
-          pushed_to_experian?: boolean | null
-          report_parsed?: boolean | null
-          scores_updated?: boolean | null
-          updated_at?: string | null
-          work_number_frozen?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "client_action_tracker_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: true
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       client_activity_timeline: {
         Row: {
@@ -1153,56 +938,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: true
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      client_documents: {
-        Row: {
-          created_at: string | null
-          document_type: string
-          file_name: string | null
-          file_path: string | null
-          id: string
-          notes: string | null
-          purchase_id: string | null
-          status: string | null
-          uploaded_at: string | null
-          user_id: string
-          verified_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          document_type: string
-          file_name?: string | null
-          file_path?: string | null
-          id?: string
-          notes?: string | null
-          purchase_id?: string | null
-          status?: string | null
-          uploaded_at?: string | null
-          user_id: string
-          verified_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          document_type?: string
-          file_name?: string | null
-          file_path?: string | null
-          id?: string
-          notes?: string | null
-          purchase_id?: string | null
-          status?: string | null
-          uploaded_at?: string | null
-          user_id?: string
-          verified_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "client_documents_purchase_id_fkey"
-            columns: ["purchase_id"]
-            isOneToOne: false
-            referencedRelation: "purchases"
             referencedColumns: ["id"]
           },
         ]
@@ -1381,42 +1116,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      client_payment_summary: {
-        Row: {
-          client_id: string | null
-          last_payment_amount: number | null
-          last_payment_date: string | null
-          last_payment_method: string | null
-          last_payment_status: string | null
-          total_paid: number
-          total_pending: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          client_id?: string | null
-          last_payment_amount?: number | null
-          last_payment_date?: string | null
-          last_payment_method?: string | null
-          last_payment_status?: string | null
-          total_paid?: number
-          total_pending?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          client_id?: string | null
-          last_payment_amount?: number | null
-          last_payment_date?: string | null
-          last_payment_method?: string | null
-          last_payment_status?: string | null
-          total_paid?: number
-          total_pending?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       client_processing_cycles: {
         Row: {
@@ -1721,30 +1420,6 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           workflow_status?: string | null
-        }
-        Relationships: []
-      }
-      "Credit Reports": {
-        Row: {
-          created_at: string | null
-          Fico_score: number | null
-          id: string
-          negative_items: string | null
-          User_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          Fico_score?: number | null
-          id?: string
-          negative_items?: string | null
-          User_id?: string
-        }
-        Update: {
-          created_at?: string | null
-          Fico_score?: number | null
-          id?: string
-          negative_items?: string | null
-          User_id?: string
         }
         Relationships: []
       }
@@ -2119,102 +1794,6 @@ export type Database = {
         }
         Relationships: []
       }
-      dispute_cases: {
-        Row: {
-          account_name: string | null
-          account_number_last4: string | null
-          bureau: string | null
-          client_id: string | null
-          created_at: string
-          cycle_id: string | null
-          dispute_reason: string | null
-          flagged_dispute_id: string | null
-          id: string
-          source: string
-          status: string
-          user_id: string | null
-          violation_type: string | null
-        }
-        Insert: {
-          account_name?: string | null
-          account_number_last4?: string | null
-          bureau?: string | null
-          client_id?: string | null
-          created_at?: string
-          cycle_id?: string | null
-          dispute_reason?: string | null
-          flagged_dispute_id?: string | null
-          id?: string
-          source?: string
-          status?: string
-          user_id?: string | null
-          violation_type?: string | null
-        }
-        Update: {
-          account_name?: string | null
-          account_number_last4?: string | null
-          bureau?: string | null
-          client_id?: string | null
-          created_at?: string
-          cycle_id?: string | null
-          dispute_reason?: string | null
-          flagged_dispute_id?: string | null
-          id?: string
-          source?: string
-          status?: string
-          user_id?: string | null
-          violation_type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dispute_cases_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dispute_cases_cycle_id_fkey"
-            columns: ["cycle_id"]
-            isOneToOne: false
-            referencedRelation: "client_processing_cycles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      dispute_docs: {
-        Row: {
-          account_number: string | null
-          created_at: string
-          file_type: string
-          file_url: string
-          id: string
-          notes: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          account_number?: string | null
-          created_at?: string
-          file_type: string
-          file_url: string
-          id?: string
-          notes?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          account_number?: string | null
-          created_at?: string
-          file_type?: string
-          file_url?: string
-          id?: string
-          notes?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       dispute_letters: {
         Row: {
           account_name: string | null
@@ -2310,65 +1889,6 @@ export type Database = {
           violation_notes?: string | null
         }
         Relationships: []
-      }
-      dispute_timeline: {
-        Row: {
-          account_number: string
-          actual_response_date: string | null
-          created_at: string
-          creditor_name: string
-          date_generated: string | null
-          date_mailed: string | null
-          deadline_date: string | null
-          dispute_letter_id: string | null
-          estimated_response_date: string | null
-          id: string
-          outcome: string | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          account_number: string
-          actual_response_date?: string | null
-          created_at?: string
-          creditor_name: string
-          date_generated?: string | null
-          date_mailed?: string | null
-          deadline_date?: string | null
-          dispute_letter_id?: string | null
-          estimated_response_date?: string | null
-          id?: string
-          outcome?: string | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          account_number?: string
-          actual_response_date?: string | null
-          created_at?: string
-          creditor_name?: string
-          date_generated?: string | null
-          date_mailed?: string | null
-          deadline_date?: string | null
-          dispute_letter_id?: string | null
-          estimated_response_date?: string | null
-          id?: string
-          outcome?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dispute_timeline_dispute_letter_id_fkey"
-            columns: ["dispute_letter_id"]
-            isOneToOne: false
-            referencedRelation: "dispute_letters"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       document_ai_results: {
         Row: {
@@ -2560,63 +2080,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      document_uploads: {
-        Row: {
-          admin_notes: string | null
-          admin_status: string | null
-          ai_analysis_result: string | null
-          created_at: string
-          document_type: string
-          file_name: string
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          reviewed_at: string | null
-          reviewed_by: string | null
-          tag: string | null
-          updated_at: string
-          upload_date: string
-          user_id: string
-        }
-        Insert: {
-          admin_notes?: string | null
-          admin_status?: string | null
-          ai_analysis_result?: string | null
-          created_at?: string
-          document_type: string
-          file_name: string
-          file_size?: number | null
-          file_type: string
-          file_url: string
-          id?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          tag?: string | null
-          updated_at?: string
-          upload_date?: string
-          user_id: string
-        }
-        Update: {
-          admin_notes?: string | null
-          admin_status?: string | null
-          ai_analysis_result?: string | null
-          created_at?: string
-          document_type?: string
-          file_name?: string
-          file_size?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          tag?: string | null
-          updated_at?: string
-          upload_date?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       documents: {
         Row: {
@@ -2874,30 +2337,6 @@ export type Database = {
         }
         Relationships: []
       }
-      identity_docs: {
-        Row: {
-          client_id: string
-          created_at: string
-          doc_type: string
-          id: string
-          uploaded_file_url: string
-        }
-        Insert: {
-          client_id: string
-          created_at?: string
-          doc_type: string
-          id?: string
-          uploaded_file_url: string
-        }
-        Update: {
-          client_id?: string
-          created_at?: string
-          doc_type?: string
-          id?: string
-          uploaded_file_url?: string
-        }
-        Relationships: []
-      }
       mailing_bundles: {
         Row: {
           bundle_name: string
@@ -2998,80 +2437,6 @@ export type Database = {
             columns: ["purchase_id"]
             isOneToOne: false
             referencedRelation: "purchases"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      notification_logs: {
-        Row: {
-          created_at: string
-          details: Json | null
-          email_error: string | null
-          email_sent: boolean | null
-          id: string
-          notification_type: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          details?: Json | null
-          email_error?: string | null
-          email_sent?: boolean | null
-          id?: string
-          notification_type: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          details?: Json | null
-          email_error?: string | null
-          email_sent?: boolean | null
-          id?: string
-          notification_type?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      notification_preferences: {
-        Row: {
-          client_id: string | null
-          email_enabled: boolean | null
-          id: string
-          in_app_enabled: boolean | null
-          marketing_enabled: boolean | null
-          sms_enabled: boolean | null
-          transactional_enabled: boolean | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          client_id?: string | null
-          email_enabled?: boolean | null
-          id?: string
-          in_app_enabled?: boolean | null
-          marketing_enabled?: boolean | null
-          sms_enabled?: boolean | null
-          transactional_enabled?: boolean | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          client_id?: string | null
-          email_enabled?: boolean | null
-          id?: string
-          in_app_enabled?: boolean | null
-          marketing_enabled?: boolean | null
-          sms_enabled?: boolean | null
-          transactional_enabled?: boolean | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notification_preferences_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
