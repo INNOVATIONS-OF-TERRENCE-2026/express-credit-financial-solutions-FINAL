@@ -28,32 +28,17 @@ import SBAAdmin from "./pages/sba/Admin";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import { DisputeCenter } from "./pages/DisputeCenter";
-import { DataFreezeCenter } from "./pages/DataFreezeCenter";
 import { ClientOnboarding } from "./pages/ClientOnboarding";
-import { DocumentUpload } from "./pages/DocumentUpload";
 import MembershipPricing from "./pages/MembershipPricing";
-
-import Education from "./pages/Education";
-import CreditTracking from "./pages/CreditTracking";
-import CreditBuildingCenter from "./pages/CreditBuildingCenter";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientPortals from "./pages/ClientPortals";
 import ClientPortalLinks from "./pages/ClientPortalLinks";
-import { GoodwillLetters } from "./pages/GoodwillLetters";
-import { CreditMonitoring } from "./pages/CreditMonitoring";
-import { CreditReportUploadPage } from "./pages/CreditReportUploadPage";
-import { AICreditAssistantPage } from "./pages/AICreditAssistantPage";
-import { DocumentUploadCenter } from "./pages/DocumentUploadCenter";
 import AdminClients from "./pages/AdminClients";
 import AdminClientEdit from "./pages/AdminClientEdit";
 import AdminClientPreview from "./pages/AdminClientPreview";
 import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
-import CreditScoreTracker from "./pages/CreditScoreTracker";
-import PaymentsPage from "./pages/PaymentsPage";
-import PaymentHistoryPage from "./pages/PaymentHistoryPage";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 
 // New unified admin + premium client portal
