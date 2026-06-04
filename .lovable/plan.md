@@ -1,205 +1,77 @@
-# Express Credit — Forensic Platform Audit
 
-Read-only audit. No code, schema, RLS, routes, edge functions, or buckets will be modified. Deliverable is twelve markdown reports under `/docs/audit/` plus a top-level index. Implementation is explicitly out of scope for this directive.
+# Execute Full Transformation — All 7 Phases
 
-## Guardrails
+The forensic audit is complete (`docs/audit/`). This plan executes every phase end-to-end. Given the scope (security patches, schema consolidation across 72 tables, navigation rebuild, client + admin UX rebuild, report intelligence engine, full visual rip-and-replace, scalability), this will run as a sequenced multi-phase build with approval gates **only at destructive checkpoints** (schema drops, bucket merges, route removals). Everything else proceeds straight through.
 
-- No writes to `src/`, `supabase/`, `public/`, or `.env`.
-- No migrations, no inserts, no RLS edits, no edge-function deploys.
-- No data deletion. No bucket changes.
-- Database access is `SELECT`-only via `supabase--read_query` for counts, orphan checks, and policy inspection.
-- Existing auth, profiles ↔ clients ↔ user_roles mapping is treated as load-bearing and documented, not refactored.
+## Phase 0 — Emergency Security (P0 patches)
 
-## Method
+- Add JWT validation to `generate-dispute-letter` and audit every other edge function for missing `getClaims()`; patch all gaps.
+- Move SSN encryption key from hard-coded constant to Supabase Vault / edge secret; rotate `encrypt_ssn_secure` + `decrypt_ssn_secure` to read from env.
+- Migrate Plaid plaintext tokens → `encrypt_plaid_token` at rest; backfill existing rows; force `decrypt_plaid_token_with_audit` on read.
+- Wrap every `/admin/*` and `/client/*` route in `<ProtectedRoute>` with role check.
+- Write RLS policies for the 18 tables with RLS enabled + zero policies (identified in `04-database-architecture.md`); add missing GRANTs.
+- Fix `SecureVerificationUpload` to create DB row in same transaction as storage upload (or delete object on failure).
 
-Four parallel read-only investigation streams via subagents, then synthesis. Every finding cites `file:line` or `table.column` — no prose-only claims.
+**Gate:** security scan must return zero P0 before Phase 1.
 
-```text
-Stream A  Frontend         routes, pages, components, hooks, contexts, dead code, duplicates
-Stream B  Backend          72 tables, RLS, triggers, functions, buckets, edge functions, orphans
-Stream C  Domain workflows reports → match → dispute → letter → payment → membership → activity
-Stream D  UX & visual      client portal vs admin shells, nav surface area, design tokens, a11y
-```
+## Phase 1 — Schema & Backend Consolidation
 
-Synthesis pass cross-links findings (e.g. a broken admin button → the hook it calls → the table/RLS it hits → the workflow it belongs to) so each issue has one canonical entry referenced from multiple reports.  
-  
-THIS ENTIRE platform should resemble:
+- Collapse duplicate tables per `03-duplicate-systems.md` using view-based aliasing (preserve all reads):
+  - `documents` + `document_archive` + `client_documents` → canonical `document_archive`
+  - `payments` + `payment_records` + `payment_receipts` → canonical `payment_records`
+  - `credit_scores` + `client_credit_scores` + `score_history` → canonical `credit_scores`
+  - `notifications` family → canonical `client_notifications`
+- Reduce edge functions 25 → 18 (merge duplicate dispute-letter generators, consolidate upload handlers).
+- Reduce storage buckets 15 → 7 (consolidate `*-docs`, `*-uploads` into `document-archive` + `identity-docs` + `credit-reports` + `dispute-letters` + `signatures` + `cashapp-proofs` + `admin-docs`); migrate objects; update all references.
+- Delete 25+ orphan components flagged in `_stream-a-frontend.md`.
 
-&nbsp;
+**Gate:** approval before dropping deprecated tables/buckets.
 
-Luxury Private Banking
+## Phase 2 — Navigation Reorganization
 
-Family Office Dashboard
+- Implement the 10-category nav tree from `05-navigation-architecture.md`.
+- Add redirect map for every old route → new route (zero broken links).
+- Single `AppShell` with role-aware sidebar replacing the current 4 nav patterns.
 
-Wealth Management Platform
+## Phase 3 — Client Experience Rebuild
 
-Mortgage Capital Advisory Firm
+- Outcome-centric dashboard: score delta, debt removed, mortgage readiness, next milestone, before/after.
+- Unified `/client` shell — remove duplicate client dashboards.
+- Real-time progress timeline driven by `client_activity_timeline` + `pipeline_stages`.
 
-Enterprise Client Success Platform
+## Phase 4 — Admin Experience Rebuild
 
-&nbsp;
+- Single `/admin` command center replacing fragmented admin pages.
+- Time-to-task optimized flows for the 7 critical jobs identified in `07-admin-experience.md`.
+- War Board, Review Queue, and Client Editor unified with the bulk-action confirmation modal already shipped.
 
-NOT:
+## Phase 5 — Report Intelligence Engine
 
-&nbsp;
+- Automated tradeline matching (frontend ↔ edge function logic unified).
+- Auto-classification of uploaded reports → dispute-ready packets.
+- Score prediction surfaced in client + admin views.
 
-Credit repair software
+## Phase 6 — Visual Rip-and-Replace (Luxury / Executive)
 
-SaaS admin panel
+- New design system: ivory / champagne / navy / platinum tokens in `index.css` + `tailwind.config.ts`.
+- Replace every shadcn variant with executive-tier styling.
+- Typography: editorial serif headings + premium sans body (final pair chosen via design directions before build).
+- Motion language: subtle, deliberate, Apple/Stripe register.
+- Migrate every screen in one sweep — no dual-system period.
 
-Developer dashboard
+## Phase 7 — Scalability & API Surface
 
-Tech startup portal
+- Public API layer for franchise/partner future.
+- Rate limiting, audit-log expansion, multi-tenant readiness scaffolding.
+- Performance pass: route-level code splitting, image optimization, query batching.
 
-CRM template
+## Execution Posture
 
-&nbsp;
+- Phases 0 → 7 run sequentially. Each phase opens with a checklist and closes with verification (security scan, lint, build, targeted smoke tests).
+- Approval gates only at: dropping tables, deleting buckets, removing routes, and **before Phase 6 visual rip-and-replace** (design directions presented first).
+- Every change preserves existing data, RLS, auth context, and route guards per project rules.
+- No new Supabase clients, no new routers, no new auth systems.
 
-The new design language should be:
+## Confirm to proceed
 
-&nbsp;
-
-- White-label
-
-- Executive
-
-- Luxury
-
-- High-trust
-
-- Banking-grade
-
-- Mortgage-grade
-
-- Private client experience
-
-- Concierge experience
-
-&nbsp;
-
-Color direction:
-
-&nbsp;
-
-- Ivory
-
-- White
-
-- Champagne
-
-- Platinum
-
-- Navy
-
-- Charcoal
-
-- Gold accents
-
-&nbsp;
-
-Remove all visual language associated with:
-
-&nbsp;
-
-- Neon colors
-
-- Hacker aesthetics
-
-- Startup dashboards
-
-- Generic SaaS panels
-
-- Gaming UI
-
-- Dark-mode-first interfaces
-
-&nbsp;
-
-Admin experience should become:
-
-&nbsp;
-
-Mission Control
-
-Client Operations Center
-
-Dispute Operations Center
-
-Document Operations Center
-
-Credit Intelligence Center
-
-Mortgage Readiness Center
-
-&nbsp;
-
-Client experience should become:
-
-&nbsp;
-
-Private Client Portal
-
-&nbsp;
-
-with:
-
-&nbsp;
-
-- Credit Score Center
-
-- Progress Center
-
-- Deleted Accounts Center
-
-- Debt Removed Center
-
-- Mortgage Readiness Center
-
-- Document Vault
-
-- Agreement Center
-
-- Payment Center
-
-- Credit Coach Center
-
-&nbsp;
-
-The existing UI should be treated as legacy.
-
-&nbsp;
-
-Create the replacement blueprint after audit completion.
-
-## Deliverables — `/docs/audit/`
-
-1. `00-index.md` — map of all reports, severity legend, glossary (profile vs client vs user_id), reading order.
-2. `01-platform-audit.md` — full inventory: every route (App.tsx), every page, every admin/client component, every hook, every context, every edge function, every bucket, every table. Tables, not prose.
-3. `02-broken-systems.md` — concrete broken items with repro: dead buttons, failing forms, broken match logic, miscounted KPIs, RLS-blocked queries, 404 routes, stale realtime subs. Each with severity (P0/P1/P2) and blast radius.
-4. `03-duplicate-systems.md` — duplicate dashboards (AdminPanel vs AdminCommandCenter vs AdminDashboardComponents), duplicate client portals (ClientPortal vs ClientDashboard vs client/Dashboard), duplicate upload flows (CreditReportUpload vs AdminFileUploader vs SecureVerificationUpload vs bulk_upload_*), duplicate auth/login surfaces, overlapping tables (`payments` vs `payment_records` vs `payment_receipts`; `documents` vs `document_archive` vs `document_uploads`; `credit_reports` vs `credit_report_uploads`; `clients` vs `profiles`). Recommended canonical for each.
-5. `04-database-architecture.md` — ER diagram (mermaid) of all 72 tables, FK graph, orphan-row counts, RLS coverage matrix per role (anon/authenticated/admin/service_role), GRANT audit, trigger map, function inventory, encryption surface (SSN, Plaid), storage-bucket → table linkage.
-6. `05-navigation-architecture.md` — current nav tree (admin sidebar, client sidebar, top-level routes, hidden routes), proposed consolidation into the 10 categories (Dashboard, Clients, Reports, Disputes, Documents, Payments, Activity, Team, Settings, Tools), redirect map for any route that would move.
-7. `06-client-experience.md` — every screen a client can reach, what data each pulls, what's missing for outcome-centric UX (score delta, debt removed, mortgage readiness, next milestone, before/after), and which data already exists in `clients` / `client_activity_timeline` / `score_history` vs what would need new derivations (no schema yet — just gap analysis).
-8. `07-admin-experience.md` — every admin screen, time-to-task for the seven critical admin jobs (find client, open profile, upload report, update client, review payment, send dispute, see activity), friction inventory, fragmentation map.
-9. `08-refactor-strategy.md` — consolidation plan per duplicate cluster, with preservation contract (which table/component is canonical, what gets aliased, what gets deprecated-but-kept). No deletions proposed without a replacement path.
-10. `09-migration-strategy.md` — data-preservation playbook for the future consolidation: backfill rules, dual-write windows, view-based aliasing so legacy code keeps reading, rollback checkpoints. Strategy only — no SQL executed.
-11. `10-implementation-roadmap.md` — phased sequence (Consolidation → Nav → Client UX → Admin UX → Report Intelligence → Visual Rebuild → Scale), with dependencies, estimated effort bands, and explicit gates requiring your approval before each phase.
-12. `11-risk-and-dependencies.md` — risk register (RLS regressions, auth breakage, payment data loss, report-match drift, signature/agreement integrity), dependency graph between phases, kill-switches, and the "do not touch without CTO sign-off" list (auth, RLS, SSN/Plaid crypto, payment_records, signatures bucket, client_agreements).
-
-## Technical notes
-
-- Investigation uses `acp_subagent--spawn_agent` for each stream so large intermediate output stays out of the main context; only final reports land in `/docs/audit/`.
-- DB inspection uses `supabase--read_query` for: table row counts, orphan FK checks, RLS policy dump from `pg_policies`, GRANT dump from `information_schema.role_table_grants`, trigger dump from `pg_trigger`.
-- Frontend inspection uses `rg` for route registration, hook usage, dead exports, and duplicate component detection.
-- Visual rebuild is documented as a future phase only; no token, Tailwind, or `index.css` changes in this audit.
-- Reports are written as `.md` so they live in git and diff cleanly over time.
-
-## Out of scope (explicit)
-
-- Any code change, any migration, any new component, any new page, any new edge function.
-- The premium visual rip-and-replace (documented as Phase 6 of the roadmap, executed later under separate directive).
-- Mobile app, partner portal, realtor portal, franchise layer (captured in roadmap as future, not designed here).
-
-## Exit criteria
-
-All twelve reports exist under `/docs/audit/`, `00-index.md` links to each, every P0/P1 finding in `02-broken-systems.md` has a file/line or table/policy citation, and the roadmap in `10` is sequenced with approval gates. At that point you decide which phase to authorize next.
+Reply **"go"** to start Phase 0 immediately. If you want to alter the approval gates (e.g. pause after each phase, or remove the Phase 6 design-direction gate), say so before I begin.
