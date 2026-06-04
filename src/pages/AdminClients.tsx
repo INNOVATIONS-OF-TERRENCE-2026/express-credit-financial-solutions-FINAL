@@ -31,6 +31,15 @@ import { AdminClientEditor } from '@/components/AdminClientEditor';
 import { ClientPaymentInfo } from '@/components/admin/ClientPaymentInfo';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ChevronDown, Crown, Gavel } from 'lucide-react';
 
 interface Client {
   id: string;
@@ -43,6 +52,7 @@ interface Client {
   created_at: string;
   updated_at: string;
   user_id?: string | null;
+  membership_type?: string | null;
 }
 
 interface ClientStats {
@@ -59,6 +69,8 @@ export default function AdminClients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tierFilter, setTierFilter] = useState<string>('all');
+  const [bulkBusy, setBulkBusy] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
@@ -103,7 +115,19 @@ export default function AdminClients() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setClients(data || []);
+      const rows: any[] = data || [];
+
+      // Join membership_type from profiles by user_id
+      const userIds = rows.map((r) => r.user_id).filter(Boolean);
+      let tierByUser = new Map<string, string>();
+      if (userIds.length) {
+        const { data: profs } = await supabase
+          .from('profiles')
+          .select('user_id, membership_type')
+          .in('user_id', userIds);
+        (profs || []).forEach((p: any) => tierByUser.set(p.user_id, p.membership_type));
+      }
+      setClients(rows.map((r) => ({ ...r, membership_type: r.user_id ? tierByUser.get(r.user_id) ?? null : null })));
     } catch (error) {
       console.error('Error fetching clients:', error);
       toast({
@@ -295,11 +319,84 @@ export default function AdminClients() {
     navigate(`/dispute-center?client=${clientId}`);
   };
 
-  const filteredClients = clients.filter(client =>
-    client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.phone.includes(searchTerm)
-  );
+  const filteredClients = clients.filter((client) => {
+    const matchesSearch =
+      client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.phone.includes(searchTerm);
+    const tier = client.membership_type ?? 'none';
+    const matchesTier = tierFilter === 'all' || tier === tierFilter;
+    return matchesSearch && matchesTier;
+  });
+
+  const tierCounts = clients.reduce<Record<string, number>>((acc, c) => {
+    const t = c.membership_type ?? 'none';
+    acc[t] = (acc[t] || 0) + 1;
+    return acc;
+  }, {});
+
+  const selectedClients = () => clients.filter((c) => selectedIds.has(c.id));
+  const selectedUserIds = () => selectedClients().map((c) => c.user_id).filter(Boolean) as string[];
+
+  const bulkChangeTier = async (newTier: string) => {
+    const uids = selectedUserIds();
+    if (!uids.length) {
+      toast({ title: 'No linked users', description: 'Selected clients have no user accounts to update.', variant: 'destructive' });
+      return;
+    }
+    setBulkBusy('tier');
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ membership_type: newTier } as any)
+        .in('user_id', uids);
+      if (error) throw error;
+      toast({ title: 'Tier updated', description: `${uids.length} client(s) set to "${newTier}".` });
+      setSelectedIds(new Set());
+      await fetchClients();
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err?.message || 'Could not update tiers', variant: 'destructive' });
+    } finally {
+      setBulkBusy(null);
+    }
+  };
+
+  const bulkChangeDisputeStatus = async (newStatus: string) => {
+    const cids = selectedClients().map((c) => c.id);
+    if (!cids.length) return;
+    setBulkBusy('disputes');
+    try {
+      const { error, count } = await supabase
+        .from('dispute_letters')
+        .update({ case_status: newStatus, status_updated_at: new Date().toISOString() } as any, { count: 'exact' })
+        .in('client_id', cids);
+      if (error) throw error;
+      toast({ title: 'Dispute status updated', description: `${count ?? 0} dispute letter(s) set to "${newStatus}".` });
+      setSelectedIds(new Set());
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err?.message || 'Some transitions may be blocked by workflow rules', variant: 'destructive' });
+    } finally {
+      setBulkBusy(null);
+    }
+  };
+
+  const TIERS = [
+    { value: 'free', label: 'Free' },
+    { value: 'vip_trial', label: 'VIP Trial' },
+    { value: 'premium', label: 'Premium' },
+    { value: 'expired_trial', label: 'Expired Trial' },
+  ];
+  const DISPUTE_STATUSES = [
+    'intake_received',
+    'documents_missing',
+    'extracted',
+    'validation_passed',
+    'draft_generated',
+    'needs_admin_review',
+    'approved',
+    'exported',
+    'followup_due',
+  ];
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
@@ -523,7 +620,7 @@ export default function AdminClients() {
 
         {/* Search Bar */}
         <Card className="mb-6">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -532,6 +629,24 @@ export default function AdminClients() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
               />
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="text-muted-foreground self-center mr-1">Tier:</span>
+              {[{ value: 'all', label: 'All' }, ...TIERS, { value: 'none', label: 'No Tier' }].map((t) => {
+                const count = t.value === 'all' ? clients.length : (tierCounts[t.value] || 0);
+                const active = tierFilter === t.value;
+                return (
+                  <Button
+                    key={t.value}
+                    size="sm"
+                    variant={active ? 'default' : 'outline'}
+                    onClick={() => setTierFilter(t.value)}
+                    className="h-7"
+                  >
+                    {t.label} <span className="ml-1 opacity-70">({count})</span>
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -547,10 +662,49 @@ export default function AdminClients() {
               View and manage all client accounts
             </CardDescription>
             {selectedIds.size > 0 && (
-              <div className="flex items-center justify-between mt-3 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 mt-3 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3">
                 <span className="text-sm"><strong>{selectedIds.size}</strong> selected</span>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>Clear</Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline" disabled={bulkBusy === 'tier'}>
+                        <Crown className="h-4 w-4 mr-1" />
+                        {bulkBusy === 'tier' ? 'Updating…' : 'Change Tier'}
+                        <ChevronDown className="h-3 w-3 ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Set membership tier</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {TIERS.map((t) => (
+                        <DropdownMenuItem key={t.value} onClick={() => bulkChangeTier(t.value)}>
+                          {t.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline" disabled={bulkBusy === 'disputes'}>
+                        <Gavel className="h-4 w-4 mr-1" />
+                        {bulkBusy === 'disputes' ? 'Updating…' : 'Dispute Status'}
+                        <ChevronDown className="h-3 w-3 ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Set dispute case status</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {DISPUTE_STATUSES.map((s) => (
+                        <DropdownMenuItem key={s} onClick={() => bulkChangeDisputeStatus(s)}>
+                          {s.replace(/_/g, ' ')}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
                   <Button size="sm" onClick={openBulkPreview}>
                     <CheckCircle className="h-4 w-4 mr-1" /> Mark Active & Paid-in-Full
                   </Button>
@@ -571,6 +725,7 @@ export default function AdminClients() {
                   <TableHead>Client Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
+                  <TableHead>Tier</TableHead>
                   <TableHead>Paid-in-Full</TableHead>
                   <TableHead>Active Disputes</TableHead>
                   <TableHead>Last Activity</TableHead>
@@ -774,6 +929,15 @@ function ClientRow({
       <TableCell className="font-medium">{client.full_name}</TableCell>
       <TableCell>{client.email}</TableCell>
       <TableCell>{client.phone}</TableCell>
+      <TableCell>
+        {client.membership_type ? (
+          <Badge variant="outline" className="capitalize text-[10px]">
+            {client.membership_type.replace(/_/g, ' ')}
+          </Badge>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
+      </TableCell>
       <TableCell><ClientPaymentInfo userId={client.user_id} /></TableCell>
       <TableCell>
         {statsLoaded ? (

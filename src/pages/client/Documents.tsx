@@ -16,18 +16,27 @@ interface VerificationStatus {
 
 function VerificationStatusCard({ userId }: { userId: string }) {
   const [status, setStatus] = useState<VerificationStatus | null>(null);
+  const [otherCount, setOtherCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      const { data } = await (supabase as any)
-        .from('client_verification_secure')
-        .select('id_document_url, ssn_document_url, address_document_url, updated_at')
-        .eq('user_id', userId)
-        .maybeSingle();
+      const [verRes, otherRes] = await Promise.all([
+        (supabase as any)
+          .from('client_verification_secure')
+          .select('id_document_url, ssn_document_url, address_document_url, updated_at')
+          .eq('user_id', userId)
+          .maybeSingle(),
+        (supabase as any)
+          .from('documents')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('doc_type', 'other_supporting'),
+      ]);
       if (alive) {
-        setStatus(data ?? { id_document_url: null, ssn_document_url: null, address_document_url: null, updated_at: null });
+        setStatus(verRes.data ?? { id_document_url: null, ssn_document_url: null, address_document_url: null, updated_at: null });
+        setOtherCount(otherRes.count ?? 0);
         setLoading(false);
       }
     })();
@@ -35,11 +44,12 @@ function VerificationStatusCard({ userId }: { userId: string }) {
   }, [userId]);
 
   const items = [
-    { label: 'Photo ID', received: !!status?.id_document_url },
-    { label: 'Social Security Card', received: !!status?.ssn_document_url },
-    { label: 'Proof of Address', received: !!status?.address_document_url },
+    { label: 'Government Photo ID', received: !!status?.id_document_url, required: true },
+    { label: 'Social Security Card', received: !!status?.ssn_document_url, required: true },
+    { label: 'Proof of Current Address', received: !!status?.address_document_url, required: true },
+    { label: `Other Supporting Documents${otherCount > 0 ? ` (${otherCount})` : ''}`, received: otherCount > 0, required: false },
   ];
-  const receivedCount = items.filter((i) => i.received).length;
+  const requiredReceived = items.filter((i) => i.required && i.received).length;
 
   return (
     <Card>
@@ -53,9 +63,9 @@ function VerificationStatusCard({ userId }: { userId: string }) {
             <CardDescription>
               {loading
                 ? 'Loading…'
-                : receivedCount === 3
-                ? 'All verification documents received.'
-                : `${receivedCount} of 3 received — upload remaining items below.`}
+                : requiredReceived === 3
+                ? 'All required verification documents received.'
+                : `${requiredReceived} of 3 required documents received — upload remaining items below.`}
             </CardDescription>
           </div>
           {status?.updated_at && (
@@ -73,7 +83,13 @@ function VerificationStatusCard({ userId }: { userId: string }) {
                 ? <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 : <Circle className="h-4 w-4 text-muted-foreground" />}
               <span className={it.received ? 'text-foreground' : 'text-muted-foreground'}>{it.label}</span>
-              {it.received && <span className="ml-auto text-[10px] uppercase tracking-wide text-emerald-500 font-semibold">Received</span>}
+              <span className="ml-auto text-[10px] uppercase tracking-wide font-semibold">
+                {it.received
+                  ? <span className="text-emerald-500">Received</span>
+                  : it.required
+                  ? <span className="text-amber-500">Required</span>
+                  : <span className="text-muted-foreground">Optional</span>}
+              </span>
             </li>
           ))}
         </ul>
