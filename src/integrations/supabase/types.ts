@@ -1307,7 +1307,9 @@ export type Database = {
         Row: {
           accounts_deleted_count: number | null
           address: string
+          admin_notes: string | null
           agreement_signed: boolean | null
+          client_visible_update: string | null
           created_at: string
           current_dispute_round: number | null
           current_score_eq: number | null
@@ -1327,8 +1329,10 @@ export type Database = {
           next_step_note: string | null
           notes_summary: string | null
           onboarding_status: string | null
+          payment_status: string | null
           personal_info_items_removed: number | null
           phone: string
+          portal_status: string | null
           priority_level: string | null
           progress_status: number | null
           remaining_negatives: number | null
@@ -1346,7 +1350,9 @@ export type Database = {
         Insert: {
           accounts_deleted_count?: number | null
           address: string
+          admin_notes?: string | null
           agreement_signed?: boolean | null
+          client_visible_update?: string | null
           created_at?: string
           current_dispute_round?: number | null
           current_score_eq?: number | null
@@ -1366,8 +1372,10 @@ export type Database = {
           next_step_note?: string | null
           notes_summary?: string | null
           onboarding_status?: string | null
+          payment_status?: string | null
           personal_info_items_removed?: number | null
           phone: string
+          portal_status?: string | null
           priority_level?: string | null
           progress_status?: number | null
           remaining_negatives?: number | null
@@ -1385,7 +1393,9 @@ export type Database = {
         Update: {
           accounts_deleted_count?: number | null
           address?: string
+          admin_notes?: string | null
           agreement_signed?: boolean | null
+          client_visible_update?: string | null
           created_at?: string
           current_dispute_round?: number | null
           current_score_eq?: number | null
@@ -1405,8 +1415,10 @@ export type Database = {
           next_step_note?: string | null
           notes_summary?: string | null
           onboarding_status?: string | null
+          payment_status?: string | null
           personal_info_items_removed?: number | null
           phone?: string
+          portal_status?: string | null
           priority_level?: string | null
           progress_status?: number | null
           remaining_negatives?: number | null

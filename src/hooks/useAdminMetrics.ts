@@ -6,6 +6,8 @@ export interface AdminMetrics {
   activeClients: number;
   onboardingClients: number;
   clientsNeedingReview: number;
+  portalLinkedClients: number;
+  portalUnlinkedClients: number;
   reportsUploaded: number;
   disputesInProgress: number;
   documentsPending: number;
@@ -25,6 +27,8 @@ const empty: Omit<AdminMetrics, 'loading' | 'error'> = {
   activeClients: 0,
   onboardingClients: 0,
   clientsNeedingReview: 0,
+  portalLinkedClients: 0,
+  portalUnlinkedClients: 0,
   reportsUploaded: 0,
   disputesInProgress: 0,
   documentsPending: 0,
@@ -73,12 +77,15 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
         countHead('client_agreements', (q) => q.is('signed_at', null)),
         countHead('clients', (q) => q.eq('mortgage_readiness_status', 'ready')),
         countHead('clients', (q) => q.eq('ftc_readiness_status', 'ready')),
+        countHead('clients', (q) => q.not('user_id', 'is', null)),
+        countHead('clients', (q) => q.is('user_id', null)),
       ];
       const r = await Promise.all(tasks);
       const [
         totalClients, activeClients, onboardingClients, flaggedDisputes, disputesNeedReview,
         paymentsNeedsReview, reportsUploaded, disputesInProgress, documentsPending,
         paymentsPending, agreementsPending, mortgageReady, ftcReady,
+        portalLinkedClients, portalUnlinkedClients,
       ] = r;
 
       // Aggregates from clients override fields
@@ -102,6 +109,8 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
         activeClients,
         onboardingClients,
         clientsNeedingReview: flaggedDisputes + disputesNeedReview + paymentsNeedsReview,
+        portalLinkedClients,
+        portalUnlinkedClients,
         reportsUploaded,
         disputesInProgress,
         documentsPending,

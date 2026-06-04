@@ -10,7 +10,7 @@ import { ClientStatusStrip } from './ClientStatusStrip';
 function Inner({ children, title }: { children: ReactNode; title: string }) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const { fullName, email, loading: clientLoading } = useClient();
+  const { fullName, email, loading: clientLoading, clientId, portalStatus } = useClient();
 
   useEffect(() => {
     if (!loading && !user) navigate('/');
@@ -22,6 +22,22 @@ function Inner({ children, title }: { children: ReactNode; title: string }) {
         <Skeleton className="h-8 w-1/3" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!clientId && portalStatus === 'pending_setup') {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-md text-center space-y-3 rounded-xl border border-border bg-card p-8">
+          <h1 className="text-lg font-semibold">Portal setup is pending</h1>
+          <p className="text-sm text-muted-foreground">
+            Your account isn't fully linked yet. Please contact support so we can finish setting up your portal access.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Signed in as <span className="font-mono">{email}</span>
+          </p>
         </div>
       </div>
     );
