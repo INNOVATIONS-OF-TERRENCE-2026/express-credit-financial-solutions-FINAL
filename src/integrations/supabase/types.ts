@@ -3281,6 +3281,27 @@ export type Database = {
       }
     }
     Views: {
+      bank_links_public: {
+        Row: {
+          account_id: string | null
+          created_at: string | null
+          id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string | null
+          id?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string | null
+          id?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bank_links_safe: {
         Row: {
           account_id: string | null
