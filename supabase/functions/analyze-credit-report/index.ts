@@ -157,11 +157,6 @@ Return ONLY this JSON shape:
           }
         }
 
-        // Action tracker
-        await supabase.from('client_action_tracker')
-          .update({ report_parsed: true, scores_updated: true, credit_report_uploaded: true, updated_at: new Date().toISOString() })
-          .eq('client_id', resolvedClientId);
-
         // Timeline event
         await supabase.from('client_timeline').insert({
           client_id: resolvedClientId,
@@ -211,18 +206,15 @@ Return ONLY this JSON shape:
       model_used: 'gpt-4o',
     });
 
-    // Notify admins of significant changes
+    // Log significant score changes to the client timeline; no dependency on removed notification tables.
     if (resolvedClientId && (deltas.experian || deltas.equifax || deltas.transunion)) {
       const maxDelta = Math.max(Math.abs(deltas.experian || 0), Math.abs(deltas.equifax || 0), Math.abs(deltas.transunion || 0));
       if (maxDelta >= 10) {
-        await supabase.from('admin_notifications').insert({
-          notification_type: 'score_change',
-          title: `Score change detected (${maxDelta > 0 ? '+' : ''}${maxDelta} pts)`,
-          message: `EX: ${deltas.experian ?? '—'}, EQ: ${deltas.equifax ?? '—'}, TU: ${deltas.transunion ?? '—'}`,
-          severity: maxDelta >= 30 ? 'warning' : 'info',
-          related_client_id: resolvedClientId,
-          metadata: { scores, deltas },
-          action_url: '?section=war-board',
+        await supabase.from('client_timeline').insert({
+          client_id: resolvedClientId,
+          event_type: 'score_change_detected',
+          event_label: `Score change detected: ${maxDelta} pts`,
+          event_meta: { scores, deltas, report_id: reportId, severity: maxDelta >= 30 ? 'warning' : 'info' },
         } as any);
       }
     }
