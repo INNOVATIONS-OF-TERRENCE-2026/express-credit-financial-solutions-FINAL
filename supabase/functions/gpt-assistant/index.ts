@@ -138,7 +138,7 @@ Never provide:
     logStep("ERROR in gpt-assistant", { message: errorMessage });
     
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
