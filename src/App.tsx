@@ -42,6 +42,7 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminTools from "./pages/AdminTools";
 import AdminPaymentsPage from "./pages/AdminPaymentsPage";
 import AdminPaymentSummaryPage from "./pages/AdminPaymentSummaryPage";
+import AdminVerificationReport from "./pages/AdminVerificationReport";
 
 // New unified admin + premium client portal
 import AdminCommandCenter from "./pages/AdminCommandCenter";
@@ -106,6 +107,7 @@ const App = () => (
                         <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
                         <Route path="/admin/payments" element={<RequireAdmin><AdminPaymentsPage /></RequireAdmin>} />
                         <Route path="/admin/payment-summary" element={<RequireAdmin><AdminPaymentSummaryPage /></RequireAdmin>} />
+                        <Route path="/admin/verification-report" element={<RequireAdmin><AdminVerificationReport /></RequireAdmin>} />
                         <Route path="/admin/upload-reports" element={<RequireAdmin><AdminUploadReports /></RequireAdmin>} />
                         <Route path="/admin/reports" element={<RequireAdmin><AdminReportsList /></RequireAdmin>} />
                         <Route path="/admin/disputes" element={<RequireAdmin><AdminDisputesPage /></RequireAdmin>} />
