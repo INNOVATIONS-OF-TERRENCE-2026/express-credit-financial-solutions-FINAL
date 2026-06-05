@@ -13,8 +13,8 @@ export interface SEOConfig {
 export const DEFAULT_SEO = {
   siteName: "Express Credit & Financial Solutions",
   companyName: "Express Credit & Financial Solutions LLC",
-  tagline: "Professional Credit Repair & Financial Restoration Services in Dallas, Texas",
-  description: "Expert credit repair and financial restoration services in Dallas, Texas. Metro 2 compliant credit dispute letters, credit restoration, authorized user tradelines, and comprehensive credit improvement strategies. Licensed and insured with proven results.",
+  tagline: "Credit Restoration & Funding Readiness — Dallas, Texas",
+  description: "Premium credit restoration and funding readiness. FCRA-aligned strategy and Metro 2 dispute preparation for mortgage and auto financing.",
   keywords: [
     "credit repair Dallas TX",
     "credit restoration Dallas Texas",
@@ -45,7 +45,6 @@ export const DEFAULT_SEO = {
     addressCountry: "US"
   },
   contact: {
-    phone: "+1-XXX-XXX-XXXX",
     email: "info@expresscreditfinancials.org",
     businessHours: "Mon-Fri 9AM-6PM CST"
   },
@@ -68,7 +67,6 @@ export const generateLocalBusinessSchema = () => ({
   "image": "https://expresscreditfinancials.org/lovable-uploads/express-logo-badge.png",
   "logo": "https://expresscreditfinancials.org/lovable-uploads/express-logo-badge.png",
   "url": "https://expresscreditfinancials.org",
-  "telephone": DEFAULT_SEO.contact.phone,
   "email": DEFAULT_SEO.contact.email,
   "address": {
     "@type": "PostalAddress",
@@ -129,7 +127,6 @@ export const generateOrganizationSchema = () => ({
   "sameAs": Object.values(DEFAULT_SEO.socialMedia),
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": DEFAULT_SEO.contact.phone,
     "contactType": "Customer Service",
     "areaServed": "US",
     "availableLanguage": ["English", "Spanish"]
@@ -230,14 +227,14 @@ export const generateBreadcrumbSchema = (breadcrumbs: Array<{ name: string; url:
 // SEO Page Configurations
 export const PAGE_SEO: Record<string, SEOConfig> = {
   home: {
-    title: "Express Credit & Financial Solutions | Credit Restoration & Funding Readiness",
-    description: "Premium credit restoration and funding readiness firm. Structured FCRA-aligned strategy, Metro 2 dispute preparation, and mortgage and auto financing support. Results vary by client profile.",
+    title: "Express Credit | Credit Restoration & Funding Readiness",
+    description: "Premium credit restoration and funding readiness. FCRA-aligned strategy and Metro 2 dispute preparation for mortgage and auto financing.",
     keywords: ["credit restoration Texas", "funding readiness firm", "mortgage readiness", "Metro 2 dispute preparation", "FCRA credit disputes"],
     canonical: "https://expresscreditfinancials.org"
   },
   membership: {
-    title: "Service Options & Engagement Fees | Express Credit & Financial Solutions",
-    description: "Transparent service options for credit restoration and funding readiness engagements. Structured strategy, Metro 2 dispute preparation, and ongoing readiness support.",
+    title: "Service Options & Engagement Fees | Express Credit",
+    description: "Transparent service options for credit restoration and funding readiness. Structured strategy and Metro 2 dispute preparation.",
     keywords: ["credit restoration pricing", "credit restoration engagement fees", "Metro 2 dispute preparation"],
     canonical: "https://expresscreditfinancials.org/membership"
   },

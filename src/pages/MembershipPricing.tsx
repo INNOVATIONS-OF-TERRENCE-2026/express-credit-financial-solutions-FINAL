@@ -120,6 +120,7 @@ export default function MembershipPricing() {
           <h1 className="text-4xl font-bold text-white mb-4">
             Express Credit Membership Plans
           </h1>
+          <h2 className="sr-only">Available membership plans</h2>
           <p className="text-lg text-slate-300 max-w-2xl mx-auto">
             Choose the perfect credit repair plan for your needs. Professional dispute services with expert guidance.
           </p>
@@ -226,7 +227,7 @@ export default function MembershipPricing() {
 
         {/* Payment Methods Section */}
         <div className="mt-16 bg-gradient-to-r from-slate-800/50 to-slate-900/50 p-8 rounded-xl border border-slate-700">
-          <h3 className="text-2xl font-bold text-center text-yellow-400 mb-6">We Accept All Major Payment Methods</h3>
+          <h2 className="text-2xl font-bold text-center text-yellow-400 mb-6">We Accept All Major Payment Methods</h2>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center justify-items-center mb-8">
             <img 

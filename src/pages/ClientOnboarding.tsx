@@ -298,6 +298,7 @@ export function ClientOnboarding() {
           </p>
         </div>
       </div>
+      <h2 className="sr-only">Client Agreement</h2>
 
       {/* Complete Your Client Agreement Section */}
       <Card className="mb-8 relative">

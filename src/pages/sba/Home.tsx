@@ -146,7 +146,7 @@ export default function Home() {
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
-                  Learn More
+                  Learn about SBA loan programs
                 </a>
               </Button>
             </div>

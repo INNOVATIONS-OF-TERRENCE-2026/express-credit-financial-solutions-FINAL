@@ -237,6 +237,7 @@ export default function ClientPortalLinks() {
               </h1>
               <p className="text-muted-foreground">Live client data · Service assignment · Full sorting</p>
             </div>
+            <h2 className="sr-only">Client portal overview</h2>
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-6 gap-3">

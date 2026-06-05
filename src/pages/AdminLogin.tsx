@@ -83,6 +83,7 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <h1 className="sr-only">Admin Login</h1>
         <Card className="card-elegant shadow-elegant">
           <CardHeader className="text-center space-y-4">
             <div className="w-16 h-16 bg-gradient-elegant rounded-full flex items-center justify-center mx-auto">
