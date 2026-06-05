@@ -345,7 +345,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full flex items-center justify-center relative" style={{ background: 'linear-gradient(135deg,#c9a84c,#7a6020)' }}>
               <span className="font-serif-display text-lg italic" style={{ color: '#03150f' }}>E</span>
-              <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ backgroundColor: '#c9a84c' }} />
+              
             </div>
             <div className="leading-tight">
               <p className="font-serif-display text-lg" style={{ color: '#f5f0e0' }}>Express Credit</p>
