@@ -424,7 +424,7 @@ const Index = () => {
                 <div className="flex items-end justify-between mb-2">
                   <div>
                     <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(245,240,224,0.5)' }}>FICO Score · Experian</p>
-                    <p className="font-serif-display text-6xl mt-1" style={{ color: '#f5f0e0' }}>742</p>
+                    <p className="font-serif-display text-6xl mt-1" style={{ color: '#f5f0e0' }}>804</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-bold flex items-center gap-1" style={{ color: '#c9a84c' }}><CheckCircle2 className="h-3 w-3" /> Tier · Good</p>
