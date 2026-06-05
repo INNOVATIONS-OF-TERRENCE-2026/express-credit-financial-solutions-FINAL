@@ -84,7 +84,7 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
             user_id: userId,
             [columnMap[docType]]: fileName,
             updated_at: new Date().toISOString(),
-          }, { onConflict: 'user_id' });
+          } as any, { onConflict: 'user_id' });
         dbError = error;
       }
 
