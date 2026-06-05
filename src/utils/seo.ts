@@ -116,7 +116,6 @@ export const generateOrganizationSchema = () => ({
   "description": DEFAULT_SEO.description,
   "foundingDate": DEFAULT_SEO.foundingDate,
   "email": DEFAULT_SEO.contact.email,
-  "telephone": DEFAULT_SEO.contact.phone,
   "address": {
     "@type": "PostalAddress",
     "addressLocality": DEFAULT_SEO.businessAddress.addressLocality,
