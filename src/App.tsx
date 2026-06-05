@@ -97,7 +97,7 @@ const App = () => (
                         <Route path="/sba/documents" element={<SBADocuments />} />
                         <Route path="/sba/packet" element={<SBAPacket />} />
                         <Route path="/sba/dashboard" element={<SBADashboard />} />
-                        <Route path="/sba/admin" element={<SBAAdmin />} />
+                        <Route path="/sba/admin" element={<RequireAdmin><SBAAdmin /></RequireAdmin>} />
                         
                         {/* Existing Routes */}
                         <Route path="/" element={<Index />} />
