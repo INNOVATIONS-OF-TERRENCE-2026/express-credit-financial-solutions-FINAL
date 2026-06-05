@@ -1,3 +1,20 @@
+
+## Homepage SEO + responsive specs
+
+- `homepage-seo.spec.ts` — asserts exact title, meta description, OpenGraph/Facebook,
+  Twitter, canonical, and geo tags match the funding-readiness positioning, and
+  fails if banned over-claim phrases reappear in any SEO surface.
+- `homepage-responsive.spec.ts` — loads `/` at 375 / 390 / 768 / 1280 px, asserts
+  hero font-size scales per breakpoint, body line-height stays readable, there is
+  no horizontal overflow, and compares hero + full-page screenshots against
+  baselines. Update baselines after intentional design changes with:
+
+  ```
+  bunx playwright test e2e/homepage-responsive.spec.ts --update-snapshots
+  ```
+
+  These two specs do not require auth env vars and can run against any preview
+  URL via `E2E_BASE_URL`.
 # Playwright E2E — auth & session stability
 
 These specs verify the production-critical login flows for Express Credit CRM:
