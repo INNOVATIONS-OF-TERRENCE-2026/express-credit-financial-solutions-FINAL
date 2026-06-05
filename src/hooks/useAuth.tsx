@@ -49,12 +49,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Set up auth state listener
+    const applySession = (nextSession: Session | null) => {
+      if (!mounted) return;
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      if (!nextSession?.user) setIsAdmin(false);
+      setLoading(false);
+    };
+
+    // Set up auth state listener first, then hydrate once from storage.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-        setSession(session);
-        setUser(session?.user ?? null);
+      (event, session) => {
+        applySession(session);
         
         // Send notification for new user signups (fire-and-forget — never block auth state)
         if (event === 'SIGNED_UP' as AuthChangeEvent && session?.user) {
@@ -74,16 +80,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Check admin status only when identity changes, not on token refresh ticks.
         if (session?.user && shouldCheckRole) {
-          setTimeout(() => {
-            if (mounted) checkAdminStatus(session.user.id);
+          window.setTimeout(() => {
+            if (mounted) void checkAdminStatus(session.user.id);
           }, 0); // Defer to avoid auth state conflicts
-        } else if (!session?.user) {
-          setIsAdmin(false);
         }
-        
-        setLoading(false);
       }
     );
+
+    supabase.auth.getSession()
+      .then(({ data }) => applySession(data.session))
+      .catch((error) => {
+        console.error('[auth] initial session restore failed:', error);
+        applySession(null);
+      });
 
     return () => {
       mounted = false;
