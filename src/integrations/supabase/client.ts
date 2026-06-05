@@ -8,10 +8,25 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+const STORAGE_KEY = 'express-credit-auth-v1';
+
+const createSupabaseBrowserClient = () => createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storageKey: STORAGE_KEY,
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true,
+    lock: async (_name, _acquireTimeout, fn) => await fn(),
   }
 });
+
+declare global {
+  interface Window {
+    __EXPRESS_CREDIT_SUPABASE__?: ReturnType<typeof createSupabaseBrowserClient>;
+  }
+}
+
+export const supabase = typeof window !== 'undefined'
+  ? (window.__EXPRESS_CREDIT_SUPABASE__ ??= createSupabaseBrowserClient())
+  : createSupabaseBrowserClient();
