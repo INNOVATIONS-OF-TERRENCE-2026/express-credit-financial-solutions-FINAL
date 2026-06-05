@@ -240,16 +240,17 @@ export function useClientRegistry(): RegistrySnapshot {
 
       // Orphan record counts (rows whose client_id references a missing client)
       const countOrphanRecords = (rows: any[]) =>
-        (rows || []).filter((r) => r.client_id && !clientIds.has(r.client_id)).length;
+        (rows || []).filter((r) => !r.client_id || !clientIds.has(r.client_id)).length;
       const reportsOrphan = countOrphanRecords(rpt.data || []);
       const paymentsOrphan = countOrphanRecords(pmt.data || []);
       const agreementsOrphan = countOrphanRecords(agr.data || []);
       // documents/disputes counted via separate queries to keep payload small
-      const [docOrph, dispOrph] = await Promise.all([
+      const [docOrph, archiveOrph, dispOrph] = await Promise.all([
         sb.from('documents').select('client_id'),
+        sb.from('document_archive').select('client_id'),
         sb.from('dispute_letters').select('client_id'),
       ]);
-      const documentsOrphan = countOrphanRecords(docOrph.data || []);
+      const documentsOrphan = countOrphanRecords(docOrph.data || []) + countOrphanRecords(archiveOrph.data || []);
       const disputesOrphan = countOrphanRecords(dispOrph.data || []);
 
       // Possible duplicates inside clients table
@@ -338,25 +339,32 @@ export function useClientRegistry(): RegistrySnapshot {
       } catch {}
 
       const needsPortalLink = clients.filter((c) => !c.user_id && !c.not_a_client);
+      const realClients = clients.filter((c) => !c.not_a_client);
       const profilesMissingClient = missingProfiles.length;
-      const portalLinked = clients.filter((c) => !!c.user_id).length;
-      const clientsWithoutPortal = clients.filter((c) => !c.user_id).length;
+      const portalLinked = realClients.filter((c) => !!c.user_id).length;
+      const clientsWithoutPortal = realClients.filter((c) => !c.user_id).length;
       const notClientCount = clients.filter((c) => c.not_a_client).length;
       const totalPotentialIdentities =
         clients.length + profilesMissingClient + orphanIdentities.length;
 
       // Email -> profile.user_id map (only emails that are unique on the profile side)
       const emailCounts = new Map<string, number>();
+      const clientEmailCounts = new Map<string, number>();
       profiles.forEach((p: any) => {
         if (!p.email) return;
         const k = p.email.toLowerCase();
         emailCounts.set(k, (emailCounts.get(k) || 0) + 1);
       });
+      realClients.forEach((c) => {
+        if (!c.email) return;
+        const k = c.email.toLowerCase();
+        clientEmailCounts.set(k, (clientEmailCounts.get(k) || 0) + 1);
+      });
       const profileByEmail: Record<string, string> = {};
       profiles.forEach((p: any) => {
         if (!p.email || !p.user_id) return;
         const k = p.email.toLowerCase();
-        if ((emailCounts.get(k) || 0) === 1) profileByEmail[k] = p.user_id;
+        if ((emailCounts.get(k) || 0) === 1 && (clientEmailCounts.get(k) || 0) === 1 && !clientByUserId.has(p.user_id)) profileByEmail[k] = p.user_id;
       });
 
       const countStatus = (s: ExclusionRow['status']) => exclusions.filter((e) => e.status === s).length;
