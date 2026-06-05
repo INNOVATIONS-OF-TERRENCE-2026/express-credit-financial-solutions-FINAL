@@ -342,15 +342,9 @@ const Index = () => {
       {/* ═══════════ STICKY NAV ═══════════ */}
       <header className="sticky top-0 z-40 backdrop-blur-xl" style={{ backgroundColor: 'rgba(3,21,15,0.65)', borderBottom: '1px solid rgba(201,168,76,0.15)' }}>
         <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center relative" style={{ background: 'linear-gradient(135deg,#c9a84c,#7a6020)' }}>
-              <span className="font-serif-display text-lg italic" style={{ color: '#03150f' }}>E</span>
-              
-            </div>
-            <div className="leading-tight">
-              <p className="font-serif-display text-lg" style={{ color: '#f5f0e0' }}>Express Credit</p>
-              <p className="text-[9px] uppercase tracking-[0.3em]" style={{ color: 'rgba(201,168,76,0.8)' }}>Financial Solutions</p>
-            </div>
+          <div className="leading-tight">
+            <p className="font-serif-display text-lg" style={{ color: '#f5f0e0' }}>Express Credit</p>
+            <p className="text-[9px] uppercase tracking-[0.3em]" style={{ color: 'rgba(201,168,76,0.8)' }}>Financial Solutions</p>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-medium" style={{ color: 'rgba(245,240,224,0.7)' }}>
             <a href="#tour" className="hover:text-white transition-colors">Process</a>
