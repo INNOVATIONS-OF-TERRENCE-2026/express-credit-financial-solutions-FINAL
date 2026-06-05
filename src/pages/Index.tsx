@@ -353,18 +353,18 @@ const Index = () => {
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-medium" style={{ color: 'rgba(245,240,224,0.7)' }}>
-            <a href="#tour" className="hover:text-white transition-colors">Product</a>
-            <a href="#tiers" className="hover:text-white transition-colors">Pricing</a>
-            <a href="#proof" className="hover:text-white transition-colors">Proof</a>
+            <a href="#tour" className="hover:text-white transition-colors">Process</a>
+            <a href="#tiers" className="hover:text-white transition-colors">Service Options</a>
+            <a href="#proof" className="hover:text-white transition-colors">Client Outcomes</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeSelector />
             <button onClick={() => { setShowForms(true); setIsLogin(true); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-4 sm:px-5 py-2.5 text-xs uppercase tracking-widest font-semibold rounded-full border transition-all" style={{ borderColor: 'rgba(201,168,76,0.35)', color: '#f5f0e0' }}>
-              Log In
+              Client Portal Login
             </button>
             <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-4 sm:px-5 py-2.5 text-xs uppercase tracking-widest font-bold rounded-full transition-all relative group" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 24px rgba(201,168,76,0.4)' }}>
-              Sign Up
+              Start My Credit Review
               <ArrowRight className="inline-block ml-1 h-3 w-3 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
