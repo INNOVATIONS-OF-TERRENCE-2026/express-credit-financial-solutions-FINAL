@@ -32,7 +32,7 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const { error: signInError } = await signIn(email, password);
+      const { error: signInError, user: authUser } = await signIn(email, password);
       
       if (signInError) {
         setError(signInError.message);
@@ -40,7 +40,6 @@ export default function AdminLogin() {
       }
 
       // Verify admin role from the database (user_roles table) — no hardcoded allow-list.
-      const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) {
         setError('Login session could not be verified. Please try again.');
         return;
