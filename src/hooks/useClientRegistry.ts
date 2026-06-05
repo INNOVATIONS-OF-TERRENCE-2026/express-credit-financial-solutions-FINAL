@@ -50,7 +50,22 @@ export type RegistryTag =
   | 'Duplicate Risk'
   | 'Orphan Data'
   | 'Reconciled'
-  | 'Not Client';
+  | 'Not Client'
+  | 'Prospect'
+  | 'Test Account'
+  | 'Ignored'
+  | 'Archived';
+
+export interface ExclusionRow {
+  id: string;
+  source_type: 'profile' | 'orphan_identity' | 'client';
+  source_id: string;
+  email: string | null;
+  name: string | null;
+  status: 'prospect' | 'not_client' | 'test_account' | 'ignored' | 'archived';
+  reason: string | null;
+  created_at: string;
+}
 
 export interface RegistryAuditEntry {
   id: string;
@@ -79,6 +94,10 @@ export interface RegistrySnapshot {
     totalPotentialIdentities: number;
     notClientCount: number;
     reconciledThisSession: number;
+    prospects: number;
+    testAccounts: number;
+    ignored: number;
+    archived: number;
   };
   clients: RegistryClient[];
   missingProfiles: MissingProfile[];
@@ -90,6 +109,8 @@ export interface RegistrySnapshot {
   profileTags: Record<string, RegistryTag[]>;
   /** Map of client.id -> tags. */
   clientTags: Record<string, RegistryTag[]>;
+  exclusions: ExclusionRow[];
+  exclusionByProfile: Record<string, ExclusionRow>;
   refresh: () => Promise<void>;
 }
 
@@ -108,9 +129,10 @@ export function useClientRegistry(): RegistrySnapshot {
       profilesMissingClient: 0, reportsOrphan: 0, documentsOrphan: 0, paymentsOrphan: 0,
       agreementsOrphan: 0, disputesOrphan: 0, possibleDuplicates: 0, totalPotentialIdentities: 0,
       notClientCount: 0, reconciledThisSession: 0,
+      prospects: 0, testAccounts: 0, ignored: 0, archived: 0,
     },
     clients: [], missingProfiles: [], orphanIdentities: [], duplicates: [], needsPortalLink: [],
-    recentAudit: [], profileTags: {}, clientTags: {},
+    recentAudit: [], profileTags: {}, clientTags: {}, exclusions: [], exclusionByProfile: {},
   });
 
   const load = useCallback(async () => {
@@ -131,6 +153,23 @@ export function useClientRegistry(): RegistrySnapshot {
         .from('profiles')
         .select('user_id, email, first_name, last_name, membership_type, created_at');
       const profiles = profileRows || [];
+
+      // 2b. Exclusions (prospect/not_client/test_account/ignored/archived)
+      let exclusions: ExclusionRow[] = [];
+      try {
+        const { data: exclRows } = await sb
+          .from('client_registry_exclusions')
+          .select('id, source_type, source_id, email, name, status, reason, created_at');
+        exclusions = (exclRows as ExclusionRow[]) || [];
+      } catch {}
+      const exclusionByProfile: Record<string, ExclusionRow> = {};
+      exclusions.forEach((e) => {
+        if (e.source_type === 'profile') exclusionByProfile[e.source_id] = e;
+      });
+      const exclusionByOrphan: Record<string, ExclusionRow> = {};
+      exclusions.forEach((e) => {
+        if (e.source_type === 'orphan_identity') exclusionByOrphan[e.source_id] = e;
+      });
 
       // 3. Orphan owners from feature tables (NULL client_id OR client_id pointing nowhere)
       const [pmt, rpt, agr] = await Promise.all([
@@ -161,6 +200,8 @@ export function useClientRegistry(): RegistrySnapshot {
         if (clientByUserId.has(p.user_id)) return;
         const emailLc = (p.email || '').toLowerCase();
         if (emailLc && clientByEmail.has(emailLc)) return;
+        // Skip profiles already excluded (prospect/not_client/test_account/ignored/archived)
+        if (exclusionByProfile[p.user_id]) return;
         // Suggest by normalized name (low confidence)
         const nm = composeName(p.first_name, p.last_name);
         const suggestion = nm ? clientByName.get(norm(nm))?.[0] : undefined;
@@ -190,7 +231,9 @@ export function useClientRegistry(): RegistrySnapshot {
       (pmt.data || []).forEach((r: any) => bump('payment_records', r.user_id, null));
       (rpt.data || []).forEach((r: any) => bump('credit_report_uploads', r.user_id, r.file_name || null));
       (agr.data || []).forEach((r: any) => bump('client_agreements', r.user_id, r.full_name || null));
-      const orphanIdentities = Array.from(orphanMap.values());
+      const orphanIdentities = Array.from(orphanMap.values()).filter(
+        (o) => !exclusionByOrphan[`${o.source}::${o.user_id}`],
+      );
 
       // Orphan record counts (rows whose client_id references a missing client)
       const countOrphanRecords = (rows: any[]) =>
@@ -299,6 +342,8 @@ export function useClientRegistry(): RegistrySnapshot {
       const totalPotentialIdentities =
         clients.length + profilesMissingClient + orphanIdentities.length;
 
+      const countStatus = (s: ExclusionRow['status']) => exclusions.filter((e) => e.status === s).length;
+
       setSnap({
         loading: false,
         error: null,
@@ -317,6 +362,10 @@ export function useClientRegistry(): RegistrySnapshot {
           totalPotentialIdentities,
           notClientCount,
           reconciledThisSession: 0,
+          prospects: countStatus('prospect'),
+          testAccounts: countStatus('test_account'),
+          ignored: countStatus('ignored'),
+          archived: countStatus('archived'),
         },
         clients,
         missingProfiles,
@@ -326,6 +375,8 @@ export function useClientRegistry(): RegistrySnapshot {
         recentAudit,
         profileTags,
         clientTags,
+        exclusions,
+        exclusionByProfile,
       });
     } catch (e: any) {
       setSnap((s) => ({ ...s, loading: false, error: e?.message || 'Failed to load registry' }));
