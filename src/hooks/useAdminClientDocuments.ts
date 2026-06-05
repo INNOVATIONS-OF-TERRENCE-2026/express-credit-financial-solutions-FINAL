@@ -56,8 +56,8 @@ export function useAdminClientDocuments() {
           .order('uploaded_at', { ascending: false })
           .limit(500),
         client
-          .from('document_uploads')
-          .select('id,user_id,file_name,file_url,file_type,file_size,document_type,admin_status,upload_date')
+          .from('documents')
+          .select('id,user_id,client_id,file_name,file_path,uploaded_file_url,file_type,file_size,document_type,doc_type,upload_date,created_at')
           .order('upload_date', { ascending: false })
           .limit(500),
         client
@@ -118,15 +118,15 @@ export function useAdminClientDocuments() {
           source: 'general',
           sourceLabel: SOURCE_LABEL.general,
           userId: r.user_id ?? null,
-          clientId,
+          clientId: r.client_id ?? clientId,
           clientName,
-          fileName: r.file_name || safeFileName(r.file_url),
-          filePath: r.file_url,
+          fileName: r.file_name || safeFileName(r.file_path || r.uploaded_file_url),
+          filePath: r.file_path || r.uploaded_file_url,
           bucket: 'documents',
-          docType: (r.document_type || r.file_type?.split('/')[1] || 'document').toLowerCase(),
+          docType: (r.document_type || r.doc_type || r.file_type?.split('/')[1] || 'document').toLowerCase(),
           sizeBytes: typeof r.file_size === 'number' ? r.file_size : null,
-          status: r.admin_status || 'pending',
-          uploadedAt: r.upload_date,
+          status: 'uploaded',
+          uploadedAt: r.upload_date || r.created_at,
         });
       }
 

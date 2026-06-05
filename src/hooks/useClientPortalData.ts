@@ -104,7 +104,7 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
       const [reportsCount, disputesCount, docsPending, agreementsSigned, agreementsPending] = await Promise.all([
         countBy('credit_report_uploads', 'client_id', cid).then((c) => c || countBy('credit_report_uploads', 'user_id', uid)),
         countBy('dispute_cases', 'client_id', cid).then((c) => c || countBy('dispute_cases', 'user_id', uid)),
-        countBy('document_uploads', 'client_id', cid, (q) => q.eq('review_status', 'pending')),
+        countBy('documents', 'client_id', cid),
         countBy('client_agreements', 'client_id', cid, (q) => q.not('signed_at', 'is', null)),
         countBy('client_agreements', 'client_id', cid, (q) => q.is('signed_at', null)),
       ]);

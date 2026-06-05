@@ -24,6 +24,10 @@ const TAG_STYLES: Record<RegistryTag, string> = {
   'Duplicate Risk': 'bg-fuchsia-500/15 text-fuchsia-500 border-fuchsia-500/30',
   'Orphan Data': 'bg-rose-500/15 text-rose-500 border-rose-500/30',
   'Not Client': 'bg-muted text-muted-foreground border-border',
+  'Prospect': 'bg-sky-500/15 text-sky-500 border-sky-500/30',
+  'Test Account': 'bg-muted text-muted-foreground border-border',
+  'Ignored': 'bg-muted text-muted-foreground border-border',
+  'Archived': 'bg-muted text-muted-foreground border-border',
 };
 
 function TagChips({ tags }: { tags: RegistryTag[] | undefined }) {
@@ -298,6 +302,65 @@ export default function AdminClientRegistry() {
     }
   };
 
+  const excludeProfile = async (
+    p: MissingProfile,
+    status: 'prospect' | 'not_client' | 'test_account' | 'ignored',
+  ) => {
+    setBusyId(p.user_id);
+    try {
+      const sb: any = supabase;
+      const { error } = await sb
+        .from('client_registry_exclusions')
+        .upsert(
+          {
+            source_type: 'profile',
+            source_id: p.user_id,
+            email: p.email,
+            name: [p.first_name, p.last_name].filter(Boolean).join(' ').trim() || null,
+            status,
+            reason: `Marked ${status} by admin`,
+          },
+          { onConflict: 'source_type,source_id' },
+        );
+      if (error) throw error;
+      await logRegistryAction('EXCLUDE_PROFILE', { source_user_id: p.user_id, status, email: p.email });
+      toast({ title: 'Marked', description: `Profile marked ${status.replace('_', ' ')}.` });
+      snap.refresh();
+    } catch (err: any) {
+      toast({ title: 'Failed', description: err?.message || 'Could not mark profile', variant: 'destructive' });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const archiveOrphan = async (o: OrphanIdentity) => {
+    setBusyId(o.user_id);
+    try {
+      const sb: any = supabase;
+      const key = `${o.source}::${o.user_id}`;
+      const { error } = await sb
+        .from('client_registry_exclusions')
+        .upsert(
+          {
+            source_type: 'orphan_identity',
+            source_id: key,
+            name: o.label,
+            status: 'archived',
+            reason: `Archived orphan ${o.source}`,
+          },
+          { onConflict: 'source_type,source_id' },
+        );
+      if (error) throw error;
+      await logRegistryAction('ARCHIVE_ORPHAN', { source: o.source, source_user_id: o.user_id });
+      toast({ title: 'Archived', description: 'Orphan identity archived.' });
+      snap.refresh();
+    } catch (err: any) {
+      toast({ title: 'Failed', description: err?.message || 'Could not archive', variant: 'destructive' });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const escapeCsv = (v: string | number | null | undefined) => {
     const s = String(v ?? '');
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -537,6 +600,18 @@ export default function AdminClientRegistry() {
                                   <Link2 className="h-3 w-3 mr-1" /> Link to suggestion
                                 </Button>
                               )}
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'prospect')}>
+                                Prospect
+                              </Button>
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'not_client')}>
+                                Not client
+                              </Button>
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'test_account')}>
+                                Test
+                              </Button>
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'ignored')}>
+                                <EyeOff className="h-3 w-3 mr-1" /> Ignore
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -583,6 +658,9 @@ export default function AdminClientRegistry() {
                             </Button>
                             <Button size="sm" variant="ghost" onClick={() => { setAttachOrphan(o); setAttachTarget(''); }}>
                               <Link2 className="h-3 w-3 mr-1" /> Attach to existing
+                            </Button>
+                            <Button size="sm" variant="ghost" disabled={busyId === o.user_id} onClick={() => archiveOrphan(o)}>
+                              <EyeOff className="h-3 w-3 mr-1" /> Archive
                             </Button>
                           </div>
                         </TableCell>

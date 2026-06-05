@@ -72,7 +72,7 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
         countHead('payment_records', (q) => q.eq('payment_status', 'needs_review')),
         countHead('credit_report_uploads'),
         countHead('dispute_cases', (q) => q.in('status', ['intake_received','documents_missing','extracted','validation_passed','draft_generated','needs_admin_review','approved'])),
-        countHead('document_uploads', (q) => q.eq('review_status', 'pending')),
+        countHead('documents'),
         countHead('payment_records', (q) => q.eq('payment_status', 'pending')),
         countHead('client_agreements', (q) => q.is('signed_at', null)),
         countHead('clients', (q) => q.eq('mortgage_readiness_status', 'ready')),

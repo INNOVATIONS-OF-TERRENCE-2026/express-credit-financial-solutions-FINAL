@@ -1,134 +1,101 @@
+## Production Repair Plan — Registry, Portal Linking, Orphans, Documents, Payments
 
-# Emergency Repair: Admin Client Control + Portal Data Sync
+Scope: surgical fixes to existing tables and components. No UI redesign, no auth changes, no silent deletes.
 
-## Root cause
+---
 
-The admin app treats `profiles` / `auth.users` as the source of truth for several operations. Bulk edits, tier changes, and some lookups filter by `clients.user_id`, so the 33 of 35 `clients` rows that have no linked auth user become invisible/uneditable. DB confirms: `clients=35`, `clients.user_id NOT NULL = 2`, `profiles=37`. Counts and selectors disagree across screens because some read `clients`, others read `profiles`.
+### Phase 1 — Portal Linking Truth (read accuracy)
 
-The `clients` table already has nearly every column the brief asks for. Only 4 columns are actually missing.
+Update `src/hooks/useClientRegistry.ts` and `src/pages/AdminClientRegistry.tsx`:
 
-## What I'll change
+- Replace the current "linked = clients.user_id IS NOT NULL" count with a derived `portalStatus` per client computed via this priority:
+  1. `clients.user_id = profiles.user_id` → **Linked**
+  2. `lower(clients.email) = lower(profiles.email)` (unique on both sides) and `clients.user_id IS NULL` → **Email Match Found / Needs Link Approval**
+  3. Phone/name normalized match → **Review Suggestion** (never auto-link)
+  4. None → **No Portal Account Found**
+  5. Exclusion row present → **Prospect / Not Client / Test / Ignored**
+  6. Duplicate cluster member → **Duplicate Risk**
+- Add per-row **Link Portal Account** action (admin-approved) that sets `clients.user_id` to the matched `profiles.user_id` via existing RPC pattern; never bulk auto-link.
+- Recompute KPIs from this derived status, not from raw nulls.
 
-### 1. Migration (additive only)
-Add the columns truly missing from `public.clients`:
+### Phase 2 — Profile Exclusions (prospects aren't clients)
 
-```text
-portal_status text default 'active'
-payment_status text
-admin_notes text
-client_visible_update text
-```
+New table `public.client_registry_exclusions` (migration):
+- `id, source_type ('profile'|'orphan_email'|'orphan_phone'), source_id (text), email, name, reason text, status ('prospect'|'not_client'|'test_account'|'ignored'|'archived'), excluded_by uuid, notes, created_at, updated_at`
+- GRANTs to `authenticated` + `service_role`, RLS admin-only via `has_role`.
 
-Existing columns (`starting_score_*`, `current_score_*`, `accounts_deleted_count`, `debt_removed_total`, `hard_inquiries_removed`, `personal_info_items_removed`, `remaining_negatives`, `current_dispute_round` [integer], `next_step_note`, `mortgage_readiness_status`, `ftc_605b_readiness_status`, `membership_plan`, `status`, `onboarding_status`) stay as-is. No drops, no type changes. `current_dispute_round` stays integer; UI already treats it numerically.
+Update registry hook to LEFT JOIN this table and:
+- Exclude marked profiles from "Profiles Missing Client Row".
+- Surface new KPIs: Prospects, Not Clients, Test Accounts, Ignored, Duplicate Risks.
+- Add row actions: Mark Prospect / Not Client / Test / Ignore / Restore.
 
-Move `membership_type` semantics: keep reading `profiles.membership_type` when a user is linked, but also persist a denormalized `membership_plan` on `clients` so unlinked clients have a tier. No data deletion.
+### Phase 3 — Dry Run Preview Repair
 
-### 2. New `src/lib/clientResolver.ts`
-Single resolution layer with:
+In `AdminClientRegistry.tsx`:
+- Fix the existing `reconcile_client_links(dry_run=true)` flow: render the returned JSON in a structured preview (selected, to-create, to-link, skipped, duplicate risks, prospects excluded, downstream payment/document/report/agreement counts, before/after totals).
+- Three buttons: **Run Dry Preview**, **Confirm & Execute** (disabled until preview returns success), **Cancel**.
+- Guarantee no mutation occurs on preview (already enforced in the RPC; verify call site passes `dry_run: true`).
 
-- `resolveClientById(clientId)` — direct `clients.id` lookup.
-- `resolveClientByUserId(userId)` — `clients.user_id` lookup.
-- `resolveClientByEmail(email)` — case-insensitive `clients.email` lookup.
-- `resolveClientForAdmin(clientId)` — admin always passes explicit `clientId`; never uses admin's `auth.uid()`.
-- `resolveClientForPortal(user)` — try `user_id` → fallback to `email` → if matched by email and `clients.user_id IS NULL`, safely link it (single UPDATE guarded by `user_id IS NULL`). Returns a typed result including `status: 'linked' | 'auto_linked' | 'pending_setup'` so the portal can render the support message instead of crashing.
+### Phase 4 — Orphan Identity Controls
 
-Existing `src/lib/resolveClient.ts` stays (used elsewhere); the new file consolidates the contract and re-exports a compatible helper.
+In the Orphan Identity panel:
+- Per orphan: View Source, Attach to Existing Client, Create Client, Mark Prospect/Not Client, Archive, Hard Delete.
+- Hard Delete guard: pre-check counts in `payment_records`, `client_agreements`, `credit_report_uploads`, `documents`, `dispute_letters`, `audit_logs`. If any > 0, block with the spec'd message.
+- All actions write to `audit_logs` via `log_security_event`.
+- Archive = insert into `client_registry_exclusions` with status `archived`.
 
-### 3. Admin editing — remove `user_id` gating
-Files: `src/pages/AdminClients.tsx`, `src/pages/AdminClientEdit.tsx`, `src/components/AdminClientEditor.tsx`.
+### Phase 5 — Uploaded Client Documents Fix
 
-- Bulk tier change: write `membership_plan` to `clients` for ALL selected rows; additionally update `profiles.membership_type` for the subset that has `user_id`. Drop the "No linked users" hard block.
-- Bulk dispute-status change: continue updating `dispute_letters` keyed by `client_id` (already correct) — verify no `user_id` filter.
-- Single-client save: write to `clients` first; only touch `profiles` and emit automation events when `user_id` is present. Never fail the save because `user_id` is null.
-- Save path will persist the new override fields (`portal_status`, `payment_status`, `admin_notes`, `client_visible_update`) plus all score/metric fields directly on `clients`.
+Root cause: code queries `public.document_uploads` which does not exist. Real tables present: `documents`, `document_archive`, `credit_report_uploads`, `client_verification_secure`.
 
-### 4. Admin client list — single source of truth
-`fetchClients` already reads `clients` then joins `profiles.membership_type`. Keep that join but prefer `clients.membership_plan` when present and fall back to `profiles.membership_type`. Add a `portal_account_status` derived field:
+- Grep entire codebase for `document_uploads` and replace with the correct unified source. `src/hooks/useAdminClientDocuments.ts` currently references it — repoint to `documents` (the actual general-upload table) plus the other three already-merged sources.
+- No new table needed; `documents` already has `client_id, user_id, file_name, file_path, doc_type, created_at`. Verify columns via `supabase--read_query` before editing.
+- Confirm Documents Pending KPI uses the corrected source.
 
-```text
-linked              → clients.user_id IS NOT NULL
-email_match_avail   → user_id null AND profiles/auth has matching email
-needs_invite        → user_id null AND no email match
-```
+### Phase 6 — Payment Center Repair
 
-The email-match check uses one batched `profiles` query keyed by the visible clients' emails (no per-row N+1). Show the status as a new column/badge.
+New table `public.client_payment_summary` (migration):
+- `id, client_id uuid UNIQUE REFERENCES clients(id), user_id, expected_amount numeric DEFAULT 600, paid_amount numeric DEFAULT 0, payment_status text DEFAULT 'unpaid', payment_method, payment_date, service_type DEFAULT 'Credit Repair', receipt_reference, verified_by_admin bool, visible_to_client bool DEFAULT true, notes, created_at, updated_at`
+- `balance_due` computed in app (`expected - paid`) to avoid generated-column risk.
+- GRANTs + RLS: admin full, client SELECT own row where `visible_to_client = true`.
+- Backfill: insert one row per existing `clients.id` with defaults (`$600 / $0 / unpaid`).
+- Trigger: on `INSERT INTO clients` create a default summary row.
 
-### 5. Admin client counts
-`src/hooks/useAdminMetrics.ts` — change `totalClients` to `count(*) FROM clients`. Add new metrics surfaced in `AdminKpiGrid`:
+New admin page section in existing Payment Center (`src/pages/AdminPaymentsPage.tsx` gets a new tab or sibling page `AdminPaymentSummaryPage.tsx`):
+- Table of all 48 clients with editable cells: expected, paid, status, method, date, notes, visible_to_client, service_type, receipt_reference, verified_by_admin.
+- KPI strip: Total Expected, Total Paid, Total Balance Due, Paid / Unpaid / Partial / Pending Review / Manual Edits counts.
 
-- Total Clients (clients)
-- Portal Users Linked (clients where user_id not null)
-- Clients Without Portal Login (clients where user_id null)
-- Active / Onboarding / Inactive (from `clients.status` / `clients.onboarding_status`)
+Does NOT replace existing `payment_records` (Cash App / Apple Pay manual proofs). The summary is the source-of-truth ledger; `payment_records` continue feeding it on approval (optional follow-up, not in this phase).
 
-All other dashboards that show a "total clients" number get pointed at the same hook.
+### Phase 7 — Client Portal Payment Display
 
-### 6. Client selectors everywhere
-Audit and align these to query `clients` directly (not `profiles`):
+`src/pages/client/Payments.tsx`:
+- Add a Service Balance card sourced from `client_payment_summary` for the resolved `clientId`.
+- Auto-create the row if missing (RPC `ensure_payment_summary(client_id)`).
+- Show notes only when `visible_to_client = true`.
 
-- Upload Report selector, Documents selector, Disputes selector, Payments selector, Portal Editor, Score Editor, Status Editor, Client Portal Manager, Client Portals page.
+### Phase 8 — Verification
 
-Where a selector currently filters by `user_id IS NOT NULL`, remove that filter.
+After implementation: load registry (48 clients, correct linked count), run Dry Preview, link one email match, mark one profile as Prospect, open Uploaded Client Documents (no relation error), open Payment Center (48 rows, $600 default), edit one row, view client portal payments page.
 
-### 7. Admin client preview
-`/admin/client-preview/:clientId` (`AdminClientPreview.tsx`) already resolves by `clients.id` via `resolveClient`. Switch it to `resolveClientForAdmin` and ensure it never redirects/crashes when `user_id` is null. `ClientPortal` rendered in admin preview mode must accept a `clients.id` and not require an auth user.
+---
 
-### 8. Client portal data resolution
-`src/contexts/ClientContext.tsx` and `src/hooks/useClientPortalData.ts` — use `resolveClientForPortal(user)`:
+### Technical Details
 
-1. Match by `clients.user_id`.
-2. Else match by `auth.email` → `clients.email` (case-insensitive).
-3. On email match with null `user_id`, run a guarded `UPDATE clients SET user_id = auth.uid() WHERE id = $1 AND user_id IS NULL`.
-4. If no match: render "Portal setup is pending. Please contact support." instead of a blank page.
+**Migrations (two, additive only):**
+1. `client_registry_exclusions` + RLS + GRANTs.
+2. `client_payment_summary` + RLS + GRANTs + backfill insert + new-client trigger + `ensure_payment_summary(uuid)` RPC.
 
-### 9. Admin override panel
-`AdminClientEditor.tsx` already edits scores and metrics. Extend it with an "Admin Override" card that writes the new portal-visible fields (`portal_status`, `payment_status`, `admin_notes`, `client_visible_update`, `mortgage_readiness_status`, `ftc_605b_readiness_status`, `current_dispute_round`, `next_step_note`) directly to `clients`. Client dashboard already reads these via `useClientPortalData`.
+**Files to edit:**
+- `src/hooks/useClientRegistry.ts` — derived portal status, exclusions join, new KPIs.
+- `src/pages/AdminClientRegistry.tsx` — dry-run preview UI, link-approve action, exclusion actions, orphan delete guard.
+- `src/hooks/useAdminClientDocuments.ts` — already correct; verify no `document_uploads` reference remains. Grep and fix any other component still calling it.
+- `src/pages/AdminPaymentsPage.tsx` (+ new `AdminPaymentSummaryPage.tsx` or tab) — editable summary grid.
+- `src/pages/client/Payments.tsx` — Service Balance card.
+- `src/components/admin/AdminSidebar.tsx` — link to new payment summary view if added as separate page.
 
-### 10. Link / Invite actions (Phase 6)
-On a single client edit page, add three actions:
+**Files investigated (read-only first):** `useClientRegistry.ts`, `AdminClientRegistry.tsx`, `useAdminClientDocuments.ts`, `AdminDocumentList.tsx`, `usePayments.ts`, `useAdminPayments.ts`, `AdminPaymentsPage.tsx`, `client/Payments.tsx`, plus `rg document_uploads` across `src/`.
 
-- "Link Existing User" — modal that searches `profiles` by email (ilike), shows match, and links `clients.user_id = profiles.user_id` (guarded by `user_id IS NULL` to prevent duplicates).
-- "Mark Portal Invite Needed" — sets `clients.portal_status = 'invite_needed'`.
-- "Resend Portal Invite" — placeholder button that toasts "Coming soon" (no new auth flow created).
+**Safety:** no drops, no deletes of existing rows, no RLS removed, no auth changes. All admin mutations go through `has_role('admin')` checks and write to `audit_logs`.
 
-No new auth user creation. No duplicate auth/Supabase clients.
-
-## Files touched
-
-```text
-NEW   src/lib/clientResolver.ts
-NEW   supabase/migrations/<timestamp>_clients_admin_repair.sql
-EDIT  src/pages/AdminClients.tsx            (bulk actions, portal status col, selectors)
-EDIT  src/pages/AdminClientEdit.tsx         (save without user_id, override fields)
-EDIT  src/components/AdminClientEditor.tsx  (override panel, link/invite actions)
-EDIT  src/pages/AdminClientPreview.tsx      (use resolveClientForAdmin)
-EDIT  src/hooks/useAdminMetrics.ts          (clients-based counts + new metrics)
-EDIT  src/components/admin/AdminKpiGrid.tsx (surface new metrics)
-EDIT  src/contexts/ClientContext.tsx        (use resolveClientForPortal)
-EDIT  src/hooks/useClientPortalData.ts      (read override fields)
-EDIT  client selector components            (Upload/Docs/Disputes/Payments/PortalLinks/Portals)
-```
-
-Only the files actually touching the broken paths above are edited. No router, auth context, or Supabase client changes.
-
-## Safety
-
-- Additive SQL only; existing columns and data untouched.
-- No deletes, no auth.user mutations, no duplicate clients (link action guarded by `user_id IS NULL`).
-- No new auth/Supabase client; reuses `@/integrations/supabase/client`.
-- No changes to RLS structure; new columns inherit existing `clients` policies (admins can update; service_role has ALL).
-- Bulk profile writes still respect existing `profiles` policies — admin-only updates already work today.
-
-## Verification checklist
-
-1. `/admin/clients` total matches `SELECT count(*) FROM clients` (35 today).
-2. New KPIs show: Total=35, Linked=2, Unlinked=33.
-3. Edit + save succeeds on a client with `user_id = null` (no toast about missing user).
-4. Bulk tier change applies to all selected clients (linked or not).
-5. Override panel writes `current_score_*`, `mortgage_readiness_status`, etc., and client portal hero reflects the change.
-6. `/admin/client-preview/:clientId` loads for an unlinked client.
-7. Upload / Documents / Disputes / Payments selectors all list the same 35 clients.
-8. Client portal: linked user sees data; email-only match auto-links and loads; no match shows the support message (no blank screen, no crash).
-9. `npm run typecheck` / build passes.
-
-Phase ordering at build time: migration first, then `clientResolver.ts`, then admin edit + selectors + KPIs, then portal resolution + override panel, then link/invite UI, then verification.
+**Out of scope:** UI redesign, Stripe/CashApp rewiring, admin module consolidation, AI changes.

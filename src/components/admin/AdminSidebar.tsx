@@ -39,6 +39,7 @@ const GROUPS: { label: string; items: { label: string; to: string; icon: any; ex
     label: 'Finance',
     items: [
       { label: 'Payments', to: '/admin/payments', icon: Wallet },
+      { label: 'Client Balances', to: '/admin/payment-summary', icon: Wallet },
     ],
   },
   {

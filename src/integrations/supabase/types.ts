@@ -1117,6 +1117,68 @@ export type Database = {
           },
         ]
       }
+      client_payment_summary: {
+        Row: {
+          client_id: string
+          created_at: string
+          expected_amount: number
+          id: string
+          notes: string | null
+          paid_amount: number
+          payment_date: string | null
+          payment_method: string | null
+          payment_status: string
+          receipt_reference: string | null
+          service_type: string | null
+          updated_at: string
+          user_id: string | null
+          verified_by_admin: boolean
+          visible_to_client: boolean
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          expected_amount?: number
+          id?: string
+          notes?: string | null
+          paid_amount?: number
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          receipt_reference?: string | null
+          service_type?: string | null
+          updated_at?: string
+          user_id?: string | null
+          verified_by_admin?: boolean
+          visible_to_client?: boolean
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          expected_amount?: number
+          id?: string
+          notes?: string | null
+          paid_amount?: number
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_status?: string
+          receipt_reference?: string | null
+          service_type?: string | null
+          updated_at?: string
+          user_id?: string | null
+          verified_by_admin?: boolean
+          visible_to_client?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_payment_summary_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_processing_cycles: {
         Row: {
           client_id: string | null
@@ -1157,6 +1219,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      client_registry_exclusions: {
+        Row: {
+          created_at: string
+          email: string | null
+          excluded_by: string | null
+          id: string
+          name: string | null
+          notes: string | null
+          reason: string | null
+          source_id: string
+          source_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          excluded_by?: string | null
+          id?: string
+          name?: string | null
+          notes?: string | null
+          reason?: string | null
+          source_id: string
+          source_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          excluded_by?: string | null
+          id?: string
+          name?: string | null
+          notes?: string | null
+          reason?: string | null
+          source_id?: string
+          source_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       client_search_filters: {
         Row: {
@@ -3384,6 +3488,32 @@ export type Database = {
       decrypt_ssn_secure: { Args: { encrypted_ssn: string }; Returns: string }
       encrypt_plaid_token: { Args: { token_text: string }; Returns: string }
       encrypt_ssn_secure: { Args: { ssn_text: string }; Returns: string }
+      ensure_payment_summary: {
+        Args: { p_client_id: string }
+        Returns: {
+          client_id: string
+          created_at: string
+          expected_amount: number
+          id: string
+          notes: string | null
+          paid_amount: number
+          payment_date: string | null
+          payment_method: string | null
+          payment_status: string
+          receipt_reference: string | null
+          service_type: string | null
+          updated_at: string
+          user_id: string | null
+          verified_by_admin: boolean
+          visible_to_client: boolean
+        }
+        SetofOptions: {
+          from: "*"
+          to: "client_payment_summary"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       expire_vip_trials: { Args: never; Returns: undefined }
       get_current_user_role: {
         Args: never
