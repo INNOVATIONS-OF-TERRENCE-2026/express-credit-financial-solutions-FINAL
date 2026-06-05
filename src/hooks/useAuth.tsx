@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setTimeout(() => {
             if (mounted) checkAdminStatus(session.user.id);
           }, 0); // Defer to avoid auth state conflicts
-        } else {
+        } else if (!session?.user) {
           setIsAdmin(false);
         }
         
