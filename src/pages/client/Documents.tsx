@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle2, Circle, ShieldCheck, FileText, Image as ImageIcon, FileType2, Lock, UploadCloud } from 'lucide-react';
 import { LuxuryCard, LuxurySection, EyebrowLabel } from '@/components/luxury';
 import { Progress } from '@/components/ui/progress';
+import { DocumentVaultBrowser } from '@/components/client/DocumentVaultBrowser';
 
 interface VerificationStatus {
   id_document_url: string | null;
@@ -178,6 +179,14 @@ function Inner() {
       </LuxurySection>
 
       <UploadFlowGuide />
+
+      <LuxurySection
+        eyebrow="Find Documents"
+        title="Browse your vault"
+        description="Filter by file type or search by name to quickly locate anything you've uploaded."
+      >
+        <DocumentVaultBrowser userId={user.id} />
+      </LuxurySection>
 
       <LuxurySection
         eyebrow="Upload Center"
