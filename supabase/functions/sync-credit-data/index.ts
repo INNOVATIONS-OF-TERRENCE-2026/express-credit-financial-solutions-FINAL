@@ -185,7 +185,7 @@ serve(async (req) => {
     console.error('Error in sync-credit-data function:', error);
     return new Response(
       JSON.stringify({ 
-        error: (error as Error).message,
+        error: "Internal server error",
         success: false
       }),
       {
