@@ -16,6 +16,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SBAConfigProvider } from "./contexts/SBAConfig";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { GlobalSearchCommand } from "./components/GlobalSearchCommand";
+import { AuthDebugPanel } from "./components/AuthDebugPanel";
 
 // SBA Pages
 import SBAHome from "./pages/sba/Home";
@@ -88,6 +89,7 @@ const App = () => (
                       <ScrollToTop />
                       <GlobalSearchCommand />
                       <ScopedFloatingChat />
+                      <AuthDebugPanel />
                       <Routes>
                         {/* SBA Routes */}
                         <Route path="/sba" element={<SBAHome />} />
