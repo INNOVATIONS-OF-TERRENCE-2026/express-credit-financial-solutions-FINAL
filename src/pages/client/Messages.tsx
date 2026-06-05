@@ -5,5 +5,5 @@ function Inner() {
   return <ClientNotificationsPanel />;
 }
 export default function ClientMessagesPage() {
-  return <ClientPortalLayout title="Credit Coach"><Inner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="Concierge Messages"><Inner /></ClientPortalLayout>;
 }

@@ -89,5 +89,5 @@ function ResultsInner() {
 }
 
 export default function ClientResultsPage() {
-  return <ClientPortalLayout title="Progress Center"><ResultsInner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="Results title="Progress Center" Progress"><ResultsInner /></ClientPortalLayout>;
 }

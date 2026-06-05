@@ -72,5 +72,5 @@ function Inner() {
 }
 
 export default function ClientPaymentsPage() {
-  return <ClientPortalLayout title="Payment Center"><Inner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="Account & Billing"><Inner /></ClientPortalLayout>;
 }
