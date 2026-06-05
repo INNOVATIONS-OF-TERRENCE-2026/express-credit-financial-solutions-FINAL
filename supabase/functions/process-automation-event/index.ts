@@ -43,7 +43,11 @@ Deno.serve(async (req) => {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    if (token !== serviceKey) {
+    let isServiceRole = token === serviceKey;
+    let callerUserId: string | null = null;
+    let callerIsAdmin = false;
+
+    if (!isServiceRole) {
       const anonClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
         global: { headers: { Authorization: authHeader } },
       });
@@ -53,9 +57,41 @@ Deno.serve(async (req) => {
           status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+      callerUserId = user.id;
+      const { data: roleRow } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      callerIsAdmin = !!roleRow;
     }
 
     const { event_type, client_id, user_id, payload, source } = await req.json();
+
+    // For non-service, non-admin callers: enforce ownership of the target
+    // client_id / user_id so a user cannot inject timeline entries or
+    // notifications into another user's account.
+    if (!isServiceRole && !callerIsAdmin) {
+      if (user_id && user_id !== callerUserId) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (client_id) {
+        const { data: ownedClient } = await supabase
+          .from('clients')
+          .select('id')
+          .eq('id', client_id)
+          .eq('user_id', callerUserId)
+          .maybeSingle();
+        if (!ownedClient) {
+          return new Response(JSON.stringify({ error: 'Forbidden' }), {
+            status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    }
 
     if (!event_type) {
       return new Response(JSON.stringify({ error: 'event_type is required' }), {
@@ -228,7 +264,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error('Automation event error:', error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
