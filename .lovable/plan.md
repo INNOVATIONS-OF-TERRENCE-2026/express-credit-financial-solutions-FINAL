@@ -1,80 +1,77 @@
-# Emergency God Mode Repair — Execution Plan
+## Root Cause
 
-This is a large, multi-phase production repair. Below is the surgical plan, scoped to existing architecture (no new auth, no new router, no duplicate Supabase clients).
+The session is persisting fine on desktop — what looks like an "auto‑logout" is actually `RequireAdmin` (and downstream code) reading a stale `loading=false` + `userRole=null` and redirecting away from the destination route the moment Supabase fires the post‑login `onAuthStateChange`. Two specific bugs:
 
-## Phase 0 — Post-Execution Verification Report (NEW, do first)
-Build `/admin/verification-report` page that lists every client with:
-- Portal-link status (client.user_id present? profile email match? ambiguous?)
-- Document/archive status (counts in `documents` + `document_archive`, orphans)
-- Payment-summary consistency (row exists in `client_payment_summary`? expected_amount = 600? user_id matches client.user_id?)
-- Credit score presence (latest row in `client_credit_scores`)
-- Membership / service status flags
-Single sortable/filterable table + CSV export. Read-only diagnostic.
+1. **`src/hooks/useRoles.tsx`** — `fetchUserRole` runs once with `user=null`, sets `loading=false`. When `user` becomes set after login, the effect re‑runs but never sets `loading=true` again, so for the duration of the role fetch the guard sees `roleLoading=false && isAdmin()===false` and redirects to `/`.
+2. **`src/hooks/useMembership.tsx`** — same anti‑pattern; can flash "no membership" briefly during login.
+3. **`src/pages/AdminLogin.tsx`** — after a successful `supabase.auth.signInWithPassword`, the page rejects everyone who isn't in a **hardcoded** `admin@expresscredit.com` / `support@…` / `manager@…` list. Real DB‑driven admins get "Access denied" → never navigate to `/admin` → bounce back to login. This must be replaced with the real `user_roles` check.
+4. **`src/hooks/useAuth.tsx`** — `onAuthStateChange` callback uses `await supabase.functions.invoke(...)` for new‑user notifications (Supabase deadlock anti‑pattern). Convert to fire‑and‑forget so the auth state machine never blocks.
 
-## Phase 1 — Client Status Normalization (Migration)
-Additive columns on `clients` (only if missing): `portal_status`, `membership_plan`, `service_status`, `access_services_enabled`. Backfill real clients (`not_a_client = false`) to active/premium/enabled. Trigger to default new rows to active/premium.
+Mobile worked because the post‑login destination on mobile is typically a `/client/*` route, which is wrapped in `RequireAuth` (checks `user` only, not role) and so the race never triggered.
 
-## Phase 2 — Remove Agreement Gating
-- `useAdminMetrics`, `useClientRegistry`, `useClientPortalData`: drop `needs_agreement` blockers from Portal-Ready / Active calculations.
-- Remove "Needs Agreement" KPI card from Admin Client Registry and Admin Dashboard. Keep agreement data accessible but non-blocking.
+## Fixes (surgical, frontend‑only)
 
-## Phase 3 — Fix Portal Button Routing
-Currently the "Portal" button in Admin Client Registry navigates to a route that re-mounts admin shell. Fix: route to `/admin/client-portal-editor/:clientId`. Add route in `App.tsx`. Guard with `RequireAdmin`. Loads client by `clients.id` (not auth.uid).
+### 1. `src/hooks/useRoles.tsx`
+- Set `loading(true)` at the top of `fetchUserRole` whenever a user is present, before the Supabase query.
+- Keep the effect dependency on `user?.id` (not the whole user object) to avoid re‑fetch storms.
+- Leave `hasRole` / `isAdmin` / context shape unchanged.
 
-## Phase 4 — Admin Client Portal Editor (`/admin/client-portal-editor/:clientId`)
-New page with sections:
-1. Client header (name, email, phone, membership, portal, service status)
-2. Credit Score Editor — current + starting per bureau, auto-calc change
-3. Credit Results Editor — accounts deleted, debt removed, remaining negatives, inquiries removed, PII removed, dispute round, latest update, next step
-4. Report Upload Center — multi-file, bureau + report_type selectors, auto-assign `client_id`
-5. Negative Accounts Editor — CRUD list
-6. Client Visible Preview — embedded read-only render of `/client/...`
-7. Save (per-section) → writes to Supabase, reflects in client portal
+### 2. `src/hooks/useMembership.tsx`
+- Same `setLoading(true)` at the top of `fetchMembership` before the query.
+- Switch effect dep to `user?.id`.
 
-Storage targets: `client_credit_scores`, `credit_report_uploads`, new `client_credit_results` (additive table) and `client_negative_accounts` (additive table).
+### 3. `src/pages/AdminLogin.tsx`
+- Remove the hardcoded `adminEmails` array entirely.
+- After `signIn` succeeds, query `public.user_roles` for the signed‑in user (`has_role`‑equivalent select where `role = 'admin'`).
+- If admin: `navigate('/admin')`. If not: show "Not an admin account" and call `supabase.auth.signOut()` so the wrong account doesn't sit in a logged‑in state on the admin login page.
+- Preserve all existing UI, loading state, and error messaging.
 
-## Phase 5 — Multi-Report Upload + Client Assignment
-Upload to `credit-reports` storage bucket, insert into `credit_report_uploads` with `{client_id, user_id?, bureau, report_type, report_date, uploaded_by, storage_path, file_name}`.
+### 4. `src/hooks/useAuth.tsx`
+- Inside `onAuthStateChange`, replace the `await supabase.functions.invoke('new-user-notification', …)` with a non‑awaited call wrapped in `.catch(console.error)` (fire‑and‑forget).
+- Keep `setTimeout(() => checkAdminStatus(), 0)` deferral pattern (already correct).
+- Add lightweight, non‑sensitive `console.info` breadcrumbs: `auth init`, `session restored`, `auth state change <event>` (no tokens, no emails beyond what's already logged).
 
-## Phase 6 — FICO-Style Score UI (Client Portal)
-Rebuild client `CreditScoreCenter` component:
-- Large circular gauge (SVG) per bureau, tabs Experian/Equifax/TransUnion
-- Current, starting, points gained, last updated, tier label, progress to next tier
-- Ivory/white background, champagne gold accents, deep navy text via design tokens (add tokens to `index.css`)
+### 5. No changes to
+- `src/integrations/supabase/client.ts` — already correctly configured (single instance, localStorage, persist + autoRefresh).
+- `src/components/RouteGuards.tsx` — logic is correct once #1 is fixed.
+- `App.tsx` route table, `ProtectedRoute.tsx`, `useAuth.tsx` `signIn/signUp/signOut` surface, RLS, edge functions, Stripe/membership business logic.
 
-## Phase 7 — Client Portal White-Label Rebuild
-Restructure `ClientPortal.tsx` sections in order: Score Center, Progress Overview, Deleted Accounts, Remaining Negatives, Debt Removed, Inquiry Progress, PII Updates, Reports, Payment Status, Next Step, Timeline. Remove generic tool/quick-action clutter.
+## Acceptance Verification (post‑build)
 
-## Phase 8 — Admin Dashboard Cleanup
-Replace KPI grid in Admin Client Registry header with: Total, Active, Premium, Portal Linked, Portal Not Linked, With Scores, Missing Scores, Reports Uploaded, Active Services.
+1. Desktop Chrome / Edge / Guest: log in via `/admin/login` as a real DB admin → land on `/admin`, refresh → stay on `/admin`.
+2. Client user logs in via `/` (Index `LoginForm`) → lands on the authenticated Index dashboard, refresh → stays signed in.
+3. Wrong password → toast error, no redirect loop.
+4. Logout button (Navigation/Admin/Client sidebar) → signs out and returns to `/` or `/admin/login`.
+5. Mobile flow unchanged.
 
-## Phase 9 — Payment Center $600 Default
-Backfill `client_payment_summary.expected_amount = 600` where null/0. Update Payment Center page so every client row appears (left-join clients), admin inline-edit for paid, status, method, notes; balance auto-derived. No Stripe dependency.
+## Files Changed
 
-## Phase 10 — Smoke Verification
-Manual checklist via the Phase 0 verification report; capture before/after counts.
+- `src/hooks/useRoles.tsx`
+- `src/hooks/useMembership.tsx`
+- `src/pages/AdminLogin.tsx`
+- `src/hooks/useAuth.tsx`
 
-## Technical Notes
-- New tables (additive): `client_credit_results`, `client_negative_accounts` (RLS: admin all, client SELECT own via user_id link).
-- New columns (additive): `clients.portal_status`, `clients.membership_plan`, `clients.service_status`, `clients.access_services_enabled`.
-- Design tokens: add `--gold-champagne`, `--navy-deep`, `--ivory`, `--platinum` HSL tokens; do not hardcode colors.
-- Reuse `RequireAdmin`, existing `supabase` client, existing `AdminSidebar`.
-- No changes to auth, RLS for unrelated tables, or working edge functions.
+## Manual Supabase Dashboard Settings to Verify
 
-## Order of Execution
-1. Phase 1 migration (additive columns + backfill)
-2. Phase 0 verification report page (so we can measure)
-3. Phase 3 routing fix + Phase 4 editor scaffold (additive tables migration)
-4. Phase 2 + Phase 8 KPI cleanup
-5. Phase 5 multi-upload
-6. Phase 9 payment $600 backfill
-7. Phase 6 + Phase 7 white-label UI
-8. Phase 10 verify via Phase 0 report
+Authentication → URL Configuration:
+- **Site URL**: `https://expresscreditfinancials.org`
+- **Redirect URLs** (add all):
+  - `https://expresscreditfinancials.org/*`
+  - `https://www.expresscreditfinancials.org/*`
+  - `https://expresscreditfinancials.lovable.app/*`
+  - `https://id-preview--18339a17-fb35-45bf-9665-b9e5e2aa7dff.lovable.app/*`
+  - `https://expresscreditfinancials.org/auth/callback`
+  - `https://www.expresscreditfinancials.org/auth/callback`
+  - `https://expresscreditfinancials.lovable.app/auth/callback`
 
-## Risk Controls
-- All DB changes additive; no destructive drops.
-- Portal-link trigger already permits admin NULL→uuid linking (prior fix).
-- No edits to auth schema, no service-role key in frontend.
-- Per-section saves prevent large transactional failures.
+Also confirm in **Authentication → Providers → Email**:
+- "Confirm email" matches your current policy. If it's ON and you have users that never clicked the confirmation link, they will fail to sign in regardless of the frontend.
 
-Approve to proceed, or tell me to trim scope (e.g. Phase 0 + 3 + 4 only as a first slice).
+Confirm the intended admin users exist in `public.user_roles` with `role='admin'`:
+```sql
+select u.email, r.role from auth.users u
+join public.user_roles r on r.user_id = u.id
+where r.role = 'admin';
+```
+
+Approve this plan to implement the four file changes.

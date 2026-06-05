@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { signIn, isAdmin } = useAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -38,14 +39,29 @@ export default function AdminLogin() {
         return;
       }
 
-      // Check if user is admin after successful login
-      const adminEmails = [
-        'admin@expresscredit.com',
-        'support@expresscredit.com', 
-        'manager@expresscredit.com'
-      ];
+      // Verify admin role from the database (user_roles table) — no hardcoded allow-list.
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        setError('Login session could not be verified. Please try again.');
+        return;
+      }
 
-      if (!adminEmails.includes(email.toLowerCase())) {
+      const { data: roleRow, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', authUser.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (roleError) {
+        console.error('[admin-login] role lookup error:', roleError);
+        setError('Unable to verify admin privileges. Please try again.');
+        return;
+      }
+
+      if (!roleRow) {
+        // Sign out the non-admin session so the admin login page isn't left in a logged-in state.
+        await supabase.auth.signOut();
         setError('Access denied. This account does not have admin privileges.');
         return;
       }
