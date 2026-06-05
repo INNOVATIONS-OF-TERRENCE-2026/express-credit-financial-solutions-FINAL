@@ -5,7 +5,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard, Users, Upload, FileSearch, Gavel, FileText,
-  Wallet, ScrollText, Activity, Settings, Wrench, Crown, ShieldCheck,
+  Wallet, ScrollText, Activity, Settings, Wrench, Crown, ShieldCheck, ClipboardCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +16,7 @@ const GROUPS: { label: string; items: { label: string; to: string; icon: any; ex
     items: [
       { label: 'Command Center', to: '/admin', icon: LayoutDashboard, exact: true },
       { label: 'Activity',       to: '/admin/activity', icon: Activity },
+      { label: 'Verification Report', to: '/admin/verification-report', icon: ClipboardCheck },
     ],
   },
   {
