@@ -501,18 +501,23 @@ const Index = () => {
 
       {/* ═══════════ METRICS STRIP ═══════════ */}
       <section className="relative z-10 px-6 sm:px-10 py-12 border-y" style={{ borderColor: 'rgba(201,168,76,0.15)', backgroundColor: 'rgba(6,78,59,0.25)' }}>
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {[
-            { n: '$48M+', l: 'Funded for Clients' },
-            { n: '12,400+', l: 'Negative Items Removed' },
-            { n: '94%', l: 'Score Improved in 60 Days' },
-            { n: '24/7', l: 'AI Automation Engine' },
-          ].map((m) => (
-            <div key={m.l}>
-              <div className="font-serif-display text-4xl md:text-5xl" style={{ color: '#c9a84c' }}>{m.n}</div>
-              <p className="text-[10px] uppercase tracking-[0.25em] mt-2" style={{ color: 'rgba(245,240,224,0.65)' }}>{m.l}</p>
-            </div>
-          ))}
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { n: '12,000+', l: 'Client Files Reviewed' },
+              { n: '48,000+', l: 'Dispute Rounds Managed' },
+              { n: 'Mortgage · Auto · Business', l: 'Funding Readiness Support' },
+              { n: '50 States', l: 'Nationwide Client Support' },
+            ].map((m) => (
+              <div key={m.l}>
+                <div className="font-serif-display text-2xl md:text-4xl leading-tight" style={{ color: '#c9a84c' }}>{m.n}</div>
+                <p className="text-[10px] uppercase tracking-[0.3em] mt-3 leading-relaxed" style={{ color: 'rgba(245,240,224,0.65)' }}>{m.l}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-[10px] uppercase tracking-[0.25em] mt-8" style={{ color: 'rgba(245,240,224,0.4)' }}>
+            Figures represent service activity. Outcomes vary by client profile and reporting accuracy.
+          </p>
         </div>
       </section>
 
@@ -520,32 +525,33 @@ const Index = () => {
       <section id="tour" className="relative z-10 px-6 sm:px-10 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 max-w-2xl">
-            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>The CRM Tour</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Our Process</p>
             <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
-              Four moves. <span className="italic" style={{ color: '#c9a84c' }}>One outcome.</span>
+              Our Credit <span className="italic" style={{ color: '#c9a84c' }}>Readiness Process.</span>
             </h2>
-            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-              The Express Credit engine runs end-to-end, from upload to funded, without you lifting a finger.
+            <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              A structured five-step engagement, from initial credit file review through funding readiness support.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { n: '01', icon: Upload, title: 'Upload Report', desc: 'Drop your tri-bureau PDF. Encrypted and parsed in seconds.' },
-              { n: '02', icon: Bot, title: 'AI Analysis', desc: 'Our engine flags every Metro-2 violation and FCRA opening.' },
-              { n: '03', icon: Send, title: 'Auto-Dispute', desc: 'Certified letters generated, mailed, and tracked end-to-end.' },
-              { n: '04', icon: Banknote, title: 'Get Funded', desc: 'Once your file is clean, we walk you straight into SBA approval.' },
+              { n: '01', icon: FileText, title: 'Credit File Review', desc: 'Tri-bureau report intake, secure document collection, and baseline profile assessment.' },
+              { n: '02', icon: ClipboardEdit, title: 'Strategy & Documentation', desc: 'Personalized restoration roadmap with prioritized items, required documentation, and timelines.' },
+              { n: '03', icon: Send, title: 'Dispute Preparation', desc: 'FCRA-aligned dispute drafting, Metro 2 formatting review, and certified mail dispatch.' },
+              { n: '04', icon: BarChart3, title: 'Progress Tracking', desc: 'Bureau response logging, round-by-round status, and updated score monitoring inside the client portal.' },
+              { n: '05', icon: Banknote, title: 'Funding Readiness Support', desc: 'Profile structuring guidance for mortgage, auto, and business financing conversations.' },
             ].map((step, i) => {
               const Icon = step.icon;
               return (
-                <div key={step.n} className="group relative p-6 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.18)', backdropFilter: 'blur(8px)' }}>
+                <div key={step.n} className="group relative p-7 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.18)', backdropFilter: 'blur(8px)' }}>
                   <div className="absolute top-4 right-4 font-serif-display text-2xl italic" style={{ color: 'rgba(201,168,76,0.4)' }}>{step.n}</div>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)' }}>
                     <Icon className="h-5 w-5" style={{ color: '#c9a84c' }} />
                   </div>
-                  <h3 className="font-serif-display text-2xl mb-2">{step.title}</h3>
-                  <p className="text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>{step.desc}</p>
-                  {i < 3 && (
+                  <h3 className="font-serif-display text-xl md:text-2xl mb-3 leading-snug">{step.title}</h3>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>{step.desc}</p>
+                  {i < 4 && (
                     <ArrowRight className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 h-5 w-5 opacity-30 group-hover:opacity-100 transition-opacity" style={{ color: '#c9a84c' }} />
                   )}
                 </div>
