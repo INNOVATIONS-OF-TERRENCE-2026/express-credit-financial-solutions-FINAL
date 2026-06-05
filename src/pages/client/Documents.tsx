@@ -55,7 +55,7 @@ function VerificationStatusCard({ userId }: { userId: string }) {
   const complete = requiredReceived === 3;
 
   return (
-    <LuxuryCard variant={complete ? 'champagne' : 'default'} elevated accent={complete} className="p-6 md:p-8">
+    <LuxuryCard variant={complete ? 'champagne' : 'ivory'} elevated accent={complete} className="p-6 md:p-8">
       <div className="flex items-start justify-between gap-3 mb-5">
         <div>
           <EyebrowLabel withRule>
