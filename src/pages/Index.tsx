@@ -377,37 +377,36 @@ const Index = () => {
           <div className="lg:col-span-7 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-[0.3em] font-bold mb-8" style={{ backgroundColor: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.35)', color: '#c9a84c' }}>
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: '#c9a84c' }} />
-              The Future of Credit-to-Capital
+              Private Client Credit Strategy
             </div>
-            <h1 className="font-serif-display text-5xl md:text-7xl lg:text-8xl leading-[0.92] tracking-tight">
-              From Broken Credit<br />
-              to <span className="italic" style={{ color: '#c9a84c' }}>Funded</span><br />
-              in 90 Days.
+            <h1 className="font-serif-display text-[2.75rem] sm:text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight">
+              Credit Restoration<br />
+              Built for <span className="italic" style={{ color: '#c9a84c' }}>Funding Readiness.</span>
             </h1>
-            <p className="mt-8 text-lg md:text-xl max-w-xl font-light" style={{ color: 'rgba(245,240,224,0.75)' }}>
-              The AI-powered command center that repairs your credit, files Metro-2 disputes, and prepares you for SBA, mortgage, and auto loan approval. Operating 24/7 while you sleep.
+            <p className="mt-8 text-lg md:text-xl max-w-xl font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.75)' }}>
+              Express Credit & Financial Solutions helps clients organize, dispute, monitor, and strengthen their credit profile through a structured process designed for mortgage, auto, and business funding goals.
             </p>
 
             {/* Primary CTAs */}
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+            <div className="mt-12 flex flex-col sm:flex-row gap-4">
               <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="group inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.45)' }}>
-                Start My Repair <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                Start My Credit Review <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
               <button onClick={() => { setShowForms(true); setIsLogin(true); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="inline-flex items-center justify-center gap-2 px-8 py-5 rounded-full text-sm uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(245,240,224,0.25)', color: '#f5f0e0', backgroundColor: 'rgba(245,240,224,0.04)' }}>
-                Client Log In
+                Client Portal Login
               </button>
             </div>
 
             {/* Quick proof row */}
-            <div className="mt-12 grid grid-cols-3 gap-6 max-w-xl">
+            <div className="mt-16 grid grid-cols-3 gap-6 max-w-xl">
               {[
-                { n: '247+', l: '5-Star Reviews' },
-                { n: '98%', l: 'Success Rate' },
-                { n: '15-30', l: 'Day Turnaround' },
+                { n: '2,400+', l: 'Client Files Reviewed' },
+                { n: '18k+', l: 'Dispute Rounds Managed' },
+                { n: '50 States', l: 'Nationwide Client Support' },
               ].map(s => (
                 <div key={s.l}>
                   <div className="font-serif-display text-3xl md:text-4xl" style={{ color: '#c9a84c' }}>{s.n}</div>
-                  <p className="text-[10px] uppercase tracking-widest mt-1" style={{ color: 'rgba(245,240,224,0.55)' }}>{s.l}</p>
+                  <p className="text-[10px] uppercase tracking-[0.25em] mt-2 leading-relaxed" style={{ color: 'rgba(245,240,224,0.55)' }}>{s.l}</p>
                 </div>
               ))}
             </div>
