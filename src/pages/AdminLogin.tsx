@@ -59,8 +59,8 @@ export default function AdminLogin() {
       }
 
       if (!roleRow) {
-        // Sign out the non-admin session so the admin login page isn't left in a logged-in state.
-        await supabase.auth.signOut();
+        // Clear the non-admin browser session without revoking refresh tokens server-side.
+        await supabase.auth.signOut({ scope: 'local' });
         setError('Access denied. This account does not have admin privileges.');
         return;
       }
@@ -70,7 +70,7 @@ export default function AdminLogin() {
         description: "Successfully logged into admin dashboard",
       });
 
-      navigate('/admin');
+      navigate('/admin', { replace: true });
       
     } catch (error) {
       console.error('Login error:', error);
