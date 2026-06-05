@@ -18,7 +18,6 @@ export function ClientStatusStrip() {
 
   const readiness = computeReadiness(d.currentScore, d.remainingNegatives);
   const delta = d.scoreChange ?? 0;
-  const positive = delta >= 0;
 
   return (
     <div className="border-b border-border/70 bg-background/70 backdrop-blur">
@@ -46,6 +45,4 @@ export function ClientStatusStrip() {
       </div>
     </div>
   );
-  // referenced for typing
-  void positive;
 }
