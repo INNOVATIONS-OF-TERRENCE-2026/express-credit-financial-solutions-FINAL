@@ -138,7 +138,7 @@ describeMaybe('E2E smoke — admin + client + upload + KPIs', () => {
       countHead('clients', (q: any) => q.eq('status', 'active')),
       countHead('clients', (q: any) => q.eq('ftc_readiness_status', 'ready')),
       countHead('payment_records', (q: any) => q.eq('payment_status', 'pending')),
-      countHead('document_uploads', (q: any) => q.eq('review_status', 'pending')),
+      countHead('document_archive', (q: any) => q.eq('document_type', 'pending')),
       countHead('credit_report_uploads'),
     ]);
 

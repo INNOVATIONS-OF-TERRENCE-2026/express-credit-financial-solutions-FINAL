@@ -119,11 +119,11 @@ serve(async (req) => {
 
     // Update document record with AI analysis
     const { error: updateError } = await supabaseClient
-      .from('document_uploads')
+      .from('document_archive')
       .update({
         document_type: analysisResult.documentType,
-        tag: analysisResult.tag,
-        ai_analysis_result: analysisResult.description
+        doc_type: analysisResult.tag,
+        ai_analysis: analysisResult.description
       })
       .eq('id', documentId)
       .eq('user_id', user.id);

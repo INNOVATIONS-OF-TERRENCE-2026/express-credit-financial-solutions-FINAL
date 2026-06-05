@@ -713,7 +713,7 @@ export default function AdminClientRegistry() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Clients without portal logins</CardTitle>
-                <CardDescription>These client rows have no <code>user_id</code>. Edit them to link an existing profile or mark invite needed.</CardDescription>
+                <CardDescription>These client rows have no <code>user_id</code>. When a unique profile email matches, you can link the portal account directly. No bulk auto-link.</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
@@ -722,23 +722,60 @@ export default function AdminClientRegistry() {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Phone</TableHead>
+                      <TableHead>Portal Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {snap.needsPortalLink.length === 0 && (
-                      <TableRow><TableCell colSpan={4} className="text-center text-sm text-muted-foreground py-6">All client rows are linked to portal accounts.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">All client rows are linked to portal accounts.</TableCell></TableRow>
                     )}
-                    {snap.needsPortalLink.map((c) => (
-                      <TableRow key={c.id}>
-                        <TableCell className="font-medium">{c.full_name || '—'}</TableCell>
-                        <TableCell>{c.email || '—'}</TableCell>
-                        <TableCell>{c.phone || '—'}</TableCell>
-                        <TableCell>
-                          <Button size="sm" variant="outline" onClick={() => navigate(`/admin/clients/${c.id}`)}>Open client editor</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {snap.needsPortalLink.map((c) => {
+                      const matchUserId = c.email ? snap.profileByEmail[c.email.toLowerCase()] : undefined;
+                      const status = matchUserId
+                        ? { label: 'Email Match Found', cls: 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30' }
+                        : { label: 'No Portal Account', cls: 'bg-muted text-muted-foreground border-border' };
+                      return (
+                        <TableRow key={c.id}>
+                          <TableCell className="font-medium">{c.full_name || '—'}</TableCell>
+                          <TableCell>{c.email || '—'}</TableCell>
+                          <TableCell>{c.phone || '—'}</TableCell>
+                          <TableCell>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded border ${status.cls}`}>{status.label}</span>
+                          </TableCell>
+                          <TableCell className="space-x-2">
+                            {matchUserId && (
+                              <Button
+                                size="sm"
+                                disabled={busyId === c.id}
+                                onClick={async () => {
+                                  if (!confirm(`Link portal account for ${c.email}?\n\nThis sets clients.user_id = ${matchUserId} on this row only.`)) return;
+                                  setBusyId(c.id);
+                                  try {
+                                    const { error } = await (supabase as any)
+                                      .from('clients')
+                                      .update({ user_id: matchUserId })
+                                      .eq('id', c.id)
+                                      .is('user_id', null);
+                                    if (error) throw error;
+                                    await logRegistryAction('LINK_PORTAL_ACCOUNT', { client_id: c.id, email: c.email, profile_user_id: matchUserId }, c.id);
+                                    toast({ title: 'Portal linked', description: `${c.email} is now linked.` });
+                                    await snap.refresh();
+                                  } catch (e: any) {
+                                    toast({ title: 'Link failed', description: e?.message || 'Could not link account', variant: 'destructive' });
+                                  } finally {
+                                    setBusyId(null);
+                                  }
+                                }}
+                              >
+                                <Link2 className="h-3.5 w-3.5 mr-1" /> Link Portal Account
+                              </Button>
+                            )}
+                            <Button size="sm" variant="outline" onClick={() => navigate(`/admin/clients/${c.id}`)}>Open editor</Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>
