@@ -565,43 +565,46 @@ const Index = () => {
       <section id="tiers" className="relative z-10 px-6 sm:px-10 py-24" style={{ background: 'linear-gradient(180deg, transparent, rgba(6,78,59,0.4), transparent)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Choose Your Solution</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Service Options</p>
             <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
-              Membership <span className="italic" style={{ color: '#c9a84c' }}>Tiers</span>
+              Service <span className="italic" style={{ color: '#c9a84c' }}>Options.</span>
             </h2>
+            <p className="mt-6 max-w-2xl mx-auto text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              Transparent engagement options selected based on the scope of your credit profile and financial goals.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                name: 'ChexSystems Removal', price: '$349.99', tagline: 'Banking Access', plan: 'chexsystems',
+                name: 'ChexSystems Removal', price: '$349.99', tagline: 'Banking Access Restoration', plan: 'chexsystems',
                 features: [{ t: 'ChexSystems file review', y: true }, { t: 'Dispute submission & follow-up', y: true }, { t: 'Banking access restoration', y: true }, { t: 'Tri-bureau credit repair', y: false }, { t: 'SBA loan automation', y: false }, { t: 'Dedicated success manager', y: false }],
                 featured: false,
               },
               {
-                name: 'Full Credit Repair', price: '$1,499.99', tagline: 'Most Powerful · Elite', plan: 'full-repair',
-                features: [{ t: 'ChexSystems file review', y: true }, { t: 'Dispute submission & follow-up', y: true }, { t: 'Banking access restoration', y: true }, { t: 'Tri-bureau credit repair', y: true }, { t: 'SBA loan automation', y: true }, { t: 'Dedicated success manager', y: true }],
+                name: 'Full Credit Restoration', price: '$1,499.99', tagline: 'Comprehensive Engagement', plan: 'full-repair',
+                features: [{ t: 'ChexSystems file review', y: true }, { t: 'Dispute preparation & follow-up', y: true }, { t: 'Banking access restoration', y: true }, { t: 'Tri-bureau credit restoration', y: true }, { t: 'Funding readiness support', y: true }, { t: 'Dedicated client advisor', y: true }],
                 featured: true,
               },
               {
-                name: 'Tradelines Add-On', price: '$499–$1,499', tagline: 'Credit Enhancement', plan: 'tradelines',
-                features: [{ t: 'Credit profile evaluation', y: true }, { t: 'Tradeline compatibility analysis', y: true }, { t: 'Strategic placement guidance', y: true }, { t: 'Tri-bureau credit repair', y: false }, { t: 'SBA loan automation', y: false }, { t: 'Dedicated success manager', y: false }],
+                name: 'Tradelines Add-On', price: '$499–$1,499', tagline: 'Profile Strengthening', plan: 'tradelines',
+                features: [{ t: 'Credit profile evaluation', y: true }, { t: 'Tradeline compatibility analysis', y: true }, { t: 'Strategic placement guidance', y: true }, { t: 'Tri-bureau credit restoration', y: false }, { t: 'Funding readiness support', y: false }, { t: 'Dedicated client advisor', y: false }],
                 featured: false,
               },
             ].map((tier) => (
               <div key={tier.plan} className="relative rounded-2xl p-1 transition-all hover:-translate-y-2" style={{ background: tier.featured ? 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)' : 'rgba(201,168,76,0.15)', boxShadow: tier.featured ? '0 30px 60px -20px rgba(201,168,76,0.5)' : 'none' }}>
                 {tier.featured && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[9px] uppercase tracking-[0.3em] font-bold z-10" style={{ backgroundColor: '#c9a84c', color: '#03150f' }}>★ Most Chosen</div>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[9px] uppercase tracking-[0.3em] font-bold z-10" style={{ backgroundColor: '#c9a84c', color: '#03150f' }}>Most Selected</div>
                 )}
-                <div className="rounded-2xl p-8 h-full flex flex-col" style={{ backgroundColor: 'rgba(3,21,15,0.95)' }}>
+                <div className="rounded-2xl p-10 h-full flex flex-col" style={{ backgroundColor: 'rgba(3,21,15,0.95)' }}>
                   <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: tier.featured ? '#c9a84c' : 'rgba(245,240,224,0.5)' }}>{tier.tagline}</p>
                   <h3 className="font-serif-display text-3xl mb-4">{tier.name}</h3>
                   <div className="font-serif-display text-5xl mb-1" style={{ color: tier.featured ? '#c9a84c' : '#f5f0e0' }}>{tier.price}</div>
-                  <p className="text-[10px] uppercase tracking-widest mb-8" style={{ color: 'rgba(245,240,224,0.4)' }}>One-Time Investment</p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] mb-8" style={{ color: 'rgba(245,240,224,0.4)' }}>One-Time Engagement Fee</p>
 
-                  <ul className="space-y-3 mb-8 flex-1">
+                  <ul className="space-y-3.5 mb-10 flex-1">
                     {tier.features.map((f) => (
-                      <li key={f.t} className="flex items-start gap-3 text-sm" style={{ color: f.y ? '#f5f0e0' : 'rgba(245,240,224,0.35)' }}>
+                      <li key={f.t} className="flex items-start gap-3 text-sm leading-relaxed" style={{ color: f.y ? '#f5f0e0' : 'rgba(245,240,224,0.35)' }}>
                         {f.y ? <Check className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#c9a84c' }} /> : <X className="h-4 w-4 mt-0.5 flex-shrink-0" />}
                         <span className={f.y ? '' : 'line-through'}>{f.t}</span>
                       </li>
@@ -609,7 +612,7 @@ const Index = () => {
                   </ul>
 
                   <button onClick={() => navigate(`/checkout?plan=${tier.plan}`)} className="w-full py-4 rounded-full text-xs uppercase tracking-[0.2em] font-bold transition-all" style={tier.featured ? { backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 30px rgba(201,168,76,0.4)' } : { border: '1px solid rgba(201,168,76,0.4)', color: '#c9a84c' }}>
-                    Secure Enrollment
+                    Begin Enrollment
                   </button>
                 </div>
               </div>
@@ -621,9 +624,12 @@ const Index = () => {
             <div className="rounded-2xl p-8 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
               <div className="lg:col-span-2">
                 <p className="text-[10px] uppercase tracking-[0.3em] mb-2" style={{ color: '#c9a84c' }}>Secure Checkout · PCI-DSS Compliant</p>
-                <h3 className="font-serif-display text-3xl md:text-4xl tracking-tight" style={{ color: '#f5f0e0' }}>
-                  Ready to enroll? <span className="italic" style={{ color: '#c9a84c' }}>Your file fires within 24 hours.</span>
+                <h3 className="font-serif-display text-3xl md:text-4xl tracking-tight leading-tight" style={{ color: '#f5f0e0' }}>
+                  Ready to begin? <span className="italic" style={{ color: '#c9a84c' }}>Onboarding starts within one business day.</span>
                 </h3>
+                <p className="mt-4 text-sm font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+                  Enrollment includes a structured onboarding call and secure document collection so your credit file review can begin promptly.
+                </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   {[
                     { Icon: Lock, t: '256-bit SSL' },
@@ -641,10 +647,10 @@ const Index = () => {
               </div>
               <div className="flex flex-col gap-3">
                 <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="w-full px-8 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.5)' }}>
-                  Sign Up & Start Today <ArrowRight className="h-4 w-4" />
+                  Start My Credit Review <ArrowRight className="h-4 w-4" />
                 </button>
                 <button onClick={() => { setShowForms(true); setIsLogin(true); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="w-full px-8 py-4 rounded-full text-xs uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
-                  Existing Client · Log In
+                  Client Portal Login
                 </button>
               </div>
             </div>
