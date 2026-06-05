@@ -142,13 +142,10 @@ export function ClientPortal({ clientName, resolvedClientId, isAdminPreview = fa
     const clientChannel = supabase.channel('client-data-updates')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clients', filter: `user_id=eq.${targetUserId}` }, () => { fetchClientData(); })
       .subscribe();
-    const disputeCasesChannel = supabase.channel('client-dispute-cases')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispute_cases', filter: `user_id=eq.${targetUserId}` }, () => { })
-      .subscribe();
     const cipChannel = supabase.channel('client-cip-updates')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'client_intelligence_packets' }, () => { fetchClientData(); })
       .subscribe();
-    return () => { supabase.removeChannel(reportChannel); supabase.removeChannel(disputeChannel); supabase.removeChannel(scoresChannel); supabase.removeChannel(clientChannel); supabase.removeChannel(disputeCasesChannel); supabase.removeChannel(cipChannel); };
+    return () => { supabase.removeChannel(reportChannel); supabase.removeChannel(disputeChannel); supabase.removeChannel(scoresChannel); supabase.removeChannel(clientChannel); supabase.removeChannel(cipChannel); };
   }, [user, resolvedClientId]);
 
   const fetchClientData = async () => {
