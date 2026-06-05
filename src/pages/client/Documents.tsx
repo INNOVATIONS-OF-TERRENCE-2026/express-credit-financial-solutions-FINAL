@@ -111,5 +111,5 @@ function Inner() {
 }
 
 export default function ClientDocumentsPage() {
-  return <ClientPortalLayout title="Document Vault"><Inner /></ClientPortalLayout>;
+  return <ClientPortalLayout title="Secure Document Vault"><Inner /></ClientPortalLayout>;
 }

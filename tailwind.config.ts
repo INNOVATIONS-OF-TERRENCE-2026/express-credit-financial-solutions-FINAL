@@ -19,10 +19,12 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'inter': ['Inter', 'sans-serif'],
-				'poppins': ['Poppins', 'sans-serif'],
-				'serif-display': ['"Instrument Serif"', 'Georgia', 'serif'],
-				'work': ['"Work Sans"', 'system-ui', 'sans-serif'],
+				'sans': ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+				'display': ['Fraunces', '"Instrument Serif"', 'Georgia', 'serif'],
+				'serif-display': ['Fraunces', '"Instrument Serif"', 'Georgia', 'serif'],
+				'inter': ['"Inter Tight"', 'Inter', 'sans-serif'],
+				'poppins': ['Fraunces', '"Instrument Serif"', 'Georgia', 'serif'],
+				'work': ['"Inter Tight"', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				fintech: {
@@ -89,11 +91,29 @@ export default {
 				},
 				// Midnight Blue Theme Colors
 				midnight: {
+					DEFAULT: 'hsl(var(--midnight))',
 					bg: 'hsl(var(--midnight-bg))',
 					card: 'hsl(var(--midnight-card))',
 					text: 'hsl(var(--midnight-text))',
-					muted: 'hsl(var(--midnight-muted))'
-				}
+					muted: 'hsl(var(--midnight-muted))',
+					'2': 'hsl(var(--midnight-2))'
+				},
+				// Luxury financial palette
+				ivory: {
+					DEFAULT: 'hsl(var(--ivory))',
+					'2': 'hsl(var(--ivory-2))'
+				},
+				champagne: 'hsl(var(--champagne))',
+				platinum: {
+					DEFAULT: 'hsl(var(--platinum))',
+					'2': 'hsl(var(--platinum-2))'
+				},
+				emerald: {
+					DEFAULT: 'hsl(var(--emerald))',
+					deep: 'hsl(var(--emerald-deep))'
+				},
+				'gold-soft': 'hsl(var(--gold-soft))',
+				'gold-deep': 'hsl(var(--gold-deep))'
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
@@ -101,13 +121,17 @@ export default {
 				'gradient-silver': 'var(--gradient-silver)',
 				'gradient-elegant': 'var(--gradient-elegant)',
 				'gradient-midnight': 'var(--gradient-midnight)',
-				'gradient-midnight-gold': 'var(--gradient-midnight-gold)'
+				'gradient-midnight-gold': 'var(--gradient-midnight-gold)',
+				'gradient-ivory': 'var(--gradient-ivory)',
+				'gradient-champagne': 'var(--gradient-champagne)'
 			},
 			boxShadow: {
+				'soft': 'var(--shadow-soft)',
 				'elegant': 'var(--shadow-elegant)',
 				'gold': 'var(--shadow-gold)',
 				'silver': 'var(--shadow-silver)',
 				'card': 'var(--shadow-card)',
+				'elevated': 'var(--shadow-elevated)',
 				'neon-gold': 'var(--shadow-neon-gold)',
 				'neon-silver': 'var(--shadow-neon-silver)'
 			},
