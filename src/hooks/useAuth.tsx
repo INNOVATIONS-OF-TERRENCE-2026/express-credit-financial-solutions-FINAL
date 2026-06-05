@@ -51,21 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Send notification for new user signups
+        // Send notification for new user signups (fire-and-forget — never block auth state)
         if (event === 'SIGNED_UP' as AuthChangeEvent && session?.user) {
-          try {
-            await supabase.functions.invoke('new-user-notification', {
-              body: {
-                userEmail: session.user.email,
-                userName: session.user.user_metadata?.full_name || session.user.email,
-                userId: session.user.id,
-                notificationType: 'user_signup'
-              }
-            });
-          } catch (error) {
-            console.error('Failed to send new user notification:', error);
-          }
+          supabase.functions.invoke('new-user-notification', {
+            body: {
+              userEmail: session.user.email,
+              userName: session.user.user_metadata?.full_name || session.user.email,
+              userId: session.user.id,
+              notificationType: 'user_signup'
+            }
+          }).catch((error) => console.error('Failed to send new user notification:', error));
         }
+
+        console.info('[auth] state change:', event, 'hasSession:', !!session);
         
         // Check admin status when user changes
         if (session?.user) {
@@ -82,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      console.info('[auth] init: sessionRestored=', !!session);
       
       // Check admin status for initial session
       if (session?.user) {

@@ -40,6 +40,7 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
       return;
     }
 
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -79,7 +80,7 @@ export function MembershipProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     fetchMembership();
-  }, [user]);
+  }, [user?.id]);
 
   const hasAccess = (feature: string): boolean => {
     // All clients have Premium access — full feature access by default.

@@ -27,6 +27,7 @@ export function RolesProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -52,7 +53,7 @@ export function RolesProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchUserRole();
-  }, [user]);
+  }, [user?.id]);
 
   const hasRole = (role: UserRole): boolean => {
     if (!userRole) return false;
