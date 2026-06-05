@@ -341,7 +341,7 @@ const Index = () => {
 
       {/* ═══════════ STICKY NAV ═══════════ */}
       <header className="sticky top-0 z-40 backdrop-blur-xl" style={{ backgroundColor: 'rgba(3,21,15,0.65)', borderBottom: '1px solid rgba(201,168,76,0.15)' }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 py-4 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full flex items-center justify-center relative" style={{ background: 'linear-gradient(135deg,#c9a84c,#7a6020)' }}>
               <span className="font-serif-display text-lg italic" style={{ color: '#03150f' }}>E</span>
@@ -500,7 +500,7 @@ const Index = () => {
       <ContentModal isOpen={modalContent !== null} onClose={() => setModalContent(null)} content={modalContent || 'fcra'} />
 
       {/* ═══════════ METRICS STRIP ═══════════ */}
-      <section className="relative z-10 px-6 sm:px-10 py-12 border-y" style={{ borderColor: 'rgba(201,168,76,0.15)', backgroundColor: 'rgba(6,78,59,0.25)' }}>
+      <section className="relative z-10 px-5 sm:px-8 md:px-10 py-12 border-y" style={{ borderColor: 'rgba(201,168,76,0.15)', backgroundColor: 'rgba(6,78,59,0.25)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
@@ -522,11 +522,11 @@ const Index = () => {
       </section>
 
       {/* ═══════════ PRODUCT TOUR ═══════════ */}
-      <section id="tour" className="relative z-10 px-6 sm:px-10 py-24">
+      <section id="tour" className="relative z-10 px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 max-w-2xl">
             <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Our Process</p>
-            <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
+            <h2 className="font-serif-display text-3xl sm:text-4xl md:text-6xl tracking-tight leading-[1.05]">
               Our Credit <span className="italic" style={{ color: '#c9a84c' }}>Readiness Process.</span>
             </h2>
             <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
@@ -562,11 +562,11 @@ const Index = () => {
       </section>
 
       {/* ═══════════ MEMBERSHIP TIERS ═══════════ */}
-      <section id="tiers" className="relative z-10 px-6 sm:px-10 py-24" style={{ background: 'linear-gradient(180deg, transparent, rgba(6,78,59,0.4), transparent)' }}>
+      <section id="tiers" className="relative z-10 px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24" style={{ background: 'linear-gradient(180deg, transparent, rgba(6,78,59,0.4), transparent)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Service Options</p>
-            <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
+            <h2 className="font-serif-display text-3xl sm:text-4xl md:text-6xl tracking-tight leading-[1.05]">
               Service <span className="italic" style={{ color: '#c9a84c' }}>Options.</span>
             </h2>
             <p className="mt-6 max-w-2xl mx-auto text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
@@ -659,11 +659,11 @@ const Index = () => {
       </section>
 
       {/* ═══════════ TESTIMONIALS ═══════════ */}
-      <section id="proof" className="relative z-10 px-6 sm:px-10 py-24">
+      <section id="proof" className="relative z-10 px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 max-w-2xl">
             <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Client Progress & Outcomes</p>
-            <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
+            <h2 className="font-serif-display text-3xl sm:text-4xl md:text-6xl tracking-tight leading-[1.05]">
               Client Progress & <span className="italic" style={{ color: '#c9a84c' }}>Outcomes.</span>
             </h2>
             <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
@@ -736,11 +736,11 @@ const Index = () => {
       </section>
 
       {/* ═══════════ MORTGAGE READINESS ═══════════ */}
-      <section id="home-loans" className="relative z-10 px-6 sm:px-10 py-24">
+      <section id="home-loans" className="relative z-10 px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 max-w-3xl">
             <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Mortgage Readiness Support</p>
-            <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
+            <h2 className="font-serif-display text-3xl sm:text-4xl md:text-6xl tracking-tight leading-[1.05]">
               Mortgage <span className="italic" style={{ color: '#c9a84c' }}>Readiness Support.</span>
             </h2>
             <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
@@ -828,7 +828,7 @@ const Index = () => {
       </section>
 
       {/* ═══════════ AUTO FINANCING PREPARATION ═══════════ */}
-      <section id="auto-loans" className="relative z-10 px-6 sm:px-10 py-24">
+      <section id="auto-loans" className="relative z-10 px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-16 max-w-3xl">
@@ -836,7 +836,7 @@ const Index = () => {
               <Car className="h-4 w-4" style={{ color: '#c9a84c' }} />
               <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>Auto Financing Preparation</p>
             </div>
-            <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
+            <h2 className="font-serif-display text-3xl sm:text-4xl md:text-6xl tracking-tight leading-[1.05]">
               Auto Financing <span className="italic" style={{ color: '#c9a84c' }}>Preparation.</span>
             </h2>
             <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
@@ -890,10 +890,10 @@ const Index = () => {
       <div id="faq" className="relative z-10"><FAQSection /></div>
 
       {/* ═══════════ FINAL CTA ═══════════ */}
-      <section className="relative z-10 px-6 sm:px-10 py-24">
+      <section className="relative z-10 px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24">
         <div className="max-w-5xl mx-auto rounded-3xl p-1" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)', boxShadow: '0 40px 80px -20px rgba(201,168,76,0.4)' }}>
           <div className="rounded-3xl p-12 md:p-16 text-center" style={{ backgroundColor: 'rgba(3,21,15,0.95)' }}>
-            <h3 className="font-serif-display text-4xl md:text-6xl tracking-tight leading-tight">
+            <h3 className="font-serif-display text-3xl sm:text-4xl md:text-6xl tracking-tight leading-[1.05] leading-tight">
               Begin your <br />
               <span className="italic" style={{ color: '#c9a84c' }}>credit readiness review.</span>
             </h3>
@@ -914,7 +914,7 @@ const Index = () => {
 
 
       {/* Footer */}
-      <footer className="relative z-10 px-6 sm:px-10 py-10 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
+      <footer className="relative z-10 px-5 sm:px-8 md:px-10 py-10 border-t" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
         {/* Facebook community strip */}
         <div className="max-w-7xl mx-auto mb-10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6" style={{ backgroundColor: 'rgba(6,78,59,0.45)', border: '1px solid rgba(201,168,76,0.25)' }}>
           <div className="flex items-center gap-4">
