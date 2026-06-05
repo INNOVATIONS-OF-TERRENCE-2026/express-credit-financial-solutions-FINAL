@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
 
     // Fetch dispute data
     const { data: disputeCases } = await supabase
-      .from('dispute_cases')
+      .from('dispute_letters')
       .select('*')
       .eq('client_id', client_id);
 
@@ -65,8 +65,8 @@ Deno.serve(async (req) => {
     const currentTransunion = scores?.transunion_score || null;
 
     const totalDisputes = (disputeCases?.length || 0);
-    const pendingDisputes = disputeCases?.filter((d: any) => d.status === 'pending' || d.status === 'generated').length || 0;
-    const completedDisputes = disputeCases?.filter((d: any) => d.status === 'completed').length || 0;
+    const pendingDisputes = disputeCases?.filter((d: any) => ['pending', 'generated', 'needs_admin_review', 'draft'].includes(d.case_status || d.status)).length || 0;
+    const completedDisputes = disputeCases?.filter((d: any) => ['completed', 'sent', 'approved'].includes(d.case_status || d.status)).length || 0;
     const flaggedCount = flaggedDisputes?.length || 0;
 
     // Call OpenAI for prediction

@@ -103,8 +103,11 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
 
       const [reportsCount, disputesCount, docsPending, agreementsSigned, agreementsPending] = await Promise.all([
         countBy('credit_report_uploads', 'client_id', cid).then((c) => c || countBy('credit_report_uploads', 'user_id', uid)),
-        countBy('dispute_cases', 'client_id', cid).then((c) => c || countBy('dispute_cases', 'user_id', uid)),
-        countBy('documents', 'client_id', cid),
+        countBy('dispute_letters', 'client_id', cid).then((c) => c || countBy('dispute_letters', 'user_id', uid)),
+        Promise.all([
+          countBy('documents', 'client_id', cid).then((c) => c || countBy('documents', 'user_id', uid)),
+          countBy('document_archive', 'client_id', cid).then((c) => c || countBy('document_archive', 'user_id', uid)),
+        ]).then(([a, b]) => a + b),
         countBy('client_agreements', 'client_id', cid, (q) => q.not('signed_at', 'is', null)),
         countBy('client_agreements', 'client_id', cid, (q) => q.is('signed_at', null)),
       ]);
@@ -118,9 +121,18 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
             .limit(5)
         : { data: [] };
 
-      const { data: paymentSummary } = uid
-        ? await client.from('client_payment_summary').select('*').eq('user_id', uid).maybeSingle()
-        : { data: null };
+      let paymentSummary: any = null;
+      if (cid) {
+        const { data } = await client.from('client_payment_summary').select('*').eq('client_id', cid).maybeSingle();
+        paymentSummary = data;
+        if (!paymentSummary) {
+          const ensured = await client.rpc('ensure_payment_summary', { p_client_id: cid });
+          paymentSummary = ensured.data ?? null;
+        }
+      } else if (uid) {
+        const { data } = await client.from('client_payment_summary').select('*').eq('user_id', uid).maybeSingle();
+        paymentSummary = data;
+      }
 
       const { data: latestPaymentRow } = uid
         ? await client

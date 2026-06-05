@@ -752,12 +752,15 @@ export default function AdminClientRegistry() {
                                   if (!confirm(`Link portal account for ${c.email}?\n\nThis sets clients.user_id = ${matchUserId} on this row only.`)) return;
                                   setBusyId(c.id);
                                   try {
-                                    const { error } = await (supabase as any)
+                                    const { data, error } = await (supabase as any)
                                       .from('clients')
-                                      .update({ user_id: matchUserId })
+                                      .update({ user_id: matchUserId, updated_at: new Date().toISOString() })
                                       .eq('id', c.id)
-                                      .is('user_id', null);
+                                      .is('user_id', null)
+                                      .select('id')
+                                      .maybeSingle();
                                     if (error) throw error;
+                                    if (!data) throw new Error('Client is already linked or no longer eligible. Refresh and review before retrying.');
                                     await logRegistryAction('LINK_PORTAL_ACCOUNT', { client_id: c.id, email: c.email, profile_user_id: matchUserId }, c.id);
                                     toast({ title: 'Portal linked', description: `${c.email} is now linked.` });
                                     await snap.refresh();
@@ -853,7 +856,7 @@ export default function AdminClientRegistry() {
                         {new Date((enginePreview || engineLast).ran_at).toLocaleString()}
                       </span>
                     </p>
-                    {(['profiles_linked_to_clients','profiles_skipped_ambiguous','reports_relinked','payments_relinked','agreements_relinked','disputes_relinked','documents_relinked'] as const).map((k) => {
+                    {(['profiles_linked_to_clients','profiles_skipped_ambiguous','reports_relinked','payments_relinked','agreements_relinked','disputes_relinked','documents_relinked','document_archive_relinked'] as const).map((k) => {
                       const v = (enginePreview || engineLast)[k] ?? 0;
                       return (
                         <div key={k} className="flex justify-between text-xs">

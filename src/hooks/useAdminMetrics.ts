@@ -63,22 +63,23 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
       monthStart.setDate(1);
       monthStart.setHours(0, 0, 0, 0);
 
+      const realClient = (q: any) => q.or('not_a_client.is.null,not_a_client.eq.false');
       const tasks: Promise<number>[] = [
-        countHead('clients'),
-        countHead('clients', (q) => q.eq('status', 'active')),
-        countHead('clients', (q) => q.neq('onboarding_status', 'complete')),
+        countHead('clients', realClient),
+        countHead('clients', (q) => realClient(q).eq('status', 'active')),
+        countHead('clients', (q) => realClient(q).neq('onboarding_status', 'complete')),
         countHead('flagged_disputes', (q) => q.eq('status', 'pending')),
         countHead('dispute_letters', (q) => q.eq('case_status', 'needs_admin_review')),
         countHead('payment_records', (q) => q.eq('payment_status', 'needs_review')),
         countHead('credit_report_uploads'),
-        countHead('dispute_cases', (q) => q.in('status', ['intake_received','documents_missing','extracted','validation_passed','draft_generated','needs_admin_review','approved'])),
-        countHead('documents'),
+        countHead('dispute_letters', (q) => q.in('case_status', ['intake_received','documents_missing','extracted','validation_passed','draft_generated','needs_admin_review','approved'])),
+        Promise.all([countHead('documents'), countHead('document_archive')]).then(([a, b]) => a + b),
         countHead('payment_records', (q) => q.eq('payment_status', 'pending')),
         countHead('client_agreements', (q) => q.is('signed_at', null)),
-        countHead('clients', (q) => q.eq('mortgage_readiness_status', 'ready')),
-        countHead('clients', (q) => q.eq('ftc_readiness_status', 'ready')),
-        countHead('clients', (q) => q.not('user_id', 'is', null)),
-        countHead('clients', (q) => q.is('user_id', null)),
+        countHead('clients', (q) => realClient(q).eq('mortgage_readiness_status', 'ready')),
+        countHead('clients', (q) => realClient(q).eq('ftc_readiness_status', 'ready')),
+        countHead('clients', (q) => realClient(q).not('user_id', 'is', null)),
+        countHead('clients', (q) => realClient(q).is('user_id', null)),
       ];
       const r = await Promise.all(tasks);
       const [
@@ -98,9 +99,9 @@ export function useAdminMetrics(): AdminMetrics & { refresh: () => Promise<void>
       // Monthly revenue from approved payments
       const { data: paymentsThisMonth } = await supabase
         .from('payment_records')
-        .select('payment_amount, approved_at, payment_status')
+        .select('payment_amount, reviewed_at, payment_status')
         .eq('payment_status', 'approved')
-        .gte('approved_at', monthStart.toISOString());
+        .gte('reviewed_at', monthStart.toISOString());
       const monthlyRevenue = (paymentsThisMonth || []).reduce((s: number, r: any) => s + Number(r.payment_amount || 0), 0);
 
       setM({
