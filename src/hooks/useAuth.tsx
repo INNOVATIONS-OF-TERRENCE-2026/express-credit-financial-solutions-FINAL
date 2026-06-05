@@ -7,7 +7,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any; user?: User | null; session?: Session | null }>;
   signUp: (email: string, password: string, metadata?: Record<string, any>) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
@@ -107,11 +107,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    return { error };
+    if (data.session) {
+      setSession(data.session);
+      setUser(data.user);
+      setTimeout(() => checkAdminStatus(data.user?.id), 0);
+    }
+    return { error, user: data.user, session: data.session };
   };
 
   const signUp = async (email: string, password: string, metadata?: Record<string, any>) => {
