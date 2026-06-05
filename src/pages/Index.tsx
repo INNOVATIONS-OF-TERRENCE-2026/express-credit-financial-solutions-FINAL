@@ -423,7 +423,7 @@ const Index = () => {
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.5)' }} />
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.25)' }} />
                   </div>
-                  <span className="text-[9px] uppercase tracking-[0.3em]" style={{ color: 'rgba(201,168,76,0.7)' }}>Live · Client Portal</span>
+                  <span className="text-[9px] uppercase tracking-[0.3em]" style={{ color: 'rgba(201,168,76,0.7)' }}>Secure Client Portal</span>
                 </div>
 
                 {/* Score gauge */}
@@ -433,8 +433,8 @@ const Index = () => {
                     <p className="font-serif-display text-6xl mt-1" style={{ color: '#f5f0e0' }}>742</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold flex items-center gap-1" style={{ color: '#c9a84c' }}><TrendingUp className="h-3 w-3" /> +127 pts</p>
-                    <p className="text-[10px]" style={{ color: 'rgba(245,240,224,0.5)' }}>last 60 days</p>
+                    <p className="text-xs font-bold flex items-center gap-1" style={{ color: '#c9a84c' }}><CheckCircle2 className="h-3 w-3" /> Tier · Good</p>
+                    <p className="text-[10px]" style={{ color: 'rgba(245,240,224,0.5)' }}>Last updated · today</p>
                   </div>
                 </div>
 
@@ -453,9 +453,9 @@ const Index = () => {
                 {/* Activity rows */}
                 <div className="space-y-2.5">
                   {[
-                    { icon: CheckCircle2, label: 'Dispute filed · Equifax', status: 'Resolved', color: '#c9a84c' },
-                    { icon: Bot, label: 'AI scan · 14 inaccuracies found', status: 'Live', color: '#0d7a5f' },
-                    { icon: Send, label: 'Goodwill letter · Capital One', status: 'Sent', color: 'rgba(245,240,224,0.5)' },
+                    { icon: FileText, label: 'Credit file received · Equifax', status: 'Logged', color: '#c9a84c' },
+                    { icon: ShieldCheck, label: 'Documentation review', status: 'In progress', color: '#0d7a5f' },
+                    { icon: Send, label: 'Goodwill request · Capital One', status: 'Sent', color: 'rgba(245,240,224,0.5)' },
                   ].map((row, i) => {
                     const Icon = row.icon;
                     return (
@@ -475,10 +475,10 @@ const Index = () => {
             {/* Floating badge */}
             <div className="absolute -bottom-5 -left-5 px-4 py-3 rounded-xl backdrop-blur-xl animate-fade-in" style={{ animationDelay: '0.6s', backgroundColor: 'rgba(3,21,15,0.9)', border: '1px solid rgba(201,168,76,0.35)', boxShadow: '0 10px 30px rgba(0,0,0,0.4)' }}>
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" style={{ color: '#c9a84c' }} />
+                <Lock className="h-4 w-4" style={{ color: '#c9a84c' }} />
                 <div>
-                  <p className="text-[9px] uppercase tracking-widest" style={{ color: 'rgba(201,168,76,0.8)' }}>AI Engine</p>
-                  <p className="text-xs font-bold" style={{ color: '#f5f0e0' }}>Disputes generated in 4.2s</p>
+                  <p className="text-[9px] uppercase tracking-[0.25em]" style={{ color: 'rgba(201,168,76,0.8)' }}>Secure Workspace</p>
+                  <p className="text-xs font-bold" style={{ color: '#f5f0e0' }}>Encrypted document handling</p>
                 </div>
               </div>
             </div>
