@@ -5,7 +5,8 @@ import { ClientProvider, useClient } from '@/contexts/ClientContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ClientStatusStrip } from './ClientStatusStrip';
+import { ClientCommandCenterBar } from './ClientCommandCenterBar';
+import { ClientMobileNav } from './ClientMobileNav';
 
 function Inner({ children, title }: { children: ReactNode; title: string }) {
   const { user, loading } = useAuth();
@@ -59,10 +60,11 @@ function Inner({ children, title }: { children: ReactNode; title: string }) {
           </div>
         </div>
       </header>
-      <ClientStatusStrip />
-      <main className="flex-1 px-4 py-8 md:px-10 md:py-12 lg:px-14 overflow-x-hidden">
+      <ClientCommandCenterBar />
+      <main className="flex-1 px-4 py-8 pb-24 md:pb-12 md:px-10 md:py-12 lg:px-14 overflow-x-hidden">
         <div className="mx-auto w-full max-w-[1320px]">{children}</div>
       </main>
+      <ClientMobileNav />
     </div>
   );
 }
