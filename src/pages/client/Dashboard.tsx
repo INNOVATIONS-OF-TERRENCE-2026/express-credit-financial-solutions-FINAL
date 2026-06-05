@@ -12,6 +12,7 @@ import { MatchStatusBadge } from '@/components/MatchStatusBadge';
 import { computeReadiness } from '@/lib/mortgageReadiness';
 import { Button } from '@/components/ui/button';
 import { ScoreGauge } from '@/components/client/ScoreGauge';
+import { ScoreHistoryTimeline } from '@/components/client/ScoreHistoryTimeline';
 import {
   LuxuryCard, LuxurySection, LuxuryStat, EyebrowLabel, DeltaChip,
   BeforeAfterPanel, ProgressTimeline,
@@ -192,6 +193,11 @@ function DashboardInner() {
             />
           ))}
         </div>
+        {userId && (
+          <div className="mt-6">
+            <ScoreHistoryTimeline userId={userId} />
+          </div>
+        )}
       </LuxurySection>
 
       {/* ============================================================
