@@ -57,12 +57,12 @@ export function useAdminClientDocuments() {
           .limit(500),
         client
           .from('documents')
-          .select('id,user_id,client_id,file_name,file_path,uploaded_file_url,file_type,file_size,document_type,doc_type,upload_date,created_at')
-          .order('upload_date', { ascending: false })
+          .select('id,user_id,client_id,file_path,doc_type,uploaded_at')
+          .order('uploaded_at', { ascending: false })
           .limit(500),
         client
           .from('document_archive')
-          .select('id,user_id,file_name,file_path,file_type,document_type,file_size,upload_date')
+          .select('id,user_id,client_id,file_name,file_path,file_type,document_type,doc_type,file_size,upload_date')
           .order('upload_date', { ascending: false })
           .limit(500),
         client
@@ -81,10 +81,17 @@ export function useAdminClientDocuments() {
       if (firstError) throw firstError;
 
       const byUser = new Map<string, { id: string; name: string }>();
+      const byClient = new Map<string, { id: string; name: string }>();
       for (const c of (clientsList.data as any[]) || []) {
-        if (c.user_id) byUser.set(c.user_id, { id: c.id, name: c.full_name || c.email || '—' });
+        const entry = { id: c.id, name: c.full_name || c.email || '—' };
+        byClient.set(c.id, entry);
+        if (c.user_id) byUser.set(c.user_id, entry);
       }
-      const lookup = (userId: string | null | undefined) => {
+      const lookup = (userId: string | null | undefined, clientId?: string | null) => {
+        if (clientId && byClient.has(clientId)) {
+          const m = byClient.get(clientId)!;
+          return { clientId: m.id, clientName: m.name };
+        }
         if (!userId) return { clientId: null, clientName: '—' };
         const m = byUser.get(userId);
         return { clientId: m?.id ?? null, clientName: m?.name ?? '—' };
@@ -93,7 +100,7 @@ export function useAdminClientDocuments() {
       const out: AdminDoc[] = [];
 
       for (const r of (creditReports.data as any[]) || []) {
-        const { clientId, clientName } = lookup(r.user_id);
+        const { clientId, clientName } = lookup(r.user_id, r.client_id);
         out.push({
           id: `cr-${r.id}`,
           source: 'credit_report',
@@ -112,7 +119,7 @@ export function useAdminClientDocuments() {
       }
 
       for (const r of (generalUploads.data as any[]) || []) {
-        const { clientId, clientName } = lookup(r.user_id);
+        const { clientId, clientName } = lookup(r.user_id, r.client_id);
         out.push({
           id: `gu-${r.id}`,
           source: 'general',
@@ -120,18 +127,18 @@ export function useAdminClientDocuments() {
           userId: r.user_id ?? null,
           clientId: r.client_id ?? clientId,
           clientName,
-          fileName: r.file_name || safeFileName(r.file_path || r.uploaded_file_url),
-          filePath: r.file_path || r.uploaded_file_url,
+          fileName: safeFileName(r.file_path),
+          filePath: r.file_path,
           bucket: 'documents',
-          docType: (r.document_type || r.doc_type || r.file_type?.split('/')[1] || 'document').toLowerCase(),
-          sizeBytes: typeof r.file_size === 'number' ? r.file_size : null,
+          docType: (r.doc_type || 'document').toLowerCase(),
+          sizeBytes: null,
           status: 'uploaded',
-          uploadedAt: r.upload_date || r.created_at,
+          uploadedAt: r.uploaded_at,
         });
       }
 
       for (const r of (archive.data as any[]) || []) {
-        const { clientId, clientName } = lookup(r.user_id);
+        const { clientId, clientName } = lookup(r.user_id, r.client_id);
         out.push({
           id: `ar-${r.id}`,
           source: 'archive',
@@ -142,7 +149,7 @@ export function useAdminClientDocuments() {
           fileName: r.file_name || safeFileName(r.file_path),
           filePath: r.file_path,
           bucket: 'document-archive',
-          docType: (r.document_type || r.file_type?.split('/')[1] || 'archive').toLowerCase(),
+          docType: (r.document_type || r.doc_type || r.file_type?.split('/')[1] || 'archive').toLowerCase(),
           sizeBytes: typeof r.file_size === 'number' ? r.file_size : null,
           status: 'archived',
           uploadedAt: r.upload_date,
