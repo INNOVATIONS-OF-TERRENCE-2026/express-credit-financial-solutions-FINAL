@@ -1,0 +1,17 @@
+# Express Credit & Financial Solutions
+
+> Premium credit restoration and funding readiness firm based in Texas. FCRA-aligned strategy and Metro 2 dispute preparation for mortgage and auto financing.
+
+Express Credit & Financial Solutions helps clients prepare for mortgage, auto, and business funding through structured credit restoration. Services include FCRA-aligned dispute preparation, Metro 2 compliance review, credit profile building, and SBA loan packaging support. Results vary by client profile.
+
+## Pages
+
+- [Home](/): Credit restoration and funding readiness overview.
+- [Membership Plans](/membership): Service options and engagement fees.
+- [SBA Loan Portal](/sba): SBA 7(a), 504, Microloan, and Express loan programs.
+- [SBA Pre-Check](/sba/precheck): Free SBA program eligibility pre-check.
+
+## Optional
+
+- [SBA Intake](/sba/intake): Guided SBA loan application intake.
+- [SBA Documents](/sba/documents): SBA loan document checklist.

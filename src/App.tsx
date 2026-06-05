@@ -90,6 +90,7 @@ const App = () => (
                       <GlobalSearchCommand />
                       <ScopedFloatingChat />
                       <AuthDebugPanel />
+                      <main>
                       <Routes>
                         {/* SBA Routes */}
                         <Route path="/sba" element={<SBAHome />} />
@@ -166,6 +167,7 @@ const App = () => (
                         <Route path="/client-portals-legacy/:clientSlug" element={<ClientPortals />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
+                      </main>
                     </BrowserRouter>
                   </TooltipProvider>
                 </MembershipProvider>
