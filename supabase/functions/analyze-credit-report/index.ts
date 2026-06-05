@@ -33,6 +33,15 @@ serve(async (req) => {
       .single();
     if (reportErr || !report) throw new Error('Report not found');
 
+    // Ownership / admin check before downloading PDF and running AI on it.
+    const { data: roleRow } = await supabase
+      .from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle();
+    if (!roleRow && report.user_id !== user.id) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const targetClientId = clientId || report.client_id;
 
     // Download PDF
