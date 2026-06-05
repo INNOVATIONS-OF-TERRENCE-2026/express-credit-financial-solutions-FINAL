@@ -893,19 +893,19 @@ const Index = () => {
       <section className="relative z-10 px-6 sm:px-10 py-24">
         <div className="max-w-5xl mx-auto rounded-3xl p-1" style={{ background: 'linear-gradient(135deg,#c9a84c,#0d7a5f,#c9a84c)', boxShadow: '0 40px 80px -20px rgba(201,168,76,0.4)' }}>
           <div className="rounded-3xl p-12 md:p-16 text-center" style={{ backgroundColor: 'rgba(3,21,15,0.95)' }}>
-            <h3 className="font-serif-display text-4xl md:text-6xl tracking-tight">
-              Stop renting your credit. <br />
-              <span className="italic" style={{ color: '#c9a84c' }}>Own your file.</span>
+            <h3 className="font-serif-display text-4xl md:text-6xl tracking-tight leading-tight">
+              Begin your <br />
+              <span className="italic" style={{ color: '#c9a84c' }}>credit readiness review.</span>
             </h3>
-            <p className="mt-6 text-lg font-light max-w-xl mx-auto" style={{ color: 'rgba(245,240,224,0.75)' }}>
-              Enroll today and your dispute engine fires within 24 hours.
+            <p className="mt-8 text-lg font-light max-w-xl mx-auto leading-relaxed" style={{ color: 'rgba(245,240,224,0.75)' }}>
+              Schedule a structured onboarding call and begin secure document collection within one business day.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <button onClick={() => { setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.5)' }}>
-                Create My Account
+                Start My Credit Review
               </button>
               <button onClick={() => navigate('/membership')} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-semibold border transition-all" style={{ borderColor: 'rgba(201,168,76,0.4)', color: '#f5f0e0' }}>
-                Compare Plans
+                View Service Options
               </button>
             </div>
           </div>
@@ -922,9 +922,9 @@ const Index = () => {
               <Facebook className="h-5 w-5" style={{ color: '#c9a84c' }} />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>The Community · Live Wins Daily</p>
-              <p className="font-serif-display text-2xl md:text-3xl tracking-tight" style={{ color: '#f5f0e0' }}>
-                Follow Express Credit on <span className="italic" style={{ color: '#c9a84c' }}>Facebook.</span>
+              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>Stay Connected</p>
+              <p className="font-serif-display text-2xl md:text-3xl tracking-tight leading-snug" style={{ color: '#f5f0e0' }}>
+                Connect with Express Credit & <span className="italic" style={{ color: '#c9a84c' }}>Financial Solutions.</span>
               </p>
             </div>
           </div>
@@ -935,24 +935,31 @@ const Index = () => {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs uppercase tracking-widest font-bold transition-all hover-scale"
             style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 30px rgba(201,168,76,0.4)' }}
           >
-            <Facebook className="h-4 w-4" /> Follow @ExpressCreditFinancial
+            <Facebook className="h-4 w-4" /> Visit Our Facebook
           </a>
         </div>
 
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           <div>
             <p className="font-serif-display text-xl">Express Credit & Financial Solutions</p>
-            <p className="text-[10px] uppercase tracking-[0.3em] mt-1" style={{ color: 'rgba(245,240,224,0.5)' }}>6363 Dallas Pkwy · Frisco, TX · 531-348-9321</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] mt-2 leading-relaxed" style={{ color: 'rgba(245,240,224,0.5)' }}>6363 Dallas Pkwy · Frisco, TX · 531-348-9321</p>
             <a href="https://www.facebook.com/ExpressCreditFinancial" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-3 text-[10px] uppercase tracking-[0.3em] transition-colors hover:text-white" style={{ color: 'rgba(245,240,224,0.6)' }}>
               <Facebook className="h-3 w-3" /> Facebook
             </a>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6">
             {(['terms','privacy','refund'] as const).map(p => (
-              <button key={p} onClick={() => setPolicyModal(p)} className="text-[10px] uppercase tracking-widest font-medium transition-colors hover:text-white" style={{ color: 'rgba(245,240,224,0.6)' }}>
+              <button key={p} onClick={() => setPolicyModal(p)} className="text-[10px] uppercase tracking-[0.3em] font-medium transition-colors hover:text-white" style={{ color: 'rgba(245,240,224,0.6)' }}>
                 {p === 'terms' ? 'Terms' : p === 'privacy' ? 'Privacy' : 'Refund'}
               </button>
             ))}
+            <button
+              onClick={() => { setShowForms(true); setIsLogin(true); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }}
+              className="text-[10px] uppercase tracking-[0.3em] font-medium transition-colors hover:text-white"
+              style={{ color: 'rgba(245,240,224,0.6)' }}
+            >
+              Client Portal
+            </button>
           </div>
           <p className="text-[10px] uppercase tracking-[0.3em] text-center md:text-right" style={{ color: 'rgba(245,240,224,0.4)' }}>© 2026 Express Credit LLC</p>
         </div>
