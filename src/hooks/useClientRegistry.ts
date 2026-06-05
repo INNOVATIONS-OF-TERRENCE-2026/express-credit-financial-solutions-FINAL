@@ -111,6 +111,8 @@ export interface RegistrySnapshot {
   clientTags: Record<string, RegistryTag[]>;
   exclusions: ExclusionRow[];
   exclusionByProfile: Record<string, ExclusionRow>;
+  /** Map lower(email) -> profile.user_id, for every profile with an email. */
+  profileByEmail: Record<string, string>;
   refresh: () => Promise<void>;
 }
 
@@ -133,6 +135,7 @@ export function useClientRegistry(): RegistrySnapshot {
     },
     clients: [], missingProfiles: [], orphanIdentities: [], duplicates: [], needsPortalLink: [],
     recentAudit: [], profileTags: {}, clientTags: {}, exclusions: [], exclusionByProfile: {},
+    profileByEmail: {},
   });
 
   const load = useCallback(async () => {
@@ -342,6 +345,20 @@ export function useClientRegistry(): RegistrySnapshot {
       const totalPotentialIdentities =
         clients.length + profilesMissingClient + orphanIdentities.length;
 
+      // Email -> profile.user_id map (only emails that are unique on the profile side)
+      const emailCounts = new Map<string, number>();
+      profiles.forEach((p: any) => {
+        if (!p.email) return;
+        const k = p.email.toLowerCase();
+        emailCounts.set(k, (emailCounts.get(k) || 0) + 1);
+      });
+      const profileByEmail: Record<string, string> = {};
+      profiles.forEach((p: any) => {
+        if (!p.email || !p.user_id) return;
+        const k = p.email.toLowerCase();
+        if ((emailCounts.get(k) || 0) === 1) profileByEmail[k] = p.user_id;
+      });
+
       const countStatus = (s: ExclusionRow['status']) => exclusions.filter((e) => e.status === s).length;
 
       setSnap({
@@ -377,6 +394,7 @@ export function useClientRegistry(): RegistrySnapshot {
         clientTags,
         exclusions,
         exclusionByProfile,
+        profileByEmail,
       });
     } catch (e: any) {
       setSnap((s) => ({ ...s, loading: false, error: e?.message || 'Failed to load registry' }));
