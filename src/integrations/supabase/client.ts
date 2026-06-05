@@ -10,7 +10,7 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 const STORAGE_KEY = 'express-credit-auth-v1';
 const LEGACY_STORAGE_KEYS = [`sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`];
-const MIN_REFRESH_INTERVAL_MS = 15_000;
+const MIN_REFRESH_INTERVAL_MS = 55_000;
 
 let lastRefreshStartedAt = 0;
 let refreshPromise: Promise<Response> | null = null;
