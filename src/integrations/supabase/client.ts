@@ -11,6 +11,9 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 const STORAGE_KEY = 'express-credit-auth-v1';
 const LEGACY_STORAGE_KEYS = [`sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`];
 const MIN_REFRESH_INTERVAL_MS = 55_000;
+const REFRESH_TOUCH_KEY = `${STORAGE_KEY}-refresh-started-at`;
+const REFRESH_LOCK_KEY = `${STORAGE_KEY}-refresh-lock`;
+const TAB_ID = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
 
 let lastRefreshStartedAt = 0;
 let refreshPromise: Promise<Response> | null = null;
@@ -37,6 +40,37 @@ const migrateLegacyAuthStorage = () => {
   }
 };
 
+const sessionResponse = (session: Session) => new Response(JSON.stringify({
+  access_token: session.access_token,
+  refresh_token: session.refresh_token,
+  expires_in: Math.max(1, Math.floor(((session.expires_at ?? 0) * 1000 - Date.now()) / 1000)),
+  expires_at: session.expires_at,
+  token_type: session.token_type ?? 'bearer',
+  user: session.user,
+}), {
+  status: 200,
+  headers: { 'content-type': 'application/json' },
+});
+
+const getSharedRefreshStartedAt = () => {
+  if (typeof window === 'undefined') return 0;
+  return Number(window.localStorage.getItem(REFRESH_TOUCH_KEY) || 0);
+};
+
+const setSharedRefreshStartedAt = (value: number) => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(REFRESH_TOUCH_KEY, String(value));
+};
+
+const waitForCrossTabRefresh = async (previousRefreshToken?: string) => {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    const session = readStoredSession();
+    if (session?.access_token && session.refresh_token && session.refresh_token !== previousRefreshToken) return session;
+  }
+  return readStoredSession();
+};
+
 const guardedFetch: typeof fetch = async (input, init) => {
   const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
   const method = init?.method?.toUpperCase() ?? (typeof input !== 'string' && !(input instanceof URL) ? input.method : 'GET');
@@ -50,26 +84,43 @@ const guardedFetch: typeof fetch = async (input, init) => {
   const storedSession = readStoredSession();
   const expiresAtMs = (storedSession?.expires_at ?? 0) * 1000;
   const hasUsableAccessToken = !!storedSession?.access_token && expiresAtMs - now > 5_000;
-  const tooSoon = now - lastRefreshStartedAt < MIN_REFRESH_INTERVAL_MS;
+  const tooSoon = now - Math.max(lastRefreshStartedAt, getSharedRefreshStartedAt()) < MIN_REFRESH_INTERVAL_MS;
 
   if (tooSoon && hasUsableAccessToken) {
-    return new Response(JSON.stringify({
-      access_token: storedSession.access_token,
-      refresh_token: storedSession.refresh_token,
-      expires_in: Math.max(1, Math.floor((expiresAtMs - now) / 1000)),
-      expires_at: storedSession.expires_at,
-      token_type: storedSession.token_type ?? 'bearer',
-      user: storedSession.user,
-    }), {
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-    });
+    return sessionResponse(storedSession);
+  }
+
+  if (typeof window !== 'undefined') {
+    const lock = JSON.parse(window.localStorage.getItem(REFRESH_LOCK_KEY) || 'null') as { owner?: string; expiresAt?: number } | null;
+    if (lock?.owner && lock.owner !== TAB_ID && (lock.expiresAt ?? 0) > now) {
+      const refreshedSession = await waitForCrossTabRefresh(storedSession?.refresh_token);
+      if (refreshedSession?.access_token && ((refreshedSession.expires_at ?? 0) * 1000 - Date.now() > 1_000)) {
+        return sessionResponse(refreshedSession);
+      }
+    }
+    window.localStorage.setItem(REFRESH_LOCK_KEY, JSON.stringify({ owner: TAB_ID, expiresAt: now + 10_000 }));
   }
 
   lastRefreshStartedAt = now;
-  refreshPromise = fetch(input, init).finally(() => {
-    setTimeout(() => { refreshPromise = null; }, 1_000);
-  });
+  setSharedRefreshStartedAt(now);
+  refreshPromise = fetch(input, init)
+    .then((response) => {
+      if (!response.ok) {
+        const fallbackSession = readStoredSession();
+        if (fallbackSession?.access_token && ((fallbackSession.expires_at ?? 0) * 1000 - Date.now() > 5_000)) {
+          console.warn('[auth] Suppressed failed refresh response; preserving current browser session.', response.status);
+          return sessionResponse(fallbackSession);
+        }
+      }
+      return response;
+    })
+    .finally(() => {
+      if (typeof window !== 'undefined') {
+        const lock = JSON.parse(window.localStorage.getItem(REFRESH_LOCK_KEY) || 'null') as { owner?: string } | null;
+        if (lock?.owner === TAB_ID) window.localStorage.removeItem(REFRESH_LOCK_KEY);
+      }
+      setTimeout(() => { refreshPromise = null; }, 1_000);
+    });
 
   return refreshPromise.then((response) => response.clone());
 };
