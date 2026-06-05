@@ -24,6 +24,10 @@ const TAG_STYLES: Record<RegistryTag, string> = {
   'Duplicate Risk': 'bg-fuchsia-500/15 text-fuchsia-500 border-fuchsia-500/30',
   'Orphan Data': 'bg-rose-500/15 text-rose-500 border-rose-500/30',
   'Not Client': 'bg-muted text-muted-foreground border-border',
+  'Prospect': 'bg-sky-500/15 text-sky-500 border-sky-500/30',
+  'Test Account': 'bg-muted text-muted-foreground border-border',
+  'Ignored': 'bg-muted text-muted-foreground border-border',
+  'Archived': 'bg-muted text-muted-foreground border-border',
 };
 
 function TagChips({ tags }: { tags: RegistryTag[] | undefined }) {
