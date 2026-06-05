@@ -18,7 +18,7 @@
  *  3. Client uploads a tiny file to client-documents/<uid>/e2e/ and the
  *     object is listable. The object is deleted in afterAll.
  *  4. Admin can query the same metric counts the dashboard uses
- *     (clients, payment_records, document_uploads, credit_report_uploads,
+   *     (clients, payment_records, document_archive, credit_report_uploads,
  *      clients where ftc_readiness_status='ready').
  *  5. No console.error / console.warn fired during the whole run.
  */
