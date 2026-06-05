@@ -45,17 +45,24 @@ function Inner({ children, title }: { children: ReactNode; title: string }) {
 
   return (
     <div className="flex-1 flex flex-col min-w-0">
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border/50 bg-background/80 backdrop-blur px-4 h-14">
-        <div className="flex items-center gap-3 min-w-0">
-          <SidebarTrigger />
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border/70 bg-background/85 backdrop-blur-xl px-4 md:px-8 h-16 md:h-[72px]">
+        <div className="flex items-center gap-4 min-w-0">
+          <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+          <div className="hidden md:block w-px h-6 bg-border" aria-hidden />
           <div className="min-w-0">
-            <h1 className="text-sm font-semibold truncate">{title}</h1>
-            <p className="text-xs text-muted-foreground truncate">{fullName || email || 'Welcome'}</p>
+            <p className="lux-eyebrow !text-[10px] truncate">
+              Welcome back, {(fullName || email || 'Guest').split(' ')[0]}
+            </p>
+            <h1 className="lux-display text-base md:text-lg text-foreground truncate leading-tight">
+              {title}
+            </h1>
           </div>
         </div>
       </header>
       <ClientStatusStrip />
-      <main className="flex-1 p-4 md:p-6 overflow-x-hidden">{children}</main>
+      <main className="flex-1 px-4 py-8 md:px-10 md:py-12 lg:px-14 overflow-x-hidden">
+        <div className="mx-auto w-full max-w-[1320px]">{children}</div>
+      </main>
     </div>
   );
 }
@@ -64,7 +71,7 @@ export function ClientPortalLayout({ children, title }: { children: ReactNode; t
   return (
     <ClientProvider>
       <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-background/95">
+        <div className="min-h-screen flex w-full bg-gradient-ivory">
           <ClientPortalSidebar />
           <Inner title={title}>{children}</Inner>
         </div>

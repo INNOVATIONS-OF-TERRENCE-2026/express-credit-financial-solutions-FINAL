@@ -1,7 +1,8 @@
 import { useClient } from '@/contexts/ClientContext';
 import { useClientPortalData } from '@/hooks/useClientPortalData';
 import { computeReadiness } from '@/lib/mortgageReadiness';
-import { TrendingUp, TrendingDown, Home, Target } from 'lucide-react';
+import { Home, Target } from 'lucide-react';
+import { DeltaChip } from '@/components/luxury/DeltaChip';
 
 /**
  * Persistent header strip shown on every client portal page.
@@ -20,32 +21,31 @@ export function ClientStatusStrip() {
   const positive = delta >= 0;
 
   return (
-    <div className="border-b border-border/50 bg-card/40 backdrop-blur">
-      <div className="px-4 md:px-6 py-2.5 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+    <div className="border-b border-border/70 bg-background/70 backdrop-blur">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-10 lg:px-14 py-3 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-sm">
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Current Score</p>
-          <p className="text-base font-bold text-amber-500">{d.currentScore ?? '—'}</p>
+          <p className="lux-eyebrow !text-[10px]">Current Score</p>
+          <p className="lux-display text-lg md:text-xl text-foreground tabular-nums">{d.currentScore ?? '—'}</p>
         </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Change</p>
-          <p className={`text-base font-bold flex items-center gap-1 ${positive ? 'text-emerald-500' : 'text-rose-500'}`}>
-            {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
-            {positive ? '+' : ''}{delta}
-          </p>
+        <div className="flex flex-col items-start gap-1">
+          <p className="lux-eyebrow !text-[10px]">Change</p>
+          <DeltaChip value={delta} suffix="pts" />
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="lux-eyebrow !text-[10px] flex items-center gap-1.5">
             <Home className="h-3 w-3" />Readiness
           </p>
-          <p className={`text-sm font-semibold truncate ${readiness.tone.split(' ')[0]}`}>{readiness.label}</p>
+          <p className="font-medium text-foreground truncate">{readiness.label}</p>
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="lux-eyebrow !text-[10px] flex items-center gap-1.5">
             <Target className="h-3 w-3" />Next Milestone
           </p>
-          <p className="text-sm font-semibold truncate">{readiness.nextMilestoneLabel}</p>
+          <p className="font-medium text-foreground truncate">{readiness.nextMilestoneLabel}</p>
         </div>
       </div>
     </div>
   );
+  // referenced for typing
+  void positive;
 }
