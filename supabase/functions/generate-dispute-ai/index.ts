@@ -148,41 +148,32 @@ Generate a complete, ready-to-send dispute letter addressed to ${bureau}. Includ
         const letterContent = aiData.choices[0].message.content;
         const confidence = 85; // Base confidence for AI-generated letters
 
-        // Insert dispute_case
+        // Insert generated letter into the live dispute_letters table
         const { data: disputeCase, error: caseErr } = await supabase
-          .from('dispute_cases')
+          .from('dispute_letters')
           .insert({
             client_id: client.id,
-            user_id: client.user_id,
+            user_id: client.user_id || null,
             bureau,
+            full_name: client.full_name,
+            client_name: client.full_name,
             account_name: account.account_name,
-            account_number_last4: account.account_number_last4,
-            violation_type: account.violation_type,
+            creditor_name: account.account_name,
+            account_number: account.account_number_last4,
+            issue_type: account.violation_type,
+            violation_notes: account.violation_type,
             dispute_reason: account.dispute_reason,
-            status: 'generated',
-            source: mode === 'auto' ? 'ai_auto' : 'manual',
-            flagged_dispute_id: account.flagged_dispute_id || null,
+            generated_letter: letterContent,
+            letter_body: letterContent,
+            letter_title: `${bureau} ${letterType.replace(/_/g, ' ')}`,
+            letter_type: letterType,
+            case_status: (mode === 'auto' && confidence >= (settings?.auto_attach_threshold || 85)) ? 'approved' : 'needs_admin_review',
+            additional_notes: account.flagged_dispute_id ? `Generated from flagged dispute ${account.flagged_dispute_id}` : null,
           })
-          .select()
+          .select('id, case_status')
           .single();
 
         if (caseErr) { console.error('Case insert error:', caseErr); continue; }
-
-        // Insert ai_dispute_letter
-        const { error: letterErr } = await supabase
-          .from('ai_dispute_letters')
-          .insert({
-            client_id: client.id,
-            user_id: client.user_id,
-            dispute_case_id: disputeCase.id,
-            letter_content: letterContent,
-            letter_type: letterType,
-            bureau,
-            confidence_score: confidence,
-            status: (mode === 'auto' && confidence >= (settings?.auto_attach_threshold || 85)) ? 'approved' : 'draft',
-          });
-
-        if (letterErr) console.error('Letter insert error:', letterErr);
 
         results.push({
           case_id: disputeCase.id,
@@ -190,7 +181,7 @@ Generate a complete, ready-to-send dispute letter addressed to ${bureau}. Includ
           account: account.account_name,
           letter_type: letterType,
           confidence,
-          status: disputeCase.status,
+          status: disputeCase.case_status,
         });
       }
     }
