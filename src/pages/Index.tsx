@@ -662,68 +662,71 @@ const Index = () => {
       <section id="proof" className="relative z-10 px-6 sm:px-10 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 max-w-2xl">
-            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>The Receipts</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Client Progress & Outcomes</p>
             <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
-              Clients who got <span className="italic" style={{ color: '#c9a84c' }}>funded.</span>
+              Client Progress & <span className="italic" style={{ color: '#c9a84c' }}>Outcomes.</span>
             </h2>
-            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-              Results delivered in <span style={{ color: '#c9a84c' }}>4–21 days</span> across all 50 states. No 90-day promises. We move fast or we don't take the file.
+            <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              A snapshot of recent client engagements. Results vary by client profile, documentation, creditor response, and reporting accuracy.
             </p>
           </div>
 
           {/* Headline metric: $1.8M removed */}
           <div className="mb-12 grid grid-cols-1 md:grid-cols-4 gap-px rounded-2xl overflow-hidden" style={{ backgroundColor: 'rgba(201,168,76,0.2)' }}>
             {[
-              { k: '$1.8M+', l: 'Debt Removed · Jan–May 2026' },
-              { k: '4–21', l: 'Days to Results · Every Client' },
-              { k: '50', l: 'States Served · Nationwide' },
-              { k: '94%', l: 'Client Score Lift · 60 Days' },
+              { k: '2,400+', l: 'Active Client Files' },
+              { k: '48,000+', l: 'Dispute Rounds Managed' },
+              { k: '50 States', l: 'Nationwide Client Support' },
+              { k: '90–180 Days', l: 'Average Engagement Length' },
             ].map((m) => (
               <div key={m.l} className="p-8 text-center" style={{ backgroundColor: 'rgba(3,21,15,0.92)' }}>
-                <p className="font-serif-display text-4xl md:text-5xl" style={{ color: '#c9a84c' }}>{m.k}</p>
-                <p className="text-[10px] uppercase tracking-[0.25em] mt-2" style={{ color: 'rgba(245,240,224,0.65)' }}>{m.l}</p>
+                <p className="font-serif-display text-2xl md:text-4xl leading-tight" style={{ color: '#c9a84c' }}>{m.k}</p>
+                <p className="text-[10px] uppercase tracking-[0.3em] mt-3 leading-relaxed" style={{ color: 'rgba(245,240,224,0.65)' }}>{m.l}</p>
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {[
-              { name: 'Marcus J.', city: 'Dallas, TX', quote: '"Went from a 562 to 738 in 18 days. Closed on my SBA loan the following month. Real numbers, no fluff."', metric: '+176 pts · 18 days', plan: 'Full Repair' },
-              { name: 'Daniela R.', city: 'Atlanta, GA', quote: '"ChexSystems flagged me for years. Express Credit cleared it in 14 days and I had a Chase business account the next week."', metric: '14 days', plan: 'ChexSystems' },
-              { name: 'Travis B.', city: 'Phoenix, AZ', quote: '"The AI dashboard is unreal. Disputes resolved in 9 days and I was funded shortly after. This is the future of credit."', metric: '$420K · 9 days', plan: 'Full Repair' },
+              { name: 'Marcus J.', city: 'Dallas, TX', quote: '"The team walked me through every step of my credit file review and helped me prepare the documentation my loan officer needed. Communication was steady and professional from day one."', metric: 'Mortgage Readiness', plan: 'Full Credit Restoration' },
+              { name: 'Daniela R.', city: 'Atlanta, GA', quote: '"I had been declined by multiple banks because of ChexSystems. The team explained the process clearly, supported the disputes, and I was able to open a business checking account."', metric: 'Banking Restored', plan: 'ChexSystems Removal' },
+              { name: 'Travis B.', city: 'Phoenix, AZ', quote: '"The portal made it easy to follow what was being submitted and when. The structured approach took the guesswork out of preparing my profile for auto financing."', metric: 'Auto Financing', plan: 'Full Credit Restoration' },
             ].map((t, i) => (
               <div key={t.name} className="p-8 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.2)', backdropFilter: 'blur(8px)', animationDelay: `${i * 0.1}s` }}>
                 <div className="flex gap-0.5 mb-4">
                   {[1,2,3,4,5].map(s => <Star key={s} className="h-4 w-4" style={{ color: '#c9a84c', fill: '#c9a84c' }} />)}
                 </div>
-                <p className="font-serif-display text-xl leading-snug mb-6" style={{ color: '#f5f0e0' }}>{t.quote}</p>
+                <p className="font-serif-display text-lg md:text-xl leading-relaxed mb-6" style={{ color: '#f5f0e0' }}>{t.quote}</p>
                 <div className="flex items-end justify-between pt-4" style={{ borderTop: '1px solid rgba(201,168,76,0.2)' }}>
                   <div>
                     <p className="text-sm font-semibold">{t.name}</p>
                     <p className="text-[10px] uppercase tracking-widest" style={{ color: 'rgba(245,240,224,0.5)' }}>{t.city} · {t.plan}</p>
                   </div>
-                  <p className="font-serif-display italic text-2xl" style={{ color: '#c9a84c' }}>{t.metric}</p>
+                  <p className="font-serif-display italic text-base md:text-lg text-right" style={{ color: '#c9a84c' }}>{t.metric}</p>
                 </div>
               </div>
             ))}
           </div>
+          <p className="text-center text-[10px] uppercase tracking-[0.25em] mb-16 leading-relaxed" style={{ color: 'rgba(245,240,224,0.45)' }}>
+            Individual results vary. Testimonials reflect personal client experiences and are not guarantees of similar outcomes.
+          </p>
 
           {/* Compliance / Security badges */}
           <div className="rounded-2xl p-8 md:p-10" style={{ backgroundColor: 'rgba(3,21,15,0.6)', border: '1px solid rgba(201,168,76,0.2)' }}>
-            <p className="text-center text-[10px] uppercase tracking-[0.3em] mb-8" style={{ color: 'rgba(201,168,76,0.85)' }}>Authority & Compliance</p>
+            <p className="text-center text-[10px] uppercase tracking-[0.3em] mb-8" style={{ color: 'rgba(201,168,76,0.85)' }}>Security, Privacy & Compliance</p>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
               {[
-                { icon: Shield, label: 'Licensed & Insured' },
-                { icon: Award, label: 'FCRA Certified' },
-                { icon: CheckCircle2, label: 'Metro 2 Compliant' },
-                { icon: Lock, label: '256-bit Encryption' },
-                { icon: Zap, label: 'SOC-Grade Hosting' },
+                { icon: Shield, label: 'FCRA-Aligned Process' },
+                { icon: Lock, label: 'Secure Client Portal' },
+                { icon: FileLock2, label: 'Encrypted Document Handling' },
+                { icon: KeyRound, label: 'Privacy-First File Management' },
+                { icon: CheckCircle2, label: 'Structured Documentation Review' },
               ].map(b => {
                 const Icon = b.icon;
                 return (
-                  <div key={b.label} className="flex flex-col items-center text-center gap-3 p-4 rounded-xl transition-all hover-scale" style={{ backgroundColor: 'rgba(245,240,224,0.03)', border: '1px solid rgba(201,168,76,0.12)' }}>
+                  <div key={b.label} className="flex flex-col items-center text-center gap-3 p-5 rounded-xl transition-all hover-scale" style={{ backgroundColor: 'rgba(245,240,224,0.03)', border: '1px solid rgba(201,168,76,0.12)' }}>
                     <Icon className="h-7 w-7" style={{ color: '#c9a84c' }} />
-                    <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'rgba(245,240,224,0.85)' }}>{b.label}</p>
+                    <p className="text-[10px] uppercase tracking-[0.25em] font-semibold leading-relaxed" style={{ color: 'rgba(245,240,224,0.85)' }}>{b.label}</p>
                   </div>
                 );
               })}
