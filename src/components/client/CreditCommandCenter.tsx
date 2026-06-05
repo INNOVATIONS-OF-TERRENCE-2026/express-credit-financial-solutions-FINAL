@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { ScoreGauge } from './ScoreGauge';
 import { LuxuryCard, EyebrowLabel, DeltaChip } from '@/components/luxury';
-import { ArrowUpRight, ArrowDownRight, Minus, Activity, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Minus, Activity, Sparkles, Vault, Bell } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 type BureauKey = 'ex' | 'eq' | 'tu';
@@ -83,8 +84,12 @@ export function CreditCommandCenter({
         </div>
 
         {/* ============ BUREAU TABS ============ */}
-        <div className="mt-8 md:mt-10 -mb-px">
-          <div className="inline-flex rounded-t-xl border border-b-0 border-ivory/15 bg-ivory/5 p-1 backdrop-blur">
+        <div className="mt-8 md:mt-10 -mb-px -mx-6 md:mx-0 px-6 md:px-0 overflow-x-auto no-scrollbar">
+          <div
+            role="tablist"
+            aria-label="Credit bureau"
+            className="relative inline-flex rounded-t-xl border border-b-0 border-ivory/15 bg-ivory/5 p-1 backdrop-blur whitespace-nowrap"
+          >
             {bureaus.map((b) => {
               const isActive = b.key === active;
               const dlt = b.current != null && b.starting != null ? b.current - b.starting : null;
@@ -92,11 +97,13 @@ export function CreditCommandCenter({
               return (
                 <button
                   key={b.key}
+                  role="tab"
+                  aria-selected={isActive}
                   onClick={() => setActive(b.key)}
                   className={cn(
-                    'relative flex items-center gap-2.5 rounded-lg px-4 md:px-5 py-2.5 transition-all',
+                    'relative flex items-center gap-2.5 rounded-lg px-4 md:px-5 py-2.5 transition-all duration-300 ease-out active:scale-[0.97]',
                     isActive
-                      ? 'bg-ivory text-midnight shadow-elevated'
+                      ? 'bg-ivory text-midnight shadow-elevated scale-[1.02]'
                       : 'text-ivory/70 hover:text-ivory hover:bg-ivory/10',
                   )}
                 >
@@ -134,19 +141,21 @@ export function CreditCommandCenter({
       <div className="bg-ivory/[0.04] border-t border-ivory/10 backdrop-blur-sm">
         <div className="p-6 md:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-10">
           {/* Hero gauge */}
-          <div className="lg:col-span-3">
-            <div className="rounded-2xl bg-ivory p-6 md:p-8 shadow-elevated">
+          <div className="lg:col-span-3 lg:static">
+            <div className="sticky top-16 z-10 rounded-2xl bg-ivory p-6 md:p-8 shadow-elevated lg:static">
               <ScoreGauge
+                key={featured?.key}
                 label={`${featured?.label ?? '—'} · FICO 8`}
                 current={featured?.current ?? null}
                 starting={featured?.starting ?? null}
                 updatedAt={updatedAt ?? null}
               />
+              <div key={`anim-${featured?.key}`} className="animate-fade-in" aria-hidden />
             </div>
           </div>
 
           {/* Movement breakdown */}
-          <div className="lg:col-span-2 space-y-4">
+          <div key={`panel-${featured?.key}`} className="lg:col-span-2 space-y-4 animate-fade-in">
             <div className="rounded-2xl border border-ivory/15 bg-ivory/5 backdrop-blur p-6">
               <EyebrowLabel className="!text-gold-soft [&>span]:!text-gold-soft">
                 <Sparkles className="h-3 w-3" /> {featured?.label} Movement
@@ -224,6 +233,37 @@ export function CreditCommandCenter({
                 </div>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* ============ MOBILE SHORTCUT BAR (Vault / Inbox) ============ */}
+        <div className="md:hidden border-t border-ivory/10 bg-midnight/30 backdrop-blur px-6 py-4">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-ivory/55 mb-3">Jump to</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              to="/client/documents"
+              className="group flex items-center gap-3 rounded-xl border border-ivory/15 bg-ivory/5 px-4 py-3 active:scale-[0.98] transition-transform"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-gold text-midnight shadow-elevated">
+                <Vault className="h-4 w-4" />
+              </span>
+              <span className="flex flex-col min-w-0">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-ivory/55 leading-none">Secure</span>
+                <span className="text-sm font-semibold text-ivory leading-tight">Vault</span>
+              </span>
+            </Link>
+            <Link
+              to="/client/messages"
+              className="group flex items-center gap-3 rounded-xl border border-ivory/15 bg-ivory/5 px-4 py-3 active:scale-[0.98] transition-transform"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ivory text-midnight shadow-elevated">
+                <Bell className="h-4 w-4" />
+              </span>
+              <span className="flex flex-col min-w-0">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-ivory/55 leading-none">Concierge</span>
+                <span className="text-sm font-semibold text-ivory leading-tight">Inbox</span>
+              </span>
+            </Link>
           </div>
         </div>
       </div>
