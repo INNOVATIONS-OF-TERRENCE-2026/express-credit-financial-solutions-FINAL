@@ -70,8 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         console.info('[auth] state change:', event, 'hasSession:', !!session);
         
-        // Check admin status when user changes
-        if (session?.user) {
+        const shouldCheckRole = event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'USER_UPDATED';
+
+        // Check admin status only when identity changes, not on token refresh ticks.
+        if (session?.user && shouldCheckRole) {
           setTimeout(() => {
             if (mounted) checkAdminStatus(session.user.id);
           }, 0); // Defer to avoid auth state conflicts
@@ -82,23 +84,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     );
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-      console.info('[auth] init: sessionRestored=', !!session);
-      
-      // Check admin status for initial session
-      if (session?.user) {
-        setTimeout(() => {
-          if (mounted) checkAdminStatus(session.user.id);
-        }, 0); // Defer to avoid auth state conflicts
-      }
-      
-      setLoading(false);
-    });
 
     return () => {
       mounted = false;
