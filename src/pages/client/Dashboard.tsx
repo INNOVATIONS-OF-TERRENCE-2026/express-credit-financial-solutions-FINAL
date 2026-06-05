@@ -13,6 +13,7 @@ import { computeReadiness } from '@/lib/mortgageReadiness';
 import { Button } from '@/components/ui/button';
 import { ScoreGauge } from '@/components/client/ScoreGauge';
 import { ScoreHistoryTimeline } from '@/components/client/ScoreHistoryTimeline';
+import { FundingReadinessCenter } from '@/components/client/FundingReadinessCenter';
 import {
   LuxuryCard, LuxurySection, LuxuryStat, EyebrowLabel, DeltaChip,
   BeforeAfterPanel, ProgressTimeline,
@@ -288,6 +289,20 @@ function DashboardInner() {
             </div>
           </div>
         </div>
+      </LuxurySection>
+
+      {/* ============================================================
+          5b. FUNDING READINESS CENTER
+          ============================================================ */}
+      <LuxurySection
+        eyebrow="Funding Readiness"
+        title="Where you stand on every lane"
+        description="Live readiness across mortgage, auto, business, credit card, and banking — derived from your active credit profile."
+      >
+        <FundingReadinessCenter
+          currentScore={d.currentScore}
+          remainingNegatives={d.remainingNegatives}
+        />
       </LuxurySection>
 
       {/* ============================================================

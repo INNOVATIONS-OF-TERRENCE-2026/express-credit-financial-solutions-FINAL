@@ -8,6 +8,7 @@ import { CheckCircle2, Circle, ShieldCheck, FileText, Image as ImageIcon, FileTy
 import { LuxuryCard, LuxurySection, EyebrowLabel } from '@/components/luxury';
 import { Progress } from '@/components/ui/progress';
 import { DocumentVaultBrowser } from '@/components/client/DocumentVaultBrowser';
+import { VaultCategoryGrid } from '@/components/client/VaultCategoryGrid';
 
 interface VerificationStatus {
   id_document_url: string | null;
@@ -176,6 +177,14 @@ function Inner() {
         divider={false}
       >
         <VerificationStatusCard userId={user.id} />
+      </LuxurySection>
+
+      <LuxurySection
+        eyebrow="Vault Categories"
+        title="Browse by section"
+        description="Every document type organized like a private banking deposit box."
+      >
+        <VaultCategoryGrid />
       </LuxurySection>
 
       <UploadFlowGuide />
