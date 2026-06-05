@@ -26,20 +26,32 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } },
     );
-    const { data: claimsData, error: claimsErr } = await authClient.auth.getClaims(
-      authHeader.replace('Bearer ', '')
-    );
-    if (claimsErr || !claimsData?.claims) {
+    const { data: userData, error: userErr } = await authClient.auth.getUser();
+    if (userErr || !userData?.user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+    const callerId = userData.user.id;
 
     const { client_id, user_id, report_id } = await req.json();
     if (!client_id) {
       return new Response(JSON.stringify({ error: 'client_id required' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Verify caller is admin OR owns the requested client.
+    const { data: roleRow } = await supabase
+      .from('user_roles').select('role').eq('user_id', callerId).eq('role', 'admin').maybeSingle();
+    if (!roleRow) {
+      const { data: ownedClient } = await supabase
+        .from('clients').select('id').eq('id', client_id).eq('user_id', callerId).maybeSingle();
+      if (!ownedClient) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // Fetch current scores

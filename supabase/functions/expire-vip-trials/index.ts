@@ -18,6 +18,16 @@ serve(async (req) => {
   }
 
   try {
+    // Service-role only: this is a scheduled/cron-only endpoint.
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    if (!serviceKey || token !== serviceKey) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     logStep("Starting VIP trial and VIP pass expiration check");
 
     // Initialize Supabase client with service role key
