@@ -7,6 +7,8 @@ These specs verify the production-critical login flows for Express Credit CRM:
 - Hard refresh on a protected route keeps the user signed in
 - Navigation across all protected admin/client routes never bounces to `/admin/login`
 - A signed-in session survives **90 seconds** without redirect or forced logout
+- A client can upload a PDF via the Document Vault and both the client view
+  (after refresh) and the admin Document Inbox surface that file
 
 The specs depend on the in-app **AuthDebugPanel** (`[data-testid="auth-debug"]`)
 to read `authReady` / `rolesReady` / `guardsReady` / `isAdmin` deterministically,
@@ -46,6 +48,15 @@ Single file:
 ```bash
 bunx playwright test e2e/auth-admin.spec.ts
 ```
+
+## Upload spec note
+
+`e2e/client-document-upload.spec.ts` writes a real row to the `documents`
+table (and a real object to the `verification-docs` storage bucket) using a
+unique filename token per run. It targets the optional "Other Supporting
+Documents" tile so it never blocks the required-verification gating, but the
+uploads are **not** cleaned up automatically — purge them from the Document
+Inbox + storage bucket periodically when running against production.
 
 ## Manual debug panel
 
