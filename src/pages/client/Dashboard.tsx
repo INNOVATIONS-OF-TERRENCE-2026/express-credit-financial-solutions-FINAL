@@ -11,9 +11,9 @@ import { Link } from 'react-router-dom';
 import { MatchStatusBadge } from '@/components/MatchStatusBadge';
 import { computeReadiness } from '@/lib/mortgageReadiness';
 import { Button } from '@/components/ui/button';
-import { ScoreGauge } from '@/components/client/ScoreGauge';
 import { ScoreHistoryTimeline } from '@/components/client/ScoreHistoryTimeline';
 import { FundingReadinessCenter } from '@/components/client/FundingReadinessCenter';
+import { CreditCommandCenter } from '@/components/client/CreditCommandCenter';
 import {
   LuxuryCard, LuxurySection, LuxuryStat, EyebrowLabel, DeltaChip,
   BeforeAfterPanel, ProgressTimeline,
@@ -38,22 +38,25 @@ function DashboardInner() {
   const firstName = (fullName || 'Client').split(' ')[0];
 
   // Pull tri-bureau scores if recorded; fall back to the blended score.
-  const bureaus: { key: 'ex' | 'eq' | 'tu'; label: string; current: number | null; starting: number | null }[] = [
+  const bureaus: { key: 'ex' | 'eq' | 'tu'; label: string; short: string; current: number | null; starting: number | null }[] = [
     {
       key: 'ex',
       label: 'Experian',
+      short: 'Experian',
       current: d.client?.current_score_ex ?? d.currentScore ?? null,
       starting: d.client?.starting_score_ex ?? d.startingScore ?? null,
     },
     {
       key: 'eq',
       label: 'Equifax',
+      short: 'Equifax',
       current: d.client?.current_score_eq ?? d.currentScore ?? null,
       starting: d.client?.starting_score_eq ?? d.startingScore ?? null,
     },
     {
       key: 'tu',
       label: 'TransUnion',
+      short: 'TransUnion',
       current: d.client?.current_score_tu ?? d.currentScore ?? null,
       starting: d.client?.starting_score_tu ?? d.startingScore ?? null,
     },
@@ -173,33 +176,15 @@ function DashboardInner() {
       {/* ============================================================
           2. CREDIT SCORE CENTER — the largest component on page
           ============================================================ */}
-      <LuxurySection
-        eyebrow="Credit Score Center"
-        title="Your Tri-Bureau Scores"
-        description="FICO 8 readings across Experian, Equifax, and TransUnion. Updated as new reports are processed."
-      >
+      <section className="space-y-6">
         {triBureauPending && (
-          <p className="mb-4 text-xs text-muted-foreground italic">
-            Tri-bureau breakdown is pending your next report sync. Showing blended score on all three.
+          <p className="text-xs text-ivory/70 italic">
+            Tri-bureau breakdown is pending your next report sync. Showing blended score across all three.
           </p>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {bureaus.map((b) => (
-            <ScoreGauge
-              key={b.key}
-              label={`${b.label} · FICO 8`}
-              current={b.current}
-              starting={b.starting}
-              updatedAt={lastUpdated}
-            />
-          ))}
-        </div>
-        {userId && (
-          <div className="mt-6">
-            <ScoreHistoryTimeline userId={userId} />
-          </div>
-        )}
-      </LuxurySection>
+        <CreditCommandCenter bureaus={bureaus} updatedAt={lastUpdated} />
+        {userId && <ScoreHistoryTimeline userId={userId} />}
+      </section>
 
       {/* ============================================================
           3. BEFORE / AFTER TRANSFORMATION
