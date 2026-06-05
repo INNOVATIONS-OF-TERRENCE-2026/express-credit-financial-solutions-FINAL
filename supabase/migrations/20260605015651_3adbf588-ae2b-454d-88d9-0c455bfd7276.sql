@@ -1,0 +1,1 @@
+ALTER VIEW public.v_client_verification_report SET (security_invoker = true);
