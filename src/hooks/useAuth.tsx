@@ -108,7 +108,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data.session) {
       setSession(data.session);
       setUser(data.user);
-      setTimeout(() => checkAdminStatus(data.user?.id), 0);
     }
     return { error, user: data.user, session: data.session };
   };
