@@ -21,13 +21,14 @@ export function RolesProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUserRole = async () => {
+    setLoading(true);
+
     if (!user) {
       setUserRole(null);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -39,6 +40,7 @@ export function RolesProvider({ children }: { children: React.ReactNode }) {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user role:', error);
+        setUserRole('user');
         return;
       }
 

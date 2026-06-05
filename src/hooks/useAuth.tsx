@@ -7,7 +7,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any; user?: User | null; session?: Session | null }>;
   signUp: (email: string, password: string, metadata?: Record<string, any>) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   checkAdminStatus: () => Promise<boolean>;
@@ -21,18 +21,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkAdminStatus = async (): Promise<boolean> => {
+  const checkAdminStatus = async (userId = user?.id): Promise<boolean> => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
+      if (!userId) {
+        setIsAdmin(false);
+        return false;
+      }
 
       // Check user role from database instead of hardcoded emails
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('role', 'admin')
-        .single();
+        .maybeSingle();
 
       const adminStatus = !error && data !== null;
       setIsAdmin(adminStatus);
@@ -45,9 +47,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -65,10 +70,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         console.info('[auth] state change:', event, 'hasSession:', !!session);
         
-        // Check admin status when user changes
-        if (session?.user) {
-          setTimeout(() => checkAdminStatus(), 0); // Defer to avoid auth state conflicts
-        } else {
+        const shouldCheckRole = event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'USER_UPDATED';
+
+        // Check admin status only when identity changes, not on token refresh ticks.
+        if (session?.user && shouldCheckRole) {
+          setTimeout(() => {
+            if (mounted) checkAdminStatus(session.user.id);
+          }, 0); // Defer to avoid auth state conflicts
+        } else if (!session?.user) {
           setIsAdmin(false);
         }
         
@@ -76,29 +85,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      console.info('[auth] init: sessionRestored=', !!session);
-      
-      // Check admin status for initial session
-      if (session?.user) {
-        setTimeout(() => checkAdminStatus(), 0); // Defer to avoid auth state conflicts
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    return { error };
+    if (data.session) {
+      setSession(data.session);
+      setUser(data.user);
+      setTimeout(() => checkAdminStatus(data.user?.id), 0);
+    }
+    return { error, user: data.user, session: data.session };
   };
 
   const signUp = async (email: string, password: string, metadata?: Record<string, any>) => {

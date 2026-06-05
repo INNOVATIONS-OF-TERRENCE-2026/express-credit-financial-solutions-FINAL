@@ -32,7 +32,7 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const { error: signInError } = await signIn(email, password);
+      const { error: signInError, user: authUser } = await signIn(email, password);
       
       if (signInError) {
         setError(signInError.message);
@@ -40,7 +40,6 @@ export default function AdminLogin() {
       }
 
       // Verify admin role from the database (user_roles table) — no hardcoded allow-list.
-      const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) {
         setError('Login session could not be verified. Please try again.');
         return;
@@ -60,8 +59,8 @@ export default function AdminLogin() {
       }
 
       if (!roleRow) {
-        // Sign out the non-admin session so the admin login page isn't left in a logged-in state.
-        await supabase.auth.signOut();
+        // Clear the non-admin browser session without revoking refresh tokens server-side.
+        await supabase.auth.signOut({ scope: 'local' });
         setError('Access denied. This account does not have admin privileges.');
         return;
       }
@@ -71,7 +70,7 @@ export default function AdminLogin() {
         description: "Successfully logged into admin dashboard",
       });
 
-      navigate('/admin');
+      navigate('/admin', { replace: true });
       
     } catch (error) {
       console.error('Login error:', error);
