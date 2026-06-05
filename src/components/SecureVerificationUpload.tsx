@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Upload, Check, Eye, EyeOff, AlertCircle, Lock } from 'lucide-react';
+import { Shield, Upload, Check, Eye, EyeOff, AlertCircle, Lock, X } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useDropzone } from 'react-dropzone';
@@ -20,6 +21,34 @@ interface SecureVerificationUploadProps {
   userId: string;
 }
 
+const ALLOWED_MIME = ['application/pdf', 'image/jpeg', 'image/png'] as const;
+const ALLOWED_EXT = ['.pdf', '.jpg', '.jpeg', '.png'];
+const MAX_BYTES = 15 * 1024 * 1024; // 15 MB
+
+type DocKey = 'id' | 'ssn' | 'address' | 'other';
+
+/** Upload via signed URL using XHR so we get real progress events. */
+function uploadWithProgress(
+  url: string,
+  file: File,
+  token: string,
+  onProgress: (pct: number) => void,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url, true);
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    xhr.setRequestHeader('x-upsert', 'true');
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(xhr.responseText || `Upload failed (${xhr.status})`)));
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.send(file);
+  });
+}
+
 export function SecureVerificationUpload({ userId }: SecureVerificationUploadProps) {
   const { toast } = useToast();
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
@@ -29,6 +58,8 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
     other: 'pending'
   });
   const [uploading, setUploading] = useState<string | null>(null);
+  const [progress, setProgress] = useState<Record<DocKey, number>>({ id: 0, ssn: 0, address: 0, other: 0 });
+  const [fieldError, setFieldError] = useState<Record<DocKey, string | null>>({ id: null, ssn: null, address: null, other: null });
   const [ssn, setSsn] = useState('');
   const [experianUsername, setExperianUsername] = useState('');
   const [experianPassword, setExperianPassword] = useState('');
@@ -36,29 +67,49 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
   const [saving, setSaving] = useState(false);
   const [credentialsSaved, setCredentialsSaved] = useState(false);
 
-  const handleFileUpload = async (file: File, docType: 'id' | 'ssn' | 'address' | 'other') => {
-    if (!file) return;
+  const validateFile = (file: File): string | null => {
+    const nameLc = file.name.toLowerCase();
+    const extOk = ALLOWED_EXT.some((e) => nameLc.endsWith(e));
+    const typeOk = (ALLOWED_MIME as readonly string[]).includes(file.type);
+    if (!typeOk && !extOk) return 'Only PDF, JPG, or PNG files are accepted.';
+    if (file.size === 0) return 'This file appears to be empty.';
+    if (file.size > MAX_BYTES) return `File is ${(file.size / 1024 / 1024).toFixed(1)} MB. Maximum is 15 MB.`;
+    return null;
+  };
 
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-    if (!allowedTypes.includes(file.type)) {
-      toast({
-        title: 'Invalid File Type',
-        description: 'Please upload PDF, JPG, or PNG files only.',
-        variant: 'destructive'
-      });
+  const handleFileUpload = async (file: File, docType: DocKey) => {
+    if (!file) return;
+    const err = validateFile(file);
+    setFieldError((p) => ({ ...p, [docType]: err }));
+    if (err) {
+      toast({ title: 'File rejected', description: err, variant: 'destructive' });
       return;
     }
 
     setUploading(docType);
+    setProgress((p) => ({ ...p, [docType]: 0 }));
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}/${docType}_${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      // Try a signed upload URL for real progress; fall back to standard upload.
+      const signed = await supabase.storage
         .from('verification-docs')
-        .upload(fileName, file, { upsert: true });
+        .createSignedUploadUrl(fileName);
 
-      if (uploadError) throw uploadError;
+      if (signed.data?.signedUrl) {
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess.session?.access_token ?? '';
+        await uploadWithProgress(signed.data.signedUrl, file, token, (pct) =>
+          setProgress((p) => ({ ...p, [docType]: pct })),
+        );
+      } else {
+        const { error: uploadError } = await supabase.storage
+          .from('verification-docs')
+          .upload(fileName, file, { upsert: true });
+        if (uploadError) throw uploadError;
+        setProgress((p) => ({ ...p, [docType]: 100 }));
+      }
 
       // The first three categories are stored on the verification record so admins
       // can see at a glance which required docs are received. "other" goes into the
@@ -95,12 +146,14 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
       }
 
       setUploadStatus(prev => ({ ...prev, [docType]: 'uploaded' }));
+      setProgress((p) => ({ ...p, [docType]: 100 }));
       toast({
         title: 'Document Uploaded',
         description: 'Your document has been securely uploaded.',
       });
     } catch (error: any) {
       console.error('Upload error:', error);
+      setFieldError((p) => ({ ...p, [docType]: error.message || 'Upload failed.' }));
       toast({
         title: 'Upload Failed',
         description: error.message || 'Failed to upload document.',
@@ -160,13 +213,25 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
   };
 
   const UploadZone = ({ docType, label, description, acceptedFormats, required = true }: {
-    docType: 'id' | 'ssn' | 'address' | 'other';
+    docType: DocKey;
     label: string;
     description: string;
     acceptedFormats: string;
     required?: boolean;
   }) => {
-    const onDrop = useCallback((acceptedFiles: File[]) => {
+    const onDrop = useCallback((acceptedFiles: File[], rejections: any[]) => {
+      if (rejections && rejections.length > 0) {
+        const reason = rejections[0]?.errors?.[0];
+        const msg =
+          reason?.code === 'file-too-large'
+            ? 'File exceeds the 15 MB limit.'
+            : reason?.code === 'file-invalid-type'
+            ? 'Only PDF, JPG, or PNG files are accepted.'
+            : reason?.message || 'File rejected.';
+        setFieldError((p) => ({ ...p, [docType]: msg }));
+        toast({ title: 'File rejected', description: msg, variant: 'destructive' });
+        return;
+      }
       if (acceptedFiles[0]) {
         handleFileUpload(acceptedFiles[0], docType);
       }
@@ -179,10 +244,14 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
         'image/jpeg': ['.jpg', '.jpeg'],
         'image/png': ['.png']
       },
-      maxFiles: 1
+      maxFiles: 1,
+      maxSize: MAX_BYTES,
     });
 
     const status = uploadStatus[docType];
+    const pct = progress[docType];
+    const err = fieldError[docType];
+    const isUploading = uploading === docType;
 
     return (
       <div className="space-y-2">
@@ -190,17 +259,21 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
         <p className="text-xs text-muted-foreground mb-2">{description}</p>
         <div
           {...getRootProps()}
+          aria-busy={isUploading}
+          aria-invalid={!!err}
           className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
-            isDragActive ? 'border-accent bg-accent/10' : 
-            status === 'uploaded' ? 'border-green-500 bg-green-500/10' : 
+            err ? 'border-rose-500 bg-rose-500/5' :
+            isDragActive ? 'border-accent bg-accent/10 scale-[1.01]' :
+            status === 'uploaded' ? 'border-green-500 bg-green-500/10' :
             'border-border hover:border-accent/50'
           }`}
         >
           <input {...getInputProps()} />
-          {uploading === docType ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-accent"></div>
-              <span className="text-sm">Uploading...</span>
+          {isUploading ? (
+            <div className="flex flex-col items-center gap-2">
+              <Upload className="h-5 w-5 text-accent animate-pulse" />
+              <span className="text-sm font-medium">Uploading… {pct}%</span>
+              <Progress value={pct} className="h-1.5 w-full" />
             </div>
           ) : status === 'uploaded' ? (
             <div className="flex items-center justify-center gap-2 text-green-600">
@@ -211,12 +284,18 @@ export function SecureVerificationUpload({ userId }: SecureVerificationUploadPro
             <div className="flex flex-col items-center gap-2">
               <Upload className="h-6 w-6 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
-                {isDragActive ? 'Drop file here' : 'Click or drag to upload'}
+                {isDragActive ? 'Release to upload' : 'Drag & drop, or click to browse'}
               </span>
-              <span className="text-xs text-muted-foreground">{acceptedFormats}</span>
+              <span className="text-xs text-muted-foreground">{acceptedFormats} · up to 15 MB</span>
             </div>
           )}
         </div>
+        {err && (
+          <p className="flex items-start gap-1.5 text-xs text-rose-600 mt-1">
+            <X className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+            <span>{err}</span>
+          </p>
+        )}
         <Badge variant={status === 'uploaded' ? 'default' : 'secondary'} className="mt-1">
           {status === 'uploaded' ? 'Received' : required ? 'Required' : 'Optional'}
         </Badge>
