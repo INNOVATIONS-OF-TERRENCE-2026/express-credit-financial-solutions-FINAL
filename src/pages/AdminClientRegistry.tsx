@@ -600,6 +600,18 @@ export default function AdminClientRegistry() {
                                   <Link2 className="h-3 w-3 mr-1" /> Link to suggestion
                                 </Button>
                               )}
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'prospect')}>
+                                Prospect
+                              </Button>
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'not_client')}>
+                                Not client
+                              </Button>
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'test_account')}>
+                                Test
+                              </Button>
+                              <Button size="sm" variant="ghost" disabled={busyId === p.user_id} onClick={() => excludeProfile(p, 'ignored')}>
+                                <EyeOff className="h-3 w-3 mr-1" /> Ignore
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -646,6 +658,9 @@ export default function AdminClientRegistry() {
                             </Button>
                             <Button size="sm" variant="ghost" onClick={() => { setAttachOrphan(o); setAttachTarget(''); }}>
                               <Link2 className="h-3 w-3 mr-1" /> Attach to existing
+                            </Button>
+                            <Button size="sm" variant="ghost" disabled={busyId === o.user_id} onClick={() => archiveOrphan(o)}>
+                              <EyeOff className="h-3 w-3 mr-1" /> Archive
                             </Button>
                           </div>
                         </TableCell>
