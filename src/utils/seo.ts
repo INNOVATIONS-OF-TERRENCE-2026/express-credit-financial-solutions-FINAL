@@ -230,21 +230,21 @@ export const generateBreadcrumbSchema = (breadcrumbs: Array<{ name: string; url:
 // SEO Page Configurations
 export const PAGE_SEO: Record<string, SEOConfig> = {
   home: {
-    title: "Express Credit & Financial Solutions | Professional Credit Repair Dallas TX",
-    description: "Dallas's #1 rated credit repair service. Remove negative items, boost credit scores 100+ points. Metro 2 compliant dispute letters. Free consultation. Licensed & insured.",
-    keywords: ["credit repair Dallas", "credit restoration Dallas TX", "Metro 2 credit disputes", "delete negative credit items Dallas"],
+    title: "Express Credit & Financial Solutions | Credit Restoration & Funding Readiness",
+    description: "Premium credit restoration and funding readiness firm. Structured FCRA-aligned strategy, Metro 2 dispute preparation, and mortgage and auto financing support. Results vary by client profile.",
+    keywords: ["credit restoration Texas", "funding readiness firm", "mortgage readiness", "Metro 2 dispute preparation", "FCRA credit disputes"],
     canonical: "https://expresscreditfinancials.org"
   },
   membership: {
-    title: "Credit Repair Packages & Pricing | Express Credit Dallas",
-    description: "Affordable credit repair packages from $99. Fast-5 rapid service, unlimited disputes, Metro 2 compliance. Choose from Basic, Pro, Elite, or Exclusive plans. Guaranteed results.",
-    keywords: ["credit repair pricing Dallas", "credit repair packages Texas", "affordable credit restoration"],
+    title: "Service Options & Engagement Fees | Express Credit & Financial Solutions",
+    description: "Transparent service options for credit restoration and funding readiness engagements. Structured strategy, Metro 2 dispute preparation, and ongoing readiness support.",
+    keywords: ["credit restoration pricing", "credit restoration engagement fees", "Metro 2 dispute preparation"],
     canonical: "https://expresscreditfinancials.org/membership"
   },
   dispute: {
-    title: "Professional Dispute Letter Generation | Metro 2 Compliant Credit Disputes",
-    description: "AI-powered Metro 2 compliant dispute letter generation. Remove collections, late payments, charge-offs. FCRA certified strategies. Results in 30-45 days.",
-    keywords: ["credit dispute letters", "Metro 2 compliance", "FCRA dispute process", "remove negative credit items"],
+    title: "Metro 2 Dispute Preparation | FCRA-Aligned Credit Restoration",
+    description: "Structured Metro 2 dispute preparation for inaccurate, incomplete, or unverifiable credit report items. FCRA-aligned methodology. Results vary by client profile and creditor response.",
+    keywords: ["credit dispute preparation", "Metro 2 dispute review", "FCRA dispute process", "credit report accuracy review"],
     canonical: "https://expresscreditfinancials.org/dispute-center"
   },
   education: {
@@ -254,9 +254,9 @@ export const PAGE_SEO: Record<string, SEOConfig> = {
     canonical: "https://expresscreditfinancials.org/education"
   },
   creditBuilding: {
-    title: "Credit Building Services | Authorized User Tradelines Dallas",
-    description: "Build credit fast with authorized user tradelines, secured credit cards, credit builder loans. Boost scores 50-100 points. Dallas TX credit building experts.",
-    keywords: ["authorized user tradelines Dallas", "credit building services", "build credit fast Texas"],
+    title: "Credit Building Support | Tradelines & Credit Profile Strategy",
+    description: "Credit profile building support including tradeline guidance, secured credit strategy, and account-mix review. Structured for funding readiness. Results vary by client profile.",
+    keywords: ["tradeline support", "credit profile strategy", "credit building guidance Texas"],
     canonical: "https://expresscreditfinancials.org/credit-building"
   }
 };

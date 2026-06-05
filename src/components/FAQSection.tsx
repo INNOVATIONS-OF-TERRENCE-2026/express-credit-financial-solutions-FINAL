@@ -75,14 +75,14 @@ export const FAQSection = () => {
   }, []);
 
   return (
-    <section className="py-24 px-6 sm:px-12" style={{ backgroundColor: 'transparent' }}>
+    <section className="py-16 sm:py-20 md:py-24 px-5 sm:px-10 md:px-12" style={{ backgroundColor: 'transparent' }}>
       <div className="max-w-5xl mx-auto">
-        <div className="mb-12 text-center">
+        <div className="mb-10 sm:mb-12 text-center">
           <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Questions & Answers</p>
-          <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight" style={{ color: '#f5f0e0' }}>
+          <h2 className="font-serif-display text-3xl sm:text-4xl md:text-6xl tracking-tight leading-[1.05]" style={{ color: '#f5f0e0' }}>
             Frequently Asked <span className="italic" style={{ color: '#c9a84c' }}>Questions</span>
           </h2>
-          <p className="text-base max-w-2xl mx-auto mt-4 font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.65)' }}>
+          <p className="text-sm sm:text-base max-w-2xl mx-auto mt-4 font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.65)' }}>
             Clear answers to the questions clients ask before beginning their credit readiness review.
           </p>
         </div>
@@ -96,10 +96,10 @@ export const FAQSection = () => {
                 className="border-0 border-t px-2 last:border-b"
                 style={{ borderColor: 'rgba(201,168,76,0.18)' }}
               >
-                <AccordionTrigger className="text-left font-work text-base font-medium py-6 hover:no-underline" style={{ color: '#f5f0e0' }}>
+                <AccordionTrigger className="text-left font-work text-sm sm:text-base font-medium py-5 sm:py-6 leading-snug hover:no-underline" style={{ color: '#f5f0e0' }}>
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="font-light pb-6 text-sm leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+                <AccordionContent className="font-light pb-6 text-sm sm:text-[15px] leading-[1.7]" style={{ color: 'rgba(245,240,224,0.7)' }}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
