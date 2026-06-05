@@ -777,7 +777,8 @@ export default function AdminClientRegistry() {
                                 <Link2 className="h-3.5 w-3.5 mr-1" /> Link Portal Account
                               </Button>
                             )}
-                            <Button size="sm" variant="outline" onClick={() => navigate(`/admin/clients/${c.id}`)}>Open editor</Button>
+                            <Button size="sm" onClick={() => navigate(`/admin/client-portal-editor/${c.id}`)}>Portal</Button>
+                            <Button size="sm" variant="outline" onClick={() => navigate(`/admin/clients/${c.id}`)}>Edit</Button>
                           </TableCell>
                         </TableRow>
                       );
