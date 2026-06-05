@@ -735,34 +735,33 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ═══════════ HOME LOAN DOMINATION ═══════════ */}
+      {/* ═══════════ MORTGAGE READINESS ═══════════ */}
       <section id="home-loans" className="relative z-10 px-6 sm:px-10 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 max-w-3xl">
-            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Home Loan Domination</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-3" style={{ color: '#c9a84c' }}>Mortgage Readiness Support</p>
             <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
-              Built to Get You <span className="italic" style={{ color: '#c9a84c' }}>Funded.</span><br />
-              Home Loans. Underwriting. Closed.
+              Mortgage <span className="italic" style={{ color: '#c9a84c' }}>Readiness Support.</span>
             </h2>
-            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-              We don't just repair credit. We structure your file for the mortgage scorecard, then we talk directly to your loan officer and underwriter until the deal closes. Our underwriting pass rate on files we structure is 100%.
+            <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              Credit profile structuring and lender documentation support for the mortgage conversation, coordinated alongside your selected loan officer.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
             {[
-              { icon: HomeIcon, title: 'Credit Structured for Underwriting', desc: 'Tradelines, utilization, and derogatory removal sequenced specifically for mortgage scorecards (FICO 2/4/5).' },
-              { icon: Handshake, title: 'Proactive Lender Communication', desc: 'We engage your loan officer and underwriter directly. No silence. No surprises. No fallout.' },
-              { icon: Award, title: '100% Underwriting Pass Rate', desc: 'Every file we structure end-to-end has cleared underwriting. Zero exceptions on closed packages.' },
+              { icon: HomeIcon, title: 'Credit Profile Structuring', desc: 'Account mix, utilization, and derogatory review sequenced for mortgage scorecards (FICO 2/4/5).' },
+              { icon: FileText, title: 'Lender Documentation Support', desc: 'Documentation review, credit explanation letters, and pre-application preparation alongside your loan officer.' },
+              { icon: Handshake, title: 'Coordinated Engagement', desc: 'We coordinate with your selected loan officer through the application process so questions are addressed promptly.' },
             ].map((p) => {
               const Icon = p.icon;
               return (
-                <div key={p.title} className="p-8 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.2)', backdropFilter: 'blur(8px)' }}>
+                <div key={p.title} className="p-8 md:p-10 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.2)', backdropFilter: 'blur(8px)' }}>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)' }}>
                     <Icon className="h-5 w-5" style={{ color: '#c9a84c' }} />
                   </div>
-                  <h3 className="font-serif-display text-2xl mb-2">{p.title}</h3>
-                  <p className="text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>{p.desc}</p>
+                  <h3 className="font-serif-display text-2xl mb-3 leading-snug">{p.title}</h3>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>{p.desc}</p>
                 </div>
               );
             })}
@@ -788,11 +787,11 @@ const Index = () => {
               {/* Center: Story / Value prop */}
               <div className="lg:col-span-4">
                 <p className="text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.75)' }}>
-                  Once your file is structured and your credit is funded-ready, Tiara takes over. From pre-approval to the closing table, the entire home-buying path is wired. No gaps. No delays. Just keys in your hand.
+                  Once your credit profile is ready, Tiara guides clients through the home-buying process from pre-approval to closing, coordinating with our team on documentation and timing.
                 </p>
                 <div className="mt-6 flex items-center gap-2">
                   <Award className="h-4 w-4" style={{ color: '#c9a84c' }} />
-                  <span className="text-xs uppercase tracking-widest font-semibold" style={{ color: 'rgba(245,240,224,0.85)' }}>100% Closing Rate on Funded Files</span>
+                  <span className="text-xs uppercase tracking-[0.25em] font-semibold" style={{ color: 'rgba(245,240,224,0.85)' }}>Featured Real Estate Partner</span>
                 </div>
               </div>
 
@@ -821,47 +820,47 @@ const Index = () => {
                 </span>
               ))}
             </div>
-            <p className="text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-              Plus active relationships with <span style={{ color: '#c9a84c' }}>all major banks and credit unions</span> for mortgage, auto, and business financing.
+            <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              Working relationships with <span style={{ color: '#c9a84c' }}>banks and credit unions</span> for mortgage, auto, and business financing conversations.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ═══════════ AUTO LOAN STRUCTURING ═══════════ */}
+      {/* ═══════════ AUTO FINANCING PREPARATION ═══════════ */}
       <section id="auto-loans" className="relative z-10 px-6 sm:px-10 py-24">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-16 max-w-3xl">
             <div className="inline-flex items-center gap-2 mb-4">
               <Car className="h-4 w-4" style={{ color: '#c9a84c' }} />
-              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>Auto Loan Structuring</p>
+              <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: '#c9a84c' }}>Auto Financing Preparation</p>
             </div>
             <h2 className="font-serif-display text-4xl md:text-6xl tracking-tight">
-              Auto Loans. <span className="italic" style={{ color: '#c9a84c' }}>Structured to Close.</span>
+              Auto Financing <span className="italic" style={{ color: '#c9a84c' }}>Preparation.</span>
             </h2>
-            <p className="mt-4 text-base font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-              We position your credit profile for the auto scorecard, clean up DTI, and hand the dealer or credit union a lender-ready file. Better rates. Lower down payments. Faster approvals.
+            <p className="mt-6 text-base font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+              Credit profile positioning and lender documentation review to support auto financing conversations with dealers and credit unions.
             </p>
           </div>
 
           {/* Step-by-step process */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             {[
-              { n: '01', icon: TrendingUp, title: 'Auto Scorecard Positioning', desc: 'We optimize your FICO Auto Score 8/9, utilization ratios, and age of accounts specifically for auto lender algorithms.' },
-              { n: '02', icon: FileText, title: 'DTI Cleanup & Debt Optimization', desc: 'Pay-down sequencing and derogatory suppression to drop your debt-to-income into the lender\'s green zone.' },
-              { n: '03', icon: CheckCircle2, title: 'Lender-Ready File Assembly', desc: 'Verification docs, credit explanation letters, and pre-qualification packets prepared before you walk into the dealership.' },
-              { n: '04', icon: Banknote, title: 'Dealer or Credit Union Close', desc: 'We negotiate rate sheets and down payment terms directly. Our clients average 3.2% lower APR and $2,400 less down.' },
+              { n: '01', icon: TrendingUp, title: 'Auto Scorecard Review', desc: 'Review of FICO Auto Score 8/9 factors, utilization ratios, and account age relevant to auto lender scorecards.' },
+              { n: '02', icon: FileText, title: 'Debt & Utilization Cleanup', desc: 'Guidance on pay-down sequencing and dispute preparation to support a healthier debt-to-income presentation.' },
+              { n: '03', icon: CheckCircle2, title: 'Lender Documentation Support', desc: 'Verification documents, credit explanation letters, and pre-application packets prepared before lender conversations.' },
+              { n: '04', icon: Handshake, title: 'Credit Union & Dealer Coordination', desc: 'A better-prepared profile presented to your selected dealer or credit union for the financing conversation.' },
             ].map((step) => {
               const Icon = step.icon;
               return (
-                <div key={step.n} className="group relative p-6 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.18)', backdropFilter: 'blur(8px)' }}>
+                <div key={step.n} className="group relative p-7 rounded-2xl transition-all hover:-translate-y-1" style={{ backgroundColor: 'rgba(6,78,59,0.4)', border: '1px solid rgba(201,168,76,0.18)', backdropFilter: 'blur(8px)' }}>
                   <div className="absolute top-4 right-4 font-serif-display text-2xl italic" style={{ color: 'rgba(201,168,76,0.4)' }}>{step.n}</div>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)' }}>
                     <Icon className="h-5 w-5" style={{ color: '#c9a84c' }} />
                   </div>
-                  <h3 className="font-serif-display text-xl mb-2">{step.title}</h3>
-                  <p className="text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>{step.desc}</p>
+                  <h3 className="font-serif-display text-xl mb-3 leading-snug">{step.title}</h3>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>{step.desc}</p>
                 </div>
               );
             })}
@@ -872,11 +871,11 @@ const Index = () => {
             <div className="rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6" style={{ backgroundColor: 'rgba(3,21,15,0.96)' }}>
               <div>
                 <p className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: '#c9a84c' }}>Next Step</p>
-                <h4 className="font-serif-display text-2xl md:text-3xl tracking-tight" style={{ color: '#f5f0e0' }}>
-                  Ready to drive off the lot?
+                <h4 className="font-serif-display text-2xl md:text-3xl tracking-tight leading-snug" style={{ color: '#f5f0e0' }}>
+                  Ready to prepare your auto financing file?
                 </h4>
-                <p className="mt-2 text-sm font-light" style={{ color: 'rgba(245,240,224,0.7)' }}>
-                  Enroll today and we will have your auto file structured within 24 hours.
+                <p className="mt-2 text-sm font-light leading-relaxed" style={{ color: 'rgba(245,240,224,0.7)' }}>
+                  Enrollment includes a structured onboarding call and document collection within one business day.
                 </p>
               </div>
               <button onClick={() => { try { sessionStorage.setItem('pending_cta', 'start_my_auto_file'); sessionStorage.setItem('pending_cta_mode', 'signup'); } catch { /* noop */ } trackCtaClick('start_my_auto_file', { destination: 'signup' }); setShowForms(true); setIsLogin(false); setTimeout(() => document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }), 50); }} className="px-10 py-5 rounded-full text-sm uppercase tracking-widest font-bold transition-all hover-scale flex items-center justify-center gap-2 whitespace-nowrap" style={{ backgroundColor: '#c9a84c', color: '#03150f', boxShadow: '0 0 40px rgba(201,168,76,0.4)' }}>
