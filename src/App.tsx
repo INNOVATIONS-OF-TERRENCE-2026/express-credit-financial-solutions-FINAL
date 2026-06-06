@@ -53,6 +53,7 @@ import AdminAgreementsPage from "./pages/AdminAgreementsPage";
 import AdminActivityPage from "./pages/AdminActivityPage";
 import BatchReportIngestion from "./pages/admin/BatchReportIngestion";
 import ReportIngestionRegistry from "./pages/admin/ReportIngestionRegistry";
+import ReportExtractionApprovalQueue from "./pages/admin/ReportExtractionApprovalQueue";
 import ClientDashboardPage from "./pages/client/Dashboard";
 import ClientResultsPage from "./pages/client/Results";
 import ClientReportsPage from "./pages/client/Reports";
@@ -100,7 +101,6 @@ const App = () => (
                           <Route path="/sba/packet" element={<SBAPacket />} />
                           <Route path="/sba/dashboard" element={<SBADashboard />} />
                           <Route path="/sba/admin" element={<RequireAdmin><SBAAdmin /></RequireAdmin>} />
-
                           <Route path="/" element={<Index />} />
                           <Route path="/onboarding" element={<ClientOnboarding />} />
                           <Route path="/membership" element={<MembershipPricing />} />
@@ -114,6 +114,7 @@ const App = () => (
                           <Route path="/admin/upload-reports" element={<RequireAdmin><AdminUploadReports /></RequireAdmin>} />
                           <Route path="/admin/report-ingestion" element={<RequireAdmin><BatchReportIngestion /></RequireAdmin>} />
                           <Route path="/admin/report-ingestion/registry" element={<RequireAdmin><ReportIngestionRegistry /></RequireAdmin>} />
+                          <Route path="/admin/report-ingestion/approvals" element={<RequireAdmin><ReportExtractionApprovalQueue /></RequireAdmin>} />
                           <Route path="/admin/reports" element={<RequireAdmin><AdminReportsList /></RequireAdmin>} />
                           <Route path="/admin/disputes" element={<RequireAdmin><AdminDisputesPage /></RequireAdmin>} />
                           <Route path="/admin/documents" element={<RequireAdmin><AdminDocumentsPage /></RequireAdmin>} />
