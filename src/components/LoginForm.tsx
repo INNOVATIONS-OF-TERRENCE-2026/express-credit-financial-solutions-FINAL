@@ -35,47 +35,47 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
   };
 
   return (
-    <Card className="card-elegant w-full max-w-md animate-fade-in">
-      <CardHeader className="text-center">
-        <div className="flex items-center justify-center mb-4">
-          <CreditCard className="h-8 w-8 text-accent mr-2" />
-          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+    <div className="lux-glass-dark w-full max-w-md animate-fade-in p-8 relative">
+      <span aria-hidden className="absolute inset-x-10 top-0 lux-chrome-rule" />
+      <div className="text-center mb-6 space-y-2">
+        <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center btn-premium-gold">
+          <CreditCard className="h-5 w-5" />
         </div>
-        <CardDescription>
-          Sign in to your Express Credit account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        <p className="lux-eyebrow text-ivory/60">Client Portal</p>
+        <h2 className="lux-display text-2xl text-ivory">Welcome Back</h2>
+        <p className="text-sm text-ivory/70">Sign in to your Express Credit account</p>
+      </div>
+      <div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="lux-label-dark">Email Address</Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-background border-border"
+              className="lux-input-dark h-11"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="lux-label-dark">Password</Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-background border-border pr-10"
+                className="lux-input-dark h-11 pr-10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-ivory/60 hover:text-ivory"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -86,7 +86,7 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
               </Button>
             </div>
           </div>
-          <Button type="submit" variant="gold" className="w-full" size="lg" disabled={loading}>
+          <Button type="submit" variant="premium" className="w-full" size="lg" disabled={loading}>
             {loading ? 'Signing In...' : 'Sign In'}
           </Button>
           <div className="text-center">
@@ -94,13 +94,13 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
               type="button"
               variant="link"
               onClick={onToggleForm}
-              className="text-accent hover:text-accent/80"
+              className="text-gold-soft hover:text-gold"
             >
               Don't have an account? Sign up
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

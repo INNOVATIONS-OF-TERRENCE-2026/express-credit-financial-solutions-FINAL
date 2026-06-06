@@ -74,90 +74,73 @@ export function ClientLogin({ clientName, onSuccess }: ClientLoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-black relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-yellow-500/5" />
-      
-      <Card className="w-full max-w-md border-2 border-yellow-600/20 bg-black/90 backdrop-blur-sm shadow-2xl shadow-yellow-500/10">
-        <CardHeader className="text-center space-y-4">
-          {/* Logo Placeholder */}
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-            <span className="text-black font-bold text-xl">EC</span>
+    <div className="min-h-screen flex items-center justify-center lux-midnight-scene relative overflow-hidden px-4 py-12">
+      <div className="w-full max-w-md lux-glass-dark p-8 md:p-10 relative">
+        <span aria-hidden className="absolute inset-x-10 top-0 lux-chrome-rule" />
+        <div className="text-center space-y-4 mb-6">
+          <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center btn-premium-gold">
+            <span className="lux-display text-lg leading-none">E</span>
           </div>
-          
           <div>
-            <CardTitle className="text-2xl font-bold text-white">Express Credit & Financial Solutions</CardTitle>
-            <p className="text-yellow-400 font-medium text-sm mt-1">Secure Portal</p>
+            <p className="lux-eyebrow text-ivory/60">Client Portal</p>
+            <h1 className="lux-display text-2xl text-ivory mt-1">Express Credit &amp; Financial Solutions</h1>
           </div>
-          
-          <CardDescription className="text-slate-300">
-            {isSignUp ? 'Create your account' : 'Welcome to your secure credit restoration portal'}
+          <p className="text-sm text-ivory/70">
+            {isSignUp ? 'Create your secure account to begin.' : 'Sign in to your credit repair command center.'}
             <br />
-            <span className="font-medium text-yellow-400">{clientName}</span>
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+            <span className="font-medium text-gold-soft">{clientName}</span>
+          </p>
+        </div>
+        <div className="space-y-6">
           <form onSubmit={handleAuth} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-200">Email</Label>
+              <Label htmlFor="email" className="lux-label-dark">Email Address</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-400 focus:border-yellow-500"
+                className="lux-input-dark h-11"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-200 flex items-center gap-2">
-                🔒 Password
-              </Label>
+              <Label htmlFor="password" className="lux-label-dark">Password</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-400 focus:border-yellow-500"
+                className="lux-input-dark h-11"
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-black font-semibold" 
-              disabled={loading}
-            >
+            <Button type="submit" variant="premium" className="w-full h-11" disabled={loading}>
               {loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Sign In'}
             </Button>
           </form>
-          
-          {/* Trust Signals */}
-          <div className="text-center space-y-3">
-            <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-              🔒 <span>Encrypted & FCRA Compliant</span>
-            </div>
-            <div className="text-xs text-slate-500">
-              SSL Secured • Bank-Level Encryption
-            </div>
+
+          <div className="lux-chrome-rule" />
+
+          <div className="text-center space-y-2">
+            <p className="text-xs text-ivory/60 tracking-wide">Bank-grade encryption · FCRA-aligned workflow</p>
           </div>
           <div className="text-center">
             <Button
               variant="link"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-yellow-400 hover:text-yellow-300"
+              className="text-sm text-gold-soft hover:text-gold"
             >
               {isSignUp ? 'Already have an account? Sign in' : 'Need an account? Sign up'}
             </Button>
           </div>
-        </CardContent>
-        
-        {/* Footer */}
-        <div className="text-center pb-4">
-          <p className="text-xs text-slate-600">
-            Powered by Express Credit & Financial Solutions
+        </div>
+        <div className="text-center pt-6">
+          <p className="text-[10px] uppercase tracking-[0.18em] text-ivory/40">
+            Express Credit &amp; Financial Solutions
           </p>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
