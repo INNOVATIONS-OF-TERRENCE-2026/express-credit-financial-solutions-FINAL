@@ -1,70 +1,43 @@
-# Express Credit & Financial Solutions — White-Label Luxury UI Upgrade
+# Phase 2 — Operations Polish
 
-This is a UI/branding pass over the existing CRM. No Supabase schema, auth, Stripe, RLS, route, or business-logic changes. Existing components are reused; only styling, copy, and a few thin presentation primitives change.
+Phase 2 is too large for one turn without risking regressions. I'll batch the work into three focused passes so you can review between each. No DB, auth, Stripe, RLS, route-path, or upload-handler changes — visual + structural UX only, reusing existing components and data.
 
-## Scope guardrails (non-negotiable)
+## Pass A — Foundation primitives (this turn)
 
-- No changes to: `src/integrations/supabase/*`, auth context (`useAuth`), route guards, RLS, edge functions, Stripe/payments logic, table/bucket/column names, dispute workflow services, document upload pipelines, agreement signing flow.
-- No new routes, no removed routes, no renamed files unless required to swap branding.
-- TypeScript must stay clean; no business logic moved.
+Build the reusable parts every page in Phase 2 will consume, so later passes are short and consistent:
 
-## Phase 1 — Foundation (design tokens + branding)
+1. **StatusBadge** (`src/components/luxury/StatusBadge.tsx`) — variants: active, pending, needs-review, completed, in-progress, missing, uploaded, signed, unsigned, paid, unpaid, elite, pro, basic. Gold/chrome/blue/green/amber/red mapped via design tokens.
+2. **EmptyState** (`src/components/luxury/EmptyState.tsx`) — icon, title, body, primary + optional secondary CTA. Used on all empty surfaces.
+3. **NextBestAction** (`src/components/client/NextBestActionCard.tsx`) — dynamic if data present (no signed agreement → sign agreement; no report uploaded → upload report; missing docs → upload docs; else "Contact your concierge"). Pure read of existing hooks (`useClientPortalData`, agreements, documents).
+4. **ProgressTimeline** (`src/components/client/ProgressStageTimeline.tsx`) — 7-stage premium timeline with the user-specified labels.
+5. **OnboardingChecklist v2** — luxury redesign of existing `OnboardingChecklist` (no logic change) with the 4 status states.
 
-1. Audit current tokens in `src/index.css` and `tailwind.config.ts` (already has midnight/gold/ivory/champagne/platinum). Tighten them into a coherent luxury palette: midnight base, gold accent, chrome/silver dividers, glass surfaces, soft glow shadows.
-2. Add reusable utility classes for: glass card, gold accent border, chrome divider, premium button variants (primary gold-gradient, secondary midnight-glass, danger, success, disabled).
-3. Remove Lovable branding everywhere:
-   - `index.html` meta tags, title, og tags → Express Credit & Financial Solutions
-   - `public/robots.txt`, `public/llms.txt`, `public/sitemap.xml` references
-   - Any "Made with Lovable" / "Powered by Lovable" footer text
-   - Strip placeholder/demo copy in `ClientLogin.tsx`, dashboards, empty states
-4. Standardize brand strings: "Express Credit & Financial Solutions", "Client Portal", "Admin Command Center", "Credit Repair Dashboard", "Document Center", "Dispute Center", "AI Credit Assistant", "Education Center", "Compliance Center", "Progress Tracker".
+## Pass B — Client portal pages
 
-## Phase 2 — App shell & navigation
+Wire the primitives into:
 
-- `ClientPortalLayout` + `ClientPortalSidebar` + `ClientMobileNav`: apply midnight gradient background, gold active-state accent (already partially there), chrome divider rules, refined header typography.
-- `AdminShell` + `AdminSidebar` + `AdminMobileNav`: same treatment, labeled "Admin Command Center".
-- Ensure mobile nav stays usable; sticky top header with glass blur.
+- `pages/client/Dashboard.tsx` — status header, NextBestAction, ProgressTimeline, Quick-Actions tile grid, trust microcopy strip.
+- `pages/client/Documents.tsx` (Document Center) — secure upload messaging, accepted-types card, checklist, luxury upload cards, empty + loading states.
+- `pages/client/Reports.tsx` + `CreditReportUpload` — premium instructions, accepted-source list (Experian/Equifax/TU/IdentityIQ/SmartCredit/MyFreeScoreNow), empty state, analysis status pill.
+- `pages/client/Disputes.tsx` — premium header, stage indicator, compliance disclaimer, polished CTAs.
+- `ClientOnboarding.tsx` — welcome panel + upgraded checklist + clear completion state.
+- AI Credit Assistant page (locate existing route) — premium header, 5 suggested-prompt tiles, compliance banner, empty state.
+- Education Center (locate or scaffold within existing route) — card grid of topics with compliant summaries.
 
-## Phase 3 — Auth pages
+## Pass C — Admin portal pages
 
-- `ClientLogin.tsx`, `LoginForm.tsx`, `RegisterForm.tsx`, `AdminLogin.tsx`: replace yellow-on-black with the unified midnight+gold token system, glass card, gold focus ring on inputs, premium primary button, compliance-safe microcopy. Keep all auth handlers intact.
+- `pages/AdminCommandCenter.tsx` — premium KPI grid (only real metrics from `useAdminMetrics`), recently-added-clients panel, dispute workflow widget, quick actions toolbar with gold/chrome treatment.
+- `pages/AdminClientEdit.tsx` / `AdminClientPortalEditor.tsx` — overview card, contact, service status, doc/report/dispute status, notes panel (reuse `AdminNotesPanel`), timeline (reuse `ClientActivityTimeline`), quick-action toolbar.
+- `AdminClients.tsx` — premium table styling (header chrome, row hover, status badges, responsive).
+- `AdminDocumentsPage.tsx` + `AdminUploadReports.tsx` — verification-style review layout, badges.
 
-## Phase 4 — Client portal pages
+## Guardrails (every pass)
 
-Polish (visual only) for: `Dashboard`, `Results`, `Reports`, `Disputes`, `Documents`, `Payments`, `Agreements`, `Messages`, `Settings`, `ClientOnboarding`. Apply LuxuryCard, EyebrowLabel, consistent page header pattern, polished empty + loading states, compliance-tone copy.
+- All status / progress / metric data sourced from existing hooks. If a value is unavailable, show a neutral fallback or hide it — never fabricate.
+- Compliance copy only: never "guaranteed deletion / approval / score increase". Use the approved phrasing list.
+- No route paths renamed, no Supabase calls changed, no upload handlers touched, no Stripe changes.
+- TypeScript stays clean.
 
-## Phase 5 — Admin portal pages
+## This turn's deliverable
 
-Polish: `AdminCommandCenter`, `AdminClients`, `AdminClientEdit`, `AdminClientPortalEditor`, `AdminDocumentsPage`, `AdminDisputesPage`, `AdminPaymentsPage`, `AdminReportsList`, `AdminUploadReports`, `AdminSettings`, `AdminTools`. Same primitives; gold/chrome accents on tables and KPI cards.
-
-## Phase 6 — Shared primitives
-
-- Buttons: extend `button.tsx` variants with `premium` (gold gradient), `glass` (midnight), keep existing variants intact.
-- Inputs: subtle dark-glass variant via className, no API break.
-- Tables: add a `.lux-table` class set (header chrome, row hover, status badge tokens).
-- Empty + loading states: a couple of small components reused across pages.
-
-## Phase 7 — Compliance copy sweep
-
-Replace any noncompliant language ("guaranteed deletion", "instant boost", etc.) with compliant alternatives ("targeted dispute workflow", "credit profile review", "progress tracking", "compliance-focused dispute preparation").
-
-## Phase 8 — QA
-
-- Build clean (typecheck via harness).
-- Visual spot-check key pages at desktop + mobile via preview.
-- Confirm no auth/route/Stripe regressions by inspection (no logic touched).
-
-## Technical notes
-
-- All new colors via HSL tokens in `index.css` + Tailwind config — no hardcoded hex in components.
-- No new dependencies.
-- No DB migrations.
-- Changes are additive on tokens; existing class usage continues to work.
-
-## Deliverable at the end
-
-Summary listing: pages upgraded, branding removed/replaced, components modified, files changed, functionality preserved, and any issues observed but intentionally not changed.
-
-## Suggested execution order in this session
-
-Given the size, I recommend shipping Phase 1 + 2 + 3 (foundation, shell, auth) in this turn, then iterating phases 4–7 in follow-up turns so you can review the look between passes. Reply "go" to proceed with Phases 1–3, or tell me to bundle more/less per turn.
+Pass A — the 5 primitives plus a documented inventory of existing routes/components that Passes B and C will reuse. After you say "go", I run Pass B; after review, Pass C.
