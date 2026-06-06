@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { useAdminMetrics } from '@/hooks/useAdminMetrics';
+import type { AdminMetrics } from '@/hooks/useAdminMetrics';
 import {
   Users, UserCheck, UserPlus, AlertCircle, FileSearch, Gavel,
   FileText, Wallet, ScrollText, TrendingDown, XCircle, Home, DollarSign, ShieldCheck,
@@ -10,9 +10,7 @@ import { Link } from 'react-router-dom';
 const fmtMoney = (n: number) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
-export function AdminKpiGrid() {
-  const m = useAdminMetrics();
-
+export function AdminKpiGrid({ metrics: m }: { metrics: AdminMetrics }) {
   const cards = [
     { label: 'Total Clients',          value: m.totalClients,           icon: Users,        to: '/admin/clients',                     tone: 'text-amber-500' },
     { label: 'Portal Linked',          value: m.portalLinkedClients,    icon: Link2,        to: '/admin/clients',                     tone: 'text-emerald-500' },
@@ -22,7 +20,7 @@ export function AdminKpiGrid() {
     { label: 'Needs Review',           value: m.clientsNeedingReview,   icon: AlertCircle,  to: '/admin/disputes?status=review',      tone: 'text-rose-500' },
     { label: 'Reports Uploaded',       value: m.reportsUploaded,        icon: FileSearch,   to: '/admin/reports',                     tone: 'text-cyan-500' },
     { label: 'Disputes In Progress',   value: m.disputesInProgress,     icon: Gavel,        to: '/admin/disputes',                    tone: 'text-violet-500' },
-    { label: 'Documents Pending',      value: m.documentsPending,       icon: FileText,     to: '/admin/documents?status=pending',    tone: 'text-fuchsia-500' },
+    { label: 'Docs Pending Review',    value: m.documentsPending,       icon: FileText,     to: '/admin/documents?status=pending',    tone: 'text-fuchsia-500' },
     { label: 'Payments Pending',       value: m.paymentsPending,        icon: Wallet,       to: '/admin/payments?status=pending',     tone: 'text-orange-500' },
     { label: 'Agreements Pending',     value: m.agreementsPending,      icon: ScrollText,   to: '/admin/agreements?status=pending',   tone: 'text-yellow-500' },
     { label: 'Debt Removed',           value: fmtMoney(m.totalDebtRemoved), icon: TrendingDown, to: '/admin/clients',                 tone: 'text-emerald-400' },
