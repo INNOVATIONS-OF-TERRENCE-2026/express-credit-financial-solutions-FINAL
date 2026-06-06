@@ -19,7 +19,7 @@ export type AdminQuickAction = {
   icon: LucideIcon;
 };
 
-export const ADMIN_COMMAND_CENTER_ACTIONS: AdminQuickAction[] = [
+export const ADMIN_QUICK_ACTIONS: AdminQuickAction[] = [
   {
     to: '/admin/clients',
     label: 'View All Clients',
@@ -81,3 +81,5 @@ export const ADMIN_COMMAND_CENTER_ACTIONS: AdminQuickAction[] = [
     icon: Wrench,
   },
 ];
+
+export const ADMIN_COMMAND_CENTER_ACTIONS = ADMIN_QUICK_ACTIONS;
