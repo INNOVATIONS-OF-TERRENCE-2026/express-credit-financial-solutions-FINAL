@@ -231,6 +231,71 @@
       linear-gradient(135deg, hsl(var(--midnight)) 0%, hsl(222 40% 14%) 100%);
     color: hsl(var(--ivory));
   }
+
+  /* ---- Premium dark surfaces & glass (white-label) ---- */
+  .lux-midnight-scene {
+    background:
+      radial-gradient(1200px 600px at 85% -10%, hsl(var(--gold) / 0.12), transparent 60%),
+      radial-gradient(900px 500px at 10% 110%, hsl(var(--gold-deep) / 0.10), transparent 55%),
+      linear-gradient(160deg, hsl(222 50% 6%) 0%, hsl(var(--midnight)) 55%, hsl(222 45% 9%) 100%);
+    color: hsl(var(--ivory));
+  }
+  .lux-glass-dark {
+    background: linear-gradient(180deg, hsl(222 40% 12% / 0.78), hsl(222 45% 9% / 0.72));
+    border: 1px solid hsl(var(--gold) / 0.18);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 30px 80px -30px hsl(0 0% 0% / 0.6),
+      inset 0 1px 0 hsl(var(--ivory) / 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .lux-input-dark {
+    background: hsl(222 45% 9% / 0.6);
+    border: 1px solid hsl(var(--ivory) / 0.10);
+    color: hsl(var(--ivory));
+  }
+  .lux-input-dark::placeholder { color: hsl(var(--ivory) / 0.40); }
+  .lux-input-dark:focus,
+  .lux-input-dark:focus-visible {
+    outline: none;
+    border-color: hsl(var(--gold) / 0.65);
+    box-shadow: 0 0 0 3px hsl(var(--gold) / 0.18);
+  }
+  .lux-label-dark {
+    color: hsl(var(--ivory) / 0.80);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+  .lux-chrome-rule {
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent,
+      hsl(var(--platinum) / 0.35) 25%,
+      hsl(var(--gold) / 0.55) 50%,
+      hsl(var(--platinum) / 0.35) 75%,
+      transparent);
+  }
+  .btn-premium-gold {
+    background: linear-gradient(135deg, hsl(42 80% 68%) 0%, hsl(38 70% 52%) 50%, hsl(34 75% 40%) 100%);
+    color: hsl(var(--midnight));
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    box-shadow:
+      0 10px 30px -10px hsl(var(--gold) / 0.55),
+      inset 0 1px 0 hsl(0 0% 100% / 0.35);
+    transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .btn-premium-gold:hover { filter: brightness(1.06); box-shadow: 0 14px 36px -10px hsl(var(--gold) / 0.7), inset 0 1px 0 hsl(0 0% 100% / 0.4); }
+  .btn-premium-gold:active { transform: translateY(1px); }
+  .btn-glass-dark {
+    background: hsl(222 40% 12% / 0.7);
+    border: 1px solid hsl(var(--ivory) / 0.12);
+    color: hsl(var(--ivory));
+    backdrop-filter: blur(12px);
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .btn-glass-dark:hover { background: hsl(222 40% 15% / 0.85); border-color: hsl(var(--gold) / 0.4); }
 }
 
 @keyframes fadeIn {

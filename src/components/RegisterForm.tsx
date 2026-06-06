@@ -82,72 +82,74 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
   };
 
   return (
-    <Card className="card-elegant w-full max-w-md animate-fade-in">
-      <CardHeader className="text-center">
-        <div className="flex items-center justify-center mb-4">
-          <UserPlus className="h-8 w-8 text-accent mr-2" />
-          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+    <div className="lux-glass-dark w-full max-w-md animate-fade-in p-8 relative">
+      <span aria-hidden className="absolute inset-x-10 top-0 lux-chrome-rule" />
+      <div className="text-center mb-6 space-y-2">
+        <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center btn-premium-gold">
+          <UserPlus className="h-5 w-5" />
         </div>
-        <CardDescription>Join Express Credit & Financial Solutions</CardDescription>
-      </CardHeader>
-      <CardContent>
+        <p className="lux-eyebrow text-ivory/60">Client Onboarding</p>
+        <h2 className="lux-display text-2xl text-ivory">Create Account</h2>
+        <p className="text-sm text-ivory/70">Join Express Credit &amp; Financial Solutions</p>
+      </div>
+      <div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name *</Label>
-              <Input id="firstName" placeholder="John" value={formData.firstName} onChange={(e) => handleChange('firstName', e.target.value)} required maxLength={50} />
+              <Label htmlFor="firstName" className="lux-label-dark">First Name *</Label>
+              <Input id="firstName" className="lux-input-dark h-11" placeholder="John" value={formData.firstName} onChange={(e) => handleChange('firstName', e.target.value)} required maxLength={50} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="middleName">Middle</Label>
-              <Input id="middleName" placeholder="M" value={formData.middleName} onChange={(e) => handleChange('middleName', e.target.value)} maxLength={50} />
+              <Label htmlFor="middleName" className="lux-label-dark">Middle</Label>
+              <Input id="middleName" className="lux-input-dark h-11" placeholder="M" value={formData.middleName} onChange={(e) => handleChange('middleName', e.target.value)} maxLength={50} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name *</Label>
-              <Input id="lastName" placeholder="Doe" value={formData.lastName} onChange={(e) => handleChange('lastName', e.target.value)} required maxLength={50} />
+              <Label htmlFor="lastName" className="lux-label-dark">Last Name *</Label>
+              <Input id="lastName" className="lux-input-dark h-11" placeholder="Doe" value={formData.lastName} onChange={(e) => handleChange('lastName', e.target.value)} required maxLength={50} />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-            <Input id="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={(e) => handleChange('dateOfBirth', e.target.value)} required max={new Date().toISOString().split('T')[0]} />
+            <Label htmlFor="dateOfBirth" className="lux-label-dark">Date of Birth *</Label>
+            <Input id="dateOfBirth" type="date" className="lux-input-dark h-11" value={formData.dateOfBirth} onChange={(e) => handleChange('dateOfBirth', e.target.value)} required max={new Date().toISOString().split('T')[0]} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input id="email" type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} required maxLength={255} />
+            <Label htmlFor="email" className="lux-label-dark">Email *</Label>
+            <Input id="email" type="email" className="lux-input-dark h-11" placeholder="john@example.com" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} required maxLength={255} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password *</Label>
+            <Label htmlFor="password" className="lux-label-dark">Password *</Label>
             <div className="relative">
-              <Input id="password" type={showPassword ? 'text' : 'password'} placeholder="Create a password" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} required className="pr-10" />
-              <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
+              <Input id="password" type={showPassword ? 'text' : 'password'} placeholder="At least 8 characters" value={formData.password} onChange={(e) => handleChange('password', e.target.value)} required className="lux-input-dark h-11 pr-10" />
+              <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-ivory/60 hover:text-ivory" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password *</Label>
+            <Label htmlFor="confirmPassword" className="lux-label-dark">Confirm Password *</Label>
             <div className="relative">
-              <Input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm your password" value={formData.confirmPassword} onChange={(e) => handleChange('confirmPassword', e.target.value)} required className="pr-10" />
-              <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+              <Input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="Re-enter password" value={formData.confirmPassword} onChange={(e) => handleChange('confirmPassword', e.target.value)} required className="lux-input-dark h-11 pr-10" />
+              <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-ivory/60 hover:text-ivory" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
           </div>
 
-          <Button type="submit" variant="gold" className="w-full" size="lg" disabled={loading}>
+          <Button type="submit" variant="premium" className="w-full" size="lg" disabled={loading}>
             {loading ? 'Creating Account...' : 'Create Account'}
           </Button>
 
           <div className="text-center">
-            <Button type="button" variant="link" onClick={onToggleForm} className="text-accent hover:text-accent/80">
+            <Button type="button" variant="link" onClick={onToggleForm} className="text-gold-soft hover:text-gold">
               Already have an account? Sign in
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

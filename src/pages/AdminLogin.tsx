@@ -81,61 +81,60 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen lux-midnight-scene flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <h1 className="sr-only">Admin Login</h1>
-        <Card className="card-elegant shadow-elegant">
-          <CardHeader className="text-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-elegant rounded-full flex items-center justify-center mx-auto">
-              <Shield className="h-8 w-8 text-primary-foreground" />
+        <div className="lux-glass-dark p-8 md:p-10 relative">
+          <span aria-hidden className="absolute inset-x-10 top-0 lux-chrome-rule" />
+          <div className="text-center space-y-3 mb-6">
+            <div className="w-14 h-14 btn-premium-gold rounded-full flex items-center justify-center mx-auto">
+              <Shield className="h-6 w-6" />
             </div>
-            <div>
-              <CardTitle className="text-2xl">Admin Portal</CardTitle>
-              <CardDescription>
-                Express Credit & Financial Solutions
-              </CardDescription>
-            </div>
-          </CardHeader>
-          
-          <CardContent>
+            <p className="lux-eyebrow text-ivory/60">Admin Command Center</p>
+            <h2 className="lux-display text-2xl text-ivory">Admin Portal</h2>
+            <p className="text-sm text-ivory/70">Express Credit &amp; Financial Solutions</p>
+          </div>
+          <div>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="bg-destructive/15 border-destructive/40 text-ivory">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Admin Email</Label>
+                <Label htmlFor="email" className="lux-label-dark">Admin Email</Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@expresscredit.com"
+                  placeholder="admin@expresscreditfinancials.org"
                   required
                   disabled={isLoading}
+                  className="lux-input-dark h-11"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="lux-label-dark">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder="••••••••"
                     required
                     disabled={isLoading}
+                    className="lux-input-dark h-11 pr-10"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-ivory/60 hover:text-ivory"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
@@ -148,28 +147,24 @@ export default function AdminLogin() {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-elegant"
-                disabled={isLoading}
-              >
+              <Button type="submit" variant="premium" className="w-full h-11" disabled={isLoading}>
                 {isLoading ? 'Signing In...' : 'Sign In to Admin'}
               </Button>
             </form>
 
 
-            <div className="mt-4 text-center">
-              <Button 
-                variant="ghost" 
+            <div className="mt-5 text-center">
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => navigate('/')}
-                className="text-muted-foreground"
+                className="text-ivory/60 hover:text-ivory hover:bg-ivory/5"
               >
                 ← Back to Main Site
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
