@@ -29,7 +29,7 @@ export const SEOHead = ({
   const finalDescription = description || pageSEO.description;
   const finalKeywords = keywords || pageSEO.keywords || DEFAULT_SEO.keywords;
   const finalCanonical = canonical || pageSEO.canonical || `https://expresscreditfinancials.org${location.pathname}`;
-  const finalOgImage = ogImage || 'https://expresscreditfinancials.org/lovable-uploads/express-logo-badge.png';
+  const finalOgImage = ogImage || 'https://expresscreditfinancials.org/og-image.png';
 
   useEffect(() => {
     // Update document title
@@ -68,6 +68,9 @@ export const SEOHead = ({
     updateMetaTag('og:type', 'website', true);
     updateMetaTag('og:url', finalCanonical, true);
     updateMetaTag('og:image', finalOgImage, true);
+    updateMetaTag('og:image:url', finalOgImage, true);
+    updateMetaTag('og:image:secure_url', finalOgImage, true);
+    updateMetaTag('og:image:type', 'image/png', true);
     updateMetaTag('og:image:width', '1200', true);
     updateMetaTag('og:image:height', '630', true);
     updateMetaTag('og:site_name', DEFAULT_SEO.siteName, true);
