@@ -1,25 +1,35 @@
 import { AdminShell } from '@/components/admin/AdminShell';
 import { AdminKpiGrid } from '@/components/admin/AdminKpiGrid';
+import { AdminActionQueue, AdminClientPipeline, AdminQuickActionCard } from '@/components/admin/AdminCommandCenterWidgets';
+import { ADMIN_QUICK_ACTIONS } from '@/components/admin/adminCommandCenterActions';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Upload, UserPlus, Gavel, Activity, Home, Wallet, FileSearch } from 'lucide-react';
+import { Upload, UserPlus, Gavel, Activity, Home } from 'lucide-react';
 import { MarketingFunnelCard } from '@/components/admin/MarketingFunnelCard';
 import { AdminPaymentMetrics } from '@/components/admin/AdminPaymentMetrics';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { LuxuryCard, LuxurySection, EyebrowLabel } from '@/components/luxury';
+import { useAdminMetrics } from '@/hooks/useAdminMetrics';
+
+type AuditRow = {
+  id: string;
+  action: string;
+  table_name: string | null;
+  created_at: string;
+  details: unknown;
+};
 
 function RecentActivityFeed() {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<AuditRow[]>([]);
   useEffect(() => {
     (async () => {
-      const client: any = supabase;
-      const { data } = await client
+      const { data } = await supabase
         .from('audit_logs')
         .select('id, action, table_name, created_at, details')
         .order('created_at', { ascending: false })
         .limit(15);
-      setRows(data || []);
+      setRows((data || []) as AuditRow[]);
     })();
   }, []);
   return (
@@ -55,6 +65,8 @@ function RecentActivityFeed() {
 }
 
 export default function AdminCommandCenter() {
+  const metrics = useAdminMetrics();
+
   return (
     <AdminShell
       title="Command Center"
@@ -95,9 +107,13 @@ export default function AdminCommandCenter() {
           </div>
         </LuxuryCard>
 
-        {/* KPI grid (wrapped, unchanged data) */}
+        {/* KPI grid */}
         <LuxurySection eyebrow="Today" title="Operational Snapshot" divider={false}>
-          <AdminKpiGrid />
+          <AdminKpiGrid metrics={metrics} />
+        </LuxurySection>
+
+        <LuxurySection eyebrow="Action" title="Priority Work" description="A clear queue for today's decisions across payments, agreements, documents, reports, and disputes." divider={false}>
+          <AdminActionQueue metrics={metrics} />
         </LuxurySection>
 
         {/* Wide payment + funnel row */}
@@ -105,27 +121,13 @@ export default function AdminCommandCenter() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <AdminPaymentMetrics />
+              <AdminClientPipeline metrics={metrics} />
               <LuxuryCard className="p-6 md:p-8">
                 <EyebrowLabel withRule>Quick Actions</EyebrowLabel>
                 <h3 className="lux-display text-xl md:text-2xl mt-2 mb-5 text-foreground">Move the program forward</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {[
-                    { to: '/admin/upload-reports', label: 'Upload Report', icon: Upload },
-                    { to: '/admin/clients', label: 'Add Client', icon: UserPlus },
-                    { to: '/admin/disputes?status=review', label: 'Review Queue', icon: Gavel },
-                    { to: '/admin/reports', label: 'Reports', icon: FileSearch },
-                  ].map((q) => (
-                    <Button
-                      key={q.to + q.label}
-                      asChild
-                      variant="outline"
-                      className="h-auto py-4 flex-col items-start gap-2 rounded-xl border-border/80 hover:border-gold-deep/40 hover:bg-secondary/60 transition-colors"
-                    >
-                      <Link to={q.to}>
-                        <q.icon className="h-4 w-4 text-gold-deep" />
-                        <span className="text-xs font-medium">{q.label}</span>
-                      </Link>
-                    </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {ADMIN_QUICK_ACTIONS.map((action) => (
+                    <AdminQuickActionCard key={action.to + action.label} {...action} />
                   ))}
                 </div>
               </LuxuryCard>
