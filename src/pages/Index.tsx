@@ -427,7 +427,7 @@ const Index = () => {
                     <p className="font-serif-display text-6xl mt-1" style={{ color: '#f5f0e0' }}>804</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold flex items-center gap-1" style={{ color: '#c9a84c' }}><CheckCircle2 className="h-3 w-3" /> Tier · Good</p>
+                    <p className="text-xs font-bold flex items-center gap-1" style={{ color: '#c9a84c' }}><CheckCircle2 className="h-3 w-3" /> Exceptional Credit</p>
                     <p className="text-[10px]" style={{ color: 'rgba(245,240,224,0.5)' }}>Last updated · today</p>
                   </div>
                 </div>
