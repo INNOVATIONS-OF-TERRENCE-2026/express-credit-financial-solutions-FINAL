@@ -19,6 +19,7 @@ import {
   BeforeAfterPanel, ProgressTimeline,
 } from '@/components/luxury';
 import type { BeforeAfterRow, TimelineStep } from '@/components/luxury';
+import { NextBestActionCard } from '@/components/client/NextBestActionCard';
 
 const fmtMoney = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
@@ -119,6 +120,11 @@ function DashboardInner() {
 
   return (
     <div className="space-y-14 md:space-y-20">
+      {/* ============================================================
+          0. NEXT BEST ACTION — always-visible guidance for the client
+          ============================================================ */}
+      <NextBestActionCard data={d} />
+
       {/* ============================================================
           1. WELCOME HERO — midnight private-banking surface
           ============================================================ */}
