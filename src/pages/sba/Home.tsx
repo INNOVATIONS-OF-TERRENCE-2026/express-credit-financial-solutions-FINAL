@@ -15,6 +15,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { ThemeSelector } from '@/components/ThemeSelector';
+import { SEOHead } from '@/components/SEOHead';
 
 const PROGRAMS = [
   {
@@ -76,6 +77,27 @@ const FEATURES = [
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950">
+      <SEOHead
+        title="SBA Loan Portal | Funding Readiness for Small Business"
+        description="SBA 7(a) and 504 loan preparation and packaging support. Pre-qualification, document collection, and lender-ready packets for Texas small businesses."
+        canonical="https://expresscreditfinancials.org/sba"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "serviceType": "SBA Loan Preparation & Packaging",
+          "provider": {
+            "@type": "FinancialService",
+            "name": "Express Credit & Financial Solutions LLC",
+            "url": "https://expresscreditfinancials.org"
+          },
+          "areaServed": "US",
+          "description": "End-to-end SBA loan preparation including pre-qualification, document collection, financial packaging, and lender-ready submission packets for SBA 7(a) and 504 programs.",
+          "audience": {
+            "@type": "BusinessAudience",
+            "audienceType": "Small Business Owners"
+          }
+        }}
+      />
       {/* Header */}
       <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur">
         <div className="container mx-auto px-4 py-6">

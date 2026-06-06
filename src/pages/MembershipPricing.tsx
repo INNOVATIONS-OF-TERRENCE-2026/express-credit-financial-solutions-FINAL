@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMembership } from "@/hooks/useMembership";
 import { BackButton } from '@/components/BackButton';
 import { EngineerCredit } from '@/components/EngineerCredit';
+import { SEOHead } from '@/components/SEOHead';
 
 const plans: Array<{
   name: string;
@@ -107,6 +108,30 @@ export default function MembershipPricing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black">
+      <SEOHead
+        title="Service Options & Engagement Fees | Express Credit"
+        description="Transparent service options for credit restoration and funding readiness. Structured strategy and Metro 2 dispute preparation for Texas clients."
+        canonical="https://expresscreditfinancials.org/membership"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "serviceType": "Credit Restoration & Funding Readiness",
+          "provider": {
+            "@type": "FinancialService",
+            "name": "Express Credit & Financial Solutions LLC",
+            "url": "https://expresscreditfinancials.org"
+          },
+          "areaServed": "US-TX",
+          "description": "Structured credit restoration engagement plans including Metro 2 dispute preparation, funding readiness assessment, and tradeline strategy.",
+          "offers": {
+            "@type": "AggregateOffer",
+            "priceCurrency": "USD",
+            "offerCount": "3",
+            "lowPrice": "299",
+            "highPrice": "1499"
+          }
+        }}
+      />
       <NavigationHeader />
       
       {/* Engineer Credit - TOP */}
