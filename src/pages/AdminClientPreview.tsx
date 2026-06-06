@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { ClientPortal } from '@/components/ClientPortal';
+import { AdminCommittedReportsPanel } from '@/components/admin/AdminCommittedReportsPanel';
 import { useRoles } from '@/hooks/useRoles';
-import { useAuth } from '@/hooks/useAuth';
 import { resolveClient } from '@/lib/resolveClient';
 import { ArrowLeft, Shield, Eye, Pencil } from 'lucide-react';
 
@@ -14,7 +14,6 @@ export default function AdminClientPreview() {
   const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
   const { isAdmin, loading: rolesLoading } = useRoles();
-  const { user } = useAuth();
 
   const [clientName, setClientName] = useState<string>('Client');
   const [loading, setLoading] = useState(true);
@@ -104,7 +103,6 @@ export default function AdminClientPreview() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Admin preview banner */}
       <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2">
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -123,7 +121,10 @@ export default function AdminClientPreview() {
         </div>
       </div>
 
-      {/* Render the actual ClientPortal in admin preview mode */}
+      <div className="container mx-auto px-4 py-4">
+        <AdminCommittedReportsPanel clientId={resolvedId} />
+      </div>
+
       <ClientPortal clientName={clientName} resolvedClientId={resolvedId} isAdminPreview={true} />
     </div>
   );
