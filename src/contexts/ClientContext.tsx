@@ -10,7 +10,7 @@ export interface ResolvedClientContext {
   fullName: string | null;
   email: string | null;
   loading: boolean;
-  portalStatus: 'linked' | 'auto_linked' | 'pending_setup' | null;
+  portalStatus: 'linked' | 'auto_linked' | 'created' | 'pending_setup' | null;
   pendingReason: string | null;
   refresh: () => Promise<void>;
   raw: any | null;

@@ -61,8 +61,10 @@ function Inner() {
       <LuxurySection
         eyebrow="Agreement Center"
         title="Service Agreements"
-        subtitle="View signature status and keep your onboarding documents organized in your secure client portal."
-      />
+        description="View signature status and keep your onboarding documents organized in your secure client portal."
+      >
+        <></>
+      </LuxurySection>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <LuxuryCard className="p-5">
@@ -134,7 +136,7 @@ function Inner() {
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <StatusBadge status={status} />
+                        <StatusBadge status={row.signed_at ? 'signed' : 'pending'} label={status} />
                         {row.signed_at ? (
                           <Badge className="bg-emerald-500/15 text-emerald-600">Complete</Badge>
                         ) : (
