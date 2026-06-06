@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { AdminCommittedReportsPanel } from '@/components/admin/AdminCommittedReportsPanel';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,7 +67,6 @@ export default function AdminClientPortalEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Upload state
   const [files, setFiles] = useState<File[]>([]);
   const [stage, setStage] = useState('current');
   const [bureau, setBureau] = useState('3_bureau');
@@ -100,7 +100,6 @@ export default function AdminClientPortalEditor() {
   const set = <K extends keyof ClientRow>(k: K, v: ClientRow[K]) => {
     setClient((p) => (p ? { ...p, [k]: v } : p));
   };
-  const numOrNull = (v: string) => (v === '' ? null : Number(v));
 
   const saveAll = async () => {
     if (!client) return;
@@ -244,7 +243,6 @@ export default function AdminClientPortalEditor() {
           </header>
 
           <div className="p-4 space-y-4 max-w-6xl">
-            {/* Client header info */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Client Header</CardTitle>
@@ -264,7 +262,8 @@ export default function AdminClientPortalEditor() {
               </CardContent>
             </Card>
 
-            {/* Credit Scores */}
+            <AdminCommittedReportsPanel clientId={client.id} />
+
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Credit Scores</CardTitle>
@@ -292,7 +291,6 @@ export default function AdminClientPortalEditor() {
               </CardContent>
             </Card>
 
-            {/* Results editor */}
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm">Credit Results</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -313,12 +311,11 @@ export default function AdminClientPortalEditor() {
               </CardContent>
             </Card>
 
-            {/* Report upload center */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Report Upload Center</CardTitle>
                 <CardDescription className="text-xs">
-                  Multi-file upload. Auto-assigned to {client.full_name} (client_id = {client.id.slice(0, 8)}…).
+                  Raw uploads are staged here. Portal-visible reports are created through the extraction approval commit pipeline.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -348,7 +345,7 @@ export default function AdminClientPortalEditor() {
 
                 <div className="rounded-md border border-border/50 divide-y divide-border/40">
                   {reports.length === 0 ? (
-                    <p className="p-3 text-xs text-muted-foreground">No reports uploaded yet.</p>
+                    <p className="p-3 text-xs text-muted-foreground">No raw uploads yet.</p>
                   ) : reports.map((r) => (
                     <div key={r.id} className="p-2 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2 min-w-0">
