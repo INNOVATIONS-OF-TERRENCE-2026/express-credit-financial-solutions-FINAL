@@ -63,6 +63,8 @@ import ClientPaymentsPage from "./pages/client/Payments";
 import ClientAgreementsPage from "./pages/client/Agreements";
 import ClientMessagesPage from "./pages/client/Messages";
 import ClientSettingsPage from "./pages/client/Settings";
+import ClientAIAssistantPage from "./pages/client/AIAssistant";
+import ClientEducationPage from "./pages/client/Education";
 
 const queryClient = new QueryClient();
 
@@ -140,8 +142,8 @@ const App = () => (
                         <Route path="/score-tracker" element={<Navigate to="/client/results" replace />} />
                         <Route path="/credit-building" element={<Navigate to="/client/dashboard" replace />} />
                         <Route path="/goodwill-letters" element={<Navigate to="/client/disputes" replace />} />
-                        <Route path="/education" element={<Navigate to="/client/dashboard" replace />} />
-                        <Route path="/ai-assistant" element={<Navigate to="/client/dashboard" replace />} />
+                        <Route path="/education" element={<Navigate to="/client/education" replace />} />
+                        <Route path="/ai-assistant" element={<Navigate to="/client/ai-assistant" replace />} />
                         {/* Legacy SBA duplicate prefix → canonical /sba */}
                         <Route path="/sba-portal" element={<Navigate to="/sba" replace />} />
                         <Route path="/sba-portal/precheck" element={<Navigate to="/sba/precheck" replace />} />
@@ -161,6 +163,8 @@ const App = () => (
                         <Route path="/client/agreements" element={<RequireAuth><ClientAgreementsPage /></RequireAuth>} />
                         <Route path="/client/messages"   element={<RequireAuth><ClientMessagesPage /></RequireAuth>} />
                         <Route path="/client/settings"   element={<RequireAuth><ClientSettingsPage /></RequireAuth>} />
+                        <Route path="/client/ai-assistant" element={<RequireAuth><ClientAIAssistantPage /></RequireAuth>} />
+                        <Route path="/client/education"    element={<RequireAuth><ClientEducationPage /></RequireAuth>} />
                         {/* Legacy slug-based portal → canonical premium portal */}
                         <Route path="/client/:clientSlug" element={<Navigate to="/client/dashboard" replace />} />
                         {/* Admin-only legacy preview kept for rollback */}

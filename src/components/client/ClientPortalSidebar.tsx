@@ -4,7 +4,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarHeader, SidebarFooter,
 } from '@/components/ui/sidebar';
 import {
-  LayoutDashboard, BarChart3, FileText, Gavel, Wallet, ScrollText, Bell, Settings, Vault,
+  LayoutDashboard, BarChart3, FileText, Gavel, Wallet, ScrollText, Bell, Settings, Vault, Sparkles, GraduationCap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -41,6 +41,8 @@ const GROUPS: { label: string; items: { label: string; to: string; icon: any }[]
   {
     label: 'Concierge',
     items: [
+      { label: 'AI Assistant', to: '/client/ai-assistant', icon: Sparkles },
+      { label: 'Education', to: '/client/education', icon: GraduationCap },
       { label: 'Messages', to: '/client/messages', icon: Bell },
       { label: 'Settings', to: '/client/settings', icon: Settings },
     ],
