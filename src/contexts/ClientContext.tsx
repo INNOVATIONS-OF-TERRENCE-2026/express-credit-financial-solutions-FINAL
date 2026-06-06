@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useRoles } from '@/hooks/useRoles';
 import { resolveClientForPortal } from '@/lib/clientResolver';
 
 export interface ResolvedClientContext {
@@ -17,8 +18,20 @@ export interface ResolvedClientContext {
 
 const Ctx = createContext<ResolvedClientContext | undefined>(undefined);
 
+const emptyClientState = (email?: string | null, reason: string = 'pending_setup'): Omit<ResolvedClientContext, 'refresh'> => ({
+  clientId: null,
+  userId: null,
+  fullName: null,
+  email: email ?? null,
+  loading: false,
+  portalStatus: 'pending_setup',
+  pendingReason: reason,
+  raw: null,
+});
+
 export function ClientProvider({ children, overrideClientId }: { children: ReactNode; overrideClientId?: string | null }) {
   const { user } = useAuth();
+  const { isAdmin, loading: rolesLoading } = useRoles();
   const [state, setState] = useState<Omit<ResolvedClientContext, 'refresh'>>({
     clientId: null,
     userId: null,
@@ -33,6 +46,8 @@ export function ClientProvider({ children, overrideClientId }: { children: React
   const load = async () => {
     setState((s) => ({ ...s, loading: true }));
     try {
+      if (rolesLoading) return;
+
       if (overrideClientId) {
         const { data } = await supabase.from('clients').select('*').eq('id', overrideClientId).maybeSingle();
         setState({
@@ -45,6 +60,12 @@ export function ClientProvider({ children, overrideClientId }: { children: React
           pendingReason: data ? null : 'no_match',
           raw: data,
         });
+        return;
+      }
+
+      // Admins are operators, not clients. Never auto-resolve or auto-link an admin session to a client record.
+      if (isAdmin()) {
+        setState(emptyClientState(user?.email, 'admin_not_client'));
         return;
       }
 
@@ -81,7 +102,7 @@ export function ClientProvider({ children, overrideClientId }: { children: React
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, overrideClientId]);
+  }, [user?.id, overrideClientId, rolesLoading]);
 
   return <Ctx.Provider value={{ ...state, refresh: load }}>{children}</Ctx.Provider>;
 }
