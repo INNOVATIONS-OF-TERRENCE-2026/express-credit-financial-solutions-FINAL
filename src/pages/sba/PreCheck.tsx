@@ -218,6 +218,7 @@ export default function PreCheck() {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 py-8 px-4">
       <div className="container mx-auto max-w-2xl">
         <div className="mb-8">
+          <h1 className="sr-only">SBA Loan Pre-Qualification Tool</h1>
           <SectionTitle subtitle="Answer a few questions to find the best SBA program for your business">
             SBA Pre-Qualification
           </SectionTitle>
