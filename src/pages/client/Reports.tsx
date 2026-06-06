@@ -4,19 +4,20 @@ import { ClientPortalLayout } from '@/components/client/ClientPortalLayout';
 import { useClient } from '@/contexts/ClientContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Download, FileText, Upload, ShieldCheck, Eye, Loader2 } from 'lucide-react';
+import { Download, FileText, Upload, ShieldCheck, Eye, Loader2, CheckCircle2 } from 'lucide-react';
 import { LuxuryCard, LuxurySection, EyebrowLabel, EmptyState, StatusBadge } from '@/components/luxury';
 import type { StatusKind } from '@/components/luxury';
 
 type ReportRow = {
   id: string;
-  file_name: string;
-  file_path: string | null;
-  report_type: string | null;
+  file_name: string | null;
+  storage_path: string | null;
+  uploaded_file_url?: string | null;
   bureau: string | null;
-  created_at: string;
-  analysis_status?: string | null;
-  match_status?: string | null;
+  uploaded_at: string;
+  fico_score: number | null;
+  is_current: boolean | null;
+  notes: string | null;
 };
 
 const ACCEPTED_SOURCES = [
@@ -26,12 +27,8 @@ const ACCEPTED_SOURCES = [
 ];
 
 function analysisBadge(r: ReportRow): { kind: StatusKind; label: string } {
-  const s = (r.analysis_status || r.match_status || '').toLowerCase();
-  if (s === 'matched' || s === 'completed' || s === 'complete') return { kind: 'completed', label: 'Analyzed' };
-  if (s === 'needs_review') return { kind: 'needs-review', label: 'Needs Review' };
-  if (s === 'failed' || s === 'error') return { kind: 'missing', label: 'Issue' };
-  if (s === 'in_progress' || s === 'processing') return { kind: 'in-progress', label: 'Reviewing' };
-  return { kind: 'uploaded', label: 'Uploaded' };
+  if (r.is_current) return { kind: 'completed', label: 'Current' };
+  return { kind: 'uploaded', label: 'Archived' };
 }
 
 function ReportsInner() {
@@ -44,9 +41,13 @@ function ReportsInner() {
     (async () => {
       if (!clientId && !userId) { setLoading(false); return; }
       const client: any = supabase;
-      let q = client.from('credit_report_uploads').select('*').order('created_at', { ascending: false });
+      let q = client
+        .from('credit_reports')
+        .select('id,file_name,storage_path,uploaded_file_url,bureau,uploaded_at,fico_score,is_current,notes')
+        .order('uploaded_at', { ascending: false });
       q = clientId ? q.eq('client_id', clientId) : q.eq('user_id', userId);
-      const { data } = await q;
+      const { data, error } = await q;
+      if (error) console.error('Unable to load committed credit reports:', error);
       if (alive) {
         setRows(data || []);
         setLoading(false);
@@ -62,16 +63,14 @@ function ReportsInner() {
 
   return (
     <div className="space-y-10 md:space-y-14">
-      {/* Header / instructions */}
       <LuxuryCard variant="midnight" elevated accent className="p-8 md:p-10">
         <EyebrowLabel withRule>Credit File</EyebrowLabel>
         <h2 className="lux-display text-3xl md:text-4xl text-ivory mt-3 leading-tight">
-          Your credit report archive
+          Your committed credit report archive
         </h2>
         <p className="text-sm md:text-base text-ivory/75 mt-3 max-w-2xl">
-          Uploaded reports are used to prepare a compliance-focused dispute strategy
-          and a clearer picture of your credit profile. Results depend on investigation
-          outcomes and are not guaranteed.
+          This page shows reports that have passed admin review and were committed to your portal history.
+          Results depend on investigation outcomes and are not guaranteed.
         </p>
         <div className="flex flex-wrap items-center gap-3 mt-6">
           <Button asChild variant="premium">
@@ -83,7 +82,6 @@ function ReportsInner() {
         </div>
       </LuxuryCard>
 
-      {/* Accepted sources */}
       <LuxurySection
         eyebrow="Accepted Sources"
         title="Reports we can review"
@@ -102,22 +100,21 @@ function ReportsInner() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
-            Upload clear, complete PDF reports — partial screenshots may delay your profile review.
+            Uploaded reports appear here after admin extraction review and commit.
           </p>
         </LuxuryCard>
       </LuxurySection>
 
-      {/* Reports list */}
-      <LuxurySection eyebrow="Archive" title="Recent uploads" divider={false}>
+      <LuxurySection eyebrow="Archive" title="Committed report history" divider={false}>
         {loading ? (
           <LuxuryCard className="p-10 flex items-center justify-center text-muted-foreground gap-2 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading your credit file…
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading your committed credit file…
           </LuxuryCard>
         ) : rows.length === 0 ? (
           <EmptyState
             icon={FileText}
-            title="No credit report uploaded yet"
-            description="Upload your most recent full report so your profile can be reviewed and a dispute strategy can be prepared."
+            title="No committed report yet"
+            description="Your reviewed reports will appear here after your specialist commits them to your portal history."
             primary={{ label: 'Upload Credit Report', href: '/client/documents' }}
             secondary={{ label: 'Contact Concierge', href: '/client/messages' }}
           />
@@ -126,6 +123,7 @@ function ReportsInner() {
             <ul className="divide-y divide-border/60">
               {rows.map((r) => {
                 const b = analysisBadge(r);
+                const filePath = r.storage_path || r.uploaded_file_url || null;
                 return (
                   <li
                     key={r.id}
@@ -136,17 +134,19 @@ function ReportsInner() {
                         <FileText className="h-4 w-4" />
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{r.file_name}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{r.file_name || `${r.bureau || 'Credit'} report`}</p>
                         <p className="text-[11px] text-muted-foreground tabular-nums">
-                          {(r.report_type || 'Report')} · {(r.bureau || 'Multi-bureau')} ·
-                          {' '}{new Date(r.created_at).toLocaleDateString()}
+                          {(r.bureau || 'Multi-bureau')} · Score {r.fico_score || '—'} ·{' '}
+                          {new Date(r.uploaded_at).toLocaleDateString()}
                         </p>
+                        {r.notes && <p className="mt-1 text-[11px] text-muted-foreground line-clamp-1">{r.notes}</p>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 md:gap-3 self-end md:self-auto">
                       <StatusBadge status={b.kind} label={b.label} />
-                      {r.file_path && (
-                        <Button size="sm" variant="outline" onClick={() => open(r.file_path!)} className="gap-1.5">
+                      {r.is_current && <CheckCircle2 className="h-4 w-4 text-emerald-500" aria-label="Current report" />}
+                      {filePath && (
+                        <Button size="sm" variant="outline" onClick={() => open(filePath)} className="gap-1.5">
                           <Eye className="h-3.5 w-3.5" /> View
                           <Download className="h-3.5 w-3.5 md:hidden" />
                         </Button>
