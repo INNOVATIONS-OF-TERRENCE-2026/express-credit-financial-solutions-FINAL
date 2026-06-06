@@ -14,6 +14,7 @@ import { AdminNotesPanel } from '@/components/AdminNotesPanel';
 import { ResultsOverridePanel } from '@/components/admin/ResultsOverridePanel';
 import { ClientActivityTimeline } from '@/components/ClientActivityTimeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LuxuryCard, EyebrowLabel, StatusBadge } from '@/components/luxury';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRoles } from '@/hooks/useRoles';
@@ -235,24 +236,41 @@ export default function AdminClientEdit() {
     <div className="min-h-screen bg-background">
       <NavigationHeader />
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+        {/* Luxury Header */}
+        <LuxuryCard variant="midnight" accent className="p-6 md:p-8 mb-6">
+          <div className="flex items-center gap-4 mb-4">
             <BackButton />
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Edit Client: {client.full_name}</h1>
-              <p className="text-muted-foreground text-sm">Client ID: {client.id.slice(0, 8)}...</p>
+            <EyebrowLabel className="text-ivory/60">Client Profile</EyebrowLabel>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="lux-display text-3xl md:text-4xl text-ivory tracking-tight">{client.full_name}</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                <span className="text-xs uppercase tracking-[0.18em] text-ivory/50">ID {client.id.slice(0, 8)}</span>
+                {client.membership_plan && (
+                  <StatusBadge
+                    status={(client.membership_plan.toLowerCase() === 'elite' || client.membership_plan.toLowerCase() === 'vip') ? 'elite' : client.membership_plan.toLowerCase() === 'pro' ? 'pro' : 'basic'}
+                    label={client.membership_plan}
+                  />
+                )}
+                {client.workflow_status && (
+                  <StatusBadge
+                    status={client.workflow_status === 'completed' ? 'completed' : 'in-progress'}
+                    label={client.workflow_status.replace(/_/g, ' ')}
+                  />
+                )}
+              </div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Button variant="outline" onClick={() => window.open(`/admin/client-preview/${client.id}`, '_blank')} className="bg-white/5 border-white/20 text-ivory hover:bg-white/10 hover:text-ivory">
+                <Eye className="h-4 w-4 mr-2" />Preview Portal
+              </Button>
+              <Button onClick={() => navigate('/admin/clients')} variant="ghost" className="text-ivory/80 hover:bg-white/10 hover:text-ivory">
+                <ArrowLeft className="h-4 w-4 mr-2" />Back
+              </Button>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => window.open(`/admin/client-preview/${client.id}`, '_blank')}>
-              <Eye className="h-4 w-4 mr-2" />Preview Portal
-            </Button>
-            <Button onClick={() => navigate('/admin/clients')} variant="ghost">
-              <ArrowLeft className="h-4 w-4 mr-2" />Back
-            </Button>
-          </div>
-        </div>
+        </LuxuryCard>
 
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="flex flex-wrap h-auto justify-start">
