@@ -70,7 +70,7 @@ function Inner() {
                 <span className="h-10 w-10 rounded-xl bg-gradient-champagne grid place-items-center">
                   <m.icon className="h-5 w-5 text-gold-deep" />
                 </span>
-                <StatusBadge kind="basic">{m.tag}</StatusBadge>
+                <StatusBadge status="basic" label={m.tag} />
               </div>
               <h3 className="lux-display text-lg text-foreground mb-2">{m.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{m.body}</p>
