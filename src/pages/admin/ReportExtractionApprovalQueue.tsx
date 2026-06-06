@@ -54,6 +54,7 @@ export default function ReportExtractionApprovalQueue() {
   const [query, setQuery] = useState('');
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
+  const [committingId, setCommittingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -110,6 +111,23 @@ export default function ReportExtractionApprovalQueue() {
     await load();
   };
 
+  const commitReview = async (id: string) => {
+    setCommittingId(id);
+    setMessage(null);
+    try {
+      const db: any = supabase;
+      const { error } = await db.rpc('commit_report_extraction_review', { p_review_id: id });
+      if (error) throw error;
+      setMessage('Approved review committed to client portal successfully.');
+      await load();
+    } catch (error: any) {
+      console.error('Unable to commit review:', error);
+      setMessage(error?.message || 'Unable to commit this review.');
+    } finally {
+      setCommittingId(null);
+    }
+  };
+
   return (
     <AdminShell title="Extraction Approval Queue" subtitle="Review staged credit report extraction results before anything is committed to a client portal">
       <div className="space-y-6">
@@ -123,7 +141,7 @@ export default function ReportExtractionApprovalQueue() {
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div><CardTitle>Review Queue</CardTitle><CardDescription>Approve or reject extraction records. Approval does not overwrite client portal data until the commit phase.</CardDescription></div>
+              <div><CardTitle>Review Queue</CardTitle><CardDescription>Approve, reject, or commit extraction records into the client-visible report pipeline.</CardDescription></div>
               <Button variant="outline" onClick={load}><RefreshCw className="mr-2 h-4 w-4" />Refresh</Button>
             </div>
           </CardHeader>
@@ -134,34 +152,38 @@ export default function ReportExtractionApprovalQueue() {
             </div>
             {message && <p className="mb-4 rounded-xl border bg-muted/40 p-3 text-sm">{message}</p>}
             <div className="space-y-4">
-              {filtered.map((row) => (
-                <div key={row.id} className="rounded-2xl border p-4">
-                  <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_auto] lg:items-start">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold">{row.clients?.full_name || 'Unassigned client'}</p>
-                        {statusBadge(row.approval_status)}
-                        <Badge variant="outline">{row.bureau || 'Unknown bureau'}</Badge>
+              {filtered.map((row) => {
+                const canCommit = row.approval_status === 'approved' && Boolean(row.client_id) && row.approval_status !== 'committed';
+                return (
+                  <div key={row.id} className="rounded-2xl border p-4">
+                    <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_auto] lg:items-start">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-semibold">{row.clients?.full_name || 'Unassigned client'}</p>
+                          {statusBadge(row.approval_status)}
+                          <Badge variant="outline">{row.bureau || 'Unknown bureau'}</Badge>
+                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">{row.clients?.email || 'No email'} · {row.file_name || 'No file name'}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">Batch: {row.report_extraction_batches?.batch_label || row.batch_id || 'No batch'} · Match {row.match_confidence}% · {row.match_reason || 'No match reason'}</p>
                       </div>
-                      <p className="mt-1 text-sm text-muted-foreground">{row.clients?.email || 'No email'} · {row.file_name || 'No file name'}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Batch: {row.report_extraction_batches?.batch_label || row.batch_id || 'No batch'} · Match {row.match_confidence}% · {row.match_reason || 'No match reason'}</p>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Scores</p><p className="font-bold">{Object.keys(row.extracted_scores || {}).length}</p></div>
+                        <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Negatives</p><p className="font-bold">{countJsonArray(row.extracted_negative_accounts)}</p></div>
+                        <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Inquiries</p><p className="font-bold">{countJsonArray(row.extracted_inquiries)}</p></div>
+                        <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Personal Info</p><p className="font-bold">{countJsonArray(row.extracted_personal_info)}</p></div>
+                      </div>
+                      <div className="flex flex-col gap-2 lg:w-52">
+                        <Button disabled={row.approval_status === 'approved' || row.approval_status === 'committed'} onClick={() => updateStatus(row.id, 'approved')}><CheckCircle2 className="mr-2 h-4 w-4" />Approve</Button>
+                        <Button disabled={!canCommit || committingId === row.id} onClick={() => commitReview(row.id)} className="bg-blue-600 hover:bg-blue-700"><ClipboardCheck className="mr-2 h-4 w-4" />{committingId === row.id ? 'Committing…' : 'Commit Approved'}</Button>
+                        <Button variant="destructive" disabled={row.approval_status === 'rejected' || row.approval_status === 'committed'} onClick={() => updateStatus(row.id, 'rejected')}><XCircle className="mr-2 h-4 w-4" />Reject</Button>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Scores</p><p className="font-bold">{Object.keys(row.extracted_scores || {}).length}</p></div>
-                      <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Negatives</p><p className="font-bold">{countJsonArray(row.extracted_negative_accounts)}</p></div>
-                      <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Inquiries</p><p className="font-bold">{countJsonArray(row.extracted_inquiries)}</p></div>
-                      <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Personal Info</p><p className="font-bold">{countJsonArray(row.extracted_personal_info)}</p></div>
-                    </div>
-                    <div className="flex flex-col gap-2 lg:w-44">
-                      <Button disabled={row.approval_status === 'approved' || row.approval_status === 'committed'} onClick={() => updateStatus(row.id, 'approved')}><CheckCircle2 className="mr-2 h-4 w-4" />Approve</Button>
-                      <Button variant="destructive" disabled={row.approval_status === 'rejected' || row.approval_status === 'committed'} onClick={() => updateStatus(row.id, 'rejected')}><XCircle className="mr-2 h-4 w-4" />Reject</Button>
+                    <div className="mt-4">
+                      <Textarea value={notes[row.id] || ''} onChange={(event) => setNotes((current) => ({ ...current, [row.id]: event.target.value }))} placeholder="Admin notes for this extraction review" />
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <Textarea value={notes[row.id] || ''} onChange={(event) => setNotes((current) => ({ ...current, [row.id]: event.target.value }))} placeholder="Admin notes for this extraction review" />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {!loading && filtered.length === 0 && <div className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">No extraction reviews found.</div>}
             </div>
           </CardContent>
