@@ -15,6 +15,7 @@ export interface ResolvedClient {
 export type PortalResolution =
   | { status: 'linked'; client: ResolvedClient }
   | { status: 'auto_linked'; client: ResolvedClient }
+  | { status: 'created'; client: ResolvedClient }
   | { status: 'pending_setup'; reason: string };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -26,6 +27,19 @@ const toResolved = (row: any): ResolvedClient => ({
   email: row.email ?? null,
   raw: row,
 });
+
+const normalizeEmail = (email?: string | null) => (email || '').trim().toLowerCase();
+
+const getFallbackName = (user: User, email: string) => {
+  const metadata = user.user_metadata || {};
+  const candidate =
+    metadata.full_name ||
+    metadata.name ||
+    [metadata.first_name, metadata.last_name].filter(Boolean).join(' ') ||
+    email.split('@')[0];
+
+  return String(candidate || email.split('@')[0]).trim();
+};
 
 /** Resolve a client by `clients.id`. */
 export async function resolveClientById(clientId: string): Promise<ResolvedClient | null> {
@@ -43,11 +57,12 @@ export async function resolveClientByUserId(userId: string): Promise<ResolvedCli
 
 /** Resolve by `clients.email` (case-insensitive). */
 export async function resolveClientByEmail(email: string): Promise<ResolvedClient | null> {
-  if (!email) return null;
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return null;
   const { data } = await supabase
     .from('clients')
     .select('*')
-    .ilike('email', email)
+    .ilike('email', normalizedEmail)
     .limit(1)
     .maybeSingle();
   return data ? toResolved(data) : null;
@@ -61,9 +76,37 @@ export async function resolveClientForAdmin(clientId: string): Promise<ResolvedC
   return resolveClientById(clientId);
 }
 
+async function createClientForPortalUser(user: User, email: string): Promise<ResolvedClient | null> {
+  const fullName = getFallbackName(user, email);
+
+  const { data, error } = await supabase
+    .from('clients')
+    .insert({
+      user_id: user.id,
+      email,
+      full_name: fullName,
+      portal_status: 'active',
+      status: 'active',
+      service_status: 'active',
+      access_services_enabled: true,
+      membership_plan: 'premium',
+      payment_status: 'active',
+    })
+    .select('*')
+    .maybeSingle();
+
+  if (error) {
+    console.error('Unable to create portal client record:', error);
+    return null;
+  }
+
+  return data ? toResolved(data) : null;
+}
+
 /**
  * Portal-side: tries user_id first, then email. If matched by email and
  * `clients.user_id` is null, safely links it to the current auth user.
+ * If no client row exists, creates a clean client row for the authenticated user.
  */
 export async function resolveClientForPortal(user: User | null | undefined): Promise<PortalResolution> {
   if (!user) return { status: 'pending_setup', reason: 'no_auth_user' };
@@ -71,28 +114,37 @@ export async function resolveClientForPortal(user: User | null | undefined): Pro
   const byUser = await resolveClientByUserId(user.id);
   if (byUser) return { status: 'linked', client: byUser };
 
-  const email = (user.email || '').trim();
+  const email = normalizeEmail(user.email);
   if (!email) return { status: 'pending_setup', reason: 'no_email' };
 
   const byEmail = await resolveClientByEmail(email);
-  if (!byEmail) return { status: 'pending_setup', reason: 'no_match' };
 
-  if (byEmail.userId && byEmail.userId !== user.id) {
-    // Email match collides with another auth user — do not auto-link.
+  if (byEmail?.userId && byEmail.userId !== user.id) {
     return { status: 'pending_setup', reason: 'email_owned_by_other_user' };
   }
 
-  if (!byEmail.userId) {
-    // Safe, idempotent link: only update when still null.
+  if (byEmail && !byEmail.userId) {
     const { data: linked } = await supabase
       .from('clients')
-      .update({ user_id: user.id, updated_at: new Date().toISOString() })
+      .update({
+        user_id: user.id,
+        email,
+        portal_status: 'active',
+        status: byEmail.raw?.status || 'active',
+        service_status: byEmail.raw?.service_status || 'active',
+        access_services_enabled: byEmail.raw?.access_services_enabled ?? true,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', byEmail.clientId)
       .is('user_id', null)
       .select('*')
       .maybeSingle();
+
     if (linked) return { status: 'auto_linked', client: toResolved(linked) };
   }
 
-  return { status: 'linked', client: { ...byEmail, userId: user.id } };
+  const created = await createClientForPortalUser(user, email);
+  if (created) return { status: 'created', client: created };
+
+  return { status: 'pending_setup', reason: 'client_create_failed' };
 }
