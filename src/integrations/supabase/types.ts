@@ -3309,6 +3309,140 @@ export type Database = {
           },
         ]
       }
+      report_extraction_batches: {
+        Row: {
+          batch_label: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          batch_label: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          batch_label?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      report_extraction_reviews: {
+        Row: {
+          admin_notes: string | null
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          batch_id: string | null
+          bureau: string | null
+          client_id: string | null
+          committed_at: string | null
+          created_at: string
+          extracted_inquiries: Json
+          extracted_negative_accounts: Json
+          extracted_personal_info: Json
+          extracted_scores: Json
+          extraction_status: string
+          extraction_summary: Json
+          file_name: string | null
+          file_path: string | null
+          id: string
+          match_confidence: number
+          match_reason: string | null
+          updated_at: string
+          upload_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_id?: string | null
+          bureau?: string | null
+          client_id?: string | null
+          committed_at?: string | null
+          created_at?: string
+          extracted_inquiries?: Json
+          extracted_negative_accounts?: Json
+          extracted_personal_info?: Json
+          extracted_scores?: Json
+          extraction_status?: string
+          extraction_summary?: Json
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          match_confidence?: number
+          match_reason?: string | null
+          updated_at?: string
+          upload_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          batch_id?: string | null
+          bureau?: string | null
+          client_id?: string | null
+          committed_at?: string | null
+          created_at?: string
+          extracted_inquiries?: Json
+          extracted_negative_accounts?: Json
+          extracted_personal_info?: Json
+          extracted_scores?: Json
+          extraction_status?: string
+          extraction_summary?: Json
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          match_confidence?: number
+          match_reason?: string | null
+          updated_at?: string
+          upload_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_extraction_reviews_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "report_extraction_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_extraction_reviews_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_extraction_reviews_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_verification_report"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "report_extraction_reviews_upload_id_fkey"
+            columns: ["upload_id"]
+            isOneToOne: false
+            referencedRelation: "credit_report_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       score_history: {
         Row: {
           bureau: string
@@ -3747,6 +3881,10 @@ export type Database = {
       }
     }
     Functions: {
+      commit_report_extraction_review: {
+        Args: { p_review_id: string }
+        Returns: Json
+      }
       decrypt_plaid_token: {
         Args: { encrypted_token: string }
         Returns: string
