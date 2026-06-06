@@ -41,7 +41,7 @@ export function AdminPriorityActionQueue({ metrics }: { metrics: AdminMetrics })
   const items: QueueItem[] = [
     {
       label: 'Payment Issues',
-      count: safeCount(metrics.paymentIssues),
+      count: safeCount(metrics.paymentsPending),
       to: '/admin/payments',
       icon: Wallet,
       tone: 'red',
@@ -49,7 +49,7 @@ export function AdminPriorityActionQueue({ metrics }: { metrics: AdminMetrics })
     },
     {
       label: 'Agreements Pending',
-      count: safeCount(metrics.pendingAgreements),
+      count: safeCount(metrics.agreementsPending),
       to: '/admin/agreements',
       icon: ScrollText,
       tone: 'amber',
@@ -57,7 +57,7 @@ export function AdminPriorityActionQueue({ metrics }: { metrics: AdminMetrics })
     },
     {
       label: 'Documents Pending Review',
-      count: safeCount(metrics.documentsPendingReview),
+      count: safeCount(metrics.documentsPending),
       to: '/admin/documents',
       icon: ClipboardCheck,
       tone: 'blue',
@@ -124,9 +124,9 @@ export function AdminLifecyclePipeline({ metrics }: { metrics: AdminMetrics }) {
   const stages = [
     { label: 'Registered', count: safeCount(metrics.totalClients), tone: 'bg-slate-700' },
     { label: 'Active', count: safeCount(metrics.activeClients), tone: 'bg-emerald-500' },
-    { label: 'Payment Issues', count: safeCount(metrics.paymentIssues), tone: 'bg-red-500' },
-    { label: 'Agreement Pending', count: safeCount(metrics.pendingAgreements), tone: 'bg-yellow-500' },
-    { label: 'Documents Review', count: safeCount(metrics.documentsPendingReview), tone: 'bg-sky-500' },
+    { label: 'Payment Issues', count: safeCount(metrics.paymentsPending), tone: 'bg-red-500' },
+    { label: 'Agreement Pending', count: safeCount(metrics.agreementsPending), tone: 'bg-yellow-500' },
+    { label: 'Documents Review', count: safeCount(metrics.documentsPending), tone: 'bg-sky-500' },
     { label: 'Disputes Active', count: safeCount(metrics.disputesInProgress), tone: 'bg-amber-500' },
   ];
 
@@ -196,5 +196,38 @@ export function AdminComplianceNotice() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// Aliases for command center page imports
+export const AdminActionQueue = AdminPriorityActionQueue;
+export const AdminClientPipeline = AdminLifecyclePipeline;
+
+export function AdminQuickActionCard({
+  to,
+  label,
+  description,
+  icon: Icon,
+}: {
+  to: string;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group rounded-2xl border border-border/60 bg-background/60 p-4 transition hover:-translate-y-0.5 hover:border-amber-400/40 hover:bg-amber-500/5 focus:outline-none focus:ring-2 focus:ring-amber-400"
+    >
+      <div className="flex items-start gap-3">
+        <span className="rounded-xl bg-amber-500/10 p-2 text-amber-500">
+          <Icon className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-foreground">{label}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{description}</p>
+        </div>
+      </div>
+    </Link>
   );
 }
