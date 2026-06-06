@@ -254,6 +254,24 @@ export const PAGE_SEO: Record<string, SEOConfig> = {
     description: "Credit profile building support including tradeline guidance, secured credit strategy, and account-mix review. Structured for funding readiness. Results vary by client profile.",
     keywords: ["tradeline support", "credit profile strategy", "credit building guidance Texas"],
     canonical: "https://expresscreditfinancials.org/credit-building"
+  },
+  onboarding: {
+    title: "Client Onboarding | Express Credit & Financial Solutions",
+    description: "Begin your credit restoration engagement. Secure onboarding for new Express Credit clients — agreement signing, verification, and document submission.",
+    keywords: ["credit repair onboarding", "Express Credit client intake", "credit restoration agreement"],
+    canonical: "https://expresscreditfinancials.org/onboarding"
+  },
+  sba: {
+    title: "SBA Loan Preparation & Packaging | Express Credit",
+    description: "SBA 7(a) and 504 loan preparation and packaging support. Funding readiness assessment, document collection, and lender-ready submission packets for Texas small businesses.",
+    keywords: ["SBA loan preparation", "SBA 7(a) packaging", "SBA 504 loan support", "small business funding Texas"],
+    canonical: "https://expresscreditfinancials.org/sba"
+  },
+  "sba-portal": {
+    title: "SBA Loan Portal | Funding Readiness for Small Business",
+    description: "Access the Express Credit SBA portal to prepare loan packets, complete pre-qualification, and submit documents for SBA 7(a) and 504 loan packaging.",
+    keywords: ["SBA loan portal", "small business loan preparation", "SBA funding readiness"],
+    canonical: "https://expresscreditfinancials.org/sba-portal"
   }
 };
 
@@ -268,7 +286,9 @@ export const generateSitemap = () => {
     { url: "/education", priority: "0.8", changefreq: "weekly" },
     { url: "/data-freeze", priority: "0.7", changefreq: "monthly" },
     { url: "/document-center", priority: "0.6", changefreq: "monthly" },
-    { url: "/sba-portal", priority: "0.7", changefreq: "monthly" }
+    { url: "/sba-portal", priority: "0.7", changefreq: "monthly" },
+    { url: "/sba", priority: "0.7", changefreq: "monthly" },
+    { url: "/sba/precheck", priority: "0.6", changefreq: "monthly" }
   ];
 
   return `<?xml version="1.0" encoding="UTF-8"?>
