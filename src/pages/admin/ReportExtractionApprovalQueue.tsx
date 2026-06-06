@@ -58,7 +58,8 @@ export default function ReportExtractionApprovalQueue() {
   const load = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const db: any = supabase;
+      const { data, error } = await db
         .from('report_extraction_reviews')
         .select('*, clients(full_name,email), report_extraction_batches(batch_label,status)')
         .order('created_at', { ascending: false })
@@ -90,7 +91,8 @@ export default function ReportExtractionApprovalQueue() {
   const committed = rows.filter((row) => row.approval_status === 'committed').length;
 
   const updateStatus = async (id: string, approvalStatus: 'approved' | 'rejected') => {
-    const { error } = await supabase
+    const db: any = supabase;
+    const { error } = await db
       .from('report_extraction_reviews')
       .update({
         approval_status: approvalStatus,
