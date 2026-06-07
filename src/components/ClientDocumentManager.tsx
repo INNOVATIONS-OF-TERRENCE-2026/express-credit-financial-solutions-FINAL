@@ -105,7 +105,9 @@ export function ClientDocumentManager({ clientId }: ClientDocumentManagerProps) 
     try {
       const { error } = await supabase.from('credit_reports').insert({
         client_id: clientId, bureau, uploaded_file_url: fileUrl,
-        notes: `${bureau} credit report uploaded`, fico_score: 650,
+        notes: `${bureau} credit report uploaded`,
+        // fico_score intentionally omitted: do not write a placeholder score.
+        // Portal score averaging ignores null, so the real value is preserved.
         user_id: (await supabase.auth.getUser()).data.user?.id || '',
       });
       if (error) throw error;
