@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminCommittedReportsPanel } from '@/components/admin/AdminCommittedReportsPanel';
+import { AdminCaseItemsManager } from '@/components/admin/AdminCaseItemsManager';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -263,6 +264,8 @@ export default function AdminClientPortalEditor() {
             </Card>
 
             <AdminCommittedReportsPanel clientId={client.id} />
+
+            <AdminCaseItemsManager clientId={client.id} userId={client.user_id ?? null} />
 
             <Card>
               <CardHeader className="pb-2">

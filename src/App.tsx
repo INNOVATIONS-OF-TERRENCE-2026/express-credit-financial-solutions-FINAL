@@ -65,6 +65,7 @@ import ClientMessagesPage from "./pages/client/Messages";
 import ClientSettingsPage from "./pages/client/Settings";
 import ClientAIAssistantPage from "./pages/client/AIAssistant";
 import ClientEducationPage from "./pages/client/Education";
+import ClientCaseFilePage from "./pages/client/CaseFile";
 
 const queryClient = new QueryClient();
 
@@ -150,6 +151,7 @@ const App = () => (
                           <Route path="/sba-portal/dashboard" element={<Navigate to="/sba/dashboard" replace />} />
                           <Route path="/sba-portal/admin" element={<Navigate to="/sba/admin" replace />} />
                           <Route path="/client/dashboard" element={<RequireAuth><ClientDashboardPage /></RequireAuth>} />
+                          <Route path="/client/case-file" element={<RequireAuth><ClientCaseFilePage /></RequireAuth>} />
                           <Route path="/client/results" element={<RequireAuth><ClientResultsPage /></RequireAuth>} />
                           <Route path="/client/reports" element={<RequireAuth><ClientReportsPage /></RequireAuth>} />
                           <Route path="/client/disputes" element={<RequireAuth><ClientDisputesPage /></RequireAuth>} />

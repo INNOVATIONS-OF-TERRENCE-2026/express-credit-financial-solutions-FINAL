@@ -81,11 +81,20 @@ export function CreditReportUpload() {
 
       if (uploadError) throw uploadError;
 
+      // Resolve the caller's client row so the document is linked to a
+      // client when one exists (prevents orphaned document rows).
+      const { data: clientRow } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
       // Save record to database
       const { error: dbError } = await supabase
         .from('documents')
         .insert({
           user_id: user.id,
+          client_id: clientRow?.id ?? null,
           file_path: fileName,
           doc_type: 'credit_report'
         });

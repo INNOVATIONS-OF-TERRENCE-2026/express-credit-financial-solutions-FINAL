@@ -42,7 +42,7 @@ function ReportsInner() {
       if (!clientId && !userId) { setLoading(false); return; }
       const client: any = supabase;
       let q = client
-        .from('credit_reports')
+        .from('portal_credit_reports')
         .select('id,file_name,storage_path,uploaded_file_url,bureau,uploaded_at,fico_score,is_current,notes')
         .order('uploaded_at', { ascending: false });
       q = clientId ? q.eq('client_id', clientId) : q.eq('user_id', userId);

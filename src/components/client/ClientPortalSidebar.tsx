@@ -4,7 +4,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarHeader, SidebarFooter,
 } from '@/components/ui/sidebar';
 import {
-  LayoutDashboard, BarChart3, FileText, Gavel, Wallet, ScrollText, Bell, Settings, Vault, Sparkles, GraduationCap,
+  LayoutDashboard, BarChart3, FileText, Gavel, Wallet, ScrollText, Bell, Settings, Vault, Sparkles, GraduationCap, FolderSearch,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,6 +21,7 @@ const GROUPS: { label: string; items: { label: string; to: string; icon: any }[]
     label: 'Credit Center',
     items: [
       { label: 'Results',   to: '/client/results',  icon: BarChart3 },
+      { label: 'Case File', to: '/client/case-file', icon: FolderSearch },
       { label: 'Reports',   to: '/client/reports',  icon: FileText },
       { label: 'Disputes',  to: '/client/disputes', icon: Gavel },
     ],

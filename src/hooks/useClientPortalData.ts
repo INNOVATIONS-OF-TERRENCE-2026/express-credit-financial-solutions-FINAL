@@ -107,7 +107,7 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
 
       const { data: committedReports } = cid
         ? await client
-            .from('credit_reports')
+            .from('portal_credit_reports')
             .select('id,file_name,bureau,fico_score,uploaded_at,is_current,negative_items,storage_path')
             .eq('client_id', cid)
             .order('uploaded_at', { ascending: false })
@@ -124,7 +124,7 @@ export function useClientPortalData(clientId: string | null, userId: string | nu
       const scoreChange = startingScore != null && currentScore != null ? currentScore - startingScore : null;
 
       const [committedReportsCount, disputesCount, docsPending, agreementsSigned, agreementsPending] = await Promise.all([
-        countBy('credit_reports', 'client_id', cid),
+        countBy('portal_credit_reports', 'client_id', cid),
         countBy('dispute_letters', 'client_id', cid).then((c) => c || countBy('dispute_letters', 'user_id', uid)),
         Promise.all([
           countBy('documents', 'client_id', cid).then((c) => c || countBy('documents', 'user_id', uid)),

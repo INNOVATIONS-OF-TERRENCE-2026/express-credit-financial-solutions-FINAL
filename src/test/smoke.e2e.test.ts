@@ -19,7 +19,7 @@
    *     object is listable. The object is deleted in afterAll.
    *  4. Admin can query the same metric counts the dashboard uses
    *     (clients, payment_records, document_archive, credit_report_uploads,
- *      clients where ftc_readiness_status='ready').
+ *      clients where ftc_605b_readiness_status='ready').
  *  5. No console.error / console.warn fired during the whole run.
  */
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -136,7 +136,7 @@ describeMaybe('E2E smoke — admin + client + upload + KPIs', () => {
     const probes = await Promise.all([
       countHead('clients'),
       countHead('clients', (q: any) => q.eq('status', 'active')),
-      countHead('clients', (q: any) => q.eq('ftc_readiness_status', 'ready')),
+      countHead('clients', (q: any) => q.eq('ftc_605b_readiness_status', 'ready')),
       countHead('payment_records', (q: any) => q.eq('payment_status', 'pending')),
       countHead('document_archive', (q: any) => q.eq('document_type', 'pending')),
       countHead('credit_report_uploads'),
