@@ -153,7 +153,7 @@ export default function ReportExtractionApprovalQueue() {
             {message && <p className="mb-4 rounded-xl border bg-muted/40 p-3 text-sm">{message}</p>}
             <div className="space-y-4">
               {filtered.map((row) => {
-                const canCommit = row.approval_status === 'approved' && Boolean(row.client_id) && row.approval_status !== 'committed';
+                const canCommit = row.approval_status === 'approved' && Boolean(row.client_id);
                 return (
                   <div key={row.id} className="rounded-2xl border p-4">
                     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr_auto] lg:items-start">
