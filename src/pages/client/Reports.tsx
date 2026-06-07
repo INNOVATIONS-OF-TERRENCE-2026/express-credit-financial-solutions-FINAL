@@ -41,16 +41,43 @@ function ReportsInner() {
     (async () => {
       if (!clientId && !userId) { setLoading(false); return; }
       const client: any = supabase;
-      let q = client
-        .from('portal_credit_reports')
-        .select('id,file_name,storage_path,uploaded_file_url,bureau,uploaded_at,fico_score,is_current,notes')
-        .order('uploaded_at', { ascending: false });
-      q = clientId ? q.eq('client_id', clientId) : q.eq('user_id', userId);
-      const { data, error } = await q;
-      if (error) console.error('Unable to load committed credit reports:', error);
-      if (alive) {
-        setRows(data || []);
-        setLoading(false);
+      try {
+        let q = client
+          .from('portal_credit_reports')
+          .select('id,file_name,storage_path,uploaded_file_url,bureau,uploaded_at,fico_score,is_current,notes')
+          .order('uploaded_at', { ascending: false });
+        q = clientId ? q.eq('client_id', clientId) : q.eq('user_id', userId);
+        const { data, error } = await q;
+        if (error) throw error;
+        if (alive) setRows(Array.isArray(data) ? data : []);
+      } catch (viewErr) {
+        console.warn('portal_credit_reports unavailable, falling back to credit_report_uploads:', viewErr);
+        try {
+          let fb = client
+            .from('credit_report_uploads')
+            .select('id,file_name,file_path,bureau,uploaded_at')
+            .order('uploaded_at', { ascending: false });
+          fb = clientId ? fb.eq('client_id', clientId) : fb.eq('user_id', userId);
+          const { data: fbRows } = await fb;
+          if (alive) {
+            setRows((fbRows || []).map((r: any) => ({
+              id: r.id,
+              file_name: r.file_name ?? null,
+              storage_path: r.file_path ?? null,
+              uploaded_file_url: null,
+              bureau: r.bureau ?? null,
+              uploaded_at: r.uploaded_at,
+              fico_score: null,
+              is_current: false,
+              notes: null,
+            })));
+          }
+        } catch (fbErr) {
+          console.error('Unable to load credit reports:', fbErr);
+          if (alive) setRows([]);
+        }
+      } finally {
+        if (alive) setLoading(false);
       }
     })();
     return () => { alive = false; };
